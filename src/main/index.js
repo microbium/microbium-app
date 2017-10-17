@@ -18,14 +18,14 @@ const mainURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 const toolURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+  ? `http://localhost:9080/#/tool`
+  : `file://${__dirname}/index.html#/tool`
 
 function createWindow () {
   if (appWindows.main !== null) return
 
   const main = appWindows.main = new BrowserWindow({
-    useContentSize: false,
+    titleBarStyle: 'hiddenInset',
     width: 1440,
     height: 900,
     show: false
@@ -53,7 +53,8 @@ function createToolWindow () {
   const tool = appWindows.tool = new BrowserWindow({
     width: 280,
     height: 680,
-    titleBarStyle: 'hidden',
+    frame: false,
+    // titleBarStyle: 'hidden',
     focusable: false,
     resizable: false,
     minimizable: false,

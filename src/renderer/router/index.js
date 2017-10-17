@@ -7,12 +7,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
-      component: require('@/components/LandingPage').default
+      name: 'editor',
+      component: require('@/components/Editor').default
     },
     {
-      path: '*',
-      redirect: '/'
+      path: '/tool',
+      name: 'tool',
+      component: require('@/components/Tool').default
     }
   ]
 })
