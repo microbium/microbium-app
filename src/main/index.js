@@ -1,6 +1,10 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  ipcMain
+} from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -34,11 +38,16 @@ function createWindow () {
   main.loadURL(mainURL)
   main.once('ready-to-show', () => {
     main.show()
+
     main.on('focus', () => {
       if (appWindows.tool) appWindows.tool.showInactive()
     })
     main.on('blur', () => {
       if (appWindows.tool) appWindows.tool.hide()
+    })
+
+    ipcMain.on('main-message', (event, data) => {
+      main.webContents.send('message', data)
     })
   })
 
@@ -73,6 +82,10 @@ function createToolWindow () {
   tool.loadURL(toolURL)
   tool.once('ready-to-show', () => {
     tool.show()
+
+    ipcMain.on('tool-message', (event, data) => {
+      tool.webContents.send('message', data)
+    })
   })
 
   tool.on('closed', () => {

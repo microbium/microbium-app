@@ -20,4 +20,8 @@
   body {
     font-family: Helvetica, sans-serif;
   }
+
+  .count {
+    font-size: 32px;
+  }
 </style>

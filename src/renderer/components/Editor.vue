@@ -1,21 +1,35 @@
 <template>
   <div id="editor">
     <div id="editor-toolbar"></div>
+    <div class="count">{{ count }}</div>
   </div>
 </template>
 
 <script>
   export default {
     name: 'editor',
+
+    data () {
+      return {
+        count: 0
+      }
+    },
+
+    created () {
+      this.$electron.ipcRenderer.on('message', (event, data) => {
+        this.count = data.count
+      })
+    },
+
     components: {},
-    methods: {
-    }
+    methods: {}
   }
 </script>
 
 <style>
   #editor {
     position: relative;
+    padding: 100px;
     width: 100vw;
     height: 100vh;
     background-color: #B2C9CF;
