@@ -51,14 +51,17 @@ function createToolWindow () {
   if (appWindows.tool !== null) return
 
   const tool = appWindows.tool = new BrowserWindow({
-    width: 280,
-    height: 680,
+    width: 320,
+    minWidth: 320,
+    maxWidth: 320,
+    height: 800,
+    minHeight: 600,
     frame: false,
-    // titleBarStyle: 'hidden',
     focusable: false,
-    resizable: false,
+    resizable: true,
     minimizable: false,
     maximizable: false,
+    hasShadow: false,
     show: false,
     webPreferences: {
       devTools: false
