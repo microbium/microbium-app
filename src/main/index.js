@@ -62,6 +62,7 @@ function createToolWindow () {
     minimizable: false,
     maximizable: false,
     hasShadow: false,
+    vibrancy: 'dark',
     show: false,
     webPreferences: {
       devTools: false

@@ -23,7 +23,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: #222;
+    background: transparent;
     font: 11px/1 Helvetica, sans-serif;
     color: #444;
   }
