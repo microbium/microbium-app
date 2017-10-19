@@ -100,6 +100,11 @@ const LINE_STYLE = {
 }
 const LINE_STYLE_KEYS = ['SOLID', 'DOTTED', 'DASHED', 'DOT_DASHED']
 
+const TEXTURES = {
+  'watercolor': require('../assets/images/textures/watercolor.jpg'),
+  'ground-mud': require('../assets/images/textures/ground-mud.jpg')
+}
+
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
 const scratchVec3B = vec3.create()
@@ -211,18 +216,18 @@ function mountCompositor ($el, $electron) {
   function createTextureManager (regl) {
     const cache = {}
 
-    return function createTexture (src, size) {
-      if (src == null) return null
+    return function createTexture (key, size) {
+      if (key == null) return null
 
-      const cached = cache[src]
+      const cached = cache[key]
       if (cached) return cached
 
       const image = document.createElement('img')
-      const texture = cache[src] = regl.texture({
+      const texture = cache[key] = regl.texture({
         width: size,
         height: size
       })
-      image.src = `./assets/images/textures/${src}.jpg`
+      image.src = TEXTURES[key]
       image.onload = () => {
         texture({data: image})
       }
@@ -601,37 +606,6 @@ function mountCompositor ($el, $electron) {
       })
 
       ctx.setLineDash([])
-    },
-
-    drawSubFills (shape) {
-      const { ctx } = renderer
-      const { segments, vertices } = state.geometry
-      const { tick } = state.simulation
-      const [ maxDist, interval, offsetA, offsetB ] = shape
-
-      const offsetBase = segments[0].indices.length
-      const offsetAnim = Math.floor(tick * 0.15) % vertices.length
-      const count = vertices.length - offsetBase - offsetB
-      const maxDistSq = maxDist * maxDist
-
-      for (let i = 0; i < count / interval; i++) {
-        const vi = offsetBase + (offsetAnim + i * interval) % count
-        const v0 = vertices[vi]
-        const v1 = vertices[vi + offsetA]
-        const v2 = vertices[vi + offsetB]
-
-        const distSq = Math.max(
-          vec2.squaredDistance(v0, v1),
-          vec2.squaredDistance(v1, v2))
-        if (distSq > maxDistSq) continue
-
-        ctx.beginPath()
-        ctx.moveTo(v0[0], v0[1])
-        ctx.lineTo(v1[0], v1[1])
-        ctx.lineTo(v2[0], v2[1])
-        ctx.closePath()
-        ctx.fill()
-      }
     },
 
     drawFocus (index) {

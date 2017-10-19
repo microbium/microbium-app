@@ -79,7 +79,7 @@ export default {
   // TODO: Design scene settings data format
   data () {
     return {
-      polarIterations: 3
+      polarIterations: 8
     }
   },
 
@@ -91,12 +91,16 @@ export default {
 
   watch: {
     polarIterations (value) {
-      this.$electron.ipcRenderer.send('main-message', {
-        type: 'UPDATE_CONTROLS',
-        key: 'polarIterations',
-        value
-      })
+      this.syncPolarIterations(value)
     }
+  },
+
+  syncPolarIterations (value) {
+    this.$electron.ipcRenderer.send('main-message', {
+      type: 'UPDATE_CONTROLS',
+      key: 'polarIterations',
+      value
+    })
   }
 }
 </script>
