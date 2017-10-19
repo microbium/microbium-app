@@ -3,7 +3,8 @@
 import {
   app,
   BrowserWindow,
-  ipcMain
+  ipcMain,
+  screen
 } from 'electron'
 
 /**
@@ -33,8 +34,8 @@ function createMainWindow () {
 
   const main = appWindows.main = new BrowserWindow({
     titleBarStyle: 'hiddenInset',
-    width: 1440,
-    height: 900,
+    width: 1200,
+    height: 1200,
     show: false,
     webPreferences: {
       devTools: DEBUG_MAIN
@@ -66,14 +67,21 @@ function createMainWindow () {
   })
 }
 
-function createPaletteWindow () {
+function createPaletteWindow (displaySize) {
   if (appWindows.palette !== null) return
 
-  const palette = appWindows.palette = new BrowserWindow({
+  const windowSize = {
     width: DEBUG_PALETTE ? 900 : 320,
+    height: 800
+  }
+
+  const palette = appWindows.palette = new BrowserWindow({
+    x: (displaySize.width - 1200) / 2 - windowSize.width + 10,
+    y: (displaySize.height - windowSize.height) / 2,
+    width: windowSize.width,
     minWidth: 320,
     maxWidth: DEBUG_PALETTE ? 900 : 320,
-    height: 800,
+    height: windowSize.height,
     minHeight: 600,
     frame: false,
     focusable: DEBUG_PALETTE,
@@ -104,8 +112,9 @@ function createPaletteWindow () {
 }
 
 function createStartWindows () {
-  createMainWindow()
-  createPaletteWindow()
+  const displaySize = screen.getPrimaryDisplay().workAreaSize
+  createMainWindow(displaySize)
+  createPaletteWindow(displaySize)
 }
 
 app.on('window-all-closed', () => {
