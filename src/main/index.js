@@ -14,6 +14,9 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
+const DEBUG_MAIN = false
+const DEBUG_PALETTE = false
+
 const appWindows = {
   main: null,
   palette: null
@@ -34,7 +37,7 @@ function createMainWindow () {
     height: 900,
     show: false,
     webPreferences: {
-      devTools: false
+      devTools: DEBUG_MAIN
     }
   })
 
@@ -43,12 +46,16 @@ function createMainWindow () {
     main.show()
 
     main.on('focus', () => {
+      if (DEBUG_PALETTE) return
       if (appWindows.palette) appWindows.palette.showInactive()
     })
     main.on('blur', () => {
+      if (DEBUG_PALETTE) return
       if (appWindows.palette) appWindows.palette.hide()
     })
 
+    // TODO: Should probably save state in main process
+    // then sync to windows .. this is fine for now
     ipcMain.on('main-message', (event, data) => {
       main.webContents.send('message', data)
     })
@@ -63,13 +70,13 @@ function createPaletteWindow () {
   if (appWindows.palette !== null) return
 
   const palette = appWindows.palette = new BrowserWindow({
-    width: 320,
+    width: DEBUG_PALETTE ? 900 : 320,
     minWidth: 320,
-    maxWidth: 320,
+    maxWidth: DEBUG_PALETTE ? 900 : 320,
     height: 800,
     minHeight: 600,
     frame: false,
-    focusable: false,
+    focusable: DEBUG_PALETTE,
     resizable: true,
     minimizable: false,
     maximizable: false,
@@ -77,7 +84,7 @@ function createPaletteWindow () {
     vibrancy: 'dark',
     show: false,
     webPreferences: {
-      devTools: false
+      devTools: DEBUG_PALETTE
     }
   })
 

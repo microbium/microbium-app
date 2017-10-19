@@ -81,6 +81,7 @@
   import linesEntitiesVert from '../shaders/lines-entities.vert'
   import linesEntitiesFrag from '../shaders/lines-entities.frag'
 
+  const DISABLE_RENDER = false
   const DETAILED_STATS = true
 
   const LINE_WIDTH = {
@@ -104,7 +105,7 @@
   const scratchMat2dA = mat2d.create()
   const scratchMat4A = mat4.create()
 
-  function mountCompositor () {
+  function mountCompositor ($el, $electron) {
     const tasks = createTaskManager(
       'inject', 'syncState',
       'update', 'render', 'resize')
@@ -1036,6 +1037,14 @@
             else geometry.setLineWidth(LINE_WIDTH_KEYS[index])
             break
         }
+      },
+
+      message (event, data) {
+        switch (data.type) {
+          case 'UPDATE_CONTROLS':
+            state.controls[data.key] = data.value
+            break
+        }
       }
     }
 
@@ -1154,6 +1163,7 @@
         window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
         document.addEventListener('keydown', viewport.keyDown, false)
         document.addEventListener('keyup', viewport.keyUp, false)
+        $electron.ipcRenderer.on('message', viewport.message)
       },
 
       initGeometry () {
@@ -1194,6 +1204,8 @@
         const { panOffset, zoomOffset } = state.drag
         const { isRunning } = state.simulation
         const stateRenderer = state.renderer
+
+        if (DISABLE_RENDER) return
 
         stats('fps').frame()
         if (DETAILED_STATS) stats('frame').start()
@@ -1415,7 +1427,8 @@
     },
 
     mounted () {
-      mountCompositor()
+      const { $el, $electron } = this
+      mountCompositor($el, $electron)
     },
 
     components: {},
