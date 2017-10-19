@@ -84,6 +84,14 @@ export default {
   },
 
   methods: {
+    syncPolarIterations (value) {
+      this.$electron.ipcRenderer.send('main-message', {
+        type: 'UPDATE_CONTROLS',
+        key: 'polarIterations',
+        value
+      })
+    },
+
     close () {
       this.$electron.remote.getCurrentWindow().close()
     }
@@ -93,14 +101,6 @@ export default {
     polarIterations (value) {
       this.syncPolarIterations(value)
     }
-  },
-
-  syncPolarIterations (value) {
-    this.$electron.ipcRenderer.send('main-message', {
-      type: 'UPDATE_CONTROLS',
-      key: 'polarIterations',
-      value
-    })
   }
 }
 </script>
