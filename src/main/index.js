@@ -16,23 +16,26 @@ if (process.env.NODE_ENV !== 'development') {
 
 const appWindows = {
   main: null,
-  tool: null
+  palette: null
 }
 const mainURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
-const toolURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/tool`
-  : `file://${__dirname}/index.html#/tool`
+const paletteURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/palette`
+  : `file://${__dirname}/index.html#/palette`
 
-function createWindow () {
+function createMainWindow () {
   if (appWindows.main !== null) return
 
   const main = appWindows.main = new BrowserWindow({
     titleBarStyle: 'hiddenInset',
     width: 1440,
     height: 900,
-    show: false
+    show: false,
+    webPreferences: {
+      devTools: false
+    }
   })
 
   main.loadURL(mainURL)
@@ -40,10 +43,10 @@ function createWindow () {
     main.show()
 
     main.on('focus', () => {
-      if (appWindows.tool) appWindows.tool.showInactive()
+      if (appWindows.palette) appWindows.palette.showInactive()
     })
     main.on('blur', () => {
-      if (appWindows.tool) appWindows.tool.hide()
+      if (appWindows.palette) appWindows.palette.hide()
     })
 
     ipcMain.on('main-message', (event, data) => {
@@ -56,10 +59,10 @@ function createWindow () {
   })
 }
 
-function createToolWindow () {
-  if (appWindows.tool !== null) return
+function createPaletteWindow () {
+  if (appWindows.palette !== null) return
 
-  const tool = appWindows.tool = new BrowserWindow({
+  const palette = appWindows.palette = new BrowserWindow({
     width: 320,
     minWidth: 320,
     maxWidth: 320,
@@ -78,24 +81,24 @@ function createToolWindow () {
     }
   })
 
-  tool.setAlwaysOnTop(true, 'floating')
-  tool.loadURL(toolURL)
-  tool.once('ready-to-show', () => {
-    tool.show()
+  palette.setAlwaysOnTop(true, 'floating')
+  palette.loadURL(paletteURL)
+  palette.once('ready-to-show', () => {
+    palette.show()
 
-    ipcMain.on('tool-message', (event, data) => {
-      tool.webContents.send('message', data)
+    ipcMain.on('palette-message', (event, data) => {
+      palette.webContents.send('message', data)
     })
   })
 
-  tool.on('closed', () => {
-    appWindows.tool = null
+  palette.on('closed', () => {
+    appWindows.palette = null
   })
 }
 
 function createStartWindows () {
-  createWindow()
-  createToolWindow()
+  createMainWindow()
+  createPaletteWindow()
 }
 
 app.on('window-all-closed', () => {

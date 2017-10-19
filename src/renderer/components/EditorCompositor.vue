@@ -46,18 +46,22 @@
 </style>
 
 <script>
+  // TODO: Refactor to make more modular, integrate with vue
+
   import {
     vec2,
     vec3,
     mat2d,
     mat4
   } from 'gl-matrix'
+
   import {
     BoundingPlaneConstraint,
     DistanceConstraint,
     PointConstraint,
     ParticleSystem
   } from 'particulate'
+
   import createREGL from 'regl'
   import { LineBuilder } from 'regl-line-builder'
   import Stats from '@jpweeks/rstats'

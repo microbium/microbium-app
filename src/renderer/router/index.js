@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import Editor from '@/components/Editor'
+import Palette from '@/components/Palette'
+
 Vue.use(Router)
 
 export default new Router({
@@ -8,12 +11,12 @@ export default new Router({
     {
       path: '/',
       name: 'editor',
-      component: require('@/components/Editor').default
+      component: Editor
     },
     {
-      path: '/tool',
-      name: 'tool',
-      component: require('@/components/Tool').default
+      path: '/palette',
+      name: 'palette',
+      component: Palette
     }
   ]
 })

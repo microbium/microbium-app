@@ -5,18 +5,6 @@
   </div>
 </template>
 
-<script>
-  import EditorCompositor from './EditorCompositor'
-
-  export default {
-    name: 'editor',
-    components: {
-      EditorCompositor
-    },
-    methods: {}
-  }
-</script>
-
 <style>
   #editor {
     position: relative;
@@ -39,3 +27,15 @@
     -webkit-app-region: drag;
   }
 </style>
+
+<script>
+  import EditorCompositor from './EditorCompositor'
+
+  export default {
+    name: 'editor',
+    components: {
+      EditorCompositor
+    },
+    methods: {}
+  }
+</script>
