@@ -1,27 +1,18 @@
 <template>
   <div id="editor">
     <div id="editor-toolbar"></div>
-    <div class="count">{{ count }}</div>
+    <editor-compositor></editor-compositor>
   </div>
 </template>
 
 <script>
+  import EditorCompositor from './EditorCompositor'
+
   export default {
     name: 'editor',
-
-    data () {
-      return {
-        count: 0
-      }
+    components: {
+      EditorCompositor
     },
-
-    created () {
-      this.$electron.ipcRenderer.on('message', (event, data) => {
-        this.count = data.count
-      })
-    },
-
-    components: {},
     methods: {}
   }
 </script>
@@ -39,6 +30,7 @@
 
   #editor-toolbar {
     position: absolute;
+    z-index: 1;
     top: 0;
     left: 0;
     background-color: transparent;
