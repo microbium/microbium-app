@@ -22,8 +22,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "bacterium",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "Bacterium",
+    "appId": "com.jayweeks.bacterium",
     "directories": {
       "output": "build"
     },
@@ -46,13 +46,7 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
-    },
-    "win": {
-      "icon": "build/icons/icon.ico"
-    },
-    "linux": {
-      "icon": "build/icons"
+      "icon": "build/icons/bacterium.icns"
     }
   },
   "dependencies": {
