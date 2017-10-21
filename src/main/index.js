@@ -32,34 +32,36 @@ const paletteURL = process.env.NODE_ENV === 'development'
 function createMainWindow () {
   if (appWindows.main !== null) return
 
+  const windowSize = {
+    width: DEBUG_MAIN ? 1600 : 1200,
+    height: 1200
+  }
+
   const main = appWindows.main = new BrowserWindow({
     titleBarStyle: 'hiddenInset',
-    width: 1200,
-    height: 1200,
-    show: false,
+    backgroundColor: '#B2C9CF',
+    width: windowSize.width,
+    height: windowSize.height,
+    show: true,
     webPreferences: {
       devTools: DEBUG_MAIN
     }
   })
 
   main.loadURL(mainURL)
-  main.once('ready-to-show', () => {
-    main.show()
+  main.on('focus', () => {
+    if (DEBUG_PALETTE) return
+    if (appWindows.palette) appWindows.palette.showInactive()
+  })
+  main.on('blur', () => {
+    if (DEBUG_PALETTE) return
+    if (appWindows.palette) appWindows.palette.hide()
+  })
 
-    main.on('focus', () => {
-      if (DEBUG_PALETTE) return
-      if (appWindows.palette) appWindows.palette.showInactive()
-    })
-    main.on('blur', () => {
-      if (DEBUG_PALETTE) return
-      if (appWindows.palette) appWindows.palette.hide()
-    })
-
-    // TODO: Should probably save state in main process
-    // then sync to windows .. this is fine for now
-    ipcMain.on('main-message', (event, data) => {
-      main.webContents.send('message', data)
-    })
+  // TODO: Should probably save state in main process
+  // then sync to windows .. this is fine for now
+  ipcMain.on('main-message', (event, data) => {
+    main.webContents.send('message', data)
   })
 
   main.on('closed', () => {

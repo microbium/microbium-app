@@ -5,23 +5,32 @@
 </template>
 
 <script>
-  export default {
-    name: 'bacterium'
-  }
+export default {
+  name: 'bacterium'
+}
 </script>
 
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  body {
-    font-family: Helvetica, sans-serif;
-  }
+body {
+  font-family: Helvetica, sans-serif;
+}
 
-  .count {
-    font-size: 32px;
+#app {
+  -webkit-user-select: none;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
 </style>

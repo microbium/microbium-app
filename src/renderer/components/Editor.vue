@@ -15,6 +15,7 @@
   background-color: #B2C9CF;
   font: 11px/1 Helvetica, sans-serif;
   color: #444;
+  animation: fadein 300ms;
 }
 
 .editor-toolbar {
