@@ -1,7 +1,6 @@
 <template>
   <div id="editor-compositor">
     <div id="compositor"></div>
-    <div id="stats"></div>
   </div>
 </template>
 
@@ -15,20 +14,6 @@
   overflow: hidden;
 }
 
-#stats {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-}
-
-#stats .rs-base {
-  position: relative;
-  border-radius: 2px;
-  margin: 0.25em;
-  background: rgb(250, 250, 250);
-  color: rgb(66, 66, 66);
-}
-
 .mode--simulate {
   cursor: none;
 }
@@ -37,10 +22,6 @@
 }
 
 .controls--hidden {
-  display: none;
-}
-
-.stats--hidden {
   display: none;
 }
 </style>
@@ -65,7 +46,6 @@ import {
 
 import createREGL from 'regl'
 import { LineBuilder } from 'regl-line-builder'
-import Stats from '@jpweeks/rstats'
 
 import { createTaskManager } from '../utils/task'
 import { createLoop } from '../utils/loop'
@@ -83,7 +63,6 @@ import linesEntitiesVert from '../shaders/lines-entities.vert'
 import linesEntitiesFrag from '../shaders/lines-entities.frag'
 
 const DISABLE_RENDER = false
-const DETAILED_STATS = true
 
 const LINE_WIDTH = {
   THIN: 0.5,
@@ -118,14 +97,12 @@ function mountCompositor ($el, $electron) {
 
   const containers = {
     compositor: getContainer('compositor'),
-    controls: getContainer('controls'),
-    stats: getContainer('stats')
+    controls: getContainer('controls')
   }
 
   const state = createState()
   const renderer = createRenderer()
   const loop = createAnimationLoop()
-  const stats = createStats()
 
   function getContainer (name) {
     return document.getElementById(name)
@@ -135,7 +112,7 @@ function mountCompositor ($el, $electron) {
     const regl = createREGL({
       container: containers.compositor,
       extensions: [
-        'angle_instanced_arrays',
+        // 'angle_instanced_arrays',
         'oes_standard_derivatives'
       ],
       attributes: {
@@ -163,33 +140,35 @@ function mountCompositor ($el, $electron) {
     })
     const drawRect = createDrawRect(regl)
 
-    // TODO: Make bufferSize smallest possible for Uint16 max integer
     const createTexture = createTextureManager(regl)
-    const setupLineInstances = regl({
-      attributes: {
-        angle: {
-          buffer: regl.prop('angles'),
-          divisor: 1
-        },
-        angleAlpha: {
-          buffer: regl.prop('anglesAlpha'),
-          divisor: 1
-        }
-      },
-      instances: (context, { angles }) => angles.length
-    })
-    const setupLineStyle = regl({
-      uniforms: {
-        hatchAlpha: regl.prop('hatchAlpha'),
-        diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048)
-      }
-    })
 
+    // TODO: Investigate huge perf issues in Chrome when using instancing
+    // const setupLineInstances = regl({
+    //   attributes: {
+    //     angle: {
+    //       buffer: regl.prop('angles'),
+    //       divisor: 1
+    //     },
+    //     angleAlpha: {
+    //       buffer: regl.prop('anglesAlpha'),
+    //       divisor: 1
+    //     }
+    //   },
+    //   instances: (context, { angles }) => angles.length
+    // })
+
+    // TODO: Make bufferSize smallest possible for Uint16 max integer
     const lines = LineBuilder.create(regl, {
       bufferSize: state.renderer.linesBufferSize,
       drawArgs: {
         vert: linesEntitiesVert,
-        frag: linesEntitiesFrag
+        frag: linesEntitiesFrag,
+        uniforms: {
+          angle: regl.prop('angle'),
+          angleAlpha: regl.prop('angleAlpha'),
+          hatchAlpha: regl.prop('hatchAlpha'),
+          diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048)
+        }
       }
     })
     const ctx = lines.getContext('2d')
@@ -206,8 +185,7 @@ function mountCompositor ($el, $electron) {
       regl,
       setupCamera,
       drawRect,
-      setupLineInstances,
-      setupLineStyle,
+      // setupLineInstances,
       lines,
       ctx
     }
@@ -240,19 +218,8 @@ function mountCompositor ($el, $electron) {
     let animationFrame = 0
     return createLoop(null,
       () => tasks.run('update', animationFrame++),
-      () => tasks.run('render', animationFrame))
-  }
-
-  function createStats () {
-    const stats = new Stats({
-      values: {
-        frame: { over: 1000 / 60 },
-        fps: { below: 50 },
-        vertices: { over: Math.pow(2, 16) }
-      }
-    })
-    containers.stats.appendChild(stats().element)
-    return stats
+      () => tasks.run('render', animationFrame),
+      (1 / 60 * 1000))
   }
 
   function createState () {
@@ -288,7 +255,6 @@ function mountCompositor ($el, $electron) {
 
     const viewport = {
       controlsVisible: false,
-      statsVisible: false,
       pixelRatio: 1,
       size: vec2.create(),
       center: vec2.create(),
@@ -573,8 +539,6 @@ function mountCompositor ($el, $electron) {
         }
         ctx.stroke()
       })
-
-      ctx.setLineDash([])
     },
 
     drawSegmentsCurves (startIndex = 0, alpha) {
@@ -604,8 +568,6 @@ function mountCompositor ($el, $electron) {
         }
         ctx.stroke()
       })
-
-      ctx.setLineDash([])
     },
 
     drawFocus (index) {
@@ -917,18 +879,9 @@ function mountCompositor ($el, $electron) {
       state.viewport.controlsVisible = !state.viewport.controlsVisible
     },
 
-    toggleStats () {
-      state.viewport.statsVisible = !state.viewport.statsVisible
-    },
-
     updateClassName () {
       containers.compositor.className = state.simulation.isRunning
         ? 'mode--simulate' : 'mode--edit'
-      // containers.controls.className = state.viewport.controlsVisible
-      //   ? 'controls--visible' : 'controls--hidden'
-      containers.stats.className = state.viewport.statsVisible
-        ? 'stats--visible'
-        : 'stats--hidden'
     },
 
     projectScreen (screen) {
@@ -997,7 +950,6 @@ function mountCompositor ($el, $electron) {
           break
         case 'Backquote':
           viewport.toggleControls()
-          viewport.toggleStats()
           viewport.updateClassName()
           break
         case 'KeyS':
@@ -1069,9 +1021,9 @@ function mountCompositor ($el, $electron) {
       ].join('__')
     },
 
-    serializeGeometryToHash () {
+    serializeGeometryToLocalStorage () {
       const hash = route.serializeGeometry()
-      window.location.hash = '!' + hash
+      window.localStorage.setItem('editor-data', hash)
     },
 
     deserializeGeometry (str) {
@@ -1106,8 +1058,8 @@ function mountCompositor ($el, $electron) {
       }
     },
 
-    deserializeGeometryFromHash () {
-      const hash = window.location.hash.substring(2)
+    deserializeGeometryFromLocalStorage () {
+      const hash = window.localStorage.getItem('editor-data')
       if (!hash) return null
       return route.deserializeGeometry(hash)
     }
@@ -1134,7 +1086,7 @@ function mountCompositor ($el, $electron) {
     bindEvents () {
       containers.compositor.addEventListener('mousemove', seek.mouseMove, false)
       containers.compositor.addEventListener('mousedown', drag.mouseDown, false)
-      containers.compositor.addEventListener('contextmenu', drag.contextMenu, false)
+      // containers.compositor.addEventListener('contextmenu', drag.contextMenu, false)
       window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
@@ -1143,7 +1095,7 @@ function mountCompositor ($el, $electron) {
 
     initGeometry () {
       logger.time('deserialize geometry')
-      const initialState = route.deserializeGeometryFromHash()
+      const initialState = route.deserializeGeometryFromLocalStorage()
       logger.timeEnd('deserialize geometry')
       logger.log('initial state', initialState)
       if (initialState && initialState.segments.length) {
@@ -1155,19 +1107,17 @@ function mountCompositor ($el, $electron) {
 
     saveGeometry () {
       logger.time('serialize geometry')
-      route.serializeGeometryToHash()
+      route.serializeGeometryToLocalStorage()
       logger.timeEnd('serialize geometry')
     },
 
-    update (tick) {
-      if (DETAILED_STATS) stats('physics').start()
+    update () {
       if (state.simulation.isRunning) {
         state.simulation.tick++
         simulation.updateForces()
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
-      if (DETAILED_STATS) stats('physics').end()
     },
 
     updateControlsState (nextState) {
@@ -1182,15 +1132,10 @@ function mountCompositor ($el, $electron) {
 
       if (DISABLE_RENDER) return
 
-      stats('fps').frame()
-      if (DETAILED_STATS) stats('frame').start()
-
       stateRenderer.drawCalls = 0
       regl.poll()
 
-      if (DETAILED_STATS) stats('geometry').start()
       lines.reset()
-
       view.drawEditorUI()
       // view.drawSimulatorUI()
       view.drawSimulatorOriginUI()
@@ -1209,15 +1154,6 @@ function mountCompositor ($el, $electron) {
         return
       }
 
-      if (DETAILED_STATS) {
-        stats('geometry').end()
-        stats('quads').set(lines.state.cursor.quad)
-        stats('vertices').set(lines.state.cursor.element)
-        stats('vertices buffer (%)').set(
-          lines.state.cursor.element / stateRenderer.linesBufferSize)
-        stats('render').start()
-      }
-
       // TODO: Separate UI and scene line geometry
       view.renderClearRect()
       setupCamera({
@@ -1226,13 +1162,6 @@ function mountCompositor ($el, $electron) {
       }, () => {
         view.renderLines()
       })
-
-      if (DETAILED_STATS) {
-        stats('render').end()
-        stats('frame').end()
-        stats('draw calls').set(stateRenderer.drawCalls)
-      }
-      if (state.viewport.statsVisible) stats().update()
     },
 
     renderClearRect () {
@@ -1244,7 +1173,7 @@ function mountCompositor ($el, $electron) {
     },
 
     renderLines () {
-      const { setupLineInstances, setupLineStyle, lines } = renderer
+      const { lines } = renderer
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -1255,25 +1184,18 @@ function mountCompositor ($el, $electron) {
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
 
-      setupLineInstances({
-        anglesAlpha: range(polarIterations).map((i) => {
-          if (i === 0) return 1
-          return polarAlpha
-        }),
-        angles: range(polarIterations).map((i) => i * polarStep)
-      }, () => {
+      range(polarIterations).forEach((index) => {
         stateRenderer.layers.forEach((layer) => {
           stateRenderer.drawCalls++
-          setupLineStyle({
+          lines.draw({
+            angle: index * polarStep,
+            angleAlpha: index === 0 ? 1 : polarAlpha,
+            model,
             diffuseMap: layer.diffuseMap,
-            hatchAlpha: layer.hatchAlpha
-          }, () => {
-            lines.draw({
-              model,
-              tint: layer.tint,
-              thickness: layer.thickness * (scale + zoomOffset),
-              miterLimit: 4
-            })
+            hatchAlpha: layer.hatchAlpha,
+            tint: layer.tint,
+            thickness: layer.thickness * (scale + zoomOffset),
+            miterLimit: 4
           })
         })
       })

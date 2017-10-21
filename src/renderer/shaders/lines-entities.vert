@@ -19,8 +19,8 @@ attribute float offset;
 attribute vec4 color;
 attribute vec2 ud;
 
-attribute float angle;
-attribute float angleAlpha;
+uniform float angle;
+uniform float angleAlpha;
 
 varying vec4 vColor;
 varying vec2 vUD;
