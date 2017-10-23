@@ -130,6 +130,8 @@ function createPaletteWindow (displaySize) {
     resizable: true,
     minimizable: false,
     maximizable: false,
+    fullscreen: false,
+    fullscreenable: false,
     hasShadow: false,
     vibrancy: 'dark',
     show: false,
