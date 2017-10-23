@@ -46,10 +46,10 @@ function createMenu () {
     saveScene () {
       sendWindowMessage('main', 'key-command', {code: 'KeyS'})
     },
-    // TODO: Fix focus bug after using menu ...
     toggleSimulation () {
       sendWindowMessage('main', 'key-command', {code: 'Space'})
-      toggleMenuItem('simulation')
+      // TODO: Fix focus bug after toggling menu item state
+      // toggleMenuItem('simulation')
     },
     togglePalette () {
       toggleWindow('palette')

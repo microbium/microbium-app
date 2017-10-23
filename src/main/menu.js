@@ -21,35 +21,27 @@ export function createMenuTemplate (app, actions) {
         }
       ]
     },
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     // {role: 'undo'},
+    //     // {role: 'redo'},
+    //     // {type: 'separator'}
+    //   ]
+    // },
     {
-      label: 'Edit',
+      label: 'View',
       submenu: [
-        // {role: 'undo'},
-        // {role: 'redo'},
-        // {type: 'separator'}
         {
-          id: 'simulation-off',
+          id: 'simulation-toggle',
           label: 'Run Simulation',
+          type: 'checkbox',
+          checked: false,
           accelerator: 'Space',
           click () {
             actions.toggleSimulation()
           }
         },
-        {
-          id: 'simulation-on',
-          label: 'Edit Geometry',
-          accelerator: 'Space',
-          enabled: false,
-          visible: false,
-          click () {
-            actions.toggleSimulation()
-          }
-        }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
         {
           id: 'palette-on',
           label: 'Show Palette',
@@ -109,7 +101,7 @@ export function createMenuTemplate (app, actions) {
     })
 
     // Window menu
-    template[4].submenu = [
+    template[3].submenu = [
       {role: 'close'},
       {role: 'minimize'},
       {role: 'zoom'},
