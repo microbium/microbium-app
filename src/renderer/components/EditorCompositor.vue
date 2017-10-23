@@ -989,16 +989,9 @@ function mountCompositor ($el, $electron) {
           stateInput.shift = false
           stateGeom.shouldAppend = false
           break
-        case 'Space':
-          simulation.toggle()
-          viewport.updateClassName()
-          break
         case 'Backquote':
           viewport.toggleControls()
           viewport.updateClassName()
-          break
-        case 'KeyS':
-          view.saveGeometry()
           break
         case 'Digit1':
         case 'Digit2':
@@ -1006,6 +999,20 @@ function mountCompositor ($el, $electron) {
         case 'Digit4':
           const index = parseInt(code.replace('Digit', ''), 10) - 1
           geometry.setLineWidth(LINE_WIDTH_KEYS[index])
+          break
+      }
+    },
+
+    keyCommand (event, data) {
+      const { code } = data
+
+      switch (code) {
+        case 'Space':
+          simulation.toggle()
+          viewport.updateClassName()
+          break
+        case 'KeyS':
+          view.saveGeometry()
           break
       }
     },
@@ -1131,6 +1138,7 @@ function mountCompositor ($el, $electron) {
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
       $electron.ipcRenderer.on('message', viewport.message)
+      $electron.ipcRenderer.on('key-command', viewport.keyCommand)
     },
 
     initGeometry () {

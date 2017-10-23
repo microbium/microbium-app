@@ -2,10 +2,14 @@
 
 import {
   app,
-  BrowserWindow,
   ipcMain,
-  screen
+  screen,
+  shell,
+  BrowserWindow,
+  Menu
 } from 'electron'
+
+import { createMenuTemplate } from './menu'
 
 /**
  * Set `__static` path to static files in production
@@ -18,6 +22,9 @@ if (process.env.NODE_ENV !== 'development') {
 const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
 
+const appMenus = {
+  main: null
+}
 const appWindows = {
   main: null,
   palette: null
@@ -29,8 +36,37 @@ const paletteURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/palette`
   : `file://${__dirname}/index.html#/palette`
 
+function createMenu () {
+  if (appMenus.main !== null) return
+
+  const template = createMenuTemplate(app, {
+    createScene () {
+      createMainWindow()
+    },
+    saveScene () {
+      sendWindowMessage('main', 'key-command', {code: 'KeyS'})
+    },
+    // TODO: Fix focus bug after using menu ...
+    toggleSimulation () {
+      sendWindowMessage('main', 'key-command', {code: 'Space'})
+      toggleMenuItem('simulation')
+    },
+    togglePalette () {
+      toggleWindow('palette')
+      toggleMenuItem('palette')
+    },
+    sendFeedback () {
+      shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
+    }
+  })
+
+  const menu = appMenus.main = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
+
 function createMainWindow () {
   if (appWindows.main !== null) return
+  const createSceneMenuItem = appMenus.main.getMenuItemById('create-scene')
 
   const windowSize = {
     width: DEBUG_MAIN ? 1600 : 1200,
@@ -48,6 +84,13 @@ function createMainWindow () {
     }
   })
 
+  // TODO: Should probably save state in main process
+  // then sync to windows .. this is fine for now
+  const onMessage = (event, data) => {
+    main.webContents.send('message', data)
+  }
+
+  createSceneMenuItem.enabled = false
   main.loadURL(mainURL)
   main.on('focus', () => {
     if (DEBUG_PALETTE) return
@@ -58,13 +101,10 @@ function createMainWindow () {
     if (appWindows.palette) appWindows.palette.hide()
   })
 
-  // TODO: Should probably save state in main process
-  // then sync to windows .. this is fine for now
-  ipcMain.on('main-message', (event, data) => {
-    main.webContents.send('message', data)
-  })
-
+  ipcMain.on('main-message', onMessage)
   main.on('closed', () => {
+    ipcMain.removeListener('main-message', onMessage)
+    createSceneMenuItem.enabled = true
     appWindows.main = null
   })
 }
@@ -115,9 +155,44 @@ function createPaletteWindow (displaySize) {
 
 function createStartWindows () {
   const displaySize = screen.getPrimaryDisplay().workAreaSize
+  createMenu()
   createMainWindow(displaySize)
   createPaletteWindow(displaySize)
 }
+
+function toggleWindow (name) {
+  const win = appWindows[name]
+  if (!win) return
+
+  if (win.isVisible()) win.hide()
+  else win.showInactive()
+}
+
+function sendWindowMessage (name, messageKey, messageData) {
+  const win = appWindows[name]
+  if (!win) return
+  win.send(messageKey, messageData)
+}
+
+function toggleMenuItem (name) {
+  const menu = appMenus.main
+
+  const menuItemOn = menu.getMenuItemById(name + '-on')
+  const menuItemOff = menu.getMenuItemById(name + '-off')
+
+  if (!menuItemOn.enabled) {
+    menuItemOn.visible = menuItemOn.enabled = true
+    menuItemOff.visible = menuItemOff.enabled = false
+  } else {
+    menuItemOn.visible = menuItemOn.enabled = false
+    menuItemOff.visible = menuItemOff.enabled = true
+  }
+}
+
+ipcMain.on('toggle-window', (event, data) => {
+  toggleWindow('palette')
+  toggleMenuItem('palette')
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

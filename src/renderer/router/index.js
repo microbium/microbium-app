@@ -6,17 +6,29 @@ import Palette from '@/components/Palette'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
       name: 'editor',
-      component: Editor
+      component: Editor,
+      meta: {
+        title: 'Editor'
+      }
     },
     {
       path: '/palette',
       name: 'palette',
-      component: Palette
+      component: Palette,
+      meta: {
+        title: 'Palette'
+      }
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title
+  next()
+})
+
+export default router

@@ -108,7 +108,9 @@ export default {
     },
 
     close () {
-      this.$electron.remote.getCurrentWindow().close()
+      this.$electron.ipcRenderer.send('toggle-window', {
+        key: 'palette'
+      })
     }
   },
 
