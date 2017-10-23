@@ -621,10 +621,18 @@ function mountCompositor ($el, $electron) {
       const point = vertices[index]
       if (!point) return
 
-      ctx.strokeStyle = '#333333'
+      ctx.strokeStyle = '#58BAA4'
+      ctx.globalAlpha = 1
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.arc(point[0], point[1], 6, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.strokeStyle = '#444444'
+      ctx.globalAlpha = 0.25
       ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.arc(point[0], point[1], 4, 0, Math.PI * 2)
+      ctx.arc(point[0], point[1], 18, 0, Math.PI * 2)
       ctx.stroke()
     }
   }
@@ -1187,9 +1195,11 @@ function mountCompositor ($el, $electron) {
       sceneUI.lines.reset()
 
       // view.drawEditorUI(sceneUI.ctx)
-      view.drawSimulatorUI(sceneUI.ctx)
-      view.drawSimulatorOriginUI(scene.ctx)
-      view.drawOrigin(scene.ctx)
+      // view.drawSimulatorUI(sceneUI.ctx)
+      view.drawSimulatorForceUI(scene.ctx, 0, 0.4)
+      view.drawSimulatorForceUI(sceneUI.ctx, 4, 1)
+      view.drawSimulatorOriginUI(sceneUI.ctx)
+      view.drawOrigin(sceneUI.ctx)
 
       view.drawGeometry(scene.ctx, 0)
       if (!isRunning && state.seek.index != null) {
@@ -1212,10 +1222,10 @@ function mountCompositor ($el, $electron) {
         scale: scale + zoomOffset
       }, () => {
         view.renderLines()
-      })
-      cameras.ui.setup(() => {
         view.renderUI()
       })
+      // cameras.ui.setup(() => {
+      // })
     },
 
     renderClearRect () {
@@ -1322,17 +1332,11 @@ function mountCompositor ($el, $electron) {
 
     drawSimulatorOriginUI (ctx) {
       if (!state.simulation.isRunning) return
-      const { nudge, diffusor, rotator } = state.simulation
-      const { move } = state.seek
+      const { diffusor, rotator } = state.simulation
 
       ctx.save()
       ctx.globalAlpha = 0.4
       ctx.strokeStyle = '#58BAA4'
-
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.arc(move[0], move[1], 2 + nudge.intensity * 1.5, 0, Math.PI * 2)
-      ctx.stroke()
 
       ctx.lineWidth = 2
       ctx.beginPath()
@@ -1342,6 +1346,25 @@ function mountCompositor ($el, $electron) {
       ctx.beginPath()
       ctx.moveTo(-30, 0)
       ctx.lineTo(-30, -diffusor.intensity * 100 * 12)
+      ctx.stroke()
+
+      ctx.restore()
+    },
+
+    drawSimulatorForceUI (ctx, baseRadius, alpha) {
+      if (!state.simulation.isRunning) return
+      const { nudge } = state.simulation
+      const { move } = state.seek
+
+      ctx.save()
+      ctx.globalAlpha = 0.4 * alpha
+      ctx.strokeStyle = '#58BAA4'
+
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.arc(move[0], move[1],
+        baseRadius + nudge.intensity * 1.5,
+        0, Math.PI * 2)
       ctx.stroke()
 
       ctx.restore()
