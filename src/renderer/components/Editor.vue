@@ -52,8 +52,8 @@
     height: 100vh;
     background-image: radial-gradient(circle farthest-corner at 50% 50%,
       transparent 76%,
-      rgba(32, 37, 37, 0.16) 85%,
-      rgba(58, 67, 68, 0.64) 100%);
+      rgba(#58BAA5, 0.16) 85%,
+      rgba(darken(#58BAA5, 20), 0.64) 100%);
   }
 }
 </style>
