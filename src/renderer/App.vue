@@ -18,7 +18,7 @@ export default {
 }
 
 body {
-  font-family: Helvetica, sans-serif;
+  font: 13px/1 Helvetica Neue, sans-serif;
 }
 
 #app {

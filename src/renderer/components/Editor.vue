@@ -13,7 +13,6 @@
   width: 100vw;
   height: 100vh;
   background-color: #B2C9CF;
-  font: 11px/1 Helvetica, sans-serif;
   color: #444;
   animation: fadein 300ms;
 }

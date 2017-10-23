@@ -5,8 +5,14 @@
     </div>
     <div class="palette-items">
       <div class="palette-item">
+        <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
+        <div class="palette-item__value">{{ curveSubDivisions }}</div>
+        <div class="palette-item__label">curve subdivisions</div>
+      </div>
+      <div class="palette-item">
         <input-range min="1" max="32" v-model="polarIterations"></input-range>
-        <div class="palette-item__label">{{ polarIterations }} polar iterations</div>
+        <div class="palette-item__value">{{ polarIterations }}</div>
+        <div class="palette-item__label">polar iterations</div>
       </div>
     </div>
   </div>
@@ -22,7 +28,8 @@ $base-color: rgba(#000, 0.15);
   width: 100vw;
   min-height: 100vh;
   background: transparent;
-  font: 11px/1 Monaco, monospace;
+  font-weight: lighter;
+  letter-spacing: 0.75px;
   color: #444;
 }
 
@@ -56,8 +63,15 @@ $base-color: rgba(#000, 0.15);
   padding: 10px 24px;
   color: #fff;
 
+  &__value {
+    display: inline-block;
+    padding: 6px 2px 6px 8px;
+    font-weight: normal;
+  }
+
   &__label {
-    padding: 6px;
+    display: inline-block;
+    padding: 6px 8px 6px 0;
   }
 
   &:hover {
@@ -79,15 +93,16 @@ export default {
   // TODO: Design scene settings data format
   data () {
     return {
-      polarIterations: 8
+      polarIterations: 8,
+      curveSubDivisions: 6
     }
   },
 
   methods: {
-    syncPolarIterations (value) {
+    syncControls (key, value) {
       this.$electron.ipcRenderer.send('main-message', {
         type: 'UPDATE_CONTROLS',
-        key: 'polarIterations',
+        key,
         value
       })
     },
@@ -99,7 +114,11 @@ export default {
 
   watch: {
     polarIterations (value) {
-      this.syncPolarIterations(value)
+      this.syncControls('polarIterations', value)
+    },
+
+    curveSubDivisions (value) {
+      this.syncControls('curveSubDivisions', value)
     }
   }
 }

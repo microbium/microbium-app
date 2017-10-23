@@ -358,7 +358,8 @@ function mountCompositor ($el, $electron) {
     }
 
     const controls = {
-      polarIterations: 8
+      polarIterations: 8,
+      curveSubDivisions: 6
     }
 
     return {
@@ -389,8 +390,8 @@ function mountCompositor ($el, $electron) {
       }
 
       const linkSizeAvg = segmentLength / (indices.length - 1)
-      return Math.round(clamp(0, 6,
-        mapLinear(12, 80, 0, 6, linkSizeAvg)))
+      return Math.round(clamp(0, 1,
+        mapLinear(12, 120, 0, 1, linkSizeAvg)))
     },
 
     // TODO: Optimize with spacial index (kd-tree)
@@ -561,9 +562,11 @@ function mountCompositor ($el, $electron) {
 
     drawSegments (ctx, startIndex = 0, alpha) {
       const { segments, vertices } = state.geometry
+      const { curveSubDivisions } = state.controls
 
       segments.forEach((segment, i) => {
-        const { indices, lineWidth, curvePrecision, isClosed } = segment
+        const { indices, lineWidth, isClosed } = segment
+        const curvePrecision = segment.curvePrecision * curveSubDivisions
         const count = isClosed ? indices.length - 1 : indices.length
         if (i < startIndex || count < 2) return
 
@@ -586,9 +589,11 @@ function mountCompositor ($el, $electron) {
 
     drawSegmentsCurves (ctx, startIndex = 0, alpha) {
       const { segments, vertices } = state.geometry
+      const { curveSubDivisions } = state.controls
 
       segments.forEach((segment, i) => {
-        const { indices, lineWidth, curvePrecision, isClosed } = segment
+        const { indices, lineWidth, isClosed } = segment
+        const curvePrecision = segment.curvePrecision * curveSubDivisions
         const count = isClosed ? indices.length - 1 : indices.length
         if (i < startIndex || count < 2 || curvePrecision <= 1) return
 
