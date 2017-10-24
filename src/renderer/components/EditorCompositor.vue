@@ -324,7 +324,6 @@ function mountCompositor ($el, $electron) {
       activeSegmentIsConnected: false,
       prevPoint: null,
       candidatePoint: null,
-      lineWidth: 'REGULAR',
       linkSizeMin: 12,
       shouldAppend: false,
       shouldAppendOnce: false,
@@ -358,6 +357,15 @@ function mountCompositor ($el, $electron) {
     }
 
     const controls = {
+      lineWidth: 'REGULAR',
+      get lineWidthStep () {
+        return this._lineWidthStep
+      },
+      set lineWidthStep (step) {
+        this._lineWidthStep = step
+        this.lineWidth = LINE_WIDTH_KEYS[step]
+        return step
+      },
       polarIterations: 8,
       curveSubDivisions: 6
     }
@@ -377,10 +385,6 @@ function mountCompositor ($el, $electron) {
   // Geometry
 
   const geometry = {
-    setLineWidth (name) {
-      state.geometry.lineWidth = name
-    },
-
     // TODO: Improve curve precision mapping
     computeCurvePrecision: function (vertices, indices) {
       let segmentLength = 0
@@ -452,8 +456,8 @@ function mountCompositor ($el, $electron) {
 
     createSegment (point, index) {
       const stateGeom = state.geometry
-      const { segments, vertices } = stateGeom
-      const { lineWidth, linkSizeMin } = stateGeom
+      const { segments, vertices, linkSizeMin } = stateGeom
+      const { lineWidth } = state.controls
       const isExisting = index != null
 
       const startPoint = isExisting ? point : vec2.clone(point)
@@ -1000,13 +1004,6 @@ function mountCompositor ($el, $electron) {
         case 'Backquote':
           viewport.toggleControls()
           viewport.updateClassName()
-          break
-        case 'Digit1':
-        case 'Digit2':
-        case 'Digit3':
-        case 'Digit4':
-          const index = parseInt(code.replace('Digit', ''), 10) - 1
-          geometry.setLineWidth(LINE_WIDTH_KEYS[index])
           break
       }
     },

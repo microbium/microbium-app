@@ -5,6 +5,11 @@
     </div>
     <div class="palette-items">
       <div class="palette-item">
+        <input-range min="0" max="3" v-model="lineWidthStep"></input-range>
+        <div class="palette-item__value">{{ lineWidthName }}</div>
+        <div class="palette-item__label">line width</div>
+      </div>
+      <div class="palette-item">
         <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
         <div class="palette-item__value">{{ curveSubDivisions }}</div>
         <div class="palette-item__label">curve subdivisions</div>
@@ -83,6 +88,8 @@ $base-color: rgba(#000, 0.15);
 <script>
 import InputRange from '@/components/InputRange'
 
+const LINE_WIDTH_NAMES = ['Thin', 'Regular', 'Thick', 'Fat']
+
 export default {
   name: 'palette',
 
@@ -93,6 +100,7 @@ export default {
   // TODO: Design scene settings data format
   data () {
     return {
+      lineWidthStep: 1,
       polarIterations: 8,
       curveSubDivisions: 6
     }
@@ -114,7 +122,17 @@ export default {
     }
   },
 
+  computed: {
+    lineWidthName () {
+      return LINE_WIDTH_NAMES[this.lineWidthStep]
+    }
+  },
+
   watch: {
+    lineWidthStep (value) {
+      this.syncControls('lineWidthStep', value)
+    },
+
     polarIterations (value) {
       this.syncControls('polarIterations', value)
     },
