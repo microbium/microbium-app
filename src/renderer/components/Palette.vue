@@ -3,21 +3,34 @@
     <div class="palette-toolbar">
       <div v-on:click="close" class="palette-close"></div>
     </div>
-    <div class="palette-items">
+    <div class="palette-item-group">
+      <h2>Line Tool Settings</h2>
       <div class="palette-item">
-        <input-range min="0" max="3" v-model="lineWidthStep"></input-range>
-        <div class="palette-item__value">{{ lineWidthName }}</div>
-        <div class="palette-item__label">line width</div>
+        <input-range min="0" max="4" v-model="lineWidthStep"></input-range>
+        <div class="palette-item__label">
+          <b>{{ lineWidthName }}</b> line width
+        </div>
       </div>
       <div class="palette-item">
+        <input-range min="0" max="1" v-model="lineStyleIndex"></input-range>
+        <div class="palette-item__label">
+          <b>{{ lineStyleName }}</b> line style
+        </div>
+      </div>
+    </div>
+    <div class="palette-item-group">
+      <h2>Geometry Modifiers</h2>
+      <div class="palette-item">
         <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
-        <div class="palette-item__value">{{ curveSubDivisions }}</div>
-        <div class="palette-item__label">curve subdivisions</div>
+        <div class="palette-item__label">
+          <b>{{ curveSubDivisions }}</b> curve subdivisions
+        </div>
       </div>
       <div class="palette-item">
         <input-range min="1" max="32" v-model="polarIterations"></input-range>
-        <div class="palette-item__value">{{ polarIterations }}</div>
-        <div class="palette-item__label">polar iterations</div>
+        <div class="palette-item__label">
+          <b>{{ polarIterations }}</b> polar iterations
+        </div>
       </div>
     </div>
   </div>
@@ -35,7 +48,7 @@ $base-color: rgba(#000, 0.15);
   background: transparent;
   font-weight: lighter;
   letter-spacing: 0.75px;
-  color: #444;
+  color: #fafafa;
 }
 
 .palette-toolbar {
@@ -63,24 +76,31 @@ $base-color: rgba(#000, 0.15);
   }
 }
 
-.palette-item {
+.palette-item-group {
   background: $base-color;
-  padding: 10px 24px;
-  color: #fff;
+  padding: 10px 14px;
 
-  &__value {
-    display: inline-block;
-    padding: 6px 2px 6px 8px;
-    font-weight: normal;
-  }
-
-  &__label {
-    display: inline-block;
-    padding: 6px 8px 6px 0;
+  > h2 {
+    padding: 2px 7px 8px;
+    font-size: 15px;
+    font-weight: lighter;
   }
 
   &:hover {
     background: transparent;
+  }
+}
+
+.palette-item {
+  padding: 3px 0;
+  font-size: 12px;
+
+  &__label {
+    padding: 1px 8px;
+
+    > b {
+      font-weight: normal;
+    }
   }
 }
 </style>
@@ -88,7 +108,8 @@ $base-color: rgba(#000, 0.15);
 <script>
 import InputRange from '@/components/InputRange'
 
-const LINE_WIDTH_NAMES = ['Thin', 'Regular', 'Thick', 'Fat']
+const LINE_WIDTH_NAMES = ['Ultra Thin', 'Thin', 'Regular', 'Thick', 'Fat']
+const LINE_STYLE_NAMES = ['Watercolor', 'Radial Dash']
 
 export default {
   name: 'palette',
@@ -100,7 +121,8 @@ export default {
   // TODO: Design scene settings data format
   data () {
     return {
-      lineWidthStep: 1,
+      lineWidthStep: 2,
+      lineStyleIndex: 0,
       polarIterations: 8,
       curveSubDivisions: 6
     }
@@ -125,12 +147,20 @@ export default {
   computed: {
     lineWidthName () {
       return LINE_WIDTH_NAMES[this.lineWidthStep]
+    },
+
+    lineStyleName () {
+      return LINE_STYLE_NAMES[this.lineStyleIndex]
     }
   },
 
   watch: {
     lineWidthStep (value) {
       this.syncControls('lineWidthStep', value)
+    },
+
+    lineStyleIndex (value) {
+      this.syncControls('lineStyleIndex', value)
     },
 
     polarIterations (value) {

@@ -63,13 +63,16 @@ import linesEntitiesFrag from '@/shaders/lines-entities.frag'
 
 const DISABLE_RENDER = false
 
+const MAX_UINT16_VALUE = 2 ** 16
+
 const LINE_WIDTH = {
-  THIN: 0.5,
-  REGULAR: 1,
-  THICK: 2,
-  FAT: 4
+  ULTRA_THIN: 0.5,
+  THIN: 1,
+  REGULAR: 2,
+  THICK: 4,
+  FAT: 8
 }
-const LINE_WIDTH_KEYS = ['THIN', 'REGULAR', 'THICK', 'FAT']
+const LINE_WIDTH_KEYS = ['ULTRA_THIN', 'THIN', 'REGULAR', 'THICK', 'FAT']
 
 const TEXTURES = {
   'watercolor': require('../assets/images/textures/watercolor.jpg'),
@@ -186,42 +189,48 @@ function mountCompositor ($el, $electron) {
 
   function createScene () {
     const { createTexture, regl } = renderer
+    const { lineStyles } = state.renderer
 
     // TODO: Investigate huge perf issues in Chrome when using instancing
-    // const setupLineInstances = regl({
-    //   attributes: {
-    //     angle: {
-    //       buffer: regl.prop('angles'),
-    //       divisor: 1
-    //     },
-    //     angleAlpha: {
-    //       buffer: regl.prop('anglesAlpha'),
-    //       divisor: 1
-    //     }
-    //   },
-    //   instances: (context, { angles }) => angles.length
-    // })
-
-    const lines = LineBuilder.create(regl, {
-      bufferSize: state.renderer.linesBufferSize,
-      drawArgs: {
-        vert: linesEntitiesVert,
-        frag: linesEntitiesFrag,
-        uniforms: {
-          angle: regl.prop('angle'),
-          angleAlpha: regl.prop('angleAlpha'),
-          hatchAlpha: regl.prop('hatchAlpha'),
-          diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048)
+    // TODO: Optimize shared state between contexts
+    const styleContexts = lineStyles.map((style, index) => {
+      const bufferSize = 2 ** 12
+      const lines = LineBuilder.create(regl, {
+        bufferSize,
+        drawArgs: {
+          vert: linesEntitiesVert,
+          frag: linesEntitiesFrag,
+          uniforms: {
+            angle: regl.prop('angle'),
+            angleAlpha: regl.prop('angleAlpha'),
+            hatchAlpha: regl.prop('hatchAlpha'),
+            diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048)
+          },
+          blend: {
+            enable: true,
+            equation: 'add',
+            func: {
+              src: 'src alpha',
+              dst: 'one minus src alpha'
+            }
+          }
         }
+      })
+
+      const ctx = lines.getContext('2d')
+      ctx.curve = curve.bind(lines)
+
+      return {
+        bufferSize,
+        index,
+        style,
+        lines,
+        ctx
       }
     })
 
-    const ctx = lines.getContext('2d')
-    ctx.curve = curve.bind(lines)
-
     return {
-      lines,
-      ctx
+      styleContexts
     }
   }
 
@@ -338,18 +347,17 @@ function mountCompositor ($el, $electron) {
     }
 
     const renderer = {
-      linesBufferSize: Math.pow(2, 12),
       drawCalls: 0,
-      layers: [
-        {
-          diffuseMap: 'ground-mud',
-          hatchAlpha: 1,
-          tint: [1.0, 1.0, 1.0, 1],
-          thickness: 2
-        },
+      lineStyles: [
         {
           diffuseMap: 'watercolor',
           hatchAlpha: 0,
+          tint: [1, 1, 1, 1],
+          thickness: 1
+        },
+        {
+          diffuseMap: 'ground-mud',
+          hatchAlpha: 1,
           tint: [1, 1, 1, 1],
           thickness: 1
         }
@@ -357,7 +365,13 @@ function mountCompositor ($el, $electron) {
     }
 
     const controls = {
+      // TODO: Enable more fine control over lineWidth
+      // Mainly need to refactor serialization of geometry state
       lineWidth: 'REGULAR',
+      lineStyleIndex: 0,
+      lineColor: '#fafafa',
+      lineAlpha: 1,
+      _lineWidthStep: 2,
       get lineWidthStep () {
         return this._lineWidthStep
       },
@@ -434,9 +448,17 @@ function mountCompositor ($el, $electron) {
       const radius = 20
       const count = 5
 
-      Object.assign(state.geometry, {
-        lineWidth: 'THICK',
-        shouldAppend: true
+      const lineWidthStepPrev = state.controls.lineWidthStep
+      const lineStyleIndexPrev = state.controls.lineStyleIndex
+      const lineColorPrev = state.controls.lineColor
+      const lineAlphaPrev = state.controls.lineAlpha
+
+      state.geometry.shouldAppend = true
+      Object.assign(state.controls, {
+        lineWidthStep: 2,
+        lineStyleIndex: 0,
+        lineColor: '#58BAA4',
+        lineAlpha: 0.6
       })
 
       geometry.createSegment([radius, 0])
@@ -448,25 +470,33 @@ function mountCompositor ($el, $electron) {
       }
       geometry.completeActiveSegment(0)
 
-      Object.assign(state.geometry, {
-        lineWidth: 'REGULAR',
-        shouldAppend: false
+      state.geometry.shouldAppend = false
+      Object.assign(state.controls, {
+        lineWidthStep: lineWidthStepPrev,
+        lineStyleIndex: lineStyleIndexPrev,
+        lineColor: lineColorPrev,
+        lineAlpha: lineAlphaPrev
       })
     },
 
     createSegment (point, index) {
       const stateGeom = state.geometry
       const { segments, vertices, linkSizeMin } = stateGeom
-      const { lineWidth } = state.controls
+      const { lineWidth, lineStyleIndex, lineColor, lineAlpha } = state.controls
       const isExisting = index != null
 
       const startPoint = isExisting ? point : vec2.clone(point)
       const startIndex = isExisting ? index : vertices.length
 
+      console.log(lineWidth, lineStyleIndex, lineColor, lineAlpha)
+
       const nextSegment = {
         indices: [startIndex],
         curvePrecision: 0,
         lineWidth,
+        lineStyleIndex,
+        lineColor,
+        lineAlpha,
         linkSizeMin
       }
 
@@ -555,6 +585,7 @@ function mountCompositor ($el, $electron) {
       }
     },
 
+    // TODO: Create variation on DistanceConstraint that accepts indices in this segment format
     expandIndicesToLines (indices) {
       return indices.slice(0, -1).reduce((all, v, i) => {
         const a = indices[i]
@@ -564,18 +595,27 @@ function mountCompositor ($el, $electron) {
       }, [])
     },
 
-    drawSegments (ctx, startIndex = 0, alpha) {
+    drawSegments (styleContexts, segmentStart_, segmentCount_) {
       const { segments, vertices } = state.geometry
       const { curveSubDivisions } = state.controls
+      const segmentStart = segmentStart_ || 0
+      const segmentCount = segmentCount_ || segments.length
 
-      segments.forEach((segment, i) => {
-        const { indices, lineWidth, isClosed } = segment
+      for (let s = segmentStart; s < segmentCount; s++) {
+        const segment = segments[s]
+        const {
+          indices, isClosed,
+          lineWidth, lineStyleIndex, lineColor, lineAlpha
+        } = segment
         const curvePrecision = segment.curvePrecision * curveSubDivisions
         const count = isClosed ? indices.length - 1 : indices.length
-        if (i < startIndex || count < 2) return
+        if (count < 2) return
 
-        ctx.globalAlpha = curvePrecision <= 1 ? alpha * 0.8 : alpha * 0.4
+        const { ctx } = styleContexts[lineStyleIndex]
+        ctx.globalAlpha = (curvePrecision <= 1 ? 0.8 : 0.4) * lineAlpha
         ctx.lineWidth = curvePrecision <= 1 ? LINE_WIDTH[lineWidth] : LINE_WIDTH.THIN
+        ctx.strokeStyle = lineColor
+
         ctx.beginPath()
         for (let i = 0; i < count; i++) {
           const index = indices[i]
@@ -588,27 +628,36 @@ function mountCompositor ($el, $electron) {
           // ctx.fill()
         }
         ctx.stroke()
-      })
+      }
     },
 
-    drawSegmentsCurves (ctx, startIndex = 0, alpha) {
+    drawSegmentsCurves (styleContexts, segmentStart_, segmentCount_) {
       const { segments, vertices } = state.geometry
       const { curveSubDivisions } = state.controls
+      const segmentStart = segmentStart_ || 0
+      const segmentCount = segmentCount_ || segments.length
 
-      segments.forEach((segment, i) => {
-        const { indices, lineWidth, isClosed } = segment
+      for (let s = segmentStart; s < segmentCount; s++) {
+        const segment = segments[s]
+        const {
+          indices, isClosed,
+          lineWidth, lineStyleIndex, lineColor, lineAlpha
+        } = segment
         const curvePrecision = segment.curvePrecision * curveSubDivisions
         const count = isClosed ? indices.length - 1 : indices.length
-        if (i < startIndex || count < 2 || curvePrecision <= 1) return
+        if (count < 2 || curvePrecision <= 1) return
 
+        const { ctx } = styleContexts[lineStyleIndex]
         const points = map(indices, (i) => vertices[i])
         const pointsFlat = flatten2(points)
 
         // TODO: Fix closed curve segments
         if (isClosed) pointsFlat.splice(-2, 2)
 
-        ctx.globalAlpha = alpha * 0.8
+        ctx.globalAlpha = 0.8 * lineAlpha
         ctx.lineWidth = LINE_WIDTH[lineWidth]
+        ctx.strokeStyle = lineColor
+
         ctx.beginPath()
         ctx.moveTo(pointsFlat[0], pointsFlat[1])
         ctx.curve(pointsFlat, 0.5, curvePrecision, isClosed)
@@ -617,7 +666,7 @@ function mountCompositor ($el, $electron) {
           // ctx.fill()
         }
         ctx.stroke()
-      })
+      }
     },
 
     drawFocus (ctx, index) {
@@ -626,7 +675,7 @@ function mountCompositor ($el, $electron) {
       if (!point) return
 
       ctx.strokeStyle = '#58BAA4'
-      ctx.globalAlpha = 1
+      ctx.globalAlpha = 0.6
       ctx.lineWidth = 1.5
       ctx.beginPath()
       ctx.arc(point[0], point[1], 6, 0, Math.PI * 2)
@@ -797,6 +846,7 @@ function mountCompositor ($el, $electron) {
       event.preventDefault()
     },
 
+    // TODO: Implement brush style interaction while hold / dragging
     mouseMove (event) {
       const stateDrag = state.drag
       const { isDrawing, isPanning, isZooming, move, movePrev } = stateDrag
@@ -1034,6 +1084,7 @@ function mountCompositor ($el, $electron) {
   // Route / Persist
 
   const route = {
+    // TODO: Add lineStyleIndex
     serializeGeometry () {
       const stateGeom = state.geometry
       const { segments, vertices } = stateGeom
@@ -1178,6 +1229,7 @@ function mountCompositor ($el, $electron) {
 
     render () {
       const { regl } = renderer
+      const { styleContexts } = scene
       const { offset, scale } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -1188,29 +1240,40 @@ function mountCompositor ($el, $electron) {
       stateRenderer.drawCalls = 0
       regl.poll()
 
-      scene.lines.reset()
+      styleContexts.forEach(({ lines }) => {
+        lines.reset()
+      })
       sceneUI.lines.reset()
 
       // view.drawEditorUI(sceneUI.ctx)
       // view.drawSimulatorUI(sceneUI.ctx)
-      view.drawSimulatorForceUI(scene.ctx, 0, 0.4)
-      view.drawSimulatorForceUI(sceneUI.ctx, 4, 1)
+      view.drawSimulatorForceUI(styleContexts[0].ctx, 0, 1)
+      view.drawSimulatorForceUI(sceneUI.ctx, 8, 1)
       view.drawSimulatorOriginUI(sceneUI.ctx)
-      view.drawOrigin(sceneUI.ctx)
 
-      view.drawGeometry(scene.ctx, 0)
+      if (isRunning) {
+        view.drawOriginTick(sceneUI.ctx)
+      } else {
+        view.drawOrigin(sceneUI.ctx)
+        view.drawGeometry([sceneUI], 0, 1)
+      }
+
+      view.drawGeometry(styleContexts, 1)
       if (!isRunning && state.seek.index != null) {
         geometry.drawFocus(sceneUI.ctx, state.seek.index)
       }
 
-      if (scene.lines.state.cursor.element > stateRenderer.linesBufferSize) {
-        // TODO: Make max bufferSize smallest possible for Uint16 max integer
-        const nextSize = stateRenderer.linesBufferSize =
-          Math.min(stateRenderer.linesBufferSize * 2, 65536)
-        scene.lines.resize(nextSize)
-        console.log('resize lines buffer', nextSize)
-        return
-      }
+      let didResizeBuffer = false
+      styleContexts.forEach((context) => {
+        if (context.lines.state.cursor.element > context.bufferSize) {
+          const nextSize = context.bufferSize =
+            Math.min(context.bufferSize * 2, MAX_UINT16_VALUE)
+          context.lines.resize(nextSize)
+          console.log('resize lines buffer', context.index, nextSize)
+          didResizeBuffer = true
+        }
+      })
+      if (didResizeBuffer) return
 
       // TODO: Separate UI and scene line geometry
       view.renderClearRect()
@@ -1234,31 +1297,32 @@ function mountCompositor ($el, $electron) {
     },
 
     renderLines () {
-      const { lines } = scene
+      const { styleContexts } = scene
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { polarIterations } = state.controls
-      const stateRenderer = state.renderer
+      const { lineStyles } = state.renderer
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
 
-      stateRenderer.layers.forEach((layer) => {
+      styleContexts.forEach(({ index, lines }) => {
+        const style = lineStyles[index]
         const instances = range(polarIterations).map((index) => {
           return {
             angle: index * polarStep,
             angleAlpha: index === 0 ? 1 : polarAlpha,
             model,
-            diffuseMap: layer.diffuseMap,
-            hatchAlpha: layer.hatchAlpha,
-            tint: layer.tint,
-            thickness: layer.thickness * (scale + zoomOffset),
+            diffuseMap: style.diffuseMap,
+            hatchAlpha: style.hatchAlpha,
+            tint: style.tint,
+            thickness: style.thickness * (scale + zoomOffset),
             miterLimit: 4
           }
         })
-        stateRenderer.drawCalls += instances.length
+        state.renderer.drawCalls += instances.length
         lines.draw(instances)
       })
     },
@@ -1275,10 +1339,9 @@ function mountCompositor ($el, $electron) {
       })
     },
 
-    drawGeometry (ctx, startIndex, alpha = 1) {
-      ctx.strokeStyle = '#fafafa'
-      geometry.drawSegments(ctx, startIndex, alpha)
-      geometry.drawSegmentsCurves(ctx, startIndex, alpha)
+    drawGeometry (styleContexts, segmentStart, segmentCount) {
+      geometry.drawSegments(styleContexts, segmentStart, segmentCount)
+      geometry.drawSegmentsCurves(styleContexts, segmentStart, segmentCount)
     },
 
     drawEditorUI (ctx) {
@@ -1332,17 +1395,17 @@ function mountCompositor ($el, $electron) {
       const { diffusor, rotator } = state.simulation
 
       ctx.save()
-      ctx.globalAlpha = 0.4
+      ctx.globalAlpha = 0.6
       ctx.strokeStyle = '#58BAA4'
-
       ctx.lineWidth = 2
+
       ctx.beginPath()
-      ctx.arc(0, 0, 12, 0, -rotator.intensity * 100 * Math.PI, rotator.intensity > 0)
+      ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * Math.PI, rotator.intensity > 0)
       ctx.stroke()
 
+      ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.moveTo(-30, 0)
-      ctx.lineTo(-30, -diffusor.intensity * 100 * 12)
+      ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, Math.PI * 2)
       ctx.stroke()
 
       ctx.restore()
@@ -1354,10 +1417,10 @@ function mountCompositor ($el, $electron) {
       const { move } = state.seek
 
       ctx.save()
-      ctx.globalAlpha = 0.4 * alpha
+      ctx.globalAlpha = 0.6 * alpha
       ctx.strokeStyle = '#58BAA4'
 
-      ctx.lineWidth = 2
+      ctx.lineWidth = 1
       ctx.beginPath()
       ctx.arc(move[0], move[1],
         baseRadius + nudge.intensity * 1.5,
@@ -1368,16 +1431,40 @@ function mountCompositor ($el, $electron) {
     },
 
     drawOrigin (ctx) {
+      const size = 6
+
+      ctx.save()
+      ctx.globalAlpha = 0.8
+      ctx.strokeStyle = '#222222'
+      ctx.lineWidth = 2
+
+      ctx.beginPath()
+      ctx.moveTo(0, -size)
+      ctx.lineTo(0, size)
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.moveTo(-size, 0)
+      ctx.lineTo(size, 0)
+      ctx.stroke()
+
+      ctx.restore()
+    },
+
+    drawOriginTick (ctx) {
       const { tick } = state.simulation
 
       ctx.save()
-      ctx.globalAlpha = 0.1
+      ctx.globalAlpha = 0.8
       ctx.strokeStyle = '#222222'
       ctx.lineWidth = 2
       ctx.rotate(tick * 0.02)
 
       ctx.beginPath()
-      ctx.arc(0, 0, 8, 0, Math.PI * 2)
+      ctx.arc(0, 0, 8, 0, Math.PI * 0.5)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(0, 0, 8, Math.PI, Math.PI * 1.5)
       ctx.stroke()
 
       ctx.restore()

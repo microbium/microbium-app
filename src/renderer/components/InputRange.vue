@@ -1,5 +1,5 @@
 <style lang="scss">
-$slider-height: 17px;
+$slider-height: 13px;
 $slider-width: 100%;
 $rail-height: 2px;
 $knob-size: 13px;
@@ -12,6 +12,8 @@ $knob-shadow: 0px 1px rgba(#000, 0.4);
 </style>
 
 <script>
+// TODO: Switch to vue-slider-component
+// https://github.com/NightCatSama/vue-slider-component
 import RangeSlider from 'vue-range-slider'
 export default RangeSlider
 </script>>
