@@ -204,7 +204,11 @@ function mountCompositor ($el, $electron) {
             angle: regl.prop('angle'),
             angleAlpha: regl.prop('angleAlpha'),
             hatchAlpha: regl.prop('hatchAlpha'),
-            diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048)
+            tint: regl.prop('tint'),
+            // TODO: Add multiple screen space tinting functions
+            useScreenTintFunc: regl.prop('useScreenTintFunc'),
+            diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048),
+            useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1)
           },
           blend: {
             enable: true,
@@ -253,9 +257,10 @@ function mountCompositor ($el, $electron) {
 
   function createTextureManager (regl) {
     const cache = {}
+    const empty = regl.texture()
 
     return function createTexture (key, size) {
-      if (key == null) return null
+      if (key == null) return empty
 
       const cached = cache[key]
       if (cached) return cached
@@ -353,12 +358,14 @@ function mountCompositor ($el, $electron) {
           diffuseMap: 'watercolor',
           hatchAlpha: 0,
           tint: [1, 1, 1, 1],
+          useScreenTintFunc: 1,
           thickness: 1
         },
         {
-          diffuseMap: 'ground-mud',
+          diffuseMap: null,
           hatchAlpha: 1,
-          tint: [1, 1, 1, 1],
+          tint: [0.2, 0.1, 0.3, 1],
+          useScreenTintFunc: 0,
           thickness: 1
         }
       ]
@@ -487,8 +494,6 @@ function mountCompositor ($el, $electron) {
 
       const startPoint = isExisting ? point : vec2.clone(point)
       const startIndex = isExisting ? index : vertices.length
-
-      console.log(lineWidth, lineStyleIndex, lineColor, lineAlpha)
 
       const nextSegment = {
         indices: [startIndex],
@@ -1318,6 +1323,7 @@ function mountCompositor ($el, $electron) {
             diffuseMap: style.diffuseMap,
             hatchAlpha: style.hatchAlpha,
             tint: style.tint,
+            useScreenTintFunc: style.useScreenTintFunc,
             thickness: style.thickness * (scale + zoomOffset),
             miterLimit: 4
           }

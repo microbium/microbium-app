@@ -5,9 +5,10 @@ precision highp float;
 uniform vec2 viewResolution;
 uniform vec2 viewOffset;
 
-// uniform vec4 tint;
 uniform float hatchAlpha;
 uniform sampler2D diffuseMap;
+uniform int useDiffuseMap;
+uniform int useScreenTintFunc;
 
 varying vec4 vColor;
 varying vec2 vUD;
@@ -25,11 +26,20 @@ void main() {
   vec2 coord = fragCoord / viewResolution;
   vec2 ud = vUD;
 
-  vec3 color = vColor.rgb;
-  vec3 diffuse = texture2D(diffuseMap, coord).rgb;
-  vec3 tint = vec3(coord.x, 0.6 - distance(coord, vec2(0.5)), coord.y);
-  float hatch = mix(1.0, radialHatch(position, 0.1, 3.0), hatchAlpha);
-  float alpha = vColor.a;
+  vec3 outColor = vColor.rgb;
+  float outAlpha = vColor.a;
 
-  gl_FragColor = vec4(color * diffuse * tint, alpha * hatch);
+  if (useDiffuseMap == 1) {
+    outColor *= texture2D(diffuseMap, coord).rgb;
+  }
+
+  if (useScreenTintFunc == 1) {
+    outColor *= vec3(coord.x, 0.6 - distance(coord, vec2(0.5)), coord.y);
+  }
+
+  if (hatchAlpha > 0.0) {
+    outAlpha *= mix(1.0, radialHatch(position, 0.1, 3.0), hatchAlpha);
+  }
+
+  gl_FragColor = vec4(outColor, outAlpha);
 }
