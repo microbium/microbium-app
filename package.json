@@ -1,12 +1,12 @@
 {
-  "name": "bacterium",
-  "version": "0.0.0",
+  "name": "Bacterium",
+  "version": "0.1.0",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
   "description": "Bacterium Drawing Tool",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
+    "build": "node .electron-vue/build.js && electron-builder && terminal-notifier -title 'Bacterium' -message 'Build Complete'",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
