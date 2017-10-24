@@ -11,14 +11,14 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.createScene()
           }
-        },
-        {
-          label: 'Save Scene',
-          accelerator: 'Cmd+S',
-          click () {
-            actions.saveScene()
-          }
         }
+        // {
+        //   label: 'Save Scene',
+        //   accelerator: 'Cmd+S',
+        //   click () {
+        //     actions.saveScene()
+        //   }
+        // }
       ]
     },
     // {
