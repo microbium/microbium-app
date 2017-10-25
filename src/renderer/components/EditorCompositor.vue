@@ -1204,7 +1204,8 @@ function mountCompositor ($el, $electron) {
 
     initGeometry () {
       logger.time('deserialize geometry')
-      const initialState = route.deserializeGeometryFromLocalStorage()
+      // const initialState = route.deserializeGeometryFromLocalStorage()
+      const initialState = null
       logger.timeEnd('deserialize geometry')
       logger.log('initial state', initialState)
       if (initialState && initialState.segments.length) {
