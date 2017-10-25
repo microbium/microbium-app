@@ -205,7 +205,7 @@ function mountCompositor ($el, $electron) {
             angleAlpha: regl.prop('angleAlpha'),
             hatchAlpha: regl.prop('hatchAlpha'),
             tint: regl.prop('tint'),
-            // TODO: Add multiple screen space tinting functions
+            // FEAT: Add multiple screen space tinting functions
             useScreenTintFunc: regl.prop('useScreenTintFunc'),
             diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048),
             useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1)
@@ -238,6 +238,7 @@ function mountCompositor ($el, $electron) {
     }
   }
 
+  // FEAT: Add static radial grid context, remove grid marking from css background-image
   function createUIScene () {
     const { regl } = renderer
 
@@ -372,7 +373,7 @@ function mountCompositor ($el, $electron) {
     }
 
     const controls = {
-      // TODO: Enable more fine control over lineWidth
+      // FEAT: Enable more fine control over lineWidth
       // Mainly need to refactor serialization of geometry state
       lineWidth: 'REGULAR',
       lineStyleIndex: 0,
@@ -851,7 +852,8 @@ function mountCompositor ($el, $electron) {
       event.preventDefault()
     },
 
-    // TODO: Implement brush style interaction while hold / dragging
+    // FEAT: Implement brush style interaction while hold / dragging
+    // TODO: Manage different interactions / commands separately
     mouseMove (event) {
       const stateDrag = state.drag
       const { isDrawing, isPanning, isZooming, move, movePrev } = stateDrag
@@ -872,7 +874,6 @@ function mountCompositor ($el, $electron) {
       event.preventDefault()
     },
 
-    // TODO: Manage different interactions / commands separately
     mouseUp (event) {
       const stateDrag = state.drag
       const stateGeom = state.geometry
@@ -919,7 +920,7 @@ function mountCompositor ($el, $electron) {
       event.preventDefault()
     },
 
-    // TODO: Add damping / improve feel to panning and zooming
+    // FEAT: Add damping / improve feel to panning and zooming
     beginPan (down) {},
 
     movePan (move, velocity) {
@@ -1089,7 +1090,7 @@ function mountCompositor ($el, $electron) {
   // Route / Persist
 
   const route = {
-    // TODO: Add lineStyleIndex
+    // TODO: Add lineStyleIndex, lineColor, lineAlpha
     serializeGeometry () {
       const stateGeom = state.geometry
       const { segments, vertices } = stateGeom
@@ -1281,7 +1282,6 @@ function mountCompositor ($el, $electron) {
       })
       if (didResizeBuffer) return
 
-      // TODO: Separate UI and scene line geometry
       view.renderClearRect()
       cameras.scene.setup({
         offset: vec2.add(scratchVec2A, offset, panOffset),
