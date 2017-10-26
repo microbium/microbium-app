@@ -50,7 +50,7 @@ import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
 import { debounce } from '@/utils/function'
 import { range, map, flatten2 } from '@/utils/array'
-import { clamp, mapLinear } from '@/utils/math'
+import { clamp, mapLinear, lerp } from '@/utils/math'
 import { curve } from '@/utils/draw'
 import { logger } from '@/utils/logger'
 
@@ -62,6 +62,7 @@ import linesEntitiesVert from '@/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@/shaders/lines-entities.frag'
 
 const DISABLE_RENDER = false
+const ENABLE_PERSPECTIVE_VIEW = true
 
 const MAX_UINT16_VALUE = 2 ** 16
 
@@ -132,11 +133,20 @@ function mountCompositor ($el, $electron) {
   function createCameras () {
     const { regl } = renderer
 
-    const scene = (() => {
+    const baseUniforms = {
+      viewResolution: () => state.viewport.size,
+      viewOffset: regl.prop('offset')
+    }
+
+    const sceneOrtho = (() => {
       const view = mat4.create()
       const projection = mat4.create()
+      const projectedThickness = vec2.create()
+      const singlePixel = [1, 0]
+
       const setup = regl({
         uniforms: {
+          ...baseUniforms,
           view: (params, context) => {
             const { offset, scale } = context
             const offset3 = vec3.set(scratchVec3A, offset[0], offset[1], 0)
@@ -145,49 +155,81 @@ function mountCompositor ($el, $electron) {
             mat4.scale(view, view, scale3)
             return view
           },
-          projection: () => projection,
-          viewResolution: () => state.viewport.size,
-          viewOffset: regl.prop('offset')
-        }
-      })
-      return {
-        view,
-        projection,
-        setup
-      }
-    })()
-
-    const ui = (() => {
-      const view = mat4.create()
-      const projection = mat4.create()
-      const setup = regl({
-        uniforms: {
-          view,
           projection: () => projection
         }
       })
+
+      const resize = (event, size) => {
+        const w = size[0] / 4
+        const h = size[1] / 4
+        mat4.ortho(projection, -w, w, h, -h, 0, 1000)
+        vec2.transformMat4(projectedThickness, singlePixel, projection)
+      }
+
       return {
         view,
         projection,
-        setup
+        projectedThickness,
+        lineScaleFactor: 1,
+        setup,
+        resize
       }
     })()
 
-    const singlePixel = [1, 0]
+    const scenePerspective = (() => {
+      const view = mat4.create()
+      const projection = mat4.create()
+      const projectedThickness = vec2.create()
+      const singlePixel = [1, 0]
+      const eye = vec3.create()
+      const center = vec3.create()
+      // FIXME: Inverted up vector
+      const up = vec3.set(vec3.create(), 0, -1, 0)
+
+      const setup = regl({
+        uniforms: {
+          ...baseUniforms,
+          // FEAT: Improve perspective camera controls
+          view: (params, context) => {
+            const { offset, scale } = context
+            vec3.set(eye, 0, 0, -300 / scale)
+            vec3.set(center, -offset[0], -offset[1], 0)
+            mat4.lookAt(view, eye, center, up)
+            return view
+          },
+          projection: () => projection
+        }
+      })
+
+      const resize = (event, size) => {
+        const aspect = size[0] / size[1]
+        const fov = Math.PI * 0.7
+        mat4.perspective(projection, fov, aspect, 0.01, 1000)
+        vec2.copy(projectedThickness, singlePixel)
+      }
+
+      return {
+        view,
+        projection,
+        projectedThickness,
+        lineScaleFactor: 0,
+        setup,
+        resize
+      }
+    })()
+
     tasks.add((event) => {
       const { size } = state.viewport
-      const w = size[0] / 4
-      const h = size[1] / 4
-      mat4.ortho(scene.projection, -w, w, h, -h, 0, 1)
-      mat4.copy(ui.projection, scene.projection)
-      const projectedThickness = vec2.transformMat4(
-        scratchVec2A, singlePixel, scene.projection)
-      state.viewport.lineScale = projectedThickness[0]
+      sceneOrtho.resize(event, size)
+      scenePerspective.resize(event, size)
     }, 'resize')
 
     return {
-      scene,
-      ui
+      get scene () {
+        // TODO: Improve determining active camera
+        const { isRunning } = state.simulation
+        return (isRunning && ENABLE_PERSPECTIVE_VIEW) ? scenePerspective : sceneOrtho
+      }
     }
   }
 
@@ -326,7 +368,6 @@ function mountCompositor ($el, $electron) {
     const viewport = {
       controlsVisible: false,
       pixelRatio: 1,
-      lineScale: 1,
       size: vec2.create(),
       center: vec2.create(),
       offset: vec2.create(),
@@ -1296,8 +1337,6 @@ function mountCompositor ($el, $electron) {
         view.renderLines()
         view.renderUI()
       })
-      // cameras.ui.setup(() => {
-      // })
     },
 
     renderClearRect () {
@@ -1309,9 +1348,11 @@ function mountCompositor ($el, $electron) {
     },
 
     computeLineThickness (baseThickness) {
-      const { scale, lineScale } = state.viewport
+      const { projectedThickness, lineScaleFactor } = cameras.scene
+      const { scale } = state.viewport
       const { zoomOffset } = state.drag
-      return baseThickness * (scale + zoomOffset) * lineScale
+      return baseThickness * projectedThickness[0] *
+        lerp(1, scale + zoomOffset, lineScaleFactor)
     },
 
     renderLines () {
