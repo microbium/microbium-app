@@ -657,7 +657,7 @@ function mountCompositor ($el, $electron) {
         const points = map(indices, (i) => vertices[i])
         const pointsFlat = flatten2(points)
 
-        // TODO: Fix closed curve segments
+        // FIXME: Closed curve segments have a noticeable gap
         if (isClosed) pointsFlat.splice(-2, 2)
 
         ctx.globalAlpha = 0.8 * lineAlpha
@@ -923,6 +923,7 @@ function mountCompositor ($el, $electron) {
     // FEAT: Add damping / improve feel to panning and zooming
     beginPan (down) {},
 
+    // FEAT: Update cursor while grab / panning
     movePan (move, velocity) {
       const { panOffset, down } = state.drag
       const { scale } = state.viewport

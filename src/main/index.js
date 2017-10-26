@@ -48,7 +48,7 @@ function createMenu () {
     },
     toggleSimulation () {
       sendWindowMessage('main', 'key-command', {code: 'Space'})
-      // TODO: Fix focus bug after toggling menu item state
+      // FIXME: Inconsistent key input capturing after toggling menu item state
       // toggleMenuItem('simulation')
     },
     togglePalette () {
