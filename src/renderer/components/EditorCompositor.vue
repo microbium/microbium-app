@@ -173,12 +173,16 @@ function mountCompositor ($el, $electron) {
       }
     })()
 
+    const singlePixel = [1, 0]
     tasks.add((event) => {
       const { size } = state.viewport
       const w = size[0] / 4
       const h = size[1] / 4
       mat4.ortho(scene.projection, -w, w, h, -h, 0, 1)
       mat4.copy(ui.projection, scene.projection)
+      const projectedThickness = vec2.transformMat4(
+        scratchVec2A, singlePixel, scene.projection)
+      state.viewport.lineScale = projectedThickness[0]
     }, 'resize')
 
     return {
@@ -244,7 +248,7 @@ function mountCompositor ($el, $electron) {
 
     const lines = LineBuilder.create(regl, {
       // TODO: Make bufferSize smallest possible for UI
-      bufferSize: 512
+      bufferSize: 2 ** 9
     })
 
     const ctx = lines.getContext('2d')
@@ -322,6 +326,7 @@ function mountCompositor ($el, $electron) {
     const viewport = {
       controlsVisible: false,
       pixelRatio: 1,
+      lineScale: 1,
       size: vec2.create(),
       center: vec2.create(),
       offset: vec2.create(),
@@ -1303,10 +1308,14 @@ function mountCompositor ($el, $electron) {
       })
     },
 
+    computeLineThickness (baseThickness) {
+      const { scale, lineScale } = state.viewport
+      const { zoomOffset } = state.drag
+      return baseThickness * (scale + zoomOffset) * lineScale
+    },
+
     renderLines () {
       const { styleContexts } = scene
-      const { scale } = state.viewport
-      const { zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { polarIterations } = state.controls
       const { lineStyles } = state.renderer
@@ -1317,17 +1326,21 @@ function mountCompositor ($el, $electron) {
 
       styleContexts.forEach(({ index, lines }) => {
         const style = lineStyles[index]
+        const { diffuseMap, hatchAlpha, tint, useScreenTintFunc } = style
+        const thickness = this.computeLineThickness(style.thickness)
+        const miterLimit = this.computeLineThickness(4)
+
         const instances = range(polarIterations).map((index) => {
           return {
             angle: index * polarStep,
             angleAlpha: index === 0 ? 1 : polarAlpha,
             model,
-            diffuseMap: style.diffuseMap,
-            hatchAlpha: style.hatchAlpha,
-            tint: style.tint,
-            useScreenTintFunc: style.useScreenTintFunc,
-            thickness: style.thickness * (scale + zoomOffset),
-            miterLimit: 4
+            diffuseMap,
+            hatchAlpha,
+            tint,
+            useScreenTintFunc,
+            thickness,
+            miterLimit
           }
         })
         state.renderer.drawCalls += instances.length
@@ -1342,8 +1355,8 @@ function mountCompositor ($el, $electron) {
       lines.draw({
         model,
         tint: [1, 1, 1, 1],
-        thickness: 1,
-        miterLimit: 4
+        thickness: this.computeLineThickness(1),
+        miterLimit: this.computeLineThickness(4)
       })
     },
 
