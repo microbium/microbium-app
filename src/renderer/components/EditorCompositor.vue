@@ -46,6 +46,7 @@ import {
   LINE_WIDTH_KEYS,
   TEXTURES
 } from '@/constants/line-styles'
+import { UI_PALETTE } from '@/constants/color-palettes'
 
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
@@ -193,7 +194,7 @@ function mountCompositor ($el, $electron) {
           // FEAT: Improve perspective camera controls
           view: (params, context) => {
             const { offset, scale } = context
-            vec3.set(eye, 0, 0, -300 / scale)
+            vec3.set(eye, 0, 0, -435 / scale)
             vec3.set(center, -offset[0], -offset[1], 0)
             mat4.lookAt(view, eye, center, up)
             return view
@@ -204,7 +205,7 @@ function mountCompositor ($el, $electron) {
 
       const resize = (event, size) => {
         const aspect = size[0] / size[1]
-        const fov = Math.PI * 0.7
+        const fov = Math.PI * 0.6
         mat4.perspective(projection, fov, aspect, 0.01, 1000)
         vec2.copy(projectedThickness, singlePixel)
       }
@@ -396,7 +397,7 @@ function mountCompositor ($el, $electron) {
     },
 
     createBaseSegment () {
-      const radius = 20
+      const radius = 22
       const count = 5
 
       const lineWidthStepPrev = state.controls.lineWidthStep
@@ -406,10 +407,10 @@ function mountCompositor ($el, $electron) {
 
       state.geometry.shouldAppend = true
       Object.assign(state.controls, {
-        lineWidthStep: 2,
+        lineWidthStep: 1,
         lineStyleIndex: 0,
-        lineColor: '#58BAA4',
-        lineAlpha: 0.6
+        lineColor: UI_PALETTE.BACK_PRIMARY,
+        lineAlpha: 0.8
       })
 
       geometry.createSegment([radius, 0])

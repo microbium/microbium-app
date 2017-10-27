@@ -5,7 +5,14 @@ export const LINE_WIDTH = {
   THICK: 4,
   FAT: 8
 }
-export const LINE_WIDTH_KEYS = ['ULTRA_THIN', 'THIN', 'REGULAR', 'THICK', 'FAT']
+
+export const LINE_WIDTH_KEYS = [
+  'ULTRA_THIN',
+  'THIN',
+  'REGULAR',
+  'THICK',
+  'FAT'
+]
 
 export const TEXTURES = {
   'watercolor': require('@/assets/images/textures/watercolor.jpg'),

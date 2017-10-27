@@ -1,3 +1,7 @@
+import { UI_PALETTE } from '@/constants/color-palettes'
+
+const { PI } = Math
+
 export function drawSimulatorUI (state, ctx) {
   if (!state.simulation.isRunning) return
   const { tick } = state.simulation
@@ -9,14 +13,14 @@ export function drawSimulatorUI (state, ctx) {
   ctx.save()
   ctx.translate(-center[0], -center[1])
 
-  ctx.globalAlpha = 0.4
-  ctx.strokeStyle = '#58BAA4'
+  ctx.globalAlpha = 0.8
+  ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
 
   ctx.lineWidth = 3
   ctx.strokeRect(offsetA, offsetA,
     size[0] - offsetA * 2, size[1] - offsetA * 2)
 
-  ctx.lineWidth = 1
+  ctx.lineWidth = 0.5
   ctx.strokeRect(offsetB, offsetB,
     size[0] - offsetB * 2, size[1] - offsetB * 2)
 
@@ -28,17 +32,18 @@ export function drawSimulatorOriginUI (state, ctx) {
   const { diffusor, rotator } = state.simulation
 
   ctx.save()
-  ctx.globalAlpha = 0.6
-  ctx.strokeStyle = '#58BAA4'
-  ctx.lineWidth = 2
+  ctx.globalAlpha = 0.8
 
+  ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
+  ctx.lineWidth = 0.75
   ctx.beginPath()
-  ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * Math.PI, rotator.intensity > 0)
+  ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * PI, rotator.intensity > 0)
   ctx.stroke()
 
-  ctx.lineWidth = 1
+  ctx.strokeStyle = UI_PALETTE.BACK_SECONDARY
+  ctx.lineWidth = 0.5
   ctx.beginPath()
-  ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, Math.PI * 2)
+  ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, PI * 2)
   ctx.stroke()
 
   ctx.restore()
@@ -50,14 +55,14 @@ export function drawSimulatorForceUI (state, ctx, baseRadius, alpha) {
   const { move } = state.seek
 
   ctx.save()
-  ctx.globalAlpha = 0.6 * alpha
-  ctx.strokeStyle = '#58BAA4'
+  ctx.globalAlpha = 0.8 * alpha
+  ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
 
   ctx.lineWidth = 1
   ctx.beginPath()
   ctx.arc(move[0], move[1],
     baseRadius + nudge.intensity * 1.5,
-    0, Math.PI * 2)
+    0, PI * 2)
   ctx.stroke()
 
   ctx.restore()
