@@ -1,5 +1,5 @@
-import basic from '../shaders/basic.frag'
-import postFX from '../shaders/post-fx.vert'
+import basic from '@/shaders/basic.frag'
+import postFX from '@/shaders/post-fx.vert'
 
 export function createDrawRect (regl) {
   return regl({

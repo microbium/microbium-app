@@ -46,17 +46,35 @@ import {
 import createREGL from 'regl'
 import { LineBuilder } from 'regl-line-builder'
 
+import {
+  LINE_WIDTH_KEYS,
+  TEXTURES
+} from '@/constants/line-styles'
+
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
 import { debounce } from '@/utils/function'
-import { range, map, flatten2 } from '@/utils/array'
+import { range } from '@/utils/array'
 import { clamp, mapLinear, lerp } from '@/utils/math'
 import { curve } from '@/utils/draw'
 import { logger } from '@/utils/logger'
 
-import { createDrawRect } from '@/commands/screen-space'
-import { RepulsorForce } from '@/forces/RepulsorForce'
-import { RotatorForce } from '@/forces/RotatorForce'
+import { RepulsorForce } from '@/physics/forces/RepulsorForce'
+import { RotatorForce } from '@/physics/forces/RotatorForce'
+import { createDrawRect } from '@/draw/commands/screen-space'
+
+import {
+  drawSimulatorForceUI,
+  drawSimulatorOriginUI
+} from '@/draw/routines/simulator'
+import {
+  drawOrigin,
+  drawOriginTick
+} from '@/draw/routines/origin'
+import {
+  drawGeometry,
+  drawFocus
+} from '@/draw/routines/geometry'
 
 import linesEntitiesVert from '@/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@/shaders/lines-entities.frag'
@@ -65,20 +83,6 @@ const DISABLE_RENDER = false
 const ENABLE_PERSPECTIVE_VIEW = true
 
 const MAX_UINT16_VALUE = 2 ** 16
-
-const LINE_WIDTH = {
-  ULTRA_THIN: 0.5,
-  THIN: 1,
-  REGULAR: 2,
-  THICK: 4,
-  FAT: 8
-}
-const LINE_WIDTH_KEYS = ['ULTRA_THIN', 'THIN', 'REGULAR', 'THICK', 'FAT']
-
-const TEXTURES = {
-  'watercolor': require('../assets/images/textures/watercolor.jpg'),
-  'ground-mud': require('../assets/images/textures/ground-mud.jpg')
-}
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
@@ -645,100 +649,6 @@ function mountCompositor ($el, $electron) {
         all.push([a, b])
         return all
       }, [])
-    },
-
-    drawSegments (styleContexts, segmentStart_, segmentCount_) {
-      const { segments, vertices } = state.geometry
-      const { curveSubDivisions } = state.controls
-      const segmentStart = segmentStart_ || 0
-      const segmentCount = segmentCount_ || segments.length
-
-      for (let s = segmentStart; s < segmentCount; s++) {
-        const segment = segments[s]
-        const {
-          indices, isClosed,
-          lineWidth, lineStyleIndex, lineColor, lineAlpha
-        } = segment
-        const curvePrecision = segment.curvePrecision * curveSubDivisions
-        const count = isClosed ? indices.length - 1 : indices.length
-        if (count < 2) return
-
-        const { ctx } = styleContexts[lineStyleIndex]
-        ctx.globalAlpha = (curvePrecision <= 1 ? 0.8 : 0.4) * lineAlpha
-        ctx.lineWidth = curvePrecision <= 1 ? LINE_WIDTH[lineWidth] : LINE_WIDTH.THIN
-        ctx.strokeStyle = lineColor
-
-        ctx.beginPath()
-        for (let i = 0; i < count; i++) {
-          const index = indices[i]
-          const point = vertices[index]
-          if (i === 0) ctx.moveTo(point[0], point[1])
-          else ctx.lineTo(point[0], point[1])
-        }
-        if (isClosed) {
-          ctx.closePath()
-          // ctx.fill()
-        }
-        ctx.stroke()
-      }
-    },
-
-    drawSegmentsCurves (styleContexts, segmentStart_, segmentCount_) {
-      const { segments, vertices } = state.geometry
-      const { curveSubDivisions } = state.controls
-      const segmentStart = segmentStart_ || 0
-      const segmentCount = segmentCount_ || segments.length
-
-      for (let s = segmentStart; s < segmentCount; s++) {
-        const segment = segments[s]
-        const {
-          indices, isClosed,
-          lineWidth, lineStyleIndex, lineColor, lineAlpha
-        } = segment
-        const curvePrecision = segment.curvePrecision * curveSubDivisions
-        const count = isClosed ? indices.length - 1 : indices.length
-        if (count < 2 || curvePrecision <= 1) return
-
-        const { ctx } = styleContexts[lineStyleIndex]
-        const points = map(indices, (i) => vertices[i])
-        const pointsFlat = flatten2(points)
-
-        // FIXME: Closed curve segments have a noticeable gap
-        if (isClosed) pointsFlat.splice(-2, 2)
-
-        ctx.globalAlpha = 0.8 * lineAlpha
-        ctx.lineWidth = LINE_WIDTH[lineWidth]
-        ctx.strokeStyle = lineColor
-
-        ctx.beginPath()
-        ctx.moveTo(pointsFlat[0], pointsFlat[1])
-        ctx.curve(pointsFlat, 0.5, curvePrecision, isClosed)
-        if (isClosed) {
-          ctx.closePath()
-          // ctx.fill()
-        }
-        ctx.stroke()
-      }
-    },
-
-    drawFocus (ctx, index) {
-      const { vertices } = state.geometry
-      const point = vertices[index]
-      if (!point) return
-
-      ctx.strokeStyle = '#58BAA4'
-      ctx.globalAlpha = 0.6
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      ctx.arc(point[0], point[1], 6, 0, Math.PI * 2)
-      ctx.stroke()
-
-      ctx.strokeStyle = '#444444'
-      ctx.globalAlpha = 0.25
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.arc(point[0], point[1], 18, 0, Math.PI * 2)
-      ctx.stroke()
     }
   }
 
@@ -1299,22 +1209,20 @@ function mountCompositor ($el, $electron) {
       })
       sceneUI.lines.reset()
 
-      // view.drawEditorUI(sceneUI.ctx)
-      // view.drawSimulatorUI(sceneUI.ctx)
-      view.drawSimulatorForceUI(styleContexts[0].ctx, 0, 1)
-      view.drawSimulatorForceUI(sceneUI.ctx, 8, 1)
-      view.drawSimulatorOriginUI(sceneUI.ctx)
+      drawSimulatorForceUI(state, styleContexts[0].ctx, 0, 1)
+      drawSimulatorForceUI(state, sceneUI.ctx, 8, 1)
+      drawSimulatorOriginUI(state, sceneUI.ctx)
 
       if (isRunning) {
-        view.drawOriginTick(sceneUI.ctx)
+        drawOriginTick(state, sceneUI.ctx)
       } else {
-        view.drawOrigin(sceneUI.ctx)
-        view.drawGeometry([sceneUI], 0, 1)
+        drawOrigin(state, sceneUI.ctx)
+        drawGeometry(state, [sceneUI], 0, 1)
       }
 
-      view.drawGeometry(styleContexts, 1)
+      drawGeometry(state, styleContexts, 1)
       if (!isRunning && state.seek.index != null) {
-        geometry.drawFocus(sceneUI.ctx, state.seek.index)
+        drawFocus(state, sceneUI.ctx, state.seek.index)
       }
 
       let didResizeBuffer = false
@@ -1323,8 +1231,8 @@ function mountCompositor ($el, $electron) {
           const nextSize = context.bufferSize =
             Math.min(context.bufferSize * 2, MAX_UINT16_VALUE)
           context.lines.resize(nextSize)
-          console.log('resize lines buffer', context.index, nextSize)
           didResizeBuffer = true
+          console.log('resize lines buffer', context.index, nextSize)
         }
       })
       if (didResizeBuffer) return
@@ -1399,137 +1307,6 @@ function mountCompositor ($el, $electron) {
         thickness: this.computeLineThickness(1),
         miterLimit: this.computeLineThickness(4)
       })
-    },
-
-    drawGeometry (styleContexts, segmentStart, segmentCount) {
-      geometry.drawSegments(styleContexts, segmentStart, segmentCount)
-      geometry.drawSegmentsCurves(styleContexts, segmentStart, segmentCount)
-    },
-
-    drawEditorUI (ctx) {
-      if (state.simulation.isRunning) return
-      const { center } = state.viewport
-      const { lineWidth } = state.geometry
-      const offset = 20
-
-      ctx.save()
-      ctx.translate(-center[0], -center[1])
-
-      ctx.globalAlpha = 0.9
-      ctx.strokeStyle = '#111111'
-      ctx.lineWidth = LINE_WIDTH[lineWidth]
-
-      ctx.beginPath()
-      ctx.moveTo(offset, offset)
-      ctx.lineTo(offset + 40, offset)
-      ctx.stroke()
-
-      ctx.restore()
-    },
-
-    drawSimulatorUI (ctx) {
-      if (!state.simulation.isRunning) return
-      const { tick } = state.simulation
-      const { center, size } = state.viewport
-
-      const offsetA = 6 + Math.sin(tick * 0.02) * 2
-      const offsetB = 10 + Math.sin(tick * 0.02) * 2
-
-      ctx.save()
-      ctx.translate(-center[0], -center[1])
-
-      ctx.globalAlpha = 0.4
-      ctx.strokeStyle = '#58BAA4'
-
-      ctx.lineWidth = 3
-      ctx.strokeRect(offsetA, offsetA,
-        size[0] - offsetA * 2, size[1] - offsetA * 2)
-
-      ctx.lineWidth = 1
-      ctx.strokeRect(offsetB, offsetB,
-        size[0] - offsetB * 2, size[1] - offsetB * 2)
-
-      ctx.restore()
-    },
-
-    drawSimulatorOriginUI (ctx) {
-      if (!state.simulation.isRunning) return
-      const { diffusor, rotator } = state.simulation
-
-      ctx.save()
-      ctx.globalAlpha = 0.6
-      ctx.strokeStyle = '#58BAA4'
-      ctx.lineWidth = 2
-
-      ctx.beginPath()
-      ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * Math.PI, rotator.intensity > 0)
-      ctx.stroke()
-
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, Math.PI * 2)
-      ctx.stroke()
-
-      ctx.restore()
-    },
-
-    drawSimulatorForceUI (ctx, baseRadius, alpha) {
-      if (!state.simulation.isRunning) return
-      const { nudge } = state.simulation
-      const { move } = state.seek
-
-      ctx.save()
-      ctx.globalAlpha = 0.6 * alpha
-      ctx.strokeStyle = '#58BAA4'
-
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.arc(move[0], move[1],
-        baseRadius + nudge.intensity * 1.5,
-        0, Math.PI * 2)
-      ctx.stroke()
-
-      ctx.restore()
-    },
-
-    drawOrigin (ctx) {
-      const size = 6
-
-      ctx.save()
-      ctx.globalAlpha = 0.8
-      ctx.strokeStyle = '#222222'
-      ctx.lineWidth = 2
-
-      ctx.beginPath()
-      ctx.moveTo(0, -size)
-      ctx.lineTo(0, size)
-      ctx.stroke()
-
-      ctx.beginPath()
-      ctx.moveTo(-size, 0)
-      ctx.lineTo(size, 0)
-      ctx.stroke()
-
-      ctx.restore()
-    },
-
-    drawOriginTick (ctx) {
-      const { tick } = state.simulation
-
-      ctx.save()
-      ctx.globalAlpha = 0.8
-      ctx.strokeStyle = '#222222'
-      ctx.lineWidth = 2
-      ctx.rotate(tick * 0.02)
-
-      ctx.beginPath()
-      ctx.arc(0, 0, 8, 0, Math.PI * 0.5)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.arc(0, 0, 8, Math.PI, Math.PI * 1.5)
-      ctx.stroke()
-
-      ctx.restore()
     }
   }
 
