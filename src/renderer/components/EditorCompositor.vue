@@ -20,10 +20,6 @@
 .mode--edit {
   cursor: crosshair;
 }
-
-.controls--hidden {
-  display: none;
-}
 </style>
 
 <script>
@@ -97,8 +93,7 @@ function mountCompositor ($el, $electron) {
     'update', 'render', 'resize')
 
   const containers = {
-    compositor: getContainer('compositor'),
-    controls: getContainer('controls')
+    compositor: getContainer('compositor')
   }
 
   const state = createState()
@@ -824,16 +819,6 @@ function mountCompositor ($el, $electron) {
   }
 
   const viewport = {
-    toggleHelp (event) {
-      const element = document.getElementById('help-container')
-      element.classList.toggle('help--visible')
-      event.preventDefault()
-    },
-
-    toggleControls () {
-      state.viewport.controlsVisible = !state.viewport.controlsVisible
-    },
-
     updateClassName () {
       containers.compositor.className = state.simulation.isRunning
         ? 'mode--simulate' : 'mode--edit'
@@ -898,10 +883,6 @@ function mountCompositor ($el, $electron) {
         case 'ShiftLeft':
           stateInput.shift = false
           stateGeom.shouldAppend = false
-          break
-        case 'Backquote':
-          viewport.toggleControls()
-          viewport.updateClassName()
           break
       }
     },
@@ -1071,9 +1052,6 @@ function mountCompositor ($el, $electron) {
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
-    },
-
-    updateControlsState (nextState) {
     },
 
     render () {
