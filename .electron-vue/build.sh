@@ -1,5 +1,5 @@
 run_build () {
-  node ./.electron-vue/build-bundles.js
+  node ./.electron-vue/build-runner.js
   electron-builder
   terminal-notifier -title 'Bacterium' -message 'Build Complete'
 }

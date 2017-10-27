@@ -149,8 +149,7 @@ function greeting () {
   const cols = process.stdout.columns
   let text = ''
 
-  if (cols > 104) text = 'bacterium'
-  else if (cols > 76) text = 'bacterium'
+  if (cols > 76) text = 'bacterium'
   else text = false
 
   if (text) {
@@ -159,8 +158,8 @@ function greeting () {
       font: 'simple',
       space: false
     })
-  } else console.log(chalk.yellow.bold('\n  electron-vue'))
-  console.log(chalk.blue('  getting ready...') + '\n')
+  } else console.log(chalk.yellow.bold('\n  bacterium'))
+  console.log('\n' + chalk.blue('  getting ready...') + '\n')
 }
 
 function init () {
