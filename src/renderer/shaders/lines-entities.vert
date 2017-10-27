@@ -31,15 +31,19 @@ vec2 rotatedPosition (vec2 position, float angle) {
     -sin(angle) * position.x + position.y * cos(angle));
 }
 
+float mapZ (vec2 pos) {
+  return sin(length(pos) * 0.04) * 80.0;
+}
+
 void main() {
   mat4 projViewModel = projection * view * model;
 
   vec4 prevProjected = projViewModel *
-    vec4(rotatedPosition(prevPosition, angle), 0.0, 1.0);
+    vec4(rotatedPosition(prevPosition, angle), mapZ(prevPosition), 1.0);
   vec4 currProjected = projViewModel *
-    vec4(rotatedPosition(currPosition, angle), 0.0, 1.0);
+    vec4(rotatedPosition(currPosition, angle), mapZ(currPosition), 1.0);
   vec4 nextProjected = projViewModel *
-    vec4(rotatedPosition(nextPosition, angle), 0.0, 1.0);
+    vec4(rotatedPosition(nextPosition, angle), mapZ(nextPosition), 1.0);
 
   vec2 normal = computeMiterNormal(
     aspect, thickness, miterLimit,
