@@ -59,14 +59,15 @@ import { RepulsorForce } from '@/physics/forces/RepulsorForce'
 import { RotatorForce } from '@/physics/forces/RotatorForce'
 import { createDrawRect } from '@/draw/commands/screen-space'
 
-import { createCompositorState as createState } from '@/store/modules/Editor'
+import { createCompositorState } from '@/store/modules/Editor'
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
 } from '@/draw/routines/simulator'
 import {
   drawOrigin,
-  drawOriginTick
+  drawOriginTick,
+  drawPolarGrid
 } from '@/draw/routines/origin'
 import {
   drawGeometry,
@@ -96,7 +97,7 @@ function mountCompositor ($el, $electron) {
     compositor: getContainer('compositor')
   }
 
-  const state = createState()
+  const state = createCompositorState()
   const renderer = createRenderer()
   const cameras = createCameras()
   const scene = createScene()
@@ -239,7 +240,7 @@ function mountCompositor ($el, $electron) {
 
     // TODO: Investigate huge perf issues in Chrome when using instancing
     // TODO: Optimize shared state between contexts
-    const styleContexts = lineStyles.map((style, index) => {
+    const contexts = lineStyles.map((style, index) => {
       const bufferSize = 2 ** 12
       const lines = LineBuilder.create(regl, {
         bufferSize,
@@ -280,7 +281,7 @@ function mountCompositor ($el, $electron) {
     })
 
     return {
-      styleContexts
+      contexts
     }
   }
 
@@ -288,17 +289,29 @@ function mountCompositor ($el, $electron) {
   function createUIScene () {
     const { regl } = renderer
 
-    const lines = LineBuilder.create(regl, {
+    const contexts = ['main', 'grid'].map((name, index) => {
       // TODO: Make bufferSize smallest possible for UI
-      bufferSize: 2 ** 9
+      const bufferSize = 2 ** 9
+      const lines = LineBuilder.create(regl, {
+        bufferSize
+      })
+
+      const ctx = lines.getContext('2d')
+      ctx.curve = curve.bind(lines)
+
+      return {
+        bufferSize,
+        index,
+        name,
+        lines,
+        ctx
+      }
     })
 
-    const ctx = lines.getContext('2d')
-    ctx.curve = curve.bind(lines)
-
     return {
-      lines,
-      ctx
+      contexts,
+      main: contexts[0],
+      grid: contexts[1]
     }
   }
 
@@ -1012,6 +1025,7 @@ function mountCompositor ($el, $electron) {
 
     start () {
       tasks.run('syncState')
+      view.renderOnce()
       loop.start()
     },
 
@@ -1056,10 +1070,11 @@ function mountCompositor ($el, $electron) {
 
     render () {
       const { regl } = renderer
-      const { styleContexts } = scene
       const { offset, scale } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
+      const sceneContexts = scene.contexts
+      const uiMain = sceneUI.main
       const stateRenderer = state.renderer
 
       if (DISABLE_RENDER) return
@@ -1067,29 +1082,29 @@ function mountCompositor ($el, $electron) {
       stateRenderer.drawCalls = 0
       regl.poll()
 
-      styleContexts.forEach(({ lines }) => {
+      sceneContexts.forEach(({ lines }) => {
         lines.reset()
       })
-      sceneUI.lines.reset()
+      uiMain.lines.reset()
 
-      drawSimulatorForceUI(state, styleContexts[0].ctx, 0, 1)
-      drawSimulatorForceUI(state, sceneUI.ctx, 8, 1)
-      drawSimulatorOriginUI(state, sceneUI.ctx)
+      drawSimulatorForceUI(state, sceneContexts[0].ctx, 0, 1)
+      drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
+      drawSimulatorOriginUI(state, uiMain.ctx)
 
       if (isRunning) {
-        drawOriginTick(state, sceneUI.ctx)
+        drawOriginTick(state, uiMain.ctx)
       } else {
-        drawOrigin(state, sceneUI.ctx)
-        drawGeometry(state, [sceneUI], 0, 1)
+        drawOrigin(state, uiMain.ctx)
+        drawGeometry(state, [uiMain], 0, 1)
       }
 
-      drawGeometry(state, styleContexts, 1)
+      drawGeometry(state, sceneContexts, 1)
       if (!isRunning && state.seek.index != null) {
-        drawFocus(state, sceneUI.ctx, state.seek.index)
+        drawFocus(state, uiMain.ctx, state.seek.index)
       }
 
       let didResizeBuffer = false
-      styleContexts.forEach((context) => {
+      sceneContexts.forEach((context) => {
         if (context.lines.state.cursor.element > context.bufferSize) {
           const nextSize = context.bufferSize =
             Math.min(context.bufferSize * 2, MAX_UINT16_VALUE)
@@ -1110,6 +1125,12 @@ function mountCompositor ($el, $electron) {
       })
     },
 
+    // NOTE: Called once to setup non-dynamic UI
+    renderOnce () {
+      const uiGrid = sceneUI.grid
+      drawPolarGrid(state, uiGrid.ctx)
+    },
+
     renderClearRect () {
       const { drawRect } = renderer
       state.renderer.drawCalls++
@@ -1127,7 +1148,7 @@ function mountCompositor ($el, $electron) {
     },
 
     renderLines () {
-      const { styleContexts } = scene
+      const { contexts } = scene
       const { isRunning } = state.simulation
       const { polarIterations } = state.controls
       const { lineStyles } = state.renderer
@@ -1136,7 +1157,7 @@ function mountCompositor ($el, $electron) {
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
 
-      styleContexts.forEach(({ index, lines }) => {
+      contexts.forEach(({ index, lines }) => {
         const style = lineStyles[index]
         const { diffuseMap, hatchAlpha, tint, useScreenTintFunc } = style
         const thickness = this.computeLineThickness(style.thickness)
@@ -1161,14 +1182,19 @@ function mountCompositor ($el, $electron) {
     },
 
     renderUI () {
-      const { lines } = sceneUI
+      const { contexts } = sceneUI
       const model = mat4.identity(scratchMat4A)
+      const tint = [1, 1, 1, 1]
+      const thickness = this.computeLineThickness(1)
+      const miterLimit = this.computeLineThickness(4)
 
-      lines.draw({
-        model,
-        tint: [1, 1, 1, 1],
-        thickness: this.computeLineThickness(1),
-        miterLimit: this.computeLineThickness(4)
+      contexts.forEach(({ lines }) => {
+        lines.draw({
+          model,
+          tint,
+          thickness,
+          miterLimit
+        })
       })
     }
   }

@@ -1,12 +1,12 @@
 import { LINE_WIDTH } from '@/constants/line-styles'
 import { map, flatten2 } from '@/utils/array'
 
-export function drawGeometry (state, styleContexts, segmentStart, segmentCount) {
-  drawSegments(state, styleContexts, segmentStart, segmentCount)
-  drawSegmentsCurves(state, styleContexts, segmentStart, segmentCount)
+export function drawGeometry (state, contexts, segmentStart, segmentCount) {
+  drawSegments(state, contexts, segmentStart, segmentCount)
+  drawSegmentsCurves(state, contexts, segmentStart, segmentCount)
 }
 
-export function drawSegments (state, styleContexts, segmentStart_, segmentCount_) {
+export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
   const { curveSubDivisions } = state.controls
   const segmentStart = segmentStart_ || 0
@@ -22,7 +22,7 @@ export function drawSegments (state, styleContexts, segmentStart_, segmentCount_
     const count = isClosed ? indices.length - 1 : indices.length
     if (count < 2) return
 
-    const { ctx } = styleContexts[lineStyleIndex]
+    const { ctx } = contexts[lineStyleIndex]
     ctx.globalAlpha = (curvePrecision <= 1 ? 0.8 : 0.4) * lineAlpha
     ctx.lineWidth = curvePrecision <= 1 ? LINE_WIDTH[lineWidth] : LINE_WIDTH.THIN
     ctx.strokeStyle = lineColor
@@ -42,7 +42,7 @@ export function drawSegments (state, styleContexts, segmentStart_, segmentCount_
   }
 }
 
-export function drawSegmentsCurves (state, styleContexts, segmentStart_, segmentCount_) {
+export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
   const { curveSubDivisions } = state.controls
   const segmentStart = segmentStart_ || 0
@@ -58,7 +58,7 @@ export function drawSegmentsCurves (state, styleContexts, segmentStart_, segment
     const count = isClosed ? indices.length - 1 : indices.length
     if (count < 2 || curvePrecision <= 1) return
 
-    const { ctx } = styleContexts[lineStyleIndex]
+    const { ctx } = contexts[lineStyleIndex]
     const points = map(indices, (i) => vertices[i])
     const pointsFlat = flatten2(points)
 
