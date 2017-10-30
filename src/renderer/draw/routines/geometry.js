@@ -21,7 +21,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     } = segment
     const curvePrecision = segment.curvePrecision * curveSubDivisions
     const count = isClosed ? indices.length - 1 : indices.length
-    if (count < 2) return
+    if (count < 2) continue
 
     const { ctx } = contexts[lineStyleIndex]
     ctx.globalAlpha = (curvePrecision <= 1 ? 0.8 : 0.4) * lineAlpha
@@ -57,7 +57,7 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     } = segment
     const curvePrecision = segment.curvePrecision * curveSubDivisions
     const count = isClosed ? indices.length - 1 : indices.length
-    if (count < 2 || curvePrecision <= 1) return
+    if (count < 2 || curvePrecision <= 1) continue
 
     const { ctx } = contexts[lineStyleIndex]
     const points = map(indices, (i) => vertices[i])
