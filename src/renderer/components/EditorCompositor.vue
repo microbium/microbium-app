@@ -59,8 +59,8 @@ import { logger } from '@/utils/logger'
 import { RepulsorForce } from '@/physics/forces/RepulsorForce'
 import { RotatorForce } from '@/physics/forces/RotatorForce'
 import { createDrawRect } from '@/draw/commands/screen-space'
-
 import { createCompositorState } from '@/store/modules/Editor'
+
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
@@ -143,8 +143,6 @@ function mountCompositor ($el, $electron) {
     const sceneOrtho = (() => {
       const view = mat4.create()
       const projection = mat4.create()
-      const projectedThickness = vec2.create()
-      const singlePixel = [1, 0]
 
       const setup = regl({
         uniforms: {
@@ -165,14 +163,13 @@ function mountCompositor ($el, $electron) {
         const w = size[0] / 4
         const h = size[1] / 4
         mat4.ortho(projection, -w, w, h, -h, 0, 1000)
-        vec2.transformMat4(projectedThickness, singlePixel, projection)
       }
 
       return {
         view,
         projection,
-        projectedThickness,
         lineScaleFactor: 1,
+        shouldAdjustThickness: true,
         setup,
         resize
       }
@@ -181,11 +178,10 @@ function mountCompositor ($el, $electron) {
     const scenePerspective = (() => {
       const view = mat4.create()
       const projection = mat4.create()
-      const projectedThickness = vec2.create()
-      const singlePixel = [1, 0]
+
+      // FIXME: Inverted up vector
       const eye = vec3.create()
       const center = vec3.create()
-      // FIXME: Inverted up vector
       const up = vec3.set(vec3.create(), 0, -1, 0)
 
       const setup = regl({
@@ -194,7 +190,7 @@ function mountCompositor ($el, $electron) {
           // FEAT: Improve perspective camera controls
           view: (params, context) => {
             const { offset, scale } = context
-            vec3.set(eye, 0, 0, -435 / scale)
+            vec3.set(eye, -offset[0], -offset[1], -435 / scale)
             vec3.set(center, -offset[0], -offset[1], 0)
             mat4.lookAt(view, eye, center, up)
             return view
@@ -207,14 +203,13 @@ function mountCompositor ($el, $electron) {
         const aspect = size[0] / size[1]
         const fov = Math.PI * 0.6
         mat4.perspective(projection, fov, aspect, 0.01, 1000)
-        vec2.copy(projectedThickness, singlePixel)
       }
 
       return {
         view,
         projection,
-        projectedThickness,
         lineScaleFactor: 0,
+        shouldAdjustThickness: false,
         setup,
         resize
       }
@@ -1141,11 +1136,14 @@ function mountCompositor ($el, $electron) {
     },
 
     computeLineThickness (baseThickness) {
-      const { projectedThickness, lineScaleFactor } = cameras.scene
+      const { lineScaleFactor } = cameras.scene
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
-      return baseThickness * projectedThickness[0] *
-        lerp(1, scale + zoomOffset, lineScaleFactor)
+      return baseThickness * lerp(1, scale + zoomOffset, lineScaleFactor)
+    },
+
+    shouldAdjustThickness () {
+      return cameras.scene.shouldAdjustThickness
     },
 
     renderLines () {
@@ -1157,6 +1155,7 @@ function mountCompositor ($el, $electron) {
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
+      const adjustProjectedThickness = this.shouldAdjustThickness()
 
       contexts.forEach(({ index, lines }) => {
         const style = lineStyles[index]
@@ -1174,7 +1173,8 @@ function mountCompositor ($el, $electron) {
             tint,
             useScreenTintFunc,
             thickness,
-            miterLimit
+            miterLimit,
+            adjustProjectedThickness
           }
         })
         state.renderer.drawCalls += instances.length
@@ -1188,13 +1188,15 @@ function mountCompositor ($el, $electron) {
       const tint = [1, 1, 1, 1]
       const thickness = this.computeLineThickness(1)
       const miterLimit = this.computeLineThickness(4)
+      const adjustProjectedThickness = this.shouldAdjustThickness()
 
       contexts.forEach(({ lines }) => {
         lines.draw({
           model,
           tint,
           thickness,
-          miterLimit
+          miterLimit,
+          adjustProjectedThickness
         })
       })
     }
