@@ -486,8 +486,9 @@ function mountCompositor ($el, $electron) {
         }
         stateGeom.prevPoint = candidatePoint
         stateGeom.candidatePoint = null
-        stateGeom.shouldAppendOnce = false
       }
+
+      stateGeom.shouldAppendOnce = false
     },
 
     completeActiveSegment (index) {
@@ -497,14 +498,15 @@ function mountCompositor ($el, $electron) {
 
       const firstIndex = indices[0]
       const lastIndex = indices[indices.length - 1]
-      const isConnected = index != null && lastIndex !== index
+      const isConnected = index != null
       const isClosed = isConnected && firstIndex === index
 
       if (isConnected) {
         indices[indices.length - 1] = index
         // FIXME: Somehow getting duplicate vertices at end
         if (indices.length > 2 && indices[indices.length - 2] === lastIndex) {
-          indices[indices.length - 2] = index
+          // indices[indices.length - 2] = index
+          // indices.pop()
         }
         vertices.pop()
       }
@@ -648,7 +650,7 @@ function mountCompositor ($el, $electron) {
     // FIXME: Seek while panning
     mouseMove (event) {
       const stateSeek = state.seek
-      const { isDown } = state.drag
+      const { isDrawing } = state.drag
       const { scale } = state.viewport
       const { move, movePrev } = stateSeek
 
@@ -657,24 +659,32 @@ function mountCompositor ($el, $electron) {
       viewport.projectScreen(move)
 
       const dist = vec2.distance(movePrev, move)
-      const velocity = (stateSeek.velocity + dist) / 2
+      const time = Date.now()
+      const timeDiff = time - (stateSeek.timePrev || Date.now())
+      const velocity = timeDiff > 0 ? (dist / timeDiff) : stateSeek.velocity
       stateSeek.velocity = velocity
+      stateSeek.timePrev = time
+
+      if (velocity > 0.2) {
+        stateSeek.index = null
+        return
+      }
 
       const close = geometry.findClosestPoint(
-        move, stateSeek.minDistance / scale, isDown ? 1 : 0)
+        move, stateSeek.minDistance / scale, isDrawing ? 2 : 0)
       stateSeek.index = close ? close.index : null
     }
   }
 
   const drag = {
-    contextMenu (event) {
-      event.preventDefault()
-    },
-
     mouseDown (event) {
       const stateDrag = state.drag
       const { isDown, shouldNavigate, shouldZoom, down } = stateDrag
-      if (isDown || stateDrag.isDrawing) return
+
+      if (isDown || stateDrag.isDrawing) {
+        stateDrag.isDown = true
+        return
+      }
 
       const isDrawing = !shouldNavigate
       const isPanning = shouldNavigate && !shouldZoom
@@ -683,11 +693,9 @@ function mountCompositor ($el, $electron) {
       viewport.projectScreen(down)
 
       stateDrag.isDown = true
-      stateDrag.hasMoved = false
       stateDrag.isDrawing = isDrawing
       stateDrag.isPanning = isPanning
       stateDrag.isZooming = isZooming
-      stateDrag.velocity = 0
 
       if (isDrawing) drag.beginDraw(down)
       else if (isPanning) drag.beginPan(down)
@@ -695,24 +703,18 @@ function mountCompositor ($el, $electron) {
 
       document.addEventListener('mousemove', drag.mouseMove, false)
       document.addEventListener('mouseup', drag.mouseUp, false)
-      document.addEventListener('dblclick', drag.dblClick, false)
       event.preventDefault()
     },
 
-    // FEAT: Implement brush style interaction while hold / dragging
     // TODO: Manage different interactions / commands separately
     mouseMove (event) {
       const stateDrag = state.drag
+      const { velocity } = state.seek
       const { isDrawing, isPanning, isZooming, move, movePrev } = stateDrag
 
       vec2.copy(movePrev, move)
       vec2.set(move, event.clientX, event.clientY)
       viewport.projectScreen(move)
-
-      const dist = vec2.distance(movePrev, move)
-      const velocity = (stateDrag.velocity + dist) / 2
-      stateDrag.hasMoved = true
-      stateDrag.velocity = velocity
 
       if (isDrawing) drag.moveDraw(move, velocity)
       else if (isPanning) drag.movePan(move, velocity)
@@ -724,46 +726,36 @@ function mountCompositor ($el, $electron) {
     mouseUp (event) {
       const stateDrag = state.drag
       const stateGeom = state.geometry
-      const { hasMoved, isDrawing, isPanning, isZooming, up } = stateDrag
+      const {
+        isDrawing, isPanning, isZooming,
+        up, upPrev, upTimeLast
+      } = stateDrag
 
-      if (isDrawing) {
-        stateGeom.shouldAppendOnce = hasMoved
-      } else {
-        stateDrag.isDown = false
-        stateDrag.isPanning = false
-        stateDrag.isZooming = false
-        stateDrag.velocity = 0
+      const time = Date.now()
+      const timeDiff = time - upTimeLast
 
-        vec2.set(up, event.clientX, event.clientY)
-        viewport.projectScreen(up)
-
-        if (isPanning) drag.endPan(up)
-        else if (isZooming) drag.endZoom(up)
-
-        document.removeEventListener('mousemove', drag.mouseMove)
-        document.removeEventListener('mouseup', drag.mouseUp)
-        document.removeEventListener('dblclick', drag.dblClick)
-      }
-
-      event.preventDefault()
-    },
-
-    dblClick (event) {
-      const stateDrag = state.drag
-      const { up } = stateDrag
-
+      vec2.copy(upPrev, up)
       vec2.set(up, event.clientX, event.clientY)
       viewport.projectScreen(up)
 
       stateDrag.isDown = false
-      stateDrag.isDrawing = false
-      stateDrag.velocity = 0
 
-      drag.endDraw(up)
+      if (isDrawing && timeDiff > 300) {
+        stateGeom.shouldAppendOnce = true
+      } else {
+        stateDrag.isDrawing = false
+        stateDrag.isPanning = false
+        stateDrag.isZooming = false
 
-      document.removeEventListener('mousemove', drag.mouseMove)
-      document.removeEventListener('mouseup', drag.mouseUp)
-      document.removeEventListener('dblclick', drag.dblClick)
+        if (isDrawing) drag.endDraw(up)
+        else if (isPanning) drag.endPan(up)
+        else if (isZooming) drag.endZoom(up)
+
+        document.removeEventListener('mousemove', drag.mouseMove)
+        document.removeEventListener('mouseup', drag.mouseUp)
+      }
+
+      stateDrag.upTimeLast = time
       event.preventDefault()
     },
 
@@ -816,8 +808,10 @@ function mountCompositor ($el, $electron) {
     },
 
     moveDraw (move, velocity) {
+      const { isDown } = state.drag
       const { index } = state.seek
-      geometry.updateActiveSegment(move, velocity < 2 ? index : null)
+      state.geometry.shouldAppend = isDown
+      geometry.updateActiveSegment(move, index)
     },
 
     endDraw (up) {
@@ -857,7 +851,6 @@ function mountCompositor ($el, $electron) {
     keyDown (event) {
       const { code } = event
       const stateDrag = state.drag
-      const stateGeom = state.geometry
       const stateInput = state.input
 
       switch (code) {
@@ -871,7 +864,6 @@ function mountCompositor ($el, $electron) {
           break
         case 'ShiftLeft':
           stateInput.shift = true
-          stateGeom.shouldAppend = true
           break
       }
     },
@@ -879,7 +871,6 @@ function mountCompositor ($el, $electron) {
     keyUp (event) {
       const { code } = event
       const stateDrag = state.drag
-      const stateGeom = state.geometry
       const stateInput = state.input
 
       switch (code) {
@@ -893,7 +884,6 @@ function mountCompositor ($el, $electron) {
           break
         case 'ShiftLeft':
           stateInput.shift = false
-          stateGeom.shouldAppend = false
           break
       }
     },
@@ -1030,7 +1020,6 @@ function mountCompositor ($el, $electron) {
     bindEvents () {
       containers.compositor.addEventListener('mousemove', seek.mouseMove, false)
       containers.compositor.addEventListener('mousedown', drag.mouseDown, false)
-      // containers.compositor.addEventListener('contextmenu', drag.contextMenu, false)
       window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)

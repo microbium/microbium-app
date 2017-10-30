@@ -3,6 +3,7 @@ import { LINE_WIDTH_KEYS } from '@/constants/line-styles'
 
 function createCompositorState () {
   const seek = {
+    timePrev: 0,
     velocity: 0,
     move: vec2.create(),
     movePrev: vec2.create(),
@@ -15,7 +16,6 @@ function createCompositorState () {
     shouldZoom: false,
 
     isDown: false,
-    hasMoved: false,
     isDrawing: false,
     isPanning: false,
     isZooming: false,
@@ -25,11 +25,12 @@ function createCompositorState () {
     zoomDown: 1,
     zoomOffset: 0,
 
-    velocity: 0,
     down: vec2.create(),
     move: vec2.create(),
     movePrev: vec2.create(),
-    up: vec2.create()
+    up: vec2.create(),
+    upPrev: vec2.create(),
+    upTimeLast: 0
   }
 
   const viewport = {
