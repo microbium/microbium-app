@@ -8,7 +8,7 @@ export function drawOrigin (state, ctx) {
   ctx.save()
   ctx.globalAlpha = 0.6
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
-  ctx.lineWidth = 2
+  ctx.lineWidth = 1
   ctx.rotate(PI * 0.25)
 
   ctx.beginPath()
@@ -30,7 +30,7 @@ export function drawOriginTick (state, ctx) {
   ctx.save()
   ctx.globalAlpha = 0.8
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
-  ctx.lineWidth = 2
+  ctx.lineWidth = 1.5
   ctx.rotate(tick * 0.02)
 
   ctx.beginPath()

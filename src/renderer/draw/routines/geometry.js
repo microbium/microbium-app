@@ -1,4 +1,5 @@
 import { LINE_WIDTH } from '@/constants/line-styles'
+import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
@@ -85,16 +86,16 @@ export function drawFocus (state, ctx, index) {
   const point = vertices[index]
   if (!point) return
 
-  ctx.strokeStyle = '#58BAA4'
-  ctx.globalAlpha = 0.6
-  ctx.lineWidth = 1.5
+  ctx.globalAlpha = 0.8
+  ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
+  ctx.lineWidth = 1
   ctx.beginPath()
   ctx.arc(point[0], point[1], 6, 0, Math.PI * 2)
   ctx.stroke()
 
-  ctx.strokeStyle = '#444444'
-  ctx.globalAlpha = 0.25
-  ctx.lineWidth = 1
+  ctx.globalAlpha = 0.05
+  ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
+  ctx.lineWidth = 0.5
   ctx.beginPath()
   ctx.arc(point[0], point[1], 18, 0, Math.PI * 2)
   ctx.stroke()
