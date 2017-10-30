@@ -1055,6 +1055,9 @@ function mountCompositor ($el, $electron) {
       }
     },
 
+    // FEAT: Add postprocessing pipeline
+    // Experiment with fxaa, fisheye, noise, maybe DOF
+    // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     render () {
       const { regl } = renderer
       const { offset, scale } = state.viewport
