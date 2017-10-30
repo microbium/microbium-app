@@ -428,7 +428,7 @@ function mountCompositor ($el, $electron) {
 
     createSegment (point, index) {
       const stateGeom = state.geometry
-      const { segments, vertices, linkSizeMin } = stateGeom
+      const { segments, vertices } = stateGeom
       const { lineWidth, lineStyleIndex, lineColor, lineAlpha } = state.controls
       const isExisting = index != null
 
@@ -441,8 +441,7 @@ function mountCompositor ($el, $electron) {
         lineWidth,
         lineStyleIndex,
         lineColor,
-        lineAlpha,
-        linkSizeMin
+        lineAlpha
       }
 
       if (!isExisting) vertices.push(startPoint)
@@ -458,10 +457,13 @@ function mountCompositor ($el, $electron) {
     // TODO: Improve appending joints in Chrome
     updateActiveSegment (point, index) {
       const stateGeom = state.geometry
-      const { shouldAppend, shouldAppendOnce, activeSegment, prevPoint, vertices } = stateGeom
+      const {
+        shouldAppend, shouldAppendOnce, linkSizeMin,
+        activeSegment, prevPoint, vertices
+      } = stateGeom
       if (!activeSegment) return
 
-      const { linkSizeMin, indices } = activeSegment
+      const { indices } = activeSegment
       const hasCandidate = !!stateGeom.candidatePoint
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
 
@@ -478,7 +480,7 @@ function mountCompositor ($el, $electron) {
       }
 
       if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
-        if (index != null) {
+        if (index != null && index !== indices[indices.length - 1]) {
           indices[indices.length - 1] = index
           vertices.pop()
         }
