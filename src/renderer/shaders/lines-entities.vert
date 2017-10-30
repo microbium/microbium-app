@@ -33,7 +33,8 @@ vec2 rotatedPosition (vec2 position, float angle) {
 }
 
 float mapZ (vec2 pos) {
-  return sin(length(pos) * 0.04) * 80.0;
+  float l = length(pos) * 0.01;
+  return l * l + 40.0;
 }
 
 void main() {

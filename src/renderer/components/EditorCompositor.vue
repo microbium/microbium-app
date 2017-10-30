@@ -162,7 +162,7 @@ function mountCompositor ($el, $electron) {
       const resize = (event, size) => {
         const w = size[0] / 4
         const h = size[1] / 4
-        mat4.ortho(projection, -w, w, h, -h, 0, 1000)
+        mat4.ortho(projection, -w, w, h, -h, 0, 2000)
       }
 
       return {
@@ -202,7 +202,7 @@ function mountCompositor ($el, $electron) {
       const resize = (event, size) => {
         const aspect = size[0] / size[1]
         const fov = Math.PI * 0.6
-        mat4.perspective(projection, fov, aspect, 0.01, 1000)
+        mat4.perspective(projection, fov, aspect, 0.01, 2000)
       }
 
       return {
@@ -501,14 +501,16 @@ function mountCompositor ($el, $electron) {
       const isConnected = index != null
       const isClosed = isConnected && firstIndex === index
 
+      // FIXME: Multiple issues with this ...
       if (isConnected) {
         indices[indices.length - 1] = index
-        // FIXME: Somehow getting duplicate vertices at end
-        if (indices.length > 2 && indices[indices.length - 2] === lastIndex) {
-          // indices[indices.length - 2] = index
-          // indices.pop()
+        if (indices[indices.length - 2] < vertices.length - 1) {
+          vertices.pop()
         }
-        vertices.pop()
+        if (indices.length > 2 && indices[indices.length - 2] === lastIndex) {
+          indices[indices.length - 2] = index
+          indices.pop()
+        }
       }
 
       Object.assign(activeSegment, {
@@ -737,10 +739,9 @@ function mountCompositor ($el, $electron) {
       vec2.copy(upPrev, up)
       vec2.set(up, event.clientX, event.clientY)
       viewport.projectScreen(up)
-
       stateDrag.isDown = false
 
-      if (isDrawing && timeDiff > 300) {
+      if (isDrawing && timeDiff > 200) {
         stateGeom.shouldAppendOnce = true
       } else {
         stateDrag.isDrawing = false

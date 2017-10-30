@@ -35,13 +35,13 @@ export function drawSimulatorOriginUI (state, ctx) {
   ctx.globalAlpha = 0.8
 
   ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
-  ctx.lineWidth = 0.75
+  ctx.lineWidth = 1.5
   ctx.beginPath()
   ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * PI, rotator.intensity > 0)
   ctx.stroke()
 
   ctx.strokeStyle = UI_PALETTE.BACK_SECONDARY
-  ctx.lineWidth = 0.5
+  ctx.lineWidth = 1
   ctx.beginPath()
   ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, PI * 2)
   ctx.stroke()
