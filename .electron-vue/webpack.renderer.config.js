@@ -30,6 +30,7 @@ const rendererConfig = {
   ],
   module: {
     rules: [
+      /*
       {
         test: /\.(js|vue)$/,
         enforce: 'pre',
@@ -41,6 +42,7 @@ const rendererConfig = {
           }
         }
       },
+      */
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
