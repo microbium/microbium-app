@@ -117,5 +117,5 @@ export function createSimulationController (tasks, state, renderer) {
   tasks.registerResponder('simulation.toggle',
     simulation, simulation.toggle)
 
-  return { simulation }
+  return simulation
 }

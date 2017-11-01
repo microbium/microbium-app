@@ -101,5 +101,5 @@ export function createViewportController (tasks, state) {
   tasks.registerResponder('viewport.projectScreen',
     viewport, viewport.projectScreen)
 
-  return { viewport }
+  return viewport
 }

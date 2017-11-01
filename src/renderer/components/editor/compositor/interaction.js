@@ -1,6 +1,6 @@
 import { vec2 } from 'gl-matrix'
 
-export function createInteractionController (tasks, state) {
+export function createSeekController (tasks, state) {
   const { requestSync } = tasks
 
   const seek = {
@@ -33,6 +33,12 @@ export function createInteractionController (tasks, state) {
       stateSeek.index = close ? close.index : null
     }
   }
+
+  return seek
+}
+
+export function createDragController (tasks, state) {
+  const { requestSync } = tasks
 
   const drag = {
     pointerDown (event) {
@@ -201,5 +207,5 @@ export function createInteractionController (tasks, state) {
     }
   }
 
-  return { seek, drag }
+  return drag
 }

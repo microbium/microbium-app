@@ -230,5 +230,5 @@ export function createGeometryController (tasks, state, renderer) {
     tasks.registerResponder(`geometry.${name}`, geometry, geometry[name])
   })
 
-  return { geometry }
+  return geometry
 }

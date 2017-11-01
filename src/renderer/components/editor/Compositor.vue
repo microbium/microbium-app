@@ -34,8 +34,8 @@ import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
 import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
-import { createTextureManager } from '@/utils/texture'
 
+import { createTextureManager } from '@/utils/texture'
 import { createDrawRect } from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
 
@@ -43,7 +43,7 @@ import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
 import { createGeometryController } from './compositor/geometry'
 import { createSimulationController } from './compositor/simulation'
-import { createInteractionController } from './compositor/interaction'
+import { createSeekController, createDragController } from './compositor/interaction'
 import { createViewportController } from './compositor/viewport'
 
 import {
@@ -85,10 +85,11 @@ function mountCompositor ($el, $electron) {
   const scene = createScene(tasks, state, renderer)
   const sceneUI = createUIScene(tasks, state, renderer)
 
-  const { geometry } = createGeometryController(tasks, state)
-  const { simulation } = createSimulationController(tasks, state)
-  const { seek, drag } = createInteractionController(tasks, state)
-  const { viewport } = createViewportController(tasks, state)
+  const geometry = createGeometryController(tasks, state)
+  const simulation = createSimulationController(tasks, state)
+  const seek = createSeekController(tasks, state)
+  const drag = createDragController(tasks, state)
+  const viewport = createViewportController(tasks, state)
 
   function getContainer (name) {
     return document.getElementById(name)

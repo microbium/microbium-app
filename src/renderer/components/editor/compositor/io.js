@@ -92,5 +92,5 @@ export function createIOController (tasks, state, renderer) {
     }
   }
 
-  return { io }
+  return io
 }
