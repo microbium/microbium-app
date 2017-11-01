@@ -27,7 +27,6 @@
 
 import {
   vec2,
-  vec3,
   mat2d,
   mat4
 } from 'gl-matrix'
@@ -40,7 +39,6 @@ import {
 } from 'particulate'
 
 import createREGL from 'regl'
-import { LineBuilder } from 'regl-line-builder'
 
 import {
   LINE_WIDTH_KEYS,
@@ -53,13 +51,15 @@ import { createLoop } from '@/utils/loop'
 import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
 import { clamp, mapLinear, lerp } from '@/utils/math'
-import { curve } from '@/utils/draw'
 import { logger } from '@/utils/logger'
 
 import { RepulsorForce } from '@/physics/forces/RepulsorForce'
 import { RotatorForce } from '@/physics/forces/RotatorForce'
 import { createDrawRect } from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
+
+import { createCameras } from './compositor/cameras'
+import { createScene, createUIScene } from './compositor/scenes'
 
 import {
   drawSimulatorForceUI,
@@ -75,34 +75,29 @@ import {
   drawFocus
 } from '@/draw/routines/geometry'
 
-import linesEntitiesVert from '@/shaders/lines-entities.vert'
-import linesEntitiesFrag from '@/shaders/lines-entities.frag'
-
 const DISABLE_RENDER = false
-const ENABLE_PERSPECTIVE_VIEW = true
 
 const MAX_UINT16_VALUE = 2 ** 16
 
 const scratchVec2A = vec2.create()
-const scratchVec3A = vec3.create()
-const scratchVec3B = vec3.create()
 const scratchMat2dA = mat2d.create()
 const scratchMat4A = mat4.create()
 
 function mountCompositor ($el, $electron) {
-  const tasks = createTaskManager(
-    'inject', 'syncState',
-    'update', 'render', 'resize')
-
+  // TODO: Pass DOM element from vue component
   const containers = {
     compositor: getContainer('compositor')
   }
 
+  const tasks = createTaskManager(
+    'inject', 'syncState',
+    'update', 'render', 'resize')
   const state = createCompositorState()
   const renderer = createRenderer()
-  const cameras = createCameras()
-  const scene = createScene()
-  const sceneUI = createUIScene()
+
+  const cameras = createCameras(tasks, state, renderer)
+  const scene = createScene(tasks, state, renderer)
+  const sceneUI = createUIScene(tasks, state, renderer)
   const loop = createAnimationLoop()
 
   function getContainer (name) {
@@ -129,185 +124,6 @@ function mountCompositor ($el, $electron) {
       regl,
       drawRect,
       createTexture
-    }
-  }
-
-  function createCameras () {
-    const { regl } = renderer
-
-    const baseUniforms = {
-      viewResolution: () => state.viewport.size,
-      viewOffset: regl.prop('offset')
-    }
-
-    const sceneOrtho = (() => {
-      const view = mat4.create()
-      const projection = mat4.create()
-
-      const setup = regl({
-        uniforms: {
-          ...baseUniforms,
-          view: (params, context) => {
-            const { offset, scale } = context
-            const offset3 = vec3.set(scratchVec3A, offset[0], offset[1], 0)
-            const scale3 = vec3.set(scratchVec3B, scale, scale, scale)
-            mat4.fromTranslation(view, offset3)
-            mat4.scale(view, view, scale3)
-            return view
-          },
-          projection: () => projection
-        }
-      })
-
-      const resize = (event, size) => {
-        const w = size[0] / 4
-        const h = size[1] / 4
-        mat4.ortho(projection, -w, w, h, -h, 0, 2000)
-      }
-
-      return {
-        view,
-        projection,
-        lineScaleFactor: 1,
-        shouldAdjustThickness: true,
-        setup,
-        resize
-      }
-    })()
-
-    const scenePerspective = (() => {
-      const view = mat4.create()
-      const projection = mat4.create()
-
-      // FIXME: Inverted up vector
-      const eye = vec3.create()
-      const center = vec3.create()
-      const up = vec3.set(vec3.create(), 0, -1, 0)
-
-      const setup = regl({
-        uniforms: {
-          ...baseUniforms,
-          // FEAT: Improve perspective camera controls
-          view: (params, context) => {
-            const { offset, scale } = context
-            vec3.set(eye, -offset[0], -offset[1], -435 / scale)
-            vec3.set(center, -offset[0], -offset[1], 0)
-            mat4.lookAt(view, eye, center, up)
-            return view
-          },
-          projection: () => projection
-        }
-      })
-
-      const resize = (event, size) => {
-        const aspect = size[0] / size[1]
-        const fov = Math.PI * 0.6
-        mat4.perspective(projection, fov, aspect, 0.01, 2000)
-      }
-
-      return {
-        view,
-        projection,
-        lineScaleFactor: 0,
-        shouldAdjustThickness: false,
-        setup,
-        resize
-      }
-    })()
-
-    tasks.add((event) => {
-      const { size } = state.viewport
-      sceneOrtho.resize(event, size)
-      scenePerspective.resize(event, size)
-    }, 'resize')
-
-    return {
-      get scene () {
-        // TODO: Improve determining active camera
-        const { isRunning } = state.simulation
-        return (isRunning && ENABLE_PERSPECTIVE_VIEW) ? scenePerspective : sceneOrtho
-      }
-    }
-  }
-
-  function createScene () {
-    const { createTexture, regl } = renderer
-    const { lineStyles } = state.renderer
-
-    // TODO: Investigate huge perf issues in Chrome when using instancing
-    // TODO: Optimize shared state between contexts
-    const contexts = lineStyles.map((style, index) => {
-      const bufferSize = 2 ** 12
-      const lines = LineBuilder.create(regl, {
-        bufferSize,
-        drawArgs: {
-          vert: linesEntitiesVert,
-          frag: linesEntitiesFrag,
-          uniforms: {
-            angle: regl.prop('angle'),
-            angleAlpha: regl.prop('angleAlpha'),
-            hatchAlpha: regl.prop('hatchAlpha'),
-            tint: regl.prop('tint'),
-            // FEAT: Add multiple screen space tinting functions
-            useScreenTintFunc: regl.prop('useScreenTintFunc'),
-            diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048),
-            useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1)
-          },
-          blend: {
-            enable: true,
-            equation: 'add',
-            func: {
-              src: 'src alpha',
-              dst: 'one minus src alpha'
-            }
-          }
-        }
-      })
-
-      const ctx = lines.getContext('2d')
-      ctx.curve = curve.bind(ctx)
-
-      return {
-        bufferSize,
-        index,
-        style,
-        lines,
-        ctx
-      }
-    })
-
-    return {
-      contexts
-    }
-  }
-
-  // FEAT: Add static radial grid context, remove grid marking from css background-image
-  function createUIScene () {
-    const { regl } = renderer
-
-    const contexts = ['main', 'grid'].map((name, index) => {
-      // TODO: Make bufferSize smallest possible for UI
-      const bufferSize = 2 ** 9
-      const lines = LineBuilder.create(regl, {
-        bufferSize
-      })
-
-      const ctx = lines.getContext('2d')
-      ctx.curve = curve.bind(ctx)
-
-      return {
-        bufferSize,
-        index,
-        name,
-        lines,
-        ctx
-      }
-    })
-
-    return {
-      contexts,
-      main: contexts[0],
-      grid: contexts[1]
     }
   }
 
