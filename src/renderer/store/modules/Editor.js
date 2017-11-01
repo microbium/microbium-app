@@ -24,6 +24,7 @@ function createCompositorState () {
     panOffset: vec2.create(),
     zoomDown: 1,
     zoomOffset: 0,
+    pressure: 0.5,
 
     down: vec2.create(),
     move: vec2.create(),

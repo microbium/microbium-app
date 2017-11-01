@@ -4,7 +4,7 @@ import { map, flatten2 } from '@/utils/array'
 
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
   drawSegments(state, contexts, segmentStart, segmentCount)
-  drawSegmentsCurves(state, contexts, segmentStart, segmentCount)
+  // drawSegmentsCurves(state, contexts, segmentStart, segmentCount)
 }
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
@@ -17,21 +17,27 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const segment = segments[s]
     const {
       indices, isClosed,
-      lineWidth, lineStyleIndex, lineColor, lineAlpha
+      lineWidths, lineStyleIndex, lineColor, lineAlpha
     } = segment
-    const curvePrecision = segment.curvePrecision * curveSubDivisions
+
     const count = isClosed ? indices.length - 1 : indices.length
     if (count < 2) continue
 
+    const curvePrecision = segment.curvePrecision * curveSubDivisions
+    const lineWidthBase = curvePrecision <= 1
+      ? LINE_WIDTH[segment.lineWidthBase]
+      : LINE_WIDTH.THIN
     const { ctx } = contexts[lineStyleIndex]
-    ctx.globalAlpha = (curvePrecision <= 1 ? 0.8 : 0.4) * lineAlpha
-    ctx.lineWidth = curvePrecision <= 1 ? LINE_WIDTH[lineWidth] : LINE_WIDTH.THIN
-    ctx.strokeStyle = lineColor
 
+    ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * lineAlpha
+    ctx.strokeStyle = lineColor
     ctx.beginPath()
+
     for (let i = 0; i < count; i++) {
       const index = indices[i]
       const point = vertices[index]
+      const lineWidth = lineWidths[i]
+      ctx.lineWidth = lineWidthBase * lineWidth
       if (i === 0) ctx.moveTo(point[0], point[1])
       else ctx.lineTo(point[0], point[1])
     }
@@ -66,7 +72,7 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     // FIXME: Closed curve segments have a noticeable gap
     if (isClosed) pointsFlat.splice(-2, 2)
 
-    ctx.globalAlpha = 0.8 * lineAlpha
+    ctx.globalAlpha = lineAlpha
     ctx.lineWidth = LINE_WIDTH[lineWidth]
     ctx.strokeStyle = lineColor
 

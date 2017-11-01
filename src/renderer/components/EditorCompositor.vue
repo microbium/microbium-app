@@ -359,6 +359,10 @@ function mountCompositor ($el, $electron) {
         mapLinear(12, 120, 0, 1, linkSizeAvg)))
     },
 
+    computeModulatedLineWidth () {
+      return state.drag.pressure * 2
+    },
+
     // TODO: Optimize with spacial index (kd-tree)
     findClosestPoint (target, maxDist = 10, lastOffset = 0) {
       const { vertices } = state.geometry
@@ -405,7 +409,7 @@ function mountCompositor ($el, $electron) {
         lineWidthStep: 1,
         lineStyleIndex: 0,
         lineColor: UI_PALETTE.BACK_PRIMARY,
-        lineAlpha: 0.8
+        lineAlpha: 0.95
       })
 
       geometry.createSegment([radius, 0])
@@ -435,10 +439,12 @@ function mountCompositor ($el, $electron) {
       const startPoint = isExisting ? point : vec2.clone(point)
       const startIndex = isExisting ? index : vertices.length
 
+      const modLineWidth = geometry.computeModulatedLineWidth()
       const nextSegment = {
         indices: [startIndex],
         curvePrecision: 0,
-        lineWidth,
+        lineWidthBase: lineWidth,
+        lineWidths: [modLineWidth],
         lineStyleIndex,
         lineColor,
         lineAlpha
@@ -463,20 +469,25 @@ function mountCompositor ($el, $electron) {
       } = stateGeom
       if (!activeSegment) return
 
-      const { indices } = activeSegment
+      const { indices, lineWidths } = activeSegment
       const hasCandidate = !!stateGeom.candidatePoint
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
 
       vec2.copy(candidatePoint, point)
       const dist = vec2.distance(prevPoint, candidatePoint)
 
-      activeSegment.curvePrecision =
-        geometry.computeCurvePrecision(vertices, indices)
+      const modLineWidth = geometry.computeModulatedLineWidth()
+      const curvePrecision = geometry.computeCurvePrecision(vertices, indices)
+
+      activeSegment.curvePrecision = curvePrecision
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint
         indices.push(vertices.length)
         vertices.push(candidatePoint)
+        lineWidths.push(modLineWidth)
+      } else {
+        lineWidths[lineWidths.length - 1] = modLineWidth
       }
 
       if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
@@ -698,6 +709,7 @@ function mountCompositor ($el, $electron) {
       stateDrag.isDrawing = isDrawing
       stateDrag.isPanning = isPanning
       stateDrag.isZooming = isZooming
+      drag.updatePressure(event)
 
       if (isDrawing) drag.beginDraw(down)
       else if (isPanning) drag.beginPan(down)
@@ -712,11 +724,16 @@ function mountCompositor ($el, $electron) {
     pointerMove (event) {
       const stateDrag = state.drag
       const { velocity } = state.seek
-      const { isDrawing, isPanning, isZooming, move, movePrev } = stateDrag
+      const {
+        isDown, isDrawing, isPanning, isZooming,
+        move, movePrev
+      } = stateDrag
 
       vec2.copy(movePrev, move)
       vec2.set(move, event.clientX, event.clientY)
       viewport.projectScreen(move)
+
+      if (isDown) drag.updatePressure(event)
 
       if (isDrawing) drag.moveDraw(move, velocity)
       else if (isPanning) drag.movePan(move, velocity)
@@ -758,6 +775,10 @@ function mountCompositor ($el, $electron) {
 
       stateDrag.upTimeLast = time
       event.preventDefault()
+    },
+
+    updatePressure (event) {
+      state.drag.pressure = event.pressure
     },
 
     // FEAT: Add damping / improve feel to panning and zooming
