@@ -650,7 +650,7 @@ function mountCompositor ($el, $electron) {
 
   const seek = {
     // FIXME: Seek while panning
-    mouseMove (event) {
+    pointerMove (event) {
       const stateSeek = state.seek
       const { isDrawing } = state.drag
       const { scale } = state.viewport
@@ -679,7 +679,7 @@ function mountCompositor ($el, $electron) {
   }
 
   const drag = {
-    mouseDown (event) {
+    pointerDown (event) {
       const stateDrag = state.drag
       const { isDown, shouldNavigate, shouldZoom, down } = stateDrag
 
@@ -703,13 +703,13 @@ function mountCompositor ($el, $electron) {
       else if (isPanning) drag.beginPan(down)
       else if (isZooming) drag.beginZoom(down)
 
-      document.addEventListener('mousemove', drag.mouseMove, false)
-      document.addEventListener('mouseup', drag.mouseUp, false)
+      document.addEventListener('pointermove', drag.pointerMove, false)
+      document.addEventListener('pointerup', drag.pointerUp, false)
       event.preventDefault()
     },
 
     // TODO: Manage different interactions / commands separately
-    mouseMove (event) {
+    pointerMove (event) {
       const stateDrag = state.drag
       const { velocity } = state.seek
       const { isDrawing, isPanning, isZooming, move, movePrev } = stateDrag
@@ -725,7 +725,7 @@ function mountCompositor ($el, $electron) {
       event.preventDefault()
     },
 
-    mouseUp (event) {
+    pointerUp (event) {
       const stateDrag = state.drag
       const stateGeom = state.geometry
       const {
@@ -752,8 +752,8 @@ function mountCompositor ($el, $electron) {
         else if (isPanning) drag.endPan(up)
         else if (isZooming) drag.endZoom(up)
 
-        document.removeEventListener('mousemove', drag.mouseMove)
-        document.removeEventListener('mouseup', drag.mouseUp)
+        document.removeEventListener('pointermove', drag.pointerMove)
+        document.removeEventListener('pointerup', drag.pointerUp)
       }
 
       stateDrag.upTimeLast = time
@@ -1019,8 +1019,8 @@ function mountCompositor ($el, $electron) {
     },
 
     bindEvents () {
-      containers.compositor.addEventListener('mousemove', seek.mouseMove, false)
-      containers.compositor.addEventListener('mousedown', drag.mouseDown, false)
+      containers.compositor.addEventListener('pointermove', seek.pointerMove, false)
+      containers.compositor.addEventListener('pointerdown', drag.pointerDown, false)
       window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
