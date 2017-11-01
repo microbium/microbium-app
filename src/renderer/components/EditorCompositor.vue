@@ -265,7 +265,7 @@ function mountCompositor ($el, $electron) {
       })
 
       const ctx = lines.getContext('2d')
-      ctx.curve = curve.bind(lines)
+      ctx.curve = curve.bind(ctx)
 
       return {
         bufferSize,
@@ -293,7 +293,7 @@ function mountCompositor ($el, $electron) {
       })
 
       const ctx = lines.getContext('2d')
-      ctx.curve = curve.bind(lines)
+      ctx.curve = curve.bind(ctx)
 
       return {
         bufferSize,
