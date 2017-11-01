@@ -6,7 +6,7 @@ export function drawOrigin (state, ctx) {
   const size = 8
 
   ctx.save()
-  ctx.globalAlpha = 0.6
+  ctx.globalAlpha = 0.95
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
   ctx.lineWidth = 1
   ctx.rotate(PI * 0.25)
@@ -28,7 +28,7 @@ export function drawOriginTick (state, ctx) {
   const { tick } = state.simulation
 
   ctx.save()
-  ctx.globalAlpha = 0.8
+  ctx.globalAlpha = 0.95
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
   ctx.lineWidth = 2
   ctx.rotate(tick * 0.02)
@@ -60,7 +60,7 @@ export function drawPolarGrid (state, ctx) {
       const isEven = j % 2 === 0
       const length = isEven ? tickSize : tickSize * 2
 
-      ctx.globalAlpha = 0.8
+      ctx.globalAlpha = 0.95
       ctx.lineWidth = 0.5
       ctx.strokeStyle = isEven
         ? UI_PALETTE.BACK_SECONDARY
