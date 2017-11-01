@@ -59,7 +59,7 @@
 </style>
 
 <script>
-import EditorCompositor from './EditorCompositor'
+import EditorCompositor from './editor/Compositor'
 
 export default {
   name: 'editor',
