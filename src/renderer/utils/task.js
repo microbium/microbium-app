@@ -1,5 +1,6 @@
 export function createTaskManager (...queueNames) {
   const tasks = {}
+  const responders = {}
 
   queueNames.forEach((name) => {
     tasks[name] = []
@@ -43,6 +44,21 @@ export function createTaskManager (...queueNames) {
     })).then(() => {
       tasks[queueName].length = 0
     })
+  }
+
+  // Request / Response
+
+  tasks.registerResponder = (responderName, context, fn) => {
+    responders[responderName] = {
+      context,
+      fn
+    }
+  }
+
+  tasks.requestSync = (responderName, ...args) => {
+    const responder = responders[responderName]
+    if (!responder) throw new Error(`No responder for ${responderName}.`)
+    return responder.fn.apply(responder.context, args)
   }
 
   return tasks

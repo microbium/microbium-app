@@ -23,48 +23,33 @@
 </style>
 
 <script>
-// TODO: Refactor to make more modular, integrate with vue
-
-import {
-  vec2,
-  mat2d,
-  mat4
-} from 'gl-matrix'
-
-import {
-  BoundingPlaneConstraint,
-  DistanceConstraint,
-  PointConstraint,
-  ParticleSystem
-} from 'particulate'
-
+import { vec2, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 
-import {
-  LINE_WIDTH_KEYS,
-  TEXTURES
-} from '@/constants/line-styles'
-import { UI_PALETTE } from '@/constants/color-palettes'
+import { TEXTURES } from '@/constants/line-styles'
 
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
 import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
-import { clamp, mapLinear, lerp } from '@/utils/math'
+import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
+import { createTextureManager } from '@/utils/texture'
 
-import { RepulsorForce } from '@/physics/forces/RepulsorForce'
-import { RotatorForce } from '@/physics/forces/RotatorForce'
 import { createDrawRect } from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
+import { createGeometryController } from './compositor/geometry'
+import { createSimulationController } from './compositor/simulation'
+import { createInteractionController } from './compositor/interaction'
+import { createViewportController } from './compositor/viewport'
 
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
-} from '@/draw/routines/simulator'
+} from '@/draw/routines/simulation'
 import {
   drawOrigin,
   drawOriginTick,
@@ -80,9 +65,9 @@ const DISABLE_RENDER = false
 const MAX_UINT16_VALUE = 2 ** 16
 
 const scratchVec2A = vec2.create()
-const scratchMat2dA = mat2d.create()
 const scratchMat4A = mat4.create()
 
+// TODO: Integrate with vue component
 function mountCompositor ($el, $electron) {
   // TODO: Pass DOM element from vue component
   const containers = {
@@ -92,13 +77,18 @@ function mountCompositor ($el, $electron) {
   const tasks = createTaskManager(
     'inject', 'syncState',
     'update', 'render', 'resize')
+  const loop = createAnimationLoop()
   const state = createCompositorState()
   const renderer = createRenderer()
 
   const cameras = createCameras(tasks, state, renderer)
   const scene = createScene(tasks, state, renderer)
   const sceneUI = createUIScene(tasks, state, renderer)
-  const loop = createAnimationLoop()
+
+  const { geometry } = createGeometryController(tasks, state)
+  const { simulation } = createSimulationController(tasks, state)
+  const { seek, drag } = createInteractionController(tasks, state)
+  const { viewport } = createViewportController(tasks, state)
 
   function getContainer (name) {
     return document.getElementById(name)
@@ -118,36 +108,12 @@ function mountCompositor ($el, $electron) {
     })
 
     const drawRect = createDrawRect(regl)
-    const createTexture = createTextureManager(regl)
+    const createTexture = createTextureManager(regl, TEXTURES)
 
     return {
       regl,
       drawRect,
       createTexture
-    }
-  }
-
-  function createTextureManager (regl) {
-    const cache = {}
-    const empty = regl.texture()
-
-    return function createTexture (key, size) {
-      if (key == null) return empty
-
-      const cached = cache[key]
-      if (cached) return cached
-
-      const image = document.createElement('img')
-      const texture = cache[key] = regl.texture({
-        width: size,
-        height: size
-      })
-      image.src = TEXTURES[key]
-      image.onload = () => {
-        texture({data: image})
-      }
-
-      return texture
     }
   }
 
@@ -159,685 +125,9 @@ function mountCompositor ($el, $electron) {
       (1 / 60 * 1000))
   }
 
-  // Geometry
-
-  const geometry = {
-    // TODO: Improve curve precision mapping
-    computeCurvePrecision: function (vertices, indices) {
-      let segmentLength = 0
-      for (let i = 0; i < indices.length - 1; i++) {
-        segmentLength += vec2.distance(
-          vertices[indices[i]], vertices[indices[i + 1]])
-      }
-
-      const linkSizeAvg = segmentLength / (indices.length - 1)
-      return Math.round(clamp(0, 1,
-        mapLinear(12, 120, 0, 1, linkSizeAvg)))
-    },
-
-    computeModulatedLineWidth () {
-      return state.drag.pressure * 2
-    },
-
-    // TODO: Optimize with spacial index (kd-tree)
-    findClosestPoint (target, maxDist = 10, lastOffset = 0) {
-      const { vertices } = state.geometry
-      const maxDistSq = maxDist * maxDist
-      const count = vertices.length - lastOffset
-      let closestPointIndex = null
-      let closestDistSq = Infinity
-      for (let i = 0; i < count; i++) {
-        const point = vertices[i]
-        const distSq = vec2.squaredDistance(target, point)
-        if (distSq < maxDistSq && distSq < closestDistSq) {
-          closestPointIndex = i
-          closestDistSq = distSq
-        }
-      }
-      if (closestPointIndex != null) {
-        return {
-          index: closestPointIndex,
-          point: vertices[closestPointIndex]
-        }
-      }
-      return null
-    },
-
-    createBaseFromState (initialState) {
-      const { segments, vertices } = initialState
-      Object.assign(state.geometry, {
-        segments,
-        vertices
-      })
-    },
-
-    createBaseSegment () {
-      const radius = 22
-      const count = 5
-
-      const lineWidthStepPrev = state.controls.lineWidthStep
-      const lineStyleIndexPrev = state.controls.lineStyleIndex
-      const lineColorPrev = state.controls.lineColor
-      const lineAlphaPrev = state.controls.lineAlpha
-
-      state.geometry.shouldAppend = true
-      Object.assign(state.controls, {
-        lineWidthStep: 1,
-        lineStyleIndex: 0,
-        lineColor: UI_PALETTE.BACK_PRIMARY,
-        lineAlpha: 0.95
-      })
-
-      geometry.createSegment([radius, 0])
-      for (let i = 1; i < (1 + count); i++) {
-        const angle = i / count * Math.PI * 2
-        const x = Math.cos(angle) * radius
-        const y = Math.sin(angle) * radius
-        geometry.updateActiveSegment([x, y])
-      }
-      geometry.completeActiveSegment(0)
-
-      state.geometry.shouldAppend = false
-      Object.assign(state.controls, {
-        lineWidthStep: lineWidthStepPrev,
-        lineStyleIndex: lineStyleIndexPrev,
-        lineColor: lineColorPrev,
-        lineAlpha: lineAlphaPrev
-      })
-    },
-
-    createSegment (point, index) {
-      const stateGeom = state.geometry
-      const { segments, vertices } = stateGeom
-      const { lineWidth, lineStyleIndex, lineColor, lineAlpha } = state.controls
-      const isExisting = index != null
-
-      const startPoint = isExisting ? point : vec2.clone(point)
-      const startIndex = isExisting ? index : vertices.length
-
-      const modLineWidth = geometry.computeModulatedLineWidth()
-      const nextSegment = {
-        indices: [startIndex],
-        curvePrecision: 0,
-        lineWidthBase: lineWidth,
-        lineWidths: [modLineWidth],
-        lineStyleIndex,
-        lineColor,
-        lineAlpha
-      }
-
-      if (!isExisting) vertices.push(startPoint)
-      segments.push(nextSegment)
-      Object.assign(stateGeom, {
-        candidatePoint: null,
-        prevPoint: startPoint,
-        activeSegment: nextSegment,
-        activeSegmentIsConnected: index != null
-      })
-    },
-
-    // TODO: Improve appending joints in Chrome
-    updateActiveSegment (point, index) {
-      const stateGeom = state.geometry
-      const {
-        shouldAppend, shouldAppendOnce, linkSizeMin,
-        activeSegment, prevPoint, vertices
-      } = stateGeom
-      if (!activeSegment) return
-
-      const { indices, lineWidths } = activeSegment
-      const hasCandidate = !!stateGeom.candidatePoint
-      const candidatePoint = stateGeom.candidatePoint || vec2.create()
-
-      vec2.copy(candidatePoint, point)
-      const dist = vec2.distance(prevPoint, candidatePoint)
-
-      const modLineWidth = geometry.computeModulatedLineWidth()
-      const curvePrecision = geometry.computeCurvePrecision(vertices, indices)
-
-      activeSegment.curvePrecision = curvePrecision
-
-      if (!hasCandidate) {
-        stateGeom.candidatePoint = candidatePoint
-        indices.push(vertices.length)
-        vertices.push(candidatePoint)
-        lineWidths.push(modLineWidth)
-      } else {
-        lineWidths[lineWidths.length - 1] = modLineWidth
-      }
-
-      if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
-        if (index != null && index !== indices[indices.length - 1]) {
-          indices[indices.length - 1] = index
-          vertices.pop()
-        }
-        stateGeom.prevPoint = candidatePoint
-        stateGeom.candidatePoint = null
-      }
-
-      stateGeom.shouldAppendOnce = false
-    },
-
-    completeActiveSegment (index) {
-      const stateGeom = state.geometry
-      const { activeSegment, vertices } = stateGeom
-      const { indices } = activeSegment
-
-      const firstIndex = indices[0]
-      const lastIndex = indices[indices.length - 1]
-      const isConnected = index != null
-      const isClosed = isConnected && firstIndex === index
-
-      // FIXME: Multiple issues with this ...
-      if (isConnected) {
-        indices[indices.length - 1] = index
-        if (indices[indices.length - 2] < vertices.length - 1) {
-          vertices.pop()
-        }
-        if (indices.length > 2 && indices[indices.length - 2] === lastIndex) {
-          indices[indices.length - 2] = index
-          indices.pop()
-        }
-      }
-
-      Object.assign(activeSegment, {
-        isClosed,
-        indices: new Uint16Array(indices)
-      })
-    },
-
-    ensureActiveSegmentValid () {
-      const stateGeom = state.geometry
-      const {
-        activeSegment, activeSegmentIsConnected,
-        segments, vertices
-      } = stateGeom
-      const { indices } = activeSegment
-      const isInvalid = indices.length === 1 ||
-        (indices.length === 2 && indices[0] === indices[1])
-
-      if (isInvalid) {
-        stateGeom.activeSegment = null
-        segments.pop()
-        if (!activeSegmentIsConnected) vertices.pop()
-      }
-    },
-
-    // TODO: Create variation on DistanceConstraint that accepts indices in this segment format
-    expandIndicesToLines (indices) {
-      return indices.slice(0, -1).reduce((all, v, i) => {
-        const a = indices[i]
-        const b = indices[i + 1]
-        all.push([a, b])
-        return all
-      }, [])
-    }
-  }
-
-  // Simulation
-
-  const simulation = {
-    toggle () {
-      const { isRunning } = state.simulation
-      state.simulation.isRunning = !isRunning
-      if (!isRunning) {
-        logger.time('create simulation')
-        simulation.createFromGeometry()
-        logger.timeEnd('create simulation')
-      }
-    },
-
-    createFromGeometry () {
-      const { segments, vertices } = state.geometry
-      const count = vertices.length
-      const system = ParticleSystem.create(count, 2)
-
-      vertices.forEach((vert, i) => {
-        system.setPosition(i, vert[0], vert[1], 0)
-      })
-
-      // NOTE: First base segment is pinned to center
-      segments[0].indices.slice(1).forEach((index) => {
-        const position = system.getPosition(index, [])
-        const pin = PointConstraint.create(position, index)
-        system.addPinConstraint(pin)
-      })
-
-      segments.slice(1).forEach((segment) => {
-        const lines = geometry.expandIndicesToLines(segment.indices)
-        lines.forEach((line) => {
-          const distance = vec2.distance(
-            vertices[line[0]],
-            vertices[line[1]])
-          const constraint = DistanceConstraint.create(
-            [distance * 0.95, distance], line)
-          system.addConstraint(constraint)
-        })
-      })
-
-      const bounds = BoundingPlaneConstraint.create(
-        [0, 0, 0], [0, 0, 1], Infinity)
-      bounds.friction = 0.01
-      system.addConstraint(bounds)
-
-      const nudge = RepulsorForce.create([0, 0, 0], {
-        radius: 80,
-        intensity: 0.1
-      })
-      const diffusor = RepulsorForce.create([0, 0, 0], {
-        radius: 800,
-        intensity: 0.01
-      })
-      const rotator = RotatorForce.create([0, 0, 0], {
-        radius: 800,
-        intensity: 0.01
-      })
-      system.addForce(nudge)
-      system.addForce(diffusor)
-      system.addForce(rotator)
-
-      Object.assign(state.simulation, {
-        system,
-        bounds,
-        nudge,
-        diffusor,
-        rotator
-      })
-    },
-
-    updateForces () {
-      const { nudge, diffusor, rotator, tick } = state.simulation
-      const { move, velocity } = state.seek
-      const { polarIterations } = state.controls
-
-      const angleStep = Math.PI * 2 / polarIterations
-      const angleIndex = tick % polarIterations
-      const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
-      const nudgePosition = vec2.transformMat2d(scratchVec2A, move, rotation)
-      nudge.set(nudgePosition[0], nudgePosition[1], 0)
-      nudge.intensity = Math.min(velocity, 3) * 1.5 + 2
-
-      diffusor.intensity = Math.sin(tick * 0.012) * 0.01
-      rotator.intensity = Math.sin(tick * 0.01) * 0.01
-    },
-
-    syncGeometry () {
-      const { positions } = state.simulation.system
-      const { vertices } = state.geometry
-
-      vertices.forEach((vert, i) => {
-        const ix = i * 3
-        const iy = ix + 1
-        vec2.set(vert, positions[ix], positions[iy])
-      })
-    }
-  }
-
-  // Events
-
-  const seek = {
-    // FIXME: Seek while panning
-    pointerMove (event) {
-      const stateSeek = state.seek
-      const { isDrawing } = state.drag
-      const { scale } = state.viewport
-      const { move, movePrev } = stateSeek
-
-      vec2.copy(movePrev, move)
-      vec2.set(move, event.clientX, event.clientY)
-      viewport.projectScreen(move)
-
-      const dist = vec2.distance(movePrev, move)
-      const time = Date.now()
-      const timeDiff = time - (stateSeek.timePrev || Date.now())
-      const velocity = timeDiff > 0 ? (dist / timeDiff) : stateSeek.velocity
-      stateSeek.velocity = velocity
-      stateSeek.timePrev = time
-
-      if (velocity > 0.2) {
-        stateSeek.index = null
-        return
-      }
-
-      const close = geometry.findClosestPoint(
-        move, stateSeek.minDistance / scale, isDrawing ? 2 : 0)
-      stateSeek.index = close ? close.index : null
-    }
-  }
-
-  const drag = {
-    pointerDown (event) {
-      const stateDrag = state.drag
-      const { isDown, shouldNavigate, shouldZoom, down } = stateDrag
-
-      if (isDown || stateDrag.isDrawing) {
-        stateDrag.isDown = true
-        return
-      }
-
-      const isDrawing = !shouldNavigate
-      const isPanning = shouldNavigate && !shouldZoom
-      const isZooming = shouldNavigate && shouldZoom
-      vec2.set(down, event.clientX, event.clientY)
-      viewport.projectScreen(down)
-
-      stateDrag.isDown = true
-      stateDrag.isDrawing = isDrawing
-      stateDrag.isPanning = isPanning
-      stateDrag.isZooming = isZooming
-      drag.updatePressure(event)
-
-      if (isDrawing) drag.beginDraw(down)
-      else if (isPanning) drag.beginPan(down)
-      else if (isZooming) drag.beginZoom(down)
-
-      document.addEventListener('pointermove', drag.pointerMove, false)
-      document.addEventListener('pointerup', drag.pointerUp, false)
-      event.preventDefault()
-    },
-
-    // TODO: Manage different interactions / commands separately
-    pointerMove (event) {
-      const stateDrag = state.drag
-      const { velocity } = state.seek
-      const {
-        isDown, isDrawing, isPanning, isZooming,
-        move, movePrev
-      } = stateDrag
-
-      vec2.copy(movePrev, move)
-      vec2.set(move, event.clientX, event.clientY)
-      viewport.projectScreen(move)
-
-      if (isDown) drag.updatePressure(event)
-
-      if (isDrawing) drag.moveDraw(move, velocity)
-      else if (isPanning) drag.movePan(move, velocity)
-      else if (isZooming) drag.moveZoom(move, velocity)
-
-      event.preventDefault()
-    },
-
-    pointerUp (event) {
-      const stateDrag = state.drag
-      const stateGeom = state.geometry
-      const {
-        isDrawing, isPanning, isZooming,
-        up, upPrev, upTimeLast
-      } = stateDrag
-
-      const time = Date.now()
-      const timeDiff = time - upTimeLast
-
-      vec2.copy(upPrev, up)
-      vec2.set(up, event.clientX, event.clientY)
-      viewport.projectScreen(up)
-      stateDrag.isDown = false
-
-      if (isDrawing && timeDiff > 200) {
-        stateGeom.shouldAppendOnce = true
-      } else {
-        stateDrag.isDrawing = false
-        stateDrag.isPanning = false
-        stateDrag.isZooming = false
-
-        if (isDrawing) drag.endDraw(up)
-        else if (isPanning) drag.endPan(up)
-        else if (isZooming) drag.endZoom(up)
-
-        document.removeEventListener('pointermove', drag.pointerMove)
-        document.removeEventListener('pointerup', drag.pointerUp)
-      }
-
-      stateDrag.upTimeLast = time
-      event.preventDefault()
-    },
-
-    updatePressure (event) {
-      state.drag.pressure = event.pressure
-    },
-
-    // FEAT: Add damping / improve feel to panning and zooming
-    beginPan (down) {},
-
-    // FEAT: Update cursor while grab / panning
-    movePan (move, velocity) {
-      const { panOffset, down } = state.drag
-      const { scale } = state.viewport
-      vec2.sub(panOffset, move, down)
-      vec2.scale(panOffset, panOffset, scale)
-    },
-
-    endPan (up) {
-      const { panOffset } = state.drag
-      const { offset } = state.viewport
-      vec2.add(offset, offset, panOffset)
-      vec2.set(panOffset, 0, 0)
-    },
-
-    beginZoom (down) {},
-
-    moveZoom (move, velocity) {
-      const { down, panOffset } = state.drag
-      const { offset, size, scale } = state.viewport
-      const diff = (move[1] - down[1]) * scale
-      const nextZoomOffset = diff / (size[1] / scale * 0.4)
-
-      vec2.copy(panOffset, offset)
-      vec2.scale(panOffset, panOffset, nextZoomOffset / scale)
-      state.drag.zoomOffset = nextZoomOffset
-    },
-
-    endZoom (up) {
-      const { panOffset, zoomOffset } = state.drag
-      const { offset, scale } = state.viewport
-      state.viewport.scale = scale + zoomOffset
-      state.drag.zoomOffset = 0
-      vec2.add(offset, offset, panOffset)
-      vec2.set(panOffset, 0, 0)
-    },
-
-    beginDraw (down) {
-      const { minDistance } = state.seek
-      const { scale } = state.viewport
-      const close = geometry.findClosestPoint(down, minDistance / scale)
-      if (close) geometry.createSegment(close.point, close.index)
-      else geometry.createSegment(down)
-    },
-
-    moveDraw (move, velocity) {
-      const { isDown } = state.drag
-      const { index } = state.seek
-      state.geometry.shouldAppend = isDown
-      geometry.updateActiveSegment(move, index)
-    },
-
-    endDraw (up) {
-      const { minDistance } = state.seek
-      const { scale } = state.viewport
-      const close = geometry.findClosestPoint(up, minDistance / scale, 1)
-      geometry.completeActiveSegment(close && close.index)
-      geometry.ensureActiveSegmentValid()
-    }
-  }
-
-  const viewport = {
-    updateClassName () {
-      containers.compositor.className = state.simulation.isRunning
-        ? 'mode--simulate' : 'mode--edit'
-    },
-
-    projectScreen (screen) {
-      const { center, offset, scale } = state.viewport
-      vec2.sub(screen, screen, center)
-      vec2.sub(screen, screen, offset)
-      vec2.scale(screen, screen, 1 / scale)
-      return screen
-    },
-
-    resize (event) {
-      const stateViewport = state.viewport
-      const width = window.innerWidth
-      const height = window.innerHeight
-
-      vec2.set(stateViewport.size, width, height)
-      vec2.set(stateViewport.center, width / 2, height / 2)
-      stateViewport.pixelRatio = window.devicePixelRatio || 1
-      tasks.run('resize', event)
-    },
-
-    keyDown (event) {
-      const { code } = event
-      const stateDrag = state.drag
-      const stateInput = state.input
-
-      switch (code) {
-        case 'AltLeft':
-          stateInput.alt = true
-          stateDrag.shouldNavigate = true
-          break
-        case 'ControlLeft':
-          stateInput.control = true
-          stateDrag.shouldZoom = true
-          break
-        case 'ShiftLeft':
-          stateInput.shift = true
-          break
-      }
-    },
-
-    keyUp (event) {
-      const { code } = event
-      const stateDrag = state.drag
-      const stateInput = state.input
-
-      switch (code) {
-        case 'AltLeft':
-          stateInput.alt = false
-          stateDrag.shouldNavigate = false
-          break
-        case 'ControlLeft':
-          stateInput.control = false
-          stateDrag.shouldZoom = false
-          break
-        case 'ShiftLeft':
-          stateInput.shift = false
-          break
-      }
-    },
-
-    keyCommand (event, data) {
-      const { code } = data
-
-      switch (code) {
-        case 'Space':
-          simulation.toggle()
-          viewport.updateClassName()
-          break
-        case 'KeyS':
-          view.saveGeometry()
-          break
-      }
-    },
-
-    message (event, data) {
-      switch (data.type) {
-        case 'UPDATE_CONTROLS':
-          state.controls[data.key] = data.value
-          break
-      }
-    }
-  }
-
-  // Route / Persist
-
-  const route = {
-    // TODO: Add lineStyleIndex, lineColor, lineAlpha
-    serializeGeometry () {
-      const stateGeom = state.geometry
-      const { segments, vertices } = stateGeom
-      const { map } = Array.prototype
-
-      const lineWidthLookup = toHash(LINE_WIDTH_KEYS)
-
-      function toHash (arr) {
-        return arr.reduce((hash, v, i) => {
-          hash[v] = i
-          return hash
-        }, {})
-      }
-
-      function toFixed (n, len) {
-        const factor = Math.pow(10, len)
-        return Math.round(n * factor) / factor
-      }
-
-      const segmentsStr = segments
-        .map((segment) => {
-          const { lineWidth } = segment
-          return [
-            lineWidthLookup[lineWidth],
-            segment.indices.join(',')
-          ].join('_')
-        })
-        .join('&')
-
-      const verticesStr = vertices
-        .map((vert) => {
-          return map.call(vert, (v) => toFixed(v, 2)).join(',')
-        })
-        .join('&')
-
-      return [
-        segmentsStr,
-        verticesStr
-      ].join('__')
-    },
-
-    serializeGeometryToLocalStorage () {
-      const hash = route.serializeGeometry()
-      window.localStorage.setItem('editor-data', hash)
-    },
-
-    deserializeGeometry (str) {
-      const [segmentsStr, verticesStr] = str.split('__')
-
-      const vertices = verticesStr.split('&').map((str) => {
-        const vals = str.split(',')
-          .map((str) => parseFloat(str))
-        return vec2.clone(vals)
-      })
-
-      const segments = segmentsStr.split('&').map((str) => {
-        const [lineWidthStr, indicesStr] = str.split('_')
-
-        const lineWidth = LINE_WIDTH_KEYS[parseInt(lineWidthStr, 10)]
-        const indices = indicesStr.split(',')
-          .map((str) => parseInt(str, 10))
-
-        return {
-          lineWidth,
-          indices: new Uint16Array(indices),
-          curvePrecision: geometry.computeCurvePrecision(vertices, indices),
-          isClosed: indices[0] === indices[indices.length - 1]
-        }
-      })
-
-      return {
-        segments,
-        vertices
-      }
-    },
-
-    deserializeGeometryFromLocalStorage () {
-      const hash = window.localStorage.getItem('editor-data')
-      if (!hash) return null
-      return route.deserializeGeometry(hash)
-    }
-  }
-
   // Update / Render
 
+  // TODO: Integrate with vue DOM / events
   const view = {
     inject () {
       tasks.flush('inject', containers).then(() => {
@@ -880,7 +170,7 @@ function mountCompositor ($el, $electron) {
 
     saveGeometry () {
       logger.time('serialize geometry')
-      route.serializeGeometryToLocalStorage()
+      // route.serializeGeometryToLocalStorage()
       logger.timeEnd('serialize geometry')
     },
 
