@@ -62,8 +62,6 @@ import {
 
 const DISABLE_RENDER = false
 
-const MAX_UINT16_VALUE = 2 ** 16
-
 const scratchVec2A = vec2.create()
 const scratchMat4A = mat4.create()
 
@@ -100,7 +98,8 @@ function mountCompositor ($el, $electron) {
       container: containers.compositor,
       extensions: [
         // 'angle_instanced_arrays',
-        'oes_standard_derivatives'
+        'OES_standard_derivatives',
+        'OES_element_index_uint'
       ],
       attributes: {
         antialias: true,
@@ -225,11 +224,10 @@ function mountCompositor ($el, $electron) {
       let didResizeBuffer = false
       sceneContexts.forEach((context) => {
         if (context.lines.state.cursor.element > context.bufferSize) {
-          const nextSize = context.bufferSize =
-            Math.min(context.bufferSize * 2, MAX_UINT16_VALUE)
+          const nextSize = context.bufferSize = context.bufferSize + 4096
           context.lines.resize(nextSize)
           didResizeBuffer = true
-          console.log('resize lines buffer', context.index, nextSize)
+          logger.log('resize lines buffer', context.index, nextSize)
         }
       })
       if (didResizeBuffer) return
