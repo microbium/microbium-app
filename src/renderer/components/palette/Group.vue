@@ -20,6 +20,7 @@
 
 <style lang="scss">
 $base-color: rgba(#000, 0.15);
+$toggle-duration: 200ms;
 
 .palette-group {
   position: relative;
@@ -27,38 +28,62 @@ $base-color: rgba(#000, 0.15);
   &__header {
     position: relative;
     background: $base-color;
-    padding: 12px 20px 18px;
+    padding: 12px 32px;
+
+    .palette-group--open & {
+      background: transparent;
+    }
   }
 
   &__toggle {
     position: absolute;
     top: 0;
     left: 0;
-    width: 40px;
+    width: 34px;
     height: 100%;
-    background: cyan;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+
+      background: #fff;
+      width: 2px;
+      height: calc(100% - 8px);
+      transform: translate(-50%, -50%);
+      transition: transform $toggle-duration;
+    }
+
+    .palette-group--open & {
+      &:after {
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+    }
   }
 
   &__title {
-    position: absolute;
-    top: 7px;
-    left: 8px;
-    font-size: 15px;
+    position: relative;
+    font-size: 17px;
     font-weight: lighter;
-    transform: translateX(40px);
+    transition: transform $toggle-duration;
+
+    .palette-group--open & {
+      transform: translateX(6px);
+    }
   }
 
   &__content {
     position: relative;
     overflow: hidden;
-    transition: height 200ms;
+    transition: height $toggle-duration;
   }
 
   &__content-inner {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 8px 12px;
+    padding: 0 12px 8px;
     width: 100%;
     height: auto;
   }
