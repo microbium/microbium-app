@@ -28,7 +28,7 @@ $toggle-duration: 200ms;
   &__header {
     position: relative;
     background: $base-color;
-    padding: 12px 32px;
+    padding: 12px 28px;
 
     .palette-group--open & {
       background: transparent;
@@ -69,7 +69,7 @@ $toggle-duration: 200ms;
     transition: transform $toggle-duration;
 
     .palette-group--open & {
-      transform: translateX(6px);
+      transform: translateX(8px);
     }
   }
 

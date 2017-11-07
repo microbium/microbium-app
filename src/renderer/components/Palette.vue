@@ -13,9 +13,14 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0" max="1" v-model="lineStyleIndex"></input-range>
         <div class="palette-item__label">
-          <b>{{ lineStyleName }}</b> line style
+          <b>{{ lineStyleName }}
+            <input-select v-model="lineStyleIndex">
+              <option v-for="style in lineStyles" :value="style.index">
+                {{ style.name }}
+              </option>
+            </input-select>
+          </b> line style
         </div>
       </div>
     </palette-group>
@@ -79,16 +84,17 @@ $base-color: rgba(#000, 0.15);
 }
 
 .palette-item {
-  padding: 3px 0;
+  padding: 4px 0;
   font-size: 13px;
 
   &__label {
     padding: 1px 8px;
 
     > b {
+      position: relative;
       display: inline-block;
       border-top: 2px solid #fff;
-      padding-top: 7px;
+      padding-top: 6px;
       font-weight: normal;
       text-transform: capitalize;
     }
@@ -99,7 +105,8 @@ $base-color: rgba(#000, 0.15);
 <script>
 import { numberToWords } from '@/utils/number'
 
-import InputRange from '@/components/InputRange'
+import InputRange from '@/components/input/Range'
+import InputSelect from '@/components/input/Select'
 import PaletteGroup from '@/components/palette/Group'
 
 const LINE_WIDTH_NAMES = ['Ultra Thin', 'Thin', 'Regular', 'Thick', 'Fat']
@@ -110,6 +117,7 @@ export default {
 
   components: {
     InputRange,
+    InputSelect,
     PaletteGroup
   },
 
@@ -118,6 +126,7 @@ export default {
     return {
       lineWidthStep: 2,
       lineStyleIndex: 0,
+      lineStyles: LINE_STYLE_NAMES.map((name, index) => ({ name, index })),
       polarIterations: 8,
       curveSubDivisions: 6
     }
@@ -145,6 +154,7 @@ export default {
     },
 
     lineStyleName () {
+      console.log(this.lineStyleIndex)
       return LINE_STYLE_NAMES[this.lineStyleIndex]
     },
 
