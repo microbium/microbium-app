@@ -3,8 +3,9 @@
     <div class="palette-toolbar">
       <div v-on:click="close" class="palette-close"></div>
     </div>
-    <div class="palette-item-group">
-      <h2>Line Tool Settings</h2>
+
+    <palette-group
+      title="Line Tool Settings">
       <div class="palette-item">
         <input-range min="0" max="4" v-model="lineWidthStep"></input-range>
         <div class="palette-item__label">
@@ -17,9 +18,10 @@
           <b>{{ lineStyleName }}</b> line style
         </div>
       </div>
-    </div>
-    <div class="palette-item-group">
-      <h2>Geometry Modifiers</h2>
+    </palette-group>
+
+    <palette-group
+      title="Geometry Modifiers">
       <div class="palette-item">
         <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
         <div class="palette-item__label">
@@ -32,7 +34,7 @@
           <b>{{ polarIterations }}</b> polar iterations
         </div>
       </div>
-    </div>
+    </palette-group>
   </div>
 </template>
 
@@ -76,21 +78,6 @@ $base-color: rgba(#000, 0.15);
   }
 }
 
-.palette-item-group {
-  background: $base-color;
-  padding: 10px 14px;
-
-  > h2 {
-    padding: 2px 7px 8px;
-    font-size: 15px;
-    font-weight: lighter;
-  }
-
-  &:hover {
-    background: transparent;
-  }
-}
-
 .palette-item {
   padding: 3px 0;
   font-size: 12px;
@@ -107,6 +94,7 @@ $base-color: rgba(#000, 0.15);
 
 <script>
 import InputRange from '@/components/InputRange'
+import PaletteGroup from '@/components/palette/Group'
 
 const LINE_WIDTH_NAMES = ['Ultra Thin', 'Thin', 'Regular', 'Thick', 'Fat']
 const LINE_STYLE_NAMES = ['Watercolor', 'Radial Dash']
@@ -115,7 +103,8 @@ export default {
   name: 'palette',
 
   components: {
-    InputRange
+    InputRange,
+    PaletteGroup
   },
 
   // TODO: Design scene settings data format
