@@ -50,7 +50,7 @@ $toggle-duration: 200ms;
 
       background: #fff;
       width: 2px;
-      height: calc(100% - 8px);
+      height: calc(100% - 12px);
       transform: translate(-50%, -50%);
       transition: transform $toggle-duration;
     }
@@ -83,7 +83,7 @@ $toggle-duration: 200ms;
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 12px 8px;
+    padding: 0 6px 8px;
     width: 100%;
     height: auto;
   }

@@ -25,13 +25,13 @@
       <div class="palette-item">
         <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
         <div class="palette-item__label">
-          <b>{{ curveSubDivisions }}</b> curve subdivisions
+          <b>{{ curveSubDivisionsName }}</b> curve subdivisions
         </div>
       </div>
       <div class="palette-item">
         <input-range min="1" max="32" v-model="polarIterations"></input-range>
         <div class="palette-item__label">
-          <b>{{ polarIterations }}</b> polar iterations
+          <b>{{ polarIterationsName }}</b> polar iterations
         </div>
       </div>
     </palette-group>
@@ -80,19 +80,25 @@ $base-color: rgba(#000, 0.15);
 
 .palette-item {
   padding: 3px 0;
-  font-size: 12px;
+  font-size: 13px;
 
   &__label {
     padding: 1px 8px;
 
     > b {
+      display: inline-block;
+      border-top: 2px solid #fff;
+      padding-top: 7px;
       font-weight: normal;
+      text-transform: capitalize;
     }
   }
 }
 </style>
 
 <script>
+import { numberToWords } from '@/utils/number'
+
 import InputRange from '@/components/InputRange'
 import PaletteGroup from '@/components/palette/Group'
 
@@ -140,6 +146,14 @@ export default {
 
     lineStyleName () {
       return LINE_STYLE_NAMES[this.lineStyleIndex]
+    },
+
+    curveSubDivisionsName () {
+      return numberToWords(this.curveSubDivisions)
+    },
+
+    polarIterationsName () {
+      return numberToWords(this.polarIterations)
     }
   },
 
