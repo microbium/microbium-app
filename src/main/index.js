@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 const DEBUG_MAIN = false
-const DEBUG_PALETTE = false
+const DEBUG_PALETTE = true
 
 const appMenus = {
   main: null
@@ -74,7 +74,7 @@ function createMainWindow () {
   }
 
   const main = appWindows.main = new BrowserWindow({
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: DEBUG_MAIN ? null : 'hiddenInset',
     backgroundColor: '#B2C9CF',
     width: windowSize.width,
     height: windowSize.height,
@@ -122,10 +122,11 @@ function createPaletteWindow (displaySize) {
     y: (displaySize.height - windowSize.height) / 2,
     width: windowSize.width,
     minWidth: 320,
-    maxWidth: DEBUG_PALETTE ? 900 : 320,
+    maxWidth: DEBUG_PALETTE ? null : 320,
     height: windowSize.height,
     minHeight: 600,
-    frame: false,
+    backgroundColor: DEBUG_PALETTE ? '#444444' : null,
+    frame: DEBUG_PALETTE,
     focusable: DEBUG_PALETTE,
     resizable: true,
     minimizable: false,
@@ -135,12 +136,12 @@ function createPaletteWindow (displaySize) {
     hasShadow: false,
     vibrancy: 'dark',
     show: false,
+    alwaysOnTop: !DEBUG_PALETTE,
     webPreferences: {
       devTools: DEBUG_PALETTE
     }
   })
 
-  palette.setAlwaysOnTop(true, 'floating')
   palette.loadURL(paletteURL)
   palette.once('ready-to-show', () => {
     palette.show()
@@ -201,6 +202,8 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+// TODO: Disable chrome hardware blacklist with flag
 
 app.on('ready', createStartWindows)
 app.on('activate', createStartWindows)
