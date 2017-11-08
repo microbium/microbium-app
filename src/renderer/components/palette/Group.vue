@@ -1,16 +1,20 @@
 <template>
   <div class="palette-group"
-    v-bind:class="elClassNames">
-    <div class="palette-group__header">
-      <div class="palette-group__title">
-        {{title}}
+    :class="openStateClassNames">
+    <div class="palette-group__header"
+      :class="openStateClassNames">
+      <div class="palette-group__title"
+        :class="openStateClassNames">
+        <slot name="title"></slot>
       </div>
       <div class="palette-group__toggle"
-        v-on:click="toggleOpen"></div>
+        :class="openStateClassNames"
+        @click="toggleOpen"></div>
     </div>
     <div class="palette-group__content"
-      v-bind:style="contentStyle">
+      :style="contentStyle">
       <div class="palette-group__content-inner"
+        :class="openStateClassNames"
         ref="contentInner">
         <slot></slot>
       </div>
@@ -28,9 +32,14 @@ $toggle-duration: 200ms;
   &__header {
     position: relative;
     background: $base-color;
-    padding: 12px 28px;
+    padding: 10px 28px;
 
-    .palette-group--open & {
+    &.nested {
+      background: transparent;
+      padding: 8px 28px;
+    }
+
+    &.open {
       background: transparent;
     }
   }
@@ -55,7 +64,7 @@ $toggle-duration: 200ms;
       transition: transform $toggle-duration;
     }
 
-    .palette-group--open & {
+    &.open {
       &:after {
         transform: translate(-50%, -50%) rotate(45deg);
       }
@@ -68,7 +77,12 @@ $toggle-duration: 200ms;
     font-weight: lighter;
     transition: transform $toggle-duration;
 
-    .palette-group--open & {
+    &.nested {
+      font-size: 15px;
+      font-weight: normal;
+    }
+
+    &.open {
       transform: translateX(8px);
     }
   }
@@ -80,12 +94,16 @@ $toggle-duration: 200ms;
   }
 
   &__content-inner {
-    position: absolute;
+    position: relative;
     left: 0;
     bottom: 0;
-    padding: 0 6px 8px;
+    padding: 0 6px 16px;
     width: 100%;
     height: auto;
+
+    &.animating {
+      position: absolute;
+    }
   }
 }
 </style>
@@ -94,36 +112,60 @@ $toggle-duration: 200ms;
 export default {
   name: 'palette-group',
 
-  props: ['title'],
+  props: {
+    open: Boolean,
+    nested: Boolean
+  },
 
   data () {
     return {
-      isOpen: true,
+      isOpen: this.open,
+      isAnimating: false,
       contentHeight: 0
     }
   },
 
   mounted () {
-    this.contentHeight = this.$refs.contentInner.clientHeight
+    this.updateContentHeight()
   },
 
   methods: {
     toggleOpen () {
-      this.isOpen = !this.isOpen
+      this.updateContentHeight()
+      this.isAnimating = true
+      setTimeout(() => {
+        this.isOpen = !this.isOpen
+        this.resetAnimatingLater(200)
+      }, 1)
+    },
+
+    updateContentHeight () {
+      this.contentHeight = this.$refs.contentInner.clientHeight
+    },
+
+    resetAnimatingLater (delay) {
+      clearTimeout(this._resetAnimatingLater)
+      this._resetAnimatingLater = setTimeout(() => {
+        this.isAnimating = false
+      }, delay)
     }
   },
 
   computed: {
-    elClassNames () {
+    openStateClassNames () {
       return {
-        'palette-group--open': this.isOpen
+        'open': this.isOpen,
+        'animating': this.isAnimating,
+        'nested': this.nested
       }
     },
 
     contentStyle () {
-      const height = this.isOpen ? this.contentHeight : 0
+      const height = this.isOpen
+        ? (this.isAnimating ? (this.contentHeight + 'px') : 'auto')
+        : '0px'
       return {
-        height: height + 'px'
+        height
       }
     }
   }

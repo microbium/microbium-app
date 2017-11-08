@@ -1,11 +1,11 @@
 <template>
   <div class="palette">
     <div class="palette-toolbar">
-      <div v-on:click="close" class="palette-close"></div>
+      <div @click="close" class="palette-close"></div>
     </div>
 
-    <palette-group
-      title="Line Tool Settings">
+    <palette-group open>
+      <h2 slot="title">Line Tool Settings</h2>
       <div class="palette-item">
         <input-range min="0.25" max="18" step="0.25" v-model="lineTool.strokeWidth"></input-range>
         <div class="palette-item__label">
@@ -16,7 +16,7 @@
         <div class="palette-item__label">
           <b>{{ strokeStyleName }}
             <input-select v-model="lineTool.styleIndex">
-              <option v-for="style in styles" v-bind:value="style.index">
+              <option v-for="style in styles" :value="style.index">
                 {{ style.name }}
               </option>
             </input-select>
@@ -25,8 +25,16 @@
       </div>
     </palette-group>
 
-    <palette-group
-      title="Geometry Modifiers">
+    <palette-group open>
+      <h2 slot="title">Styles</h2>
+      <palette-group v-for="style in styles"
+        :key="style.index" open nested>
+        <h2 slot="title">{{ style.name }}</h2>
+      </palette-group>
+    </palette-group>
+
+    <palette-group>
+      <h2 slot="title">Geometry Modifiers</h2>
       <div class="palette-item">
         <input-range min="1" max="12" v-model="modifiers.curveSubDivisions"></input-range>
         <div class="palette-item__label">
@@ -56,6 +64,11 @@ $base-color: rgba(#000, 0.15);
   font-weight: lighter;
   letter-spacing: 0.75px;
   color: #fafafa;
+
+  h2 {
+    font-size: 1em;
+    font-weight: inherit;
+  }
 }
 
 .palette-toolbar {
@@ -88,7 +101,7 @@ $base-color: rgba(#000, 0.15);
   font-size: 13px;
 
   &:first-child {
-    padding-top: 4px;
+    padding-top: 3px;
   }
 
   &__label {
