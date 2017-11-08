@@ -6,11 +6,11 @@ import linesEntitiesFrag from '@/shaders/lines-entities.frag'
 
 export function createScene (tasks, state, renderer) {
   const { createTexture, regl } = renderer
-  const { lineStyles } = state.renderer
+  const { styles } = state.controls
 
   // TODO: Investigate huge perf issues in Chrome when using instancing
   // TODO: Optimize shared state between contexts
-  const contexts = lineStyles.map((style, index) => {
+  const contexts = styles.map((style, index) => {
     const bufferSize = 2 ** 12
     const lines = LineBuilder.create(regl, {
       bufferSize,

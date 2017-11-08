@@ -89,7 +89,7 @@ export function createSimulationController (tasks, state, renderer) {
     updateForces () {
       const { nudge, diffusor, rotator, tick } = state.simulation
       const { move, velocity } = state.seek
-      const { polarIterations } = state.controls
+      const { polarIterations } = state.controls.modifiers
 
       const angleStep = Math.PI * 2 / polarIterations
       const angleIndex = tick % polarIterations

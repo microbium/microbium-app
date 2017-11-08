@@ -18,7 +18,7 @@ export function createGeometryController (tasks, state, renderer) {
         mapLinear(12, 120, 0, 1, linkSizeAvg)))
     },
 
-    computeModulatedLineWidth () {
+    computeModulatedStrokeWidth () {
       return state.drag.pressure * 2
     },
 
@@ -58,17 +58,18 @@ export function createGeometryController (tasks, state, renderer) {
       const radius = 22
       const count = 5
 
-      const lineWidthStepPrev = state.controls.lineWidthStep
-      const lineStyleIndexPrev = state.controls.lineStyleIndex
-      const lineColorPrev = state.controls.lineColor
-      const lineAlphaPrev = state.controls.lineAlpha
+      const { lineTool } = state.controls
+      const strokeWidthPrev = lineTool.strokeWidth
+      const strokeColorPrev = lineTool.strokeColor
+      const strokeAlphaPrev = lineTool.strokeAlpha
+      const styleIndexPrev = lineTool.styleIndex
 
       state.geometry.shouldAppend = true
       Object.assign(state.controls, {
-        lineWidthStep: 1,
-        lineStyleIndex: 0,
-        lineColor: UI_PALETTE.BACK_PRIMARY,
-        lineAlpha: 0.95
+        strokeWidth: 1,
+        strokeColor: UI_PALETTE.BACK_PRIMARY,
+        strokeAlpha: 0.95,
+        styleIndex: 0
       })
 
       geometry.createSegment([radius, 0])
@@ -82,31 +83,34 @@ export function createGeometryController (tasks, state, renderer) {
 
       state.geometry.shouldAppend = false
       Object.assign(state.controls, {
-        lineWidthStep: lineWidthStepPrev,
-        lineStyleIndex: lineStyleIndexPrev,
-        lineColor: lineColorPrev,
-        lineAlpha: lineAlphaPrev
+        strokeWidth: strokeWidthPrev,
+        strokeColor: strokeColorPrev,
+        strokeAlpha: strokeAlphaPrev,
+        styleIndex: styleIndexPrev
       })
     },
 
     createSegment (point, index) {
       const stateGeom = state.geometry
       const { segments, vertices } = stateGeom
-      const { lineWidth, lineStyleIndex, lineColor, lineAlpha } = state.controls
+      const {
+        strokeWidth, strokeColor, strokeAlpha,
+        styleIndex
+      } = state.controls.lineTool
       const isExisting = index != null
 
       const startPoint = isExisting ? point : vec2.clone(point)
       const startIndex = isExisting ? index : vertices.length
 
-      const modLineWidth = geometry.computeModulatedLineWidth()
+      const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
         indices: [startIndex],
         curvePrecision: 0,
-        lineWidthBase: lineWidth,
-        lineWidths: [modLineWidth],
-        lineStyleIndex,
-        lineColor,
-        lineAlpha
+        strokeWidthModulations: [modStrokeWidth],
+        strokeWidth,
+        strokeColor,
+        strokeAlpha,
+        styleIndex
       }
 
       if (!isExisting) vertices.push(startPoint)
@@ -128,14 +132,14 @@ export function createGeometryController (tasks, state, renderer) {
       } = stateGeom
       if (!activeSegment) return
 
-      const { indices, lineWidths } = activeSegment
+      const { indices, strokeWidthModulations } = activeSegment
       const hasCandidate = !!stateGeom.candidatePoint
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
 
       vec2.copy(candidatePoint, point)
       const dist = vec2.distance(prevPoint, candidatePoint)
 
-      const modLineWidth = geometry.computeModulatedLineWidth()
+      const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const curvePrecision = geometry.computeCurvePrecision(vertices, indices)
 
       activeSegment.curvePrecision = curvePrecision
@@ -144,9 +148,9 @@ export function createGeometryController (tasks, state, renderer) {
         stateGeom.candidatePoint = candidatePoint
         indices.push(vertices.length)
         vertices.push(candidatePoint)
-        lineWidths.push(modLineWidth)
+        strokeWidthModulations.push(modStrokeWidth)
       } else {
-        lineWidths[lineWidths.length - 1] = modLineWidth
+        strokeWidthModulations[strokeWidthModulations.length - 1] = modStrokeWidth
       }
 
       if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {

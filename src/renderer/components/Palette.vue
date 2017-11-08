@@ -7,16 +7,16 @@
     <palette-group
       title="Line Tool Settings">
       <div class="palette-item">
-        <input-range min="0" max="4" v-model="lineWidthStep"></input-range>
+        <input-range min="0.25" max="18" step="0.25" v-model="lineTool.strokeWidth"></input-range>
         <div class="palette-item__label">
-          <b>{{ lineWidthName }}</b> line width
+          <b>{{ strokeWidthName }}</b> line width
         </div>
       </div>
       <div class="palette-item">
         <div class="palette-item__label">
-          <b>{{ lineStyleName }}
-            <input-select v-model="lineStyleIndex">
-              <option v-for="style in lineStyles" :value="style.index">
+          <b>{{ strokeStyleName }}
+            <input-select v-model="lineTool.styleIndex">
+              <option v-for="style in styles" v-bind:value="style.index">
                 {{ style.name }}
               </option>
             </input-select>
@@ -28,13 +28,13 @@
     <palette-group
       title="Geometry Modifiers">
       <div class="palette-item">
-        <input-range min="1" max="12" v-model="curveSubDivisions"></input-range>
+        <input-range min="1" max="12" v-model="modifiers.curveSubDivisions"></input-range>
         <div class="palette-item__label">
           <b>{{ curveSubDivisionsName }}</b> curve subdivisions
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="1" max="32" v-model="polarIterations"></input-range>
+        <input-range min="1" max="32" v-model="modifiers.polarIterations"></input-range>
         <div class="palette-item__label">
           <b>{{ polarIterationsName }}</b> polar iterations
         </div>
@@ -84,11 +84,15 @@ $base-color: rgba(#000, 0.15);
 }
 
 .palette-item {
-  padding: 4px 0;
+  padding: 6px 0;
   font-size: 13px;
 
+  &:first-child {
+    padding-top: 4px;
+  }
+
   &__label {
-    padding: 1px 8px;
+    padding: 0 8px;
 
     > b {
       position: relative;
@@ -96,7 +100,10 @@ $base-color: rgba(#000, 0.15);
       border-top: 2px solid #fff;
       padding-top: 6px;
       font-weight: normal;
-      text-transform: capitalize;
+
+      &:first-letter {
+        text-transform: uppercase;
+      }
     }
   }
 }
@@ -104,13 +111,11 @@ $base-color: rgba(#000, 0.15);
 
 <script>
 import { numberToWords } from '@/utils/number'
+import { createControlsState } from '@/store/modules/Palette'
 
 import InputRange from '@/components/input/Range'
 import InputSelect from '@/components/input/Select'
 import PaletteGroup from '@/components/palette/Group'
-
-const LINE_WIDTH_NAMES = ['Ultra Thin', 'Thin', 'Regular', 'Thick', 'Fat']
-const LINE_STYLE_NAMES = ['Watercolor', 'Radial Dash']
 
 export default {
   name: 'palette',
@@ -121,21 +126,15 @@ export default {
     PaletteGroup
   },
 
-  // TODO: Design scene settings data format
   data () {
-    return {
-      lineWidthStep: 2,
-      lineStyleIndex: 0,
-      lineStyles: LINE_STYLE_NAMES.map((name, index) => ({ name, index })),
-      polarIterations: 8,
-      curveSubDivisions: 6
-    }
+    return createControlsState()
   },
 
   methods: {
-    syncControls (key, value) {
+    syncControls (group, key, value) {
       this.$electron.ipcRenderer.send('main-message', {
         type: 'UPDATE_CONTROLS',
+        group,
         key,
         value
       })
@@ -149,39 +148,42 @@ export default {
   },
 
   computed: {
-    lineWidthName () {
-      return LINE_WIDTH_NAMES[this.lineWidthStep]
+    strokeWidthName () {
+      const { strokeWidth } = this.lineTool
+      return `${strokeWidth}px`
     },
 
-    lineStyleName () {
-      console.log(this.lineStyleIndex)
-      return LINE_STYLE_NAMES[this.lineStyleIndex]
+    strokeStyleName () {
+      const style = this.styles[this.lineTool.styleIndex]
+      return style.name
     },
 
     curveSubDivisionsName () {
-      return numberToWords(this.curveSubDivisions)
+      const { curveSubDivisions } = this.modifiers
+      return numberToWords(curveSubDivisions)
     },
 
     polarIterationsName () {
-      return numberToWords(this.polarIterations)
+      const { polarIterations } = this.modifiers
+      return numberToWords(polarIterations)
     }
   },
 
   watch: {
-    lineWidthStep (value) {
-      this.syncControls('lineWidthStep', value)
+    'lineTool.strokeWidth' (value) {
+      this.syncControls('lineTool', 'strokeWidth', value)
     },
 
-    lineStyleIndex (value) {
-      this.syncControls('lineStyleIndex', value)
+    'lineTool.styleIndex' (value) {
+      this.syncControls('lineTool', 'styleIndex', value)
     },
 
-    polarIterations (value) {
-      this.syncControls('polarIterations', value)
+    'modifiers.polarIterations' (value) {
+      this.syncControls('modifiers', 'polarIterations', value)
     },
 
-    curveSubDivisions (value) {
-      this.syncControls('curveSubDivisions', value)
+    'modifiers.curveSubDivisions' (value) {
+      this.syncControls('modifiers', 'curveSubDivisions', value)
     }
   }
 }

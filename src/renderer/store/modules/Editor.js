@@ -1,7 +1,7 @@
 import { vec2 } from 'gl-matrix'
-import { LINE_WIDTH_KEYS } from '@/constants/line-styles'
+import { createControlsState } from './Palette'
 
-function createCompositorState () {
+export function createCompositorState () {
   const seek = {
     timePrev: 0,
     velocity: 0,
@@ -68,44 +68,10 @@ function createCompositorState () {
   }
 
   const renderer = {
-    drawCalls: 0,
-    lineStyles: [
-      {
-        diffuseMap: 'watercolor',
-        hatchAlpha: 0,
-        tint: [1, 1, 1, 1],
-        useScreenTintFunc: 1,
-        thickness: 1
-      },
-      {
-        diffuseMap: null,
-        hatchAlpha: 1,
-        tint: [0.2, 0.1, 0.3, 1],
-        useScreenTintFunc: 0,
-        thickness: 1
-      }
-    ]
+    drawCalls: 0
   }
 
-  const controls = {
-    // FEAT: Enable more fine control over lineWidth
-    // Mainly need to refactor serialization of geometry state
-    lineWidth: 'REGULAR',
-    lineStyleIndex: 0,
-    lineColor: '#fafafa',
-    lineAlpha: 1,
-    _lineWidthStep: 2,
-    get lineWidthStep () {
-      return this._lineWidthStep
-    },
-    set lineWidthStep (step) {
-      this._lineWidthStep = step
-      this.lineWidth = LINE_WIDTH_KEYS[step]
-      return step
-    },
-    polarIterations: 8,
-    curveSubDivisions: 6
-  }
+  const controls = createControlsState()
 
   return {
     seek,
@@ -124,9 +90,6 @@ const state = {}
 const mutations = {}
 const actions = {}
 
-export {
-  createCompositorState
-}
 export default {
   state,
   mutations,

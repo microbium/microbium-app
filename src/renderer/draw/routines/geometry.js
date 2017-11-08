@@ -1,4 +1,3 @@
-import { LINE_WIDTH } from '@/constants/line-styles'
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 
@@ -9,35 +8,33 @@ export function drawGeometry (state, contexts, segmentStart, segmentCount) {
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
-  const { curveSubDivisions } = state.controls
+  const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
 
   for (let s = segmentStart; s < segmentCount; s++) {
     const segment = segments[s]
     const {
-      indices, isClosed,
-      lineWidths, lineStyleIndex, lineColor, lineAlpha
+      indices, isClosed, styleIndex,
+      strokeWidthModulations, strokeColor, strokeAlpha
     } = segment
 
     const count = isClosed ? indices.length - 1 : indices.length
     if (count < 2) continue
 
-    const { ctx } = contexts[lineStyleIndex]
+    const { ctx } = contexts[styleIndex]
     const curvePrecision = segment.curvePrecision * curveSubDivisions
-    const lineWidthBase = curvePrecision <= 1
-      ? LINE_WIDTH[segment.lineWidthBase]
-      : LINE_WIDTH.THIN
+    const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 1
 
-    ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * lineAlpha
-    ctx.strokeStyle = lineColor
+    ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
+    ctx.strokeStyle = strokeColor
     ctx.beginPath()
 
     for (let i = 0; i < count; i++) {
       const index = indices[i]
       const point = vertices[index]
-      const lineWidth = lineWidths[i]
-      ctx.lineWidth = lineWidthBase * lineWidth
+      const modStrokeWidth = strokeWidthModulations[i]
+      ctx.lineWidth = strokeWidth * modStrokeWidth
       if (i === 0) ctx.moveTo(point[0], point[1])
       else ctx.lineTo(point[0], point[1])
     }
@@ -51,37 +48,36 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
 export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
-  const { curveSubDivisions } = state.controls
+  const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
 
   for (let s = segmentStart; s < segmentCount; s++) {
     const segment = segments[s]
     const {
-      indices, isClosed,
-      lineWidths, lineStyleIndex, lineColor, lineAlpha
+      indices, isClosed, styleIndex,
+      strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha
     } = segment
 
     const count = isClosed ? indices.length - 1 : indices.length
     const curvePrecision = segment.curvePrecision * curveSubDivisions
     if (count < 2 || curvePrecision <= 1) continue
 
-    const { ctx } = contexts[lineStyleIndex]
-    const lineWidthBase = LINE_WIDTH[segment.lineWidthBase]
+    const { ctx } = contexts[styleIndex]
     const points = map(indices, (i) => vertices[i])
     const pointsFlat = flatten2(points)
 
     // FIXME: Closed curve segments have a noticeable gap
     if (isClosed) pointsFlat.splice(-2, 2)
 
-    ctx.globalAlpha = lineAlpha
-    ctx.strokeStyle = lineColor
-    ctx.lineWidth = lineWidthBase * lineWidths[0]
+    ctx.globalAlpha = strokeAlpha
+    ctx.strokeStyle = strokeColor
+    ctx.lineWidth = strokeWidth * strokeWidthModulations[0]
 
     ctx.beginPath()
     ctx.moveTo(pointsFlat[0], pointsFlat[1])
     ctx.curve(pointsFlat,
-      lineWidths, lineWidthBase,
+      strokeWidthModulations, strokeWidth,
       0.5, curvePrecision, isClosed)
 
     if (isClosed) {

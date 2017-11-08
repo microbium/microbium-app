@@ -270,8 +270,8 @@ function mountCompositor ($el, $electron) {
     renderLines () {
       const { contexts } = scene
       const { isRunning } = state.simulation
-      const { polarIterations } = state.controls
-      const { lineStyles } = state.renderer
+      const { polarIterations } = state.controls.modifiers
+      const { styles } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
@@ -279,7 +279,7 @@ function mountCompositor ($el, $electron) {
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       contexts.forEach(({ index, lines }) => {
-        const style = lineStyles[index]
+        const style = styles[index]
         const { diffuseMap, hatchAlpha, tint, useScreenTintFunc } = style
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
