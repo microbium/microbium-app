@@ -1,5 +1,5 @@
 <template>
-  <div class="palette-group"
+  <section class="palette-group"
     :class="openStateClassNames">
     <div class="palette-group__header"
       :class="openStateClassNames">
@@ -19,7 +19,7 @@
         <slot></slot>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="scss">
@@ -79,7 +79,6 @@ $toggle-duration: 200ms;
 
     &.nested {
       font-size: 15px;
-      font-weight: normal;
     }
 
     &.open {

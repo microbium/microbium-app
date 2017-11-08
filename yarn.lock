@@ -1878,6 +1878,16 @@ colors@~0.6.0-1:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-0.6.2.tgz#2423fe6678ac0c5dae8852e5d0e5be08c997abcc"
 
+colr-convert@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/colr-convert/-/colr-convert-1.0.5.tgz#b4a22c9322dfa238d2a80aa90736c11271841b71"
+
+colr@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/colr/-/colr-1.2.2.tgz#6003289b8e3c53f60824ec7bbc08e033878ad4f6"
+  dependencies:
+    colr-convert "^1.0.5"
+
 combine-lists@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/combine-lists/-/combine-lists-1.0.1.tgz#458c07e09e0d900fc28b70a3fec2dacd1d2cb7f6"

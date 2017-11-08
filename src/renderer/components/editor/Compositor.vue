@@ -25,6 +25,7 @@
 <script>
 import { vec2, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
+import Colr from 'colr'
 
 import { TEXTURES } from '@/constants/line-styles'
 
@@ -271,16 +272,25 @@ function mountCompositor ($el, $electron) {
       const { contexts } = scene
       const { isRunning } = state.simulation
       const { polarIterations } = state.controls.modifiers
-      const { styles } = state.controls
+      const { styles, textures } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      contexts.forEach(({ index, lines }) => {
+      for (let i = contexts.length - 1; i >= 0; i--) {
+        const { index, lines } = contexts[i]
         const style = styles[index]
-        const { diffuseMap, hatchAlpha, tint, useScreenTintFunc } = style
+        const { textureIndex, hatchAlpha, tintHex, useScreenTintFunc } = style
+
+        // OPTIM: Cache unchanged computed rgba array
+        const tint = Colr.fromHex(tintHex)
+          .toRgbArray()
+          .map((v) => v / 255)
+        tint.push(1) // Alpha
+
+        const diffuseMap = textureIndex === -1 ? null : textures[textureIndex].path
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
@@ -300,7 +310,7 @@ function mountCompositor ($el, $electron) {
         })
         state.renderer.drawCalls += instances.length
         lines.draw(instances)
-      })
+      }
     },
 
     renderUI () {

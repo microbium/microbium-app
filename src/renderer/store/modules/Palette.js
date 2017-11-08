@@ -10,20 +10,29 @@ export function createControlsState () {
     styles: [
       {
         index: 0,
-        name: 'Watercolor',
-        diffuseMap: 'watercolor',
+        name: 'Solid',
+        textureIndex: -1,
         hatchAlpha: 0,
-        tint: [1, 1, 1, 1],
-        useScreenTintFunc: 1,
+        tintHex: '#222222',
+        useScreenTintFunc: 0,
         thickness: 1
       },
       {
         index: 1,
         name: 'Radial Dash',
-        diffuseMap: null,
+        textureIndex: -1,
         hatchAlpha: 1,
-        tint: [0.2, 0.1, 0.3, 1],
+        tintHex: '#A3A3CC',
         useScreenTintFunc: 0,
+        thickness: 1
+      },
+      {
+        index: 2,
+        name: 'Watercolor',
+        textureIndex: 0,
+        hatchAlpha: 0,
+        tintHex: '#FFFFFF',
+        useScreenTintFunc: 1,
         thickness: 1
       }
     ],

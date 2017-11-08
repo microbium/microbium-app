@@ -82,16 +82,13 @@ export function createViewportController (tasks, state) {
           requestSync('simulation.toggle')
           viewport.updateClassName()
           break
-        // case 'KeyS':
-        //   view.saveGeometry()
-        //   break
       }
     },
 
     message (event, data) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
-          state.controls[data.group][data.key] = data.value
+          state.controls[data.group] = data.value
           break
       }
     }

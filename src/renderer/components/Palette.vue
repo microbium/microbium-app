@@ -5,7 +5,7 @@
     </div>
 
     <palette-group open>
-      <h2 slot="title">Line Tool Settings</h2>
+      <h2 slot="title">Line Tool</h2>
       <div class="palette-item">
         <input-range min="0.25" max="18" step="0.25" v-model="lineTool.strokeWidth"></input-range>
         <div class="palette-item__label">
@@ -30,6 +30,13 @@
       <palette-group v-for="style in styles"
         :key="style.index" open nested>
         <h2 slot="title">{{ style.name }}</h2>
+        <div class="palette-item">
+          <div class="palette-item__label">
+            <b>{{ style.tintHex }}
+              <input-color v-model="style.tintHex" :range="1"></input-color>
+            </b> stroke tint
+          </div>
+        </div>
       </palette-group>
     </palette-group>
 
@@ -126,6 +133,7 @@ $base-color: rgba(#000, 0.15);
 import { numberToWords } from '@/utils/number'
 import { createControlsState } from '@/store/modules/Palette'
 
+import InputColor from '@/components/input/Color'
 import InputRange from '@/components/input/Range'
 import InputSelect from '@/components/input/Select'
 import PaletteGroup from '@/components/palette/Group'
@@ -134,6 +142,7 @@ export default {
   name: 'palette',
 
   components: {
+    InputColor,
     InputRange,
     InputSelect,
     PaletteGroup
@@ -144,11 +153,10 @@ export default {
   },
 
   methods: {
-    syncControls (group, key, value) {
+    syncControls (group, value) {
       this.$electron.ipcRenderer.send('main-message', {
         type: 'UPDATE_CONTROLS',
         group,
-        key,
         value
       })
     },
@@ -183,20 +191,17 @@ export default {
   },
 
   watch: {
-    'lineTool.strokeWidth' (value) {
-      this.syncControls('lineTool', 'strokeWidth', value)
-    },
+    lineTool: createStateSyncer('lineTool'),
+    styles: createStateSyncer('styles'),
+    modifiers: createStateSyncer('modifiers')
+  }
+}
 
-    'lineTool.styleIndex' (value) {
-      this.syncControls('lineTool', 'styleIndex', value)
-    },
-
-    'modifiers.polarIterations' (value) {
-      this.syncControls('modifiers', 'polarIterations', value)
-    },
-
-    'modifiers.curveSubDivisions' (value) {
-      this.syncControls('modifiers', 'curveSubDivisions', value)
+function createStateSyncer (name) {
+  return {
+    deep: true,
+    handler (value) {
+      this.syncControls(name, value)
     }
   }
 }
