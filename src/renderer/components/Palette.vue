@@ -6,54 +6,21 @@
 
     <palette-group open>
       <h2 slot="title">Line Tool</h2>
-      <div class="palette-item">
-        <input-range min="0.25" max="18" step="0.25" v-model="lineTool.strokeWidth"></input-range>
-        <div class="palette-item__label">
-          <b>{{ strokeWidthName }}</b> line width
-        </div>
-      </div>
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ strokeStyleName }}
-            <input-select v-model="lineTool.styleIndex">
-              <option v-for="style in styles" :value="style.index">
-                {{ style.name }}
-              </option>
-            </input-select>
-          </b> line style
-        </div>
-      </div>
+      <palette-tool :model="lineTool" :styles="styles"></palette-tool>
     </palette-group>
 
     <palette-group open>
       <h2 slot="title">Styles</h2>
       <palette-group v-for="style in styles"
-        :key="style.index" open nested>
+        :key="style.index" nested :open="style.index == 0">
         <h2 slot="title">{{ style.name }}</h2>
-        <div class="palette-item">
-          <div class="palette-item__label">
-            <b>{{ style.tintHex }}
-              <input-color v-model="style.tintHex" :range="1"></input-color>
-            </b> stroke tint
-          </div>
-        </div>
+        <palette-style :model="style"></palette-style>
       </palette-group>
     </palette-group>
 
     <palette-group>
       <h2 slot="title">Geometry Modifiers</h2>
-      <div class="palette-item">
-        <input-range min="1" max="12" v-model="modifiers.curveSubDivisions"></input-range>
-        <div class="palette-item__label">
-          <b>{{ curveSubDivisionsName }}</b> curve subdivisions
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="1" max="32" v-model="modifiers.polarIterations"></input-range>
-        <div class="palette-item__label">
-          <b>{{ polarIterationsName }}</b> polar iterations
-        </div>
-      </div>
+      <palette-modifiers :model="modifiers"></palette-modifiers>
     </palette-group>
   </div>
 </template>
@@ -130,22 +97,21 @@ $base-color: rgba(#000, 0.15);
 </style>
 
 <script>
-import { numberToWords } from '@/utils/number'
 import { createControlsState } from '@/store/modules/Palette'
 
-import InputColor from '@/components/input/Color'
-import InputRange from '@/components/input/Range'
-import InputSelect from '@/components/input/Select'
 import PaletteGroup from '@/components/palette/Group'
+import PaletteStyle from '@/components/palette/Style'
+import PaletteTool from '@/components/palette/Tool'
+import PaletteModifiers from '@/components/palette/Modifiers'
 
 export default {
   name: 'palette',
 
   components: {
-    InputColor,
-    InputRange,
-    InputSelect,
-    PaletteGroup
+    PaletteGroup,
+    PaletteStyle,
+    PaletteTool,
+    PaletteModifiers
   },
 
   data () {
@@ -165,28 +131,6 @@ export default {
       this.$electron.ipcRenderer.send('toggle-window', {
         key: 'palette'
       })
-    }
-  },
-
-  computed: {
-    strokeWidthName () {
-      const { strokeWidth } = this.lineTool
-      return `${strokeWidth}px`
-    },
-
-    strokeStyleName () {
-      const style = this.styles[this.lineTool.styleIndex]
-      return style.name
-    },
-
-    curveSubDivisionsName () {
-      const { curveSubDivisions } = this.modifiers
-      return numberToWords(curveSubDivisions)
-    },
-
-    polarIterationsName () {
-      const { polarIterations } = this.modifiers
-      return numberToWords(polarIterations)
     }
   },
 
