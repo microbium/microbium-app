@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 const DEBUG_MAIN = false
-const DEBUG_PALETTE = true
+const DEBUG_PALETTE = false
 
 const appMenus = {
   main: null
@@ -113,7 +113,7 @@ function createPaletteWindow (displaySize) {
   if (appWindows.palette !== null) return
 
   const windowSize = {
-    width: DEBUG_PALETTE ? 900 : 320,
+    width: DEBUG_PALETTE ? 1200 : 320,
     height: 800
   }
 
