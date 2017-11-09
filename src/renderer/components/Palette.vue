@@ -6,7 +6,7 @@
     <div class="palette__content">
       <palette-group open>
         <h2 slot="title">Line Tool</h2>
-        <palette-tool :model="lineTool" :styles="styles"></palette-tool>
+        <palette-tool :model="lineTool" :styles="styles" />
       </palette-group>
 
       <palette-group open>
@@ -14,13 +14,14 @@
         <palette-group v-for="style in styles"
           :key="style.index" nested :open="style.index == 0">
           <h2 slot="title">{{ style.name }}</h2>
-          <palette-style :model="style" :textures="textures"></palette-style>
+          <palette-style :model="style"
+            :textures="textures" :alphaFunctions="alphaFunctions" />
         </palette-group>
       </palette-group>
 
       <palette-group>
         <h2 slot="title">Geometry Modifiers</h2>
-        <palette-modifiers :model="modifiers"></palette-modifiers>
+        <palette-modifiers :model="modifiers" />
       </palette-group>
     </div>
   </div>

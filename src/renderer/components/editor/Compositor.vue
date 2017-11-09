@@ -272,7 +272,7 @@ function mountCompositor ($el, $electron) {
       const { contexts } = scene
       const { isRunning } = state.simulation
       const { polarIterations } = state.controls.modifiers
-      const { styles, textures } = state.controls
+      const { styles, textures, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
@@ -282,7 +282,10 @@ function mountCompositor ($el, $electron) {
       for (let i = contexts.length - 1; i >= 0; i--) {
         const { index, lines } = contexts[i]
         const style = styles[index]
-        const { textureIndex, hatchAlpha, tintHex, useScreenTintFunc } = style
+        const {
+          textureIndex, alphaFuncIndex,
+          tintHex, useScreenTintFunc
+        } = style
 
         // OPTIM: Cache unchanged computed rgba array
         const tint = Colr.fromHex(tintHex)
@@ -291,6 +294,7 @@ function mountCompositor ($el, $electron) {
         tint.push(1) // Alpha
 
         const diffuseMap = textures[textureIndex].path
+        const alphaFunc = alphaFunctions[alphaFuncIndex]
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
@@ -300,7 +304,7 @@ function mountCompositor ($el, $electron) {
             angleAlpha: index === 0 ? 1 : polarAlpha,
             model,
             diffuseMap,
-            hatchAlpha,
+            hatchAlpha: alphaFunc.hatchAlpha,
             tint,
             useScreenTintFunc,
             thickness,

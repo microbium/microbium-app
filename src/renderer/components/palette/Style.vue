@@ -33,6 +33,17 @@
         </b> color texture
       </div>
     </div>
+    <div class="palette-item">
+      <div class="palette-item__label">
+        <b>{{ alphaFunctionName }}
+          <input-select v-model="model.alphaFuncIndex">
+            <option v-for="alphaFunc in alphaFunctions" :value="alphaFunc.index">
+              {{ alphaFunc.name }}
+            </option>
+          </input-select>
+        </b> alpha function
+      </div>
+    </div>
   </div>
 </template>
 
@@ -57,7 +68,8 @@ export default {
 
   props: {
     model: Object,
-    textures: Array
+    textures: Array,
+    alphaFunctions: Array
   },
 
   computed: {
@@ -74,6 +86,11 @@ export default {
     textureName () {
       const texture = this.textures[this.model.textureIndex]
       return texture.name
+    },
+
+    alphaFunctionName () {
+      const alphaFunc = this.alphaFunctions[this.model.alphaFuncIndex]
+      return alphaFunc.name
     }
   }
 }
