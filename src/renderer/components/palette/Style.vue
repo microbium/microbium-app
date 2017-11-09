@@ -12,7 +12,7 @@
         v-model="model.strokeWidthMod" />
       <div class="palette-item__label">
         <b>{{ strokeModName }}</b>
-        <abbr title="Pressure sensitivity modulation">stroke width modulation</abbr>
+        stroke width modulation
       </div>
     </div>
     <div class="palette-item">
