@@ -138,6 +138,8 @@ function createPaletteWindow (displaySize) {
     show: false,
     alwaysOnTop: !DEBUG_PALETTE,
     webPreferences: {
+      // TODO: Would be nice to have native-feeling bounce ...
+      scrollBounce: false,
       devTools: DEBUG_PALETTE
     }
   })
