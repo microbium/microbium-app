@@ -65,7 +65,7 @@ export function createGeometryController (tasks, state, renderer) {
       const styleIndexPrev = lineTool.styleIndex
 
       state.geometry.shouldAppend = true
-      Object.assign(state.controls, {
+      Object.assign(state.controls.lineTool, {
         strokeWidth: 1,
         strokeColor: UI_PALETTE.BACK_PRIMARY,
         strokeAlpha: 0.95,
@@ -82,7 +82,7 @@ export function createGeometryController (tasks, state, renderer) {
       geometry.completeActiveSegment(0)
 
       state.geometry.shouldAppend = false
-      Object.assign(state.controls, {
+      Object.assign(state.controls.lineTool, {
         strokeWidth: strokeWidthPrev,
         strokeColor: strokeColorPrev,
         strokeAlpha: strokeAlphaPrev,
