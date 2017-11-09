@@ -8,10 +8,11 @@
       </div>
     </div>
     <div class="palette-item">
-      <input-range min="0" max="2" step="0.05"
-        v-model="model.thicknessModulation" />
+      <input-range min="0" max="5" step="0.1"
+        v-model="model.strokeWidthMod" />
       <div class="palette-item__label">
-        <b>{{ thicknessModName }}</b> thickness modulation
+        <b>{{ strokeModName }}</b>
+        <abbr title="Pressure sensitivity modulation">stroke width modulation</abbr>
       </div>
     </div>
     <div class="palette-item">
@@ -51,9 +52,9 @@ export default {
       return `${roundToPlaces(thickness, 1)}x`
     },
 
-    thicknessModName () {
-      const { thicknessModulation } = this.model
-      return `${roundToPlaces(thicknessModulation, 2)}x`
+    strokeModName () {
+      const { strokeWidthMod } = this.model
+      return `${roundToPlaces(strokeWidthMod, 1)}x`
     }
   }
 }

@@ -16,7 +16,7 @@ export function createControlsState () {
         tintHex: '#222222',
         useScreenTintFunc: 0,
         thickness: 1,
-        thicknessModulation: 1
+        strokeWidthMod: 1
       },
       {
         index: 1,
@@ -26,7 +26,7 @@ export function createControlsState () {
         tintHex: '#A3A3CC',
         useScreenTintFunc: 0,
         thickness: 1,
-        thicknessModulation: 1
+        strokeWidthMod: 1
       },
       {
         index: 2,
@@ -36,7 +36,7 @@ export function createControlsState () {
         tintHex: '#FFFFFF',
         useScreenTintFunc: 1,
         thickness: 1,
-        thicknessModulation: 1
+        strokeWidthMod: 1
       }
     ],
 

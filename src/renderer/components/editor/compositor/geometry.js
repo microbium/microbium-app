@@ -18,8 +18,9 @@ export function createGeometryController (tasks, state, renderer) {
         mapLinear(12, 120, 0, 1, linkSizeAvg)))
     },
 
+    // NOTE: Map pressure to range [-1, 1]
     computeModulatedStrokeWidth () {
-      return state.drag.pressure * 2
+      return state.drag.pressure * 2 - 1
     },
 
     // TODO: Optimize with spacial index (kd-tree)

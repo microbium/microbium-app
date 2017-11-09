@@ -8,6 +8,7 @@ export function drawGeometry (state, contexts, segmentStart, segmentCount) {
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
+  const { styles } = state.controls
   const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
@@ -23,6 +24,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     if (count < 2) continue
 
     const { ctx } = contexts[styleIndex]
+    const { strokeWidthMod } = styles[styleIndex]
     const curvePrecision = segment.curvePrecision * curveSubDivisions
     const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 1
 
@@ -33,8 +35,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     for (let i = 0; i < count; i++) {
       const index = indices[i]
       const point = vertices[index]
-      const modStrokeWidth = strokeWidthModulations[i]
-      ctx.lineWidth = strokeWidth * modStrokeWidth
+      ctx.lineWidth = strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[i]
       if (i === 0) ctx.moveTo(point[0], point[1])
       else ctx.lineTo(point[0], point[1])
     }
@@ -48,6 +49,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
 export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
+  const { styles } = state.controls
   const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
@@ -64,6 +66,7 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     if (count < 2 || curvePrecision <= 1) continue
 
     const { ctx } = contexts[styleIndex]
+    const { strokeWidthMod } = styles[styleIndex]
     const points = map(indices, (i) => vertices[i])
     const pointsFlat = flatten2(points)
 
@@ -72,12 +75,12 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
 
     ctx.globalAlpha = strokeAlpha
     ctx.strokeStyle = strokeColor
-    ctx.lineWidth = strokeWidth * strokeWidthModulations[0]
+    ctx.lineWidth = strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[0]
 
     ctx.beginPath()
     ctx.moveTo(pointsFlat[0], pointsFlat[1])
     ctx.curve(pointsFlat,
-      strokeWidthModulations, strokeWidth,
+      strokeWidth, strokeWidthMod, strokeWidthModulations,
       0.5, curvePrecision, isClosed)
 
     if (isClosed) {

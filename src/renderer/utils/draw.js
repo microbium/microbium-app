@@ -2,7 +2,7 @@ import cardinalSplineCurve from 'cardinal-spline'
 import { lerp } from '@/utils/math'
 
 export function curve (points,
-  lineWidths, lineWidthBase,
+  strokeWidth, strokeWidthMod, strokeWidths,
   tension, segmentsCount, isClosed
 ) {
   const spline = cardinalSplineCurve(points, tension, segmentsCount, isClosed)
@@ -12,9 +12,9 @@ export function curve (points,
     const ix = i * 2
     const iwt = i / segmentsCount
     const iw = Math.floor(iwt)
-    const lineWidth = lerp(lineWidths[iw], lineWidths[iw + 1], iwt - iw)
+    const strokeWidthSeg = lerp(strokeWidths[iw], strokeWidths[iw + 1], iwt - iw)
 
-    this.lineWidth = lineWidthBase * lineWidth
+    this.lineWidth = strokeWidth + strokeWidth * strokeWidthMod * strokeWidthSeg
     this.lineTo(spline[ix], spline[ix + 1])
   }
 
