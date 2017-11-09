@@ -100,6 +100,10 @@ $toggle-duration: 200ms;
     width: 100%;
     height: auto;
 
+    &.nested {
+      padding: 0 0 16px 16px;
+    }
+
     &.animating {
       position: absolute;
     }
