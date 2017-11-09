@@ -1,4 +1,4 @@
-const { floor } = Math
+const { floor, round } = Math
 
 const ones = [
   '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
@@ -22,4 +22,9 @@ function convertTens (num) {
 export function numberToWords (num) {
   if (num === 0) return 'zero'
   else return convertHundreds(num)
+}
+
+export function roundToPlaces (num, places) {
+  const factor = 10 ** places
+  return round(num * factor) / factor
 }

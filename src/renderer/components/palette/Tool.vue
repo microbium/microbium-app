@@ -3,7 +3,7 @@
     <div class="palette-item">
       <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth"></input-range>
       <div class="palette-item__label">
-        <b>{{ strokeWidthName }}</b> line width
+        <b>{{ strokeWidthName }}</b> stroke width
       </div>
     </div>
     <div class="palette-item">
@@ -14,7 +14,7 @@
               {{ style.name }}
             </option>
           </input-select>
-        </b> line style
+        </b> style
       </div>
     </div>
   </div>
@@ -24,6 +24,8 @@
 </style>
 
 <script>
+import { roundToPlaces } from '@/utils/number'
+
 import InputColor from '@/components/input/Color'
 import InputSelect from '@/components/input/Select'
 import InputRange from '@/components/input/Range'
@@ -45,7 +47,7 @@ export default {
   computed: {
     strokeWidthName () {
       const { strokeWidth } = this.model
-      return `${strokeWidth}px`
+      return `${roundToPlaces(strokeWidth, 2)}px`
     },
 
     strokeStyleName () {
