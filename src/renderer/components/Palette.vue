@@ -14,7 +14,7 @@
         <palette-group v-for="style in styles"
           :key="style.index" nested :open="style.index == 0">
           <h2 slot="title">{{ style.name }}</h2>
-          <palette-style :model="style"></palette-style>
+          <palette-style :model="style" :textures="textures"></palette-style>
         </palette-group>
       </palette-group>
 
@@ -39,6 +39,7 @@ $base-color: rgba(#000, 0.15);
   font-weight: lighter;
   letter-spacing: 0.75px;
   color: #fafafa;
+  cursor: default;
 
   h2 {
     font-size: 1em;

@@ -1,7 +1,7 @@
 <template>
   <div class="palette-style">
     <div class="palette-item">
-      <input-range min="0.5" max="5" step="0.5"
+      <input-range min="0" max="5" step="0.1"
         v-model="model.thickness" />
       <div class="palette-item__label">
         <b>{{ thicknessName }}</b> stroke thickness factor
@@ -22,6 +22,17 @@
         </b> stroke tint
       </div>
     </div>
+    <div class="palette-item">
+      <div class="palette-item__label">
+        <b>{{ textureName }}
+          <input-select v-model="model.textureIndex">
+            <option v-for="texture in textures" :value="texture.index">
+              {{ texture.name }}
+            </option>
+          </input-select>
+        </b> color texture
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,17 +44,20 @@ import { roundToPlaces } from '@/utils/number'
 
 import InputColor from '@/components/input/Color'
 import InputRange from '@/components/input/Range'
+import InputSelect from '@/components/input/Select'
 
 export default {
   name: 'palette-style',
 
   components: {
     InputColor,
-    InputRange
+    InputRange,
+    InputSelect
   },
 
   props: {
-    model: Object
+    model: Object,
+    textures: Array
   },
 
   computed: {
@@ -55,6 +69,11 @@ export default {
     strokeModName () {
       const { strokeWidthMod } = this.model
       return `${roundToPlaces(strokeWidthMod, 1)}x`
+    },
+
+    textureName () {
+      const texture = this.textures[this.model.textureIndex]
+      return texture.name
     }
   }
 }

@@ -290,7 +290,7 @@ function mountCompositor ($el, $electron) {
           .map((v) => v / 255)
         tint.push(1) // Alpha
 
-        const diffuseMap = textureIndex === -1 ? null : textures[textureIndex].path
+        const diffuseMap = textures[textureIndex].path
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 

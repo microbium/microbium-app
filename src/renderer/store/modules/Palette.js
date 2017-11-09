@@ -11,7 +11,7 @@ export function createControlsState () {
       {
         index: 0,
         name: 'Solid',
-        textureIndex: -1,
+        textureIndex: 0,
         hatchAlpha: 0,
         tintHex: '#222222',
         useScreenTintFunc: 0,
@@ -21,7 +21,7 @@ export function createControlsState () {
       {
         index: 1,
         name: 'Radial Dash',
-        textureIndex: -1,
+        textureIndex: 0,
         hatchAlpha: 1,
         tintHex: '#A3A3CC',
         useScreenTintFunc: 0,
@@ -31,7 +31,7 @@ export function createControlsState () {
       {
         index: 2,
         name: 'Watercolor',
-        textureIndex: 0,
+        textureIndex: 1,
         hatchAlpha: 0,
         tintHex: '#FFFFFF',
         useScreenTintFunc: 1,
@@ -42,10 +42,17 @@ export function createControlsState () {
 
     textures: [
       {
+        index: 0,
+        name: 'Blank',
+        path: null
+      },
+      {
+        index: 1,
         name: 'Watercolor',
         path: 'watercolor'
       },
       {
+        index: 2,
         name: 'Ground Mud',
         path: 'ground-mud'
       }
