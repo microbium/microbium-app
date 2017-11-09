@@ -59,10 +59,7 @@ export function createGeometryController (tasks, state, renderer) {
       const count = 5
 
       const { lineTool } = state.controls
-      const strokeWidthPrev = lineTool.strokeWidth
-      const strokeColorPrev = lineTool.strokeColor
-      const strokeAlphaPrev = lineTool.strokeAlpha
-      const styleIndexPrev = lineTool.styleIndex
+      const prevLineTool = Object.assign({}, lineTool)
 
       state.geometry.shouldAppend = true
       Object.assign(state.controls.lineTool, {
@@ -82,12 +79,7 @@ export function createGeometryController (tasks, state, renderer) {
       geometry.completeActiveSegment(0)
 
       state.geometry.shouldAppend = false
-      Object.assign(state.controls.lineTool, {
-        strokeWidth: strokeWidthPrev,
-        strokeColor: strokeColorPrev,
-        strokeAlpha: strokeAlphaPrev,
-        styleIndex: styleIndexPrev
-      })
+      Object.assign(state.controls.lineTool, prevLineTool)
     },
 
     createSegment (point, index) {
