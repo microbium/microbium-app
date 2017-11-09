@@ -6,7 +6,7 @@ export function curve (points,
   tension, segmentsCount, isClosed
 ) {
   const spline = cardinalSplineCurve(points, tension, segmentsCount, isClosed)
-  const count = spline.length / 2
+  const count = (isClosed ? spline.length - 2 : spline.length) / 2
 
   for (let i = 0; i < count; i++) {
     const ix = i * 2

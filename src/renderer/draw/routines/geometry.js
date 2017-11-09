@@ -1,6 +1,8 @@
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 
+const { PI } = Math
+
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
   drawSegments(state, contexts, segmentStart, segmentCount)
   drawSegmentsCurves(state, contexts, segmentStart, segmentCount)
@@ -68,10 +70,8 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
     const points = map(indices, (i) => vertices[i])
+    if (isClosed) points.pop()
     const pointsFlat = flatten2(points)
-
-    // FIXME: Closed curve segments have a noticeable gap
-    if (isClosed) pointsFlat.splice(-2, 2)
 
     ctx.globalAlpha = strokeAlpha
     ctx.strokeStyle = strokeColor
@@ -101,13 +101,15 @@ export function drawFocus (state, ctx, index) {
   ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
   ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.arc(point[0], point[1], 6, 0, Math.PI * 2)
+  ctx.arc(point[0], point[1], 6, 0, PI * 2 - PI * 0.1)
+  ctx.closePath()
   ctx.stroke()
 
   ctx.globalAlpha = 0.05
   ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
   ctx.lineWidth = 0.5
   ctx.beginPath()
-  ctx.arc(point[0], point[1], 18, 0, Math.PI * 2)
+  ctx.arc(point[0], point[1], 18, 0, PI * 2 - PI * 0.1)
+  ctx.closePath()
   ctx.stroke()
 }
