@@ -4,8 +4,25 @@ export function createControlsState () {
       strokeWidth: 2,
       strokeColor: '#fafafa',
       strokeAlpha: 1,
+      strokeWidthMod: 0,
+      inputModTypeIndex: 1,
       styleIndex: 0
     },
+
+    inputModTypes: [
+      {
+        index: 0,
+        name: 'No'
+      },
+      {
+        index: 1,
+        name: 'Velocity'
+      },
+      {
+        index: 2,
+        name: 'Pen Pressure'
+      }
+    ],
 
     styles: [
       {

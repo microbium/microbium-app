@@ -1,11 +1,27 @@
 <template>
   <div class="palette-tool">
     <div class="palette-item">
-      <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth"></input-range>
+      <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth" />
       <div class="palette-item__label">
         <b>{{ strokeWidthName }}</b> stroke width
       </div>
     </div>
+
+    <div class="palette-item">
+      <!-- TODO: Update strokeWidthMod value from Compositor -->
+      <input-range class="range-slider--knob-hidden"
+        min="-1" max="1" step="0.025" v-model="model.strokeWidthMod" />
+      <div class="palette-item__label">
+        <b>{{ inputModTypeName }}
+          <input-select v-model="model.inputModTypeIndex">
+            <option v-for="inputModType in inputModTypes" :value="inputModType.index">
+              {{ inputModType.name }}
+            </option>
+          </input-select>
+        </b> stroke modulation
+      </div>
+    </div>
+
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ strokeStyleName }}
@@ -41,7 +57,8 @@ export default {
 
   props: {
     model: Object,
-    styles: Array
+    styles: Array,
+    inputModTypes: Array
   },
 
   computed: {
@@ -53,6 +70,11 @@ export default {
     strokeStyleName () {
       const style = this.styles[this.model.styleIndex]
       return style.name
+    },
+
+    inputModTypeName () {
+      const inputModType = this.inputModTypes[this.model.inputModTypeIndex]
+      return inputModType.name
     }
   }
 }

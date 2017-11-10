@@ -26,6 +26,10 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
     width: 5px;
     height: 5px;
   }
+
+  .range-slider--knob-hidden & {
+    display: none;
+  }
 }
 </style>
 

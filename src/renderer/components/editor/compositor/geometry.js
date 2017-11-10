@@ -3,7 +3,7 @@ import { vec2 } from 'gl-matrix'
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { clamp, mapLinear } from '@/utils/math'
 
-export function createGeometryController (tasks, state, renderer) {
+export function createGeometryController (tasks, state) {
   const geometry = {
     // TODO: Improve curve precision mapping
     computeCurvePrecision: function (vertices, indices) {
@@ -18,9 +18,19 @@ export function createGeometryController (tasks, state, renderer) {
         mapLinear(12, 120, 0, 1, linkSizeAvg)))
     },
 
-    // NOTE: Map pressure to range [-1, 1]
+    // NOTE: Map storke modulation to range [-1, 1] from active input type
     computeModulatedStrokeWidth () {
-      return state.drag.pressure * 2 - 1
+      const { inputModTypeIndex } = state.controls.lineTool
+      switch (inputModTypeIndex) {
+        // Velocity
+        case 1:
+          return clamp(-0.9, 1,
+            mapLinear(0, 3, 1, -1, state.seek.velocity))
+        // Pen Pressure
+        case 2:
+          return state.drag.pressure * 2 - 1
+      }
+      return 0
     },
 
     // TODO: Optimize with spacial index (kd-tree)

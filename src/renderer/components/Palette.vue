@@ -6,7 +6,8 @@
     <div class="palette__content">
       <palette-group open>
         <h2 slot="title">Line Tool</h2>
-        <palette-tool :model="lineTool" :styles="styles" />
+        <palette-tool :model="lineTool"
+          :styles="styles" :inputModTypes="inputModTypes" />
       </palette-group>
 
       <palette-group open>
