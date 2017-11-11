@@ -16,6 +16,7 @@
 </style>
 
 <script>
+// OPTIM: Native color picker seems to have perf issues ...
 export default {
   name: 'input-color',
   props: {
