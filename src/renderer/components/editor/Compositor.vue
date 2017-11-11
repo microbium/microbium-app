@@ -299,14 +299,14 @@ function mountCompositor ($el, $electron) {
         const style = styles[index]
         const {
           textureIndex, alphaFuncIndex,
-          tintHex, useScreenTintFunc
+          tintHex, tintAlpha, useScreenTintFunc
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
         const tint = Colr.fromHex(tintHex)
           .toRgbArray()
           .map((v) => v / 255)
-        tint.push(1) // Alpha
+        tint.push(tintAlpha)
 
         const diffuseMap = textures[textureIndex].path
         const alphaFunc = alphaFunctions[alphaFuncIndex]

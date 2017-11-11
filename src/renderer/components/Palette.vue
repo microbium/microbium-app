@@ -88,10 +88,6 @@ $base-color: rgba(#000, 0.15);
   padding: 6px 0;
   font-size: 13px;
 
-  &:first-child {
-    padding-top: 3px;
-  }
-
   &__label {
     padding: 0 8px;
 
@@ -106,6 +102,12 @@ $base-color: rgba(#000, 0.15);
         text-transform: uppercase;
       }
     }
+  }
+
+  > .range-slider {
+    position: relative;
+    display: block;
+    margin-top: -4px;
   }
 }
 </style>

@@ -2,7 +2,7 @@ export function createControlsState () {
   return {
     lineTool: {
       strokeWidth: 2,
-      strokeColor: '#fafafa',
+      strokeColor: '#222222',
       strokeAlpha: 1,
       strokeWidthMod: 0,
       inputModTypeIndex: 1,
@@ -30,7 +30,8 @@ export function createControlsState () {
         name: 'Solid',
         textureIndex: 0,
         alphaFuncIndex: 0,
-        tintHex: '#222222',
+        tintHex: '#ffffff',
+        tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
         strokeWidthMod: 1
@@ -41,6 +42,7 @@ export function createControlsState () {
         textureIndex: 0,
         alphaFuncIndex: 1,
         tintHex: '#A3A3CC',
+        tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
         strokeWidthMod: 1
@@ -51,6 +53,7 @@ export function createControlsState () {
         textureIndex: 1,
         alphaFuncIndex: 0,
         tintHex: '#FFFFFF',
+        tintAlpha: 1,
         useScreenTintFunc: 1,
         thickness: 1,
         strokeWidthMod: 1

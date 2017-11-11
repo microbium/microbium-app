@@ -4,24 +4,34 @@
       <input-range min="0" max="5" step="0.1"
         v-model="model.thickness" />
       <div class="palette-item__label">
-        <b>{{ thicknessName }}</b> stroke thickness factor
+        <b>{{ thicknessName }}</b> stroke width factor
       </div>
     </div>
+
     <div class="palette-item">
       <input-range min="0" max="5" step="0.1"
         v-model="model.strokeWidthMod" />
       <div class="palette-item__label">
         <b>{{ strokeModName }}</b>
-        stroke width modulation
+        stroke modulation
       </div>
     </div>
+
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ model.tintHex }}
           <input-color v-model="model.tintHex" />
-        </b> stroke tint
+        </b> tint
       </div>
     </div>
+
+    <div class="palette-item">
+      <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
+      <div class="palette-item__label">
+        <b>{{ tintAlphaName }}</b> opacity
+      </div>
+    </div>
+
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ textureName }}
@@ -33,6 +43,7 @@
         </b> color texture
       </div>
     </div>
+
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ alphaFunctionName }}
@@ -81,6 +92,11 @@ export default {
     strokeModName () {
       const { strokeWidthMod } = this.model
       return `${roundToPlaces(strokeWidthMod, 1)}x`
+    },
+
+    tintAlphaName () {
+      const { tintAlpha } = this.model
+      return `${roundToPlaces(tintAlpha * 100, 0)}%`
     },
 
     textureName () {

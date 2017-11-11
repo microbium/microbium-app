@@ -23,6 +23,21 @@
 
     <div class="palette-item">
       <div class="palette-item__label">
+        <b>{{ model.strokeColor }}
+          <input-color v-model="model.strokeColor" />
+        </b> stroke color
+      </div>
+    </div>
+
+    <div class="palette-item">
+      <input-range min="0" max="1" step="0.01" v-model="model.strokeAlpha" />
+      <div class="palette-item__label">
+        <b>{{ strokeAlphaName }}</b> stroke opacity
+      </div>
+    </div>
+
+    <div class="palette-item">
+      <div class="palette-item__label">
         <b>{{ strokeStyleName }}
           <input-select v-model="model.styleIndex">
             <option v-for="style in styles" :value="style.index">
@@ -63,17 +78,22 @@ export default {
   computed: {
     strokeWidthName () {
       const { strokeWidth } = this.model
-      return `${roundToPlaces(strokeWidth, 2)}px`
-    },
-
-    strokeStyleName () {
-      const style = this.styles[this.model.styleIndex]
-      return style.name
+      return `${roundToPlaces(strokeWidth, 2)}pt`
     },
 
     inputModTypeName () {
       const inputModType = this.inputModTypes[this.model.inputModTypeIndex]
       return inputModType.name
+    },
+
+    strokeAlphaName () {
+      const { strokeAlpha } = this.model
+      return `${roundToPlaces(strokeAlpha * 100, 0)}%`
+    },
+
+    strokeStyleName () {
+      const style = this.styles[this.model.styleIndex]
+      return style.name
     }
   }
 }
