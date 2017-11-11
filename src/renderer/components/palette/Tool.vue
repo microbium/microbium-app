@@ -8,7 +8,6 @@
     </div>
 
     <div class="palette-item">
-      <!-- TODO: Update strokeWidthMod value from Compositor -->
       <input-range class="range-slider--knob-hidden"
         min="-1" max="1" step="0.025" v-model="model.strokeWidthMod" />
       <div class="palette-item__label">

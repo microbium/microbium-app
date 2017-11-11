@@ -31,6 +31,13 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
     display: none;
   }
 }
+
+.range-slider-fill {
+  // TODO: Parameterize transition duration
+  .range-slider--knob-hidden & {
+    transition: width 200ms;
+  }
+}
 </style>
 
 <script>

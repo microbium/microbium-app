@@ -92,13 +92,21 @@ function createMainWindow () {
 
   createSceneMenuItem.enabled = false
   main.loadURL(mainURL)
+
+  let paletteIsHidden = false
   main.on('focus', () => {
     if (DEBUG_PALETTE) return
-    if (appWindows.palette) appWindows.palette.showInactive()
+    if (paletteIsHidden && appWindows.palette) {
+      appWindows.palette.show()
+      paletteIsHidden = false
+    }
   })
   main.on('blur', () => {
     if (DEBUG_PALETTE) return
-    if (appWindows.palette) appWindows.palette.hide()
+    if (appWindows.palette) {
+      appWindows.palette.hide()
+      paletteIsHidden = true
+    }
   })
 
   ipcMain.on('main-message', onMessage)
@@ -209,6 +217,8 @@ app.on('window-all-closed', () => {
 
 app.on('ready', createStartWindows)
 app.on('activate', createStartWindows)
+
+app.commandLine.appendSwitch('--ignore-gpu-blacklist')
 
 /**
  * Auto Updater

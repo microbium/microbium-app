@@ -132,7 +132,19 @@ export default {
     return createControlsState()
   },
 
+  created () {
+    this.$electron.ipcRenderer.on('message', this.handleMessage.bind(this))
+  },
+
   methods: {
+    handleMessage (event, data) {
+      switch (data.type) {
+        case 'UPDATE_STATE':
+          this[data.group][data.key] = data.value
+          break
+      }
+    },
+
     syncControls (group, value) {
       this.$electron.ipcRenderer.send('main-message', {
         type: 'UPDATE_CONTROLS',

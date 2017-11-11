@@ -176,12 +176,27 @@ function mountCompositor ($el, $electron) {
     },
 
     update () {
+      this.syncStrokeWidthMod()
       if (state.simulation.isRunning) {
         state.simulation.tick++
         simulation.updateForces()
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
+    },
+
+    syncStrokeWidthMod () {
+      const value = geometry.computeModulatedStrokeWidth()
+      this.updatePaletteState('lineTool', 'strokeWidthMod', value)
+    },
+
+    updatePaletteState (group, key, value) {
+      $electron.ipcRenderer.send('palette-message', {
+        type: 'UPDATE_STATE',
+        group,
+        key,
+        value
+      })
     },
 
     // FEAT: Add postprocessing pipeline
