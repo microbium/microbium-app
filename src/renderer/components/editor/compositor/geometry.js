@@ -78,6 +78,8 @@ export function createGeometryController (tasks, state) {
         strokeWidth: 1,
         strokeColor: UI_PALETTE.BACK_PRIMARY,
         strokeAlpha: 0.95,
+        strokeWidthMod: 0,
+        inputModTypeIndex: 0,
         styleIndex: 0
       })
 
