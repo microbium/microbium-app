@@ -28,7 +28,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
     const curvePrecision = segment.curvePrecision * curveSubDivisions
-    const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 1
+    const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 0.25
 
     ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
     ctx.strokeStyle = strokeColor
