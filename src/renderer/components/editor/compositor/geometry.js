@@ -34,13 +34,14 @@ export function createGeometryController (tasks, state) {
     },
 
     // TODO: Optimize with spacial index (kd-tree)
-    findClosestPoint (target, maxDist = 10, lastOffset = 0) {
+    findClosestPoint (target, maxDist = 10, lastOffset = 0, ignoreIndex = -1) {
       const { vertices } = state.geometry
       const maxDistSq = maxDist * maxDist
       const count = vertices.length - lastOffset
       let closestPointIndex = null
       let closestDistSq = Infinity
       for (let i = 0; i < count; i++) {
+        if (i === ignoreIndex) continue
         const point = vertices[i]
         const distSq = vec2.squaredDistance(target, point)
         if (distSq < maxDistSq && distSq < closestDistSq) {

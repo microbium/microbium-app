@@ -4,9 +4,10 @@ export function createSeekController (tasks, state) {
   const { requestSync } = tasks
 
   const seek = {
-    // FIXME: Seek while panning
+    // TODO: Disable seek while panning
     pointerMove (event) {
       const stateSeek = state.seek
+      const { activeSegment } = state.geometry
       const { isDrawing } = state.drag
       const { scale } = state.viewport
       const { move, movePrev } = stateSeek
@@ -28,8 +29,12 @@ export function createSeekController (tasks, state) {
         return
       }
 
+      const lastOffset = isDrawing ? 1 : 0
+      const ignoreIndex = isDrawing
+        ? activeSegment.indices[activeSegment.indices.length - 2]
+        : -1
       const close = requestSync('geometry.findClosestPoint',
-        move, stateSeek.minDistance / scale, isDrawing ? 2 : 0)
+        move, stateSeek.maxDistance / scale, lastOffset, ignoreIndex)
       stateSeek.index = close ? close.index : null
     }
   }
@@ -177,11 +182,11 @@ export function createDragController (tasks, state) {
     },
 
     beginDraw (down) {
-      const { minDistance } = state.seek
+      const { maxDistance } = state.seek
       const { scale } = state.viewport
 
       const close = requestSync('geometry.findClosestPoint',
-        down, minDistance / scale)
+        down, maxDistance / scale)
 
       if (close) requestSync('geometry.createSegment', close.point, close.index)
       else requestSync('geometry.createSegment', down)
@@ -196,11 +201,11 @@ export function createDragController (tasks, state) {
     },
 
     endDraw (up) {
-      const { minDistance } = state.seek
+      const { maxDistance } = state.seek
       const { scale } = state.viewport
 
       const close = requestSync('geometry.findClosestPoint',
-        up, minDistance / scale, 1)
+        up, maxDistance / scale, 1)
 
       requestSync('geometry.completeActiveSegment', close && close.index)
       requestSync('geometry.ensureActiveSegmentValid')

@@ -8,7 +8,7 @@ export function createCompositorState () {
     move: vec2.create(),
     movePrev: vec2.create(),
     index: null,
-    minDistance: 14
+    maxDistance: 14
   }
 
   const drag = {
