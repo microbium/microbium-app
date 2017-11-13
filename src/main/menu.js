@@ -11,14 +11,22 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.createScene()
           }
+        },
+        {
+          id: 'open-scene',
+          label: 'Open...',
+          accelerator: 'Cmd+O',
+          click () {
+            actions.openScene()
+          }
+        },
+        {
+          label: 'Save',
+          accelerator: 'Cmd+S',
+          click () {
+            actions.saveScene()
+          }
         }
-        // {
-        //   label: 'Save Scene',
-        //   accelerator: 'Cmd+S',
-        //   click () {
-        //     actions.saveScene()
-        //   }
-        // }
       ]
     },
     // {
@@ -65,7 +73,7 @@ export function createMenuTemplate (app, actions) {
       ]
     },
     {
-      role: 'window',
+      label: 'Window',
       submenu: [
         {role: 'minimize'},
         {role: 'close'}

@@ -1,94 +1,59 @@
-import { vec2 } from 'gl-matrix'
+import { flatten2, expand2 } from '@/utils/array'
+import { roundToPlaces } from '@/utils/number'
 
-import { LINE_WIDTH_KEYS } from '@/constants/line-styles'
-
-// FEAT: Add file load / save / incremental save
-export function createIOController (tasks, state, renderer) {
+export function createIOController (tasks, state) {
   const io = {
-    // TODO: Add lineStyleIndex, lineColor, lineAlpha
-    serializeGeometry () {
-      const stateGeom = state.geometry
-      const { segments, vertices } = stateGeom
-      const { map } = Array.prototype
-
-      const lineWidthLookup = toHash(LINE_WIDTH_KEYS)
-
-      function toHash (arr) {
-        return arr.reduce((hash, v, i) => {
-          hash[v] = i
-          return hash
-        }, {})
-      }
-
-      function toFixed (n, len) {
-        const factor = Math.pow(10, len)
-        return Math.round(n * factor) / factor
-      }
-
-      const segmentsStr = segments
-        .map((segment) => {
-          const { lineWidth } = segment
-          return [
-            lineWidthLookup[lineWidth],
-            segment.indices.join(',')
-          ].join('_')
+    serializeScene () {
+      const { geometry, controls } = state
+      const segments = geometry.segments
+        .map((seg) => {
+          return Object.assign({}, seg, {
+            indices: io.serializeArray(seg.indices, 0),
+            strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 4)
+          })
         })
-        .join('&')
-
-      const verticesStr = vertices
-        .map((vert) => {
-          return map.call(vert, (v) => toFixed(v, 2)).join(',')
-        })
-        .join('&')
-
-      return [
-        segmentsStr,
-        verticesStr
-      ].join('__')
-    },
-
-    serializeGeometryToLocalStorage () {
-      const hash = io.serializeGeometry()
-      window.localStorage.setItem('editor-data', hash)
-    },
-
-    deserializeGeometry (str) {
-      const [segmentsStr, verticesStr] = str.split('__')
-
-      const vertices = verticesStr.split('&').map((str) => {
-        const vals = str.split(',')
-          .map((str) => parseFloat(str))
-        return vec2.clone(vals)
-      })
-
-      const segments = segmentsStr.split('&').map((str) => {
-        const [lineWidthStr, indicesStr] = str.split('_')
-
-        const lineWidth = LINE_WIDTH_KEYS[parseInt(lineWidthStr, 10)]
-        const indices = indicesStr.split(',')
-          .map((str) => parseInt(str, 10))
-        const curvePrecision = tasks.requestSync('geometry.computeCurvePrecision',
-          vertices, indices)
-        const isClosed = indices[0] === indices[indices.length - 1]
-
-        return {
-          indices: new Uint16Array(indices),
-          lineWidth,
-          curvePrecision,
-          isClosed
-        }
-      })
-
+      const vertices = io.serializeArray(flatten2(geometry.vertices), 4)
       return {
-        segments,
-        vertices
+        geometry: {
+          segments,
+          vertices
+        },
+        controls: Object.assign({}, controls)
       }
     },
 
-    deserializeGeometryFromLocalStorage () {
-      const hash = window.localStorage.getItem('editor-data')
-      if (!hash) return null
-      return io.deserializeGeometry(hash)
+    deserializeScene (json) {
+      const { geometry, controls } = json
+      const segments = geometry.segments
+        .map((seg) => {
+          return Object.assign({}, seg, {
+            indices: io.deserializeIntArray(seg.indices),
+            strokeWidthModulations: io.deserializeFloatArray(seg.strokeWidthModulations)
+          })
+        })
+      const vertices = expand2(io.deserializeFloatArray(geometry.vertices))
+      return {
+        geometry: {
+          segments,
+          vertices
+        },
+        controls: Object.assign({}, controls)
+      }
+    },
+
+    serializeArray (arr, precision) {
+      return arr.map((n) => roundToPlaces(n, precision))
+        .join(',')
+    },
+
+    deserializeFloatArray (str) {
+      return str.split(',')
+        .map((s) => parseFloat(s))
+    },
+
+    deserializeIntArray (str) {
+      return str.split(',')
+        .map((s) => parseInt(s, 10))
     }
   }
 

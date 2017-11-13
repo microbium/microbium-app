@@ -142,7 +142,9 @@ export default {
     handleMessage (event, data) {
       switch (data.type) {
         case 'UPDATE_STATE':
-          this[data.group][data.key] = data.value
+          if (data.key) this[data.group][data.key] = data.value
+          else if (data.group) Object.assign(this[data.group], data.value)
+          else Object.assign(this, data.value)
           break
       }
     },

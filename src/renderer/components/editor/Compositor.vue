@@ -46,6 +46,7 @@ import { createGeometryController } from './compositor/geometry'
 import { createSimulationController } from './compositor/simulation'
 import { createSeekController, createDragController } from './compositor/interaction'
 import { createViewportController } from './compositor/viewport'
+import { createIOController } from './compositor/io'
 
 import {
   drawSimulatorForceUI,
@@ -89,6 +90,7 @@ function mountCompositor ($el, $electron) {
   const seek = createSeekController(tasks, state)
   const drag = createDragController(tasks, state)
   const viewport = createViewportController(tasks, state)
+  const io = createIOController(tasks, state)
 
   function getContainer (name) {
     return document.getElementById(name)
@@ -154,14 +156,16 @@ function mountCompositor ($el, $electron) {
       document.addEventListener('keyup', viewport.keyUp, false)
       $electron.ipcRenderer.on('message', viewport.message)
       $electron.ipcRenderer.on('key-command', viewport.keyCommand)
+      $electron.ipcRenderer.on('serialize-scene', view.serializeScene)
+      $electron.ipcRenderer.on('deserialize-scene', view.deserializeScene)
     },
 
     initGeometry () {
-      logger.time('deserialize geometry')
+      // logger.time('deserialize scene')
       // const initialState = route.deserializeGeometryFromLocalStorage()
+      // logger.timeEnd('deserialize scene')
+      // logger.log('initial state', initialState)
       const initialState = null
-      logger.timeEnd('deserialize geometry')
-      logger.log('initial state', initialState)
       if (initialState && initialState.segments.length) {
         geometry.createBaseFromState(initialState)
       } else {
@@ -169,10 +173,21 @@ function mountCompositor ($el, $electron) {
       }
     },
 
-    saveGeometry () {
-      logger.time('serialize geometry')
-      // route.serializeGeometryToLocalStorage()
-      logger.timeEnd('serialize geometry')
+    serializeScene () {
+      logger.time('serialize scene')
+      const data = io.serializeScene()
+      logger.timeEnd('serialize scene')
+      $electron.ipcRenderer.send('serialize-scene--response', data)
+    },
+
+    deserializeScene (event, data) {
+      logger.time('deserialize scene')
+      const json = JSON.parse(data)
+      const scene = io.deserializeScene(json)
+      logger.timeEnd('deserialize scene')
+      logger.log('scene', scene)
+      Object.assign(state, scene)
+      view.updatePaletteState(null, null, state.controls)
     },
 
     update () {

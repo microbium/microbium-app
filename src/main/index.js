@@ -3,11 +3,20 @@
 import {
   app,
   ipcMain,
+  dialog,
   screen,
   shell,
   BrowserWindow,
   Menu
 } from 'electron'
+
+import {
+  readFile,
+  writeFile
+} from 'fs-extra'
+import {
+  basename
+} from 'path'
 
 import { createMenuTemplate } from './menu'
 
@@ -35,16 +44,48 @@ const mainURL = process.env.NODE_ENV === 'development'
 const paletteURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/palette`
   : `file://${__dirname}/index.html#/palette`
+let openScenePath = null
 
 function createMenu () {
   if (appMenus.main !== null) return
+
+  const fileTypeFilters = [
+    {
+      name: 'Bacterium Scene',
+      extensions: ['bctm']
+    }
+  ]
 
   const template = createMenuTemplate(app, {
     createScene () {
       createMainWindow()
     },
+    openScene () {
+      dialog.showOpenDialog(null, {
+        openDirectory: false,
+        multiSelections: false,
+        filters: fileTypeFilters
+      }, (fileNames) => {
+        if (!fileNames.length) return
+        const fileName = fileNames[0]
+        openScenePath = fileName
+        setWindowFilePath('main', fileName)
+        openSceneFile(fileName)
+      })
+    },
     saveScene () {
-      sendWindowMessage('main', 'key-command', {code: 'KeyS'})
+      if (openScenePath) {
+        saveSceneFile(openScenePath)
+        return
+      }
+      dialog.showSaveDialog(null, {
+        filters: fileTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        openScenePath = fileName
+        setWindowFilePath('main', fileName)
+        saveSceneFile(fileName)
+      })
     },
     toggleSimulation () {
       sendWindowMessage('main', 'key-command', {code: 'Space'})
@@ -62,6 +103,25 @@ function createMenu () {
 
   const menu = appMenus.main = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+}
+
+function openSceneFile (path) {
+  readFile(path, 'utf8')
+    .then((data) => {
+      sendWindowMessage('main', 'deserialize-scene', data)
+    })
+}
+
+function saveSceneFile (path) {
+  requestWindowResponse('main', 'serialize-scene', null)
+    .then((data) => JSON.stringify(data))
+    .then((str) => writeFile(path, str))
+    .then(() => {
+      console.log(`Saved scene to ${path}.`)
+    })
+    .catch((err) => {
+      throw err
+    })
 }
 
 function createMainWindow () {
@@ -114,6 +174,7 @@ function createMainWindow () {
     ipcMain.removeListener('main-message', onMessage)
     createSceneMenuItem.enabled = true
     appWindows.main = null
+    openScenePath = null
   })
 }
 
@@ -181,10 +242,31 @@ function toggleWindow (name) {
   else win.showInactive()
 }
 
+function setWindowFilePath (name, path) {
+  const win = appWindows[name]
+  if (!win) return
+  win.setTitle(basename(path))
+  win.setRepresentedFilename(path)
+}
+
 function sendWindowMessage (name, messageKey, messageData) {
   const win = appWindows[name]
   if (!win) return
   win.send(messageKey, messageData)
+  return win
+}
+
+function requestWindowResponse (name, messageKey, messageData) {
+  const win = sendWindowMessage(name, messageKey, messageData)
+  if (!win) {
+    return Promise.reject(
+      new Error(`window ${name} does not exist`))
+  }
+  return new Promise((resolve, reject) => {
+    ipcMain.once(`${messageKey}--response`, (event, data) => {
+      resolve(data)
+    })
+  })
 }
 
 function toggleMenuItem (name) {

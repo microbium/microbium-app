@@ -41,3 +41,12 @@ export function flatten2 (arr) {
   }
   return out
 }
+
+export function expand2 (arr) {
+  const count = arr.length / 2
+  const out = new Array(count)
+  for (let i = 0; i < count; i++) {
+    out[i] = [arr[i * 2], arr[i * 2 + 1]]
+  }
+  return out
+}
