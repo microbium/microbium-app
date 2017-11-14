@@ -93,7 +93,7 @@ export function createControlsState () {
     ],
 
     modifiers: {
-      polarIterations: 8,
+      polarIterations: 3,
       curveSubDivisions: 6
     }
   }
