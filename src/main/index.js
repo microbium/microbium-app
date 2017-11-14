@@ -9,6 +9,7 @@ import {
   BrowserWindow,
   Menu
 } from 'electron'
+import Store from 'electron-store'
 
 import {
   readFile,
@@ -44,7 +45,7 @@ const mainURL = process.env.NODE_ENV === 'development'
 const paletteURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/palette`
   : `file://${__dirname}/index.html#/palette`
-let openScenePath = null
+const store = new Store()
 
 function createMenu () {
   if (appMenus.main !== null) return
@@ -68,12 +69,12 @@ function createMenu () {
       }, (fileNames) => {
         if (!fileNames.length) return
         const fileName = fileNames[0]
-        openScenePath = fileName
-        setWindowFilePath('main', fileName)
+        store.set('openScenePath', fileName)
         openSceneFile(fileName)
       })
     },
     saveScene () {
+      const openScenePath = store.get('openScenePath')
       if (openScenePath) {
         saveSceneFile(openScenePath)
         return
@@ -82,8 +83,7 @@ function createMenu () {
         filters: fileTypeFilters
       }, (fileName) => {
         if (!fileName) return
-        openScenePath = fileName
-        setWindowFilePath('main', fileName)
+        store.set('openScenePath', fileName)
         saveSceneFile(fileName)
       })
     },
@@ -108,6 +108,7 @@ function createMenu () {
 function openSceneFile (path) {
   readFile(path, 'utf8')
     .then((data) => {
+      setWindowFilePath('main', path)
       sendWindowMessage('main', 'deserialize-scene', data)
     })
 }
@@ -117,11 +118,19 @@ function saveSceneFile (path) {
     .then((data) => JSON.stringify(data))
     .then((str) => writeFile(path, str))
     .then(() => {
+      setWindowFilePath('main', path)
       console.log(`Saved scene to ${path}.`)
     })
     .catch((err) => {
       throw err
     })
+}
+
+function restoreLastSession () {
+  const openScenePath = store.get('openScenePath')
+  console.log('restoreLastSession', openScenePath)
+  if (!openScenePath) return
+  openSceneFile(openScenePath)
 }
 
 function createMainWindow () {
@@ -174,7 +183,7 @@ function createMainWindow () {
     ipcMain.removeListener('main-message', onMessage)
     createSceneMenuItem.enabled = true
     appWindows.main = null
-    openScenePath = null
+    store.delete('openScenePath')
   })
 }
 
@@ -232,6 +241,7 @@ function createStartWindows () {
   createMenu()
   createMainWindow(displaySize)
   createPaletteWindow(displaySize)
+  restoreLastSession()
 }
 
 function toggleWindow (name) {

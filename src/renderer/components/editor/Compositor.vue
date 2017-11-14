@@ -186,7 +186,9 @@ function mountCompositor ($el, $electron) {
       const scene = io.deserializeScene(json)
       logger.timeEnd('deserialize scene')
       logger.log('scene', scene)
-      Object.assign(state, scene)
+      Object.keys(scene).forEach((key) => {
+        Object.assign(state[key], scene[key])
+      })
       view.updatePaletteState(null, null, state.controls)
     },
 
