@@ -44,7 +44,7 @@
               {{ style.name }}
             </option>
           </input-select>
-        </b> style
+        </b> style layer
       </div>
     </div>
   </div>

@@ -11,7 +11,7 @@
       </palette-group>
 
       <palette-group open>
-        <h2 slot="title">Styles</h2>
+        <h2 slot="title">Style Layers</h2>
         <palette-group v-for="style in styles"
           :key="style.index" nested :open="style.index == 0">
           <h2 slot="title">{{ style.name }}</h2>
