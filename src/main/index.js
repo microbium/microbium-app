@@ -183,7 +183,6 @@ function createMainWindow () {
     ipcMain.removeListener('main-message', onMessage)
     createSceneMenuItem.enabled = true
     appWindows.main = null
-    store.delete('openScenePath')
   })
 }
 
