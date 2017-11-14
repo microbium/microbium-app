@@ -139,6 +139,7 @@ function mountCompositor ($el, $electron) {
         view.initGeometry()
         view.bindEvents()
         view.start()
+        view.didStart()
       })
     },
 
@@ -146,6 +147,10 @@ function mountCompositor ($el, $electron) {
       tasks.run('syncState')
       view.renderOnce()
       loop.start()
+    },
+
+    didStart () {
+      $electron.ipcRenderer.send('main-started')
     },
 
     bindEvents () {

@@ -128,9 +128,10 @@ function saveSceneFile (path) {
 
 function restoreLastSession () {
   const openScenePath = store.get('openScenePath')
-  console.log('restoreLastSession', openScenePath)
   if (!openScenePath) return
-  openSceneFile(openScenePath)
+  ipcMain.once('main-started', () => {
+    openSceneFile(openScenePath)
+  })
 }
 
 function createMainWindow () {
