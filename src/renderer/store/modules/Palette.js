@@ -91,6 +91,11 @@ export function createControlsState () {
         index: 1,
         name: 'Hairy',
         path: 'alpha-hairy'
+      },
+      {
+        index: 2,
+        name: 'Hatchy',
+        path: 'alpha-hatchy'
       }
     ],
 

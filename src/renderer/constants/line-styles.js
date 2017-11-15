@@ -26,5 +26,9 @@ export const TEXTURES = {
   'alpha-hairy': {
     path: require('@/assets/images/textures/alpha-hairy.jpg'),
     size: 256
+  },
+  'alpha-hatchy': {
+    path: require('@/assets/images/textures/alpha-hatchy.jpg'),
+    size: 256
   }
 }
