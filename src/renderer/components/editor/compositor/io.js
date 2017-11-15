@@ -27,11 +27,14 @@ export function createIOController (tasks, state) {
       const segments = geometry.segments
         .map((seg) => {
           return Object.assign({}, seg, {
-            indices: io.deserializeIntArray(seg.indices),
-            strokeWidthModulations: io.deserializeFloatArray(seg.strokeWidthModulations)
+            indices: new Uint16Array(
+              io.deserializeIntArray(seg.indices)),
+            strokeWidthModulations: new Float32Array(
+              io.deserializeFloatArray(seg.strokeWidthModulations))
           })
         })
-      const vertices = expand2(io.deserializeFloatArray(geometry.vertices))
+      const vertices = expand2(
+        io.deserializeFloatArray(geometry.vertices), Float32Array)
       return {
         geometry: {
           segments,

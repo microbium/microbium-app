@@ -32,9 +32,9 @@ export function map (arr, predicate) {
   return _map.call(arr, predicate)
 }
 
-export function flatten2 (arr) {
+export function flatten2 (arr, Ctor = Array) {
   const count = arr.length
-  const out = new Array(count * 2)
+  const out = new Ctor(count * 2)
   for (let i = 0; i < count; i++) {
     out[i * 2] = arr[i][0]
     out[i * 2 + 1] = arr[i][1]
@@ -42,11 +42,14 @@ export function flatten2 (arr) {
   return out
 }
 
-export function expand2 (arr) {
+export function expand2 (arr, Ctor = Array) {
   const count = arr.length / 2
   const out = new Array(count)
   for (let i = 0; i < count; i++) {
-    out[i] = [arr[i * 2], arr[i * 2 + 1]]
+    const v = new Ctor(2)
+    v[0] = arr[i * 2]
+    v[1] = arr[i * 2 + 1]
+    out[i] = v
   }
   return out
 }
