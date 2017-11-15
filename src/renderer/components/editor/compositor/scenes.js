@@ -8,6 +8,13 @@ export function createScene (tasks, state, renderer) {
   const { createTexture, regl } = renderer
   const { styles } = state.controls
 
+  const alphaMapOpts = {
+    min: 'nearest',
+    mag: 'nearest',
+    wrap: ['repeat', 'repeat'],
+    format: 'rgb'
+  }
+
   // TODO: Investigate huge perf issues in Chrome when using instancing
   // TODO: Optimize shared state between contexts
   const contexts = styles.map((style, index) => {
@@ -26,7 +33,7 @@ export function createScene (tasks, state, renderer) {
           useScreenTintFunc: regl.prop('useScreenTintFunc'),
           diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap),
           useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
-          alphaMap: (params, { alphaMap }) => createTexture(alphaMap),
+          alphaMap: (params, { alphaMap }) => createTexture(alphaMap, alphaMapOpts),
           useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
         },
         blend: {

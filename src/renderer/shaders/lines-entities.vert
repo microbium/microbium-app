@@ -24,7 +24,7 @@ uniform float angle;
 uniform float angleAlpha;
 
 varying vec4 vColor;
-varying vec2 vUD;
+varying vec3 vUDO;
 
 vec2 rotatedPosition (vec2 position, float angle) {
   return vec2(
@@ -51,10 +51,11 @@ void main() {
     projection, adjustProjectedThickness,
     aspect, thickness, miterLimit,
     prevProjected, currProjected, nextProjected);
-  vec4 position = currProjected + vec4(miterOffset * offset, 0.0, 1.0);
+  vec2 positionOffset = miterOffset * offset;
+  vec4 position = currProjected + vec4(positionOffset, 0.0, 1.0);
 
   vColor = vec4(tint.rgb * color.rgb, tint.a * color.a * angleAlpha);
-  vUD = ud;
+  vUDO = vec3(ud, length(positionOffset));
 
   gl_Position = position;
 }
