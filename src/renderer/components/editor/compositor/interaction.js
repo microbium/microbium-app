@@ -48,8 +48,10 @@ export function createDragController (tasks, state) {
   const drag = {
     pointerDown (event) {
       const stateDrag = state.drag
+      const { isRunning } = state.simulation
       const { isDown, shouldNavigate, shouldZoom, down } = stateDrag
 
+      if (isRunning && !shouldNavigate) return
       if (isDown || stateDrag.isDrawing) {
         stateDrag.isDown = true
         return
