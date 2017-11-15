@@ -8,15 +8,41 @@ export function createScene (tasks, state, renderer) {
   const { createTexture, regl } = renderer
   const { styles } = state.controls
 
+  const blend = {
+    enable: true,
+    func: {
+      srcRGB: 'src alpha',
+      dstRGB: 'one minus src alpha',
+      srcAlpha: 'one',
+      dstAlpha: 'one minus src alpha'
+    },
+    equation: {
+      rgb: 'add',
+      alpha: 'add'
+    },
+    color: [0, 0, 0, 0]
+  }
   const alphaMapOpts = {
     min: 'nearest',
     mag: 'nearest',
-    wrap: ['repeat', 'repeat'],
+    wrap: ['clamp', 'repeat'],
     format: 'rgb'
   }
+  const uniforms = {
+    angle: regl.prop('angle'),
+    angleAlpha: regl.prop('angleAlpha'),
+    hatchAlpha: regl.prop('hatchAlpha'),
+    tint: regl.prop('tint'),
+    // FEAT: Add multiple screen space tinting functions
+    useScreenTintFunc: regl.prop('useScreenTintFunc'),
+    diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap),
+    useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
+    alphaMap: (params, { alphaMap }) => createTexture(alphaMap, alphaMapOpts),
+    useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
+  }
 
-  // TODO: Investigate huge perf issues in Chrome when using instancing
-  // TODO: Optimize shared state between contexts
+  // OPTIM: Investigate huge perf issues in Chrome when using instancing
+  // OPTIM: Optimize shared state between contexts
   const contexts = styles.map((style, index) => {
     const bufferSize = 2 ** 12
     const lines = LineBuilder.create(regl, {
@@ -24,28 +50,8 @@ export function createScene (tasks, state, renderer) {
       drawArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
-        uniforms: {
-          angle: regl.prop('angle'),
-          angleAlpha: regl.prop('angleAlpha'),
-          hatchAlpha: regl.prop('hatchAlpha'),
-          tint: regl.prop('tint'),
-          // FEAT: Add multiple screen space tinting functions
-          useScreenTintFunc: regl.prop('useScreenTintFunc'),
-          diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap),
-          useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
-          alphaMap: (params, { alphaMap }) => createTexture(alphaMap, alphaMapOpts),
-          useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
-        },
-        blend: {
-          enable: true,
-          equation: 'add',
-          func: {
-            srcRGB: 'src alpha',
-            srcAlpha: 1,
-            dstRGB: 'one minus src alpha',
-            dstAlpha: 1
-          }
-        }
+        uniforms,
+        blend
       }
     })
 

@@ -40,7 +40,7 @@
               {{ texture.name }}
             </option>
           </input-select>
-        </b> color texture
+        </b> tint texture
       </div>
     </div>
 

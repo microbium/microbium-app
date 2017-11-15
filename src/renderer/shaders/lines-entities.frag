@@ -40,10 +40,11 @@ void main() {
   }
 
   if (useAlphaMap == 1) {
-    outAlpha *= texture2D(alphaMap, vec2(
-        (abs(udo.x) + 1.0) / 2.0,
-        fract(udo.y / 24.0) * 0.8 + 0.1)
-      ).r;
+    vec2 alphaMapCoords = vec2(
+      abs(udo.x),
+      fract(udo.y / 40.0) * 0.8 + 0.1);
+    float alphaMapValue = texture2D(alphaMap, alphaMapCoords).r;
+    outAlpha *= alphaMapValue;// * smoothstep(0.0, 2.0, 1.0 - alphaMapCoords.x);
   }
 
   if (hatchAlpha > 0.0) {
