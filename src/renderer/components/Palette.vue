@@ -16,7 +16,9 @@
           :key="style.index" nested :open="style.index == 0">
           <h2 slot="title">{{ style.name }}</h2>
           <palette-style :model="style"
-            :textures="textures" :alphaFunctions="alphaFunctions" />
+            :textures="textures"
+            :alphaTextures="alphaTextures"
+            :alphaFunctions="alphaFunctions" />
         </palette-group>
       </palette-group>
 

@@ -24,8 +24,10 @@ export function createScene (tasks, state, renderer) {
           tint: regl.prop('tint'),
           // FEAT: Add multiple screen space tinting functions
           useScreenTintFunc: regl.prop('useScreenTintFunc'),
-          diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap, 2048),
-          useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1)
+          diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap),
+          useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
+          alphaMap: (params, { alphaMap }) => createTexture(alphaMap),
+          useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
         },
         blend: {
           enable: true,

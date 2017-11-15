@@ -15,6 +15,16 @@ export const LINE_WIDTH_KEYS = [
 ]
 
 export const TEXTURES = {
-  'watercolor': require('@/assets/images/textures/watercolor.jpg'),
-  'ground-mud': require('@/assets/images/textures/ground-mud.jpg')
+  'watercolor': {
+    path: require('@/assets/images/textures/watercolor.jpg'),
+    size: 2048
+  },
+  'ground-mud': {
+    path: require('@/assets/images/textures/ground-mud.jpg'),
+    size: 2048
+  },
+  'alpha-hairy': {
+    path: require('@/assets/images/textures/alpha-hairy.jpg'),
+    size: 256
+  }
 }
