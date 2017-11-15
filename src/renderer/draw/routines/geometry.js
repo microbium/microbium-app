@@ -1,7 +1,7 @@
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 
-const { PI } = Math
+const { PI, max } = Math
 
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
   drawSegments(state, contexts, segmentStart, segmentCount)
@@ -37,7 +37,8 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     for (let i = 0; i < count; i++) {
       const index = indices[i]
       const point = vertices[index]
-      ctx.lineWidth = strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[i]
+      ctx.lineWidth = max(0,
+        strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[i])
       if (i === 0) ctx.moveTo(point[0], point[1])
       else ctx.lineTo(point[0], point[1])
     }
@@ -75,7 +76,8 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
 
     ctx.globalAlpha = strokeAlpha
     ctx.strokeStyle = strokeColor
-    ctx.lineWidth = strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[0]
+    ctx.lineWidth = max(0,
+      strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[0])
 
     ctx.beginPath()
     ctx.moveTo(pointsFlat[0], pointsFlat[1])
