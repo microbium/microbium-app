@@ -42,7 +42,7 @@ void main() {
   if (useAlphaMap == 1) {
     outAlpha *= texture2D(alphaMap, vec2(
         (abs(udo.x) + 1.0) / 2.0,
-        fract(udo.y / 6.0) * 0.8 + 0.1)
+        fract(udo.y / 24.0) * 0.8 + 0.1)
       ).r;
   }
 

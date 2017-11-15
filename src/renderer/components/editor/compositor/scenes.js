@@ -40,8 +40,10 @@ export function createScene (tasks, state, renderer) {
           enable: true,
           equation: 'add',
           func: {
-            src: 'src alpha',
-            dst: 'one minus src alpha'
+            srcRGB: 'src alpha',
+            srcAlpha: 1,
+            dstRGB: 'one minus src alpha',
+            dstAlpha: 1
           }
         }
       }

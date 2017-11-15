@@ -106,7 +106,9 @@ function mountCompositor ($el, $electron) {
       ],
       attributes: {
         antialias: true,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: true,
+        premultipliedAlpha: true,
+        alpha: true
       }
     })
 
