@@ -29,14 +29,22 @@ export function createMenuTemplate (app, actions) {
         }
       ]
     },
-    // {
-    //   label: 'Edit',
-    //   submenu: [
-    //     // {role: 'undo'},
-    //     // {role: 'redo'},
-    //     // {type: 'separator'}
-    //   ]
-    // },
+    {
+      label: 'Edit',
+      submenu: [
+        {
+          id: 'delete-last-segment',
+          label: 'Delete Last Segment',
+          accelerator: 'Cmd+Backspace',
+          click () {
+            actions.deleteLastSegment()
+          }
+        }
+        // {role: 'undo'},
+        // {role: 'redo'},
+        // {type: 'separator'}
+      ]
+    },
     {
       label: 'View',
       submenu: [

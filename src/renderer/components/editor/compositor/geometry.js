@@ -33,7 +33,7 @@ export function createGeometryController (tasks, state) {
       return 0
     },
 
-    // TODO: Optimize with spacial index (kd-tree)
+    // OPTIM: Maybe optimize with spacial index (kd-tree)
     findClosestPoint (target, maxDist = 10, lastOffset = 0, ignoreIndex = -1) {
       const { vertices } = state.geometry
       const maxDistSq = maxDist * maxDist
@@ -111,6 +111,7 @@ export function createGeometryController (tasks, state) {
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
         indices: [startIndex],
+        uniqueIndicesCount: isExisting ? 0 : 1,
         curvePrecision: 0,
         strokeWidthModulations: [modStrokeWidth],
         strokeWidth,
@@ -129,7 +130,6 @@ export function createGeometryController (tasks, state) {
       })
     },
 
-    // TODO: Improve appending joints in Chrome
     updateActiveSegment (point, index) {
       const stateGeom = state.geometry
       const {
@@ -152,6 +152,7 @@ export function createGeometryController (tasks, state) {
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint
+        activeSegment.uniqueIndicesCount++
         indices.push(vertices.length)
         vertices.push(candidatePoint)
         strokeWidthModulations.push(modStrokeWidth)
@@ -160,12 +161,18 @@ export function createGeometryController (tasks, state) {
       }
 
       if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
-        if (index != null && index !== indices[indices.length - 1]) {
+        const isConnected = index != null
+        const isConnectedSelf = isConnected && indices.indexOf(index) !== -1
+
+        if (isConnectedSelf) {
+          activeSegment.uniqueIndicesCount--
           indices[indices.length - 1] = index
           vertices.pop()
         }
+
         stateGeom.prevPoint = candidatePoint
         stateGeom.candidatePoint = null
+        stateGeom.activeSegmentIsConnected = isConnected
       }
 
       stateGeom.shouldAppendOnce = false
@@ -174,28 +181,24 @@ export function createGeometryController (tasks, state) {
     completeActiveSegment (index) {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
-      const { indices } = activeSegment
+      const { indices, strokeWidthModulations } = activeSegment
 
       const firstIndex = indices[0]
-      const lastIndex = indices[indices.length - 1]
       const isConnected = index != null
       const isClosed = isConnected && firstIndex === index
 
-      // FIXME: Multiple issues with this ...
       if (isConnected) {
         indices[indices.length - 1] = index
-        if (indices[indices.length - 2] < vertices.length - 1) {
-          vertices.pop()
-        }
-        if (indices.length > 2 && indices[indices.length - 2] === lastIndex) {
-          indices[indices.length - 2] = index
-          indices.pop()
-        }
+        activeSegment.uniqueIndicesCount--
+        vertices.pop()
       }
 
+      stateGeom.activeSegmentIsConnected = isConnected
       Object.assign(activeSegment, {
         isClosed,
-        indices: new Uint16Array(indices)
+        isComplete: true,
+        indices: new Uint16Array(indices),
+        strokeWidthModulations: new Float32Array(strokeWidthModulations)
       })
     },
 
@@ -216,6 +219,14 @@ export function createGeometryController (tasks, state) {
       }
     },
 
+    deleteLastSegment () {
+      const { segments, vertices } = state.geometry
+      if (segments.length <= 1) return // Preserve base segment
+      const lastSegment = segments.pop()
+      const vertCount = lastSegment.uniqueIndicesCount
+      vertices.splice(-vertCount, vertCount)
+    },
+
     // TODO: Create variation on DistanceConstraint that accepts indices in this segment format
     expandIndicesToLines (indices) {
       return indices.slice(0, -1).reduce((all, v, i) => {
@@ -233,7 +244,8 @@ export function createGeometryController (tasks, state) {
     'createSegment',
     'updateActiveSegment',
     'completeActiveSegment',
-    'ensureActiveSegmentValid'
+    'ensureActiveSegmentValid',
+    'deleteLastSegment'
   ]
 
   registeredMethods.forEach((name) => {

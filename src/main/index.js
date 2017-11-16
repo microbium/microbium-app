@@ -92,6 +92,10 @@ function createMenu () {
       // FIXME: Inconsistent key input capturing after toggling menu item state
       // toggleMenuItem('simulation')
     },
+    deleteLastSegment () {
+      sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
+      console.log('deleteLastSegment')
+    },
     togglePalette () {
       toggleWindow('palette')
       toggleMenuItem('palette')
