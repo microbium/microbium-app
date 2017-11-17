@@ -51,7 +51,6 @@ export function createCompositorState () {
 
   const geometry = {
     activeSegment: null,
-    activeSegmentIsConnected: false,
     prevPoint: null,
     candidatePoint: null,
     linkSizeMin: 12,
