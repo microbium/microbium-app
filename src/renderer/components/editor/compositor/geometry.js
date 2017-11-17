@@ -125,8 +125,7 @@ export function createGeometryController (tasks, state) {
       Object.assign(stateGeom, {
         candidatePoint: null,
         prevPoint: startPoint,
-        activeSegment: nextSegment,
-        activeSegmentIsConnected: index != null
+        activeSegment: nextSegment
       })
     },
 
@@ -172,7 +171,6 @@ export function createGeometryController (tasks, state) {
 
         stateGeom.prevPoint = candidatePoint
         stateGeom.candidatePoint = null
-        stateGeom.activeSegmentIsConnected = isConnected
       }
 
       stateGeom.shouldAppendOnce = false
@@ -193,7 +191,6 @@ export function createGeometryController (tasks, state) {
         vertices.pop()
       }
 
-      stateGeom.activeSegmentIsConnected = isConnected
       Object.assign(activeSegment, {
         isClosed,
         isComplete: true,
@@ -204,18 +201,14 @@ export function createGeometryController (tasks, state) {
 
     ensureActiveSegmentValid () {
       const stateGeom = state.geometry
-      const {
-        activeSegment, activeSegmentIsConnected,
-        segments, vertices
-      } = stateGeom
+      const { activeSegment } = stateGeom
       const { indices } = activeSegment
       const isInvalid = indices.length === 1 ||
         (indices.length === 2 && indices[0] === indices[1])
 
       if (isInvalid) {
         stateGeom.activeSegment = null
-        segments.pop()
-        if (!activeSegmentIsConnected) vertices.pop()
+        geometry.deleteLastSegment()
       }
     },
 
