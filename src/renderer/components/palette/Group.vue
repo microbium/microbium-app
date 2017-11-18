@@ -5,7 +5,7 @@
       :class="openStateClassNames">
       <div class="palette-group__title"
         :class="openStateClassNames">
-        <slot name="title"></slot>
+        <slot name="title" />
       </div>
       <div class="palette-group__toggle"
         :class="openStateClassNames"
@@ -16,7 +16,7 @@
       <div class="palette-group__content-inner"
         :class="openStateClassNames"
         ref="contentInner">
-        <slot></slot>
+        <slot />
       </div>
     </div>
   </section>

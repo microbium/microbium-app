@@ -1,17 +1,19 @@
 <template>
-  <div id="editor-compositor">
-    <div id="compositor"></div>
+  <div class="editor-compositor">
+    <div class="editor-compositor__scene" ref="scene"></div>
   </div>
 </template>
 
-<style>
-#compositor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+<style lang="scss">
+.editor-compositor {
+  &__scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 .mode--simulate {
@@ -67,11 +69,10 @@ const DISABLE_RENDER = false
 const scratchVec2A = vec2.create()
 const scratchMat4A = mat4.create()
 
-// TODO: Integrate with vue component
-function mountCompositor ($el, $electron) {
-  // TODO: Pass DOM element from vue component
+// TODO: Better integrate with vue component
+function mountCompositor ($el, $refs, $electron) {
   const containers = {
-    compositor: getContainer('compositor')
+    scene: $refs.scene
   }
 
   const tasks = createTaskManager(
@@ -92,13 +93,9 @@ function mountCompositor ($el, $electron) {
   const viewport = createViewportController(tasks, state)
   const io = createIOController(tasks, state)
 
-  function getContainer (name) {
-    return document.getElementById(name)
-  }
-
   function createRenderer () {
     const regl = createREGL({
-      container: containers.compositor,
+      container: containers.scene,
       extensions: [
         // 'angle_instanced_arrays',
         'OES_standard_derivatives',
@@ -132,7 +129,6 @@ function mountCompositor ($el, $electron) {
 
   // Update / Render
 
-  // TODO: Integrate with vue DOM / events
   const view = {
     inject () {
       tasks.flush('inject', containers).then(() => {
@@ -156,8 +152,8 @@ function mountCompositor ($el, $electron) {
     },
 
     bindEvents () {
-      containers.compositor.addEventListener('pointermove', seek.pointerMove, false)
-      containers.compositor.addEventListener('pointerdown', drag.pointerDown, false)
+      containers.scene.addEventListener('pointermove', seek.pointerMove, false)
+      containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
       window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
@@ -391,8 +387,8 @@ export default {
   },
 
   mounted () {
-    const { $el, $electron } = this
-    mountCompositor($el, $electron)
+    const { $el, $refs, $electron } = this
+    mountCompositor($el, $refs, $electron)
   },
 
   components: {},

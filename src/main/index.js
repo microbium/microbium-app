@@ -309,8 +309,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-// TODO: Disable chrome hardware blacklist with flag
-
 app.on('ready', createStartWindows)
 app.on('activate', createStartWindows)
 

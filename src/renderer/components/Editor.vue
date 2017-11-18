@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
     <div class="editor-toolbar"></div>
-    <editor-compositor></editor-compositor>
+    <editor-compositor />
     <div class="editor-background"></div>
   </div>
 </template>

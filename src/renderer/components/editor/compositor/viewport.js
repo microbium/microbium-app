@@ -2,17 +2,27 @@ import { vec2 } from 'gl-matrix'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
-  let compositorContainer = null
+  let containers = null
 
   const viewport = {
-    inject (containers) {
-      compositorContainer = containers.compositor
+    inject (containers_) {
+      containers = containers_
       return Promise.resolve()
     },
 
     updateClassName () {
-      compositorContainer.className = state.simulation.isRunning
-        ? 'mode--simulate' : 'mode--edit'
+      const { scene } = containers
+      const { isRunning } = state.simulation
+      const simulateClassName = 'mode--simulate'
+      const editClassName = 'mode--edit'
+
+      if (isRunning) {
+        scene.classList.add(simulateClassName)
+        scene.classList.remove(editClassName)
+      } else {
+        scene.classList.add(editClassName)
+        scene.classList.remove(simulateClassName)
+      }
     },
 
     projectScreen (screen) {

@@ -1,13 +1,13 @@
 <template>
   <div class="palette-modifiers">
     <div class="palette-item">
-      <input-range min="1" max="12" v-model="model.curveSubDivisions"></input-range>
+      <input-range min="1" max="12" v-model="model.curveSubDivisions" />
       <div class="palette-item__label">
         <b>{{ curveSubDivisionsName }}</b> curve subdivisions
       </div>
     </div>
     <div class="palette-item">
-      <input-range min="1" max="32" v-model="model.polarIterations"></input-range>
+      <input-range min="1" max="32" v-model="model.polarIterations" />
       <div class="palette-item__label">
         <b>{{ polarIterationsName }}</b> polar iterations
       </div>

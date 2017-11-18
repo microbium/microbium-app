@@ -72,7 +72,6 @@ export function createScene (tasks, state, renderer) {
   }
 }
 
-// FEAT: Add static radial grid context, remove grid marking from css background-image
 export function createUIScene (tasks, state, renderer) {
   const { regl } = renderer
 
