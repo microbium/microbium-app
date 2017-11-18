@@ -73,9 +73,9 @@ function createMenu () {
         openSceneFile(fileName)
       })
     },
-    saveScene () {
+    saveScene (useOpenScene) {
       const openScenePath = store.get('openScenePath')
-      if (openScenePath) {
+      if (useOpenScene && openScenePath) {
         saveSceneFile(openScenePath)
         return
       }

@@ -24,7 +24,14 @@ export function createMenuTemplate (app, actions) {
           label: 'Save',
           accelerator: 'Cmd+S',
           click () {
-            actions.saveScene()
+            actions.saveScene(true)
+          }
+        },
+        {
+          label: 'Save As...',
+          accelerator: 'Cmd+Shift+S',
+          click () {
+            actions.saveScene(false)
           }
         }
       ]
