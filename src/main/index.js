@@ -58,7 +58,8 @@ function createMenu () {
   ]
 
   const template = createMenuTemplate(app, {
-    createScene () {
+    createNewScene () {
+      store.set('openScenePath', null)
       createMainWindow()
     },
     openScene () {
@@ -131,9 +132,9 @@ function saveSceneFile (path) {
 }
 
 function restoreLastSession () {
-  const openScenePath = store.get('openScenePath')
-  if (!openScenePath) return
-  ipcMain.once('main-started', () => {
+  ipcMain.on('main-started', () => {
+    const openScenePath = store.get('openScenePath')
+    if (!openScenePath) return
     openSceneFile(openScenePath)
   })
 }

@@ -9,7 +9,7 @@ export function createMenuTemplate (app, actions) {
           accelerator: 'Cmd+N',
           enabled: false,
           click () {
-            actions.createScene()
+            actions.createNewScene()
           }
         },
         {
