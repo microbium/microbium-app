@@ -38,23 +38,28 @@ export function createGeometryController (tasks, state) {
       const { vertices } = state.geometry
       const maxDistSq = maxDist * maxDist
       const count = vertices.length - lastOffset
+
       let closestPointIndex = null
       let closestDistSq = Infinity
+
       for (let i = 0; i < count; i++) {
         if (i === ignoreIndex) continue
         const point = vertices[i]
         const distSq = vec2.squaredDistance(target, point)
+
         if (distSq < maxDistSq && distSq < closestDistSq) {
           closestPointIndex = i
           closestDistSq = distSq
         }
       }
+
       if (closestPointIndex != null) {
         return {
           index: closestPointIndex,
           point: vertices[closestPointIndex]
         }
       }
+
       return null
     },
 
@@ -69,7 +74,6 @@ export function createGeometryController (tasks, state) {
     createBaseSegment () {
       const radius = 22
       const count = 5
-
       const { lineTool } = state.controls
       const prevLineTool = Object.assign({}, lineTool)
 
@@ -103,15 +107,15 @@ export function createGeometryController (tasks, state) {
         strokeWidth, strokeColor, strokeAlpha,
         styleIndex
       } = state.controls.lineTool
-      const isExisting = index != null
 
-      const startPoint = isExisting ? point : vec2.clone(point)
-      const startIndex = isExisting ? index : vertices.length
+      const isConnected = index != null
+      const startPoint = isConnected ? point : vec2.clone(point)
+      const startIndex = isConnected ? index : vertices.length
 
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
         indices: [startIndex],
-        uniqueIndicesCount: isExisting ? 0 : 1,
+        uniqueIndicesCount: isConnected ? 0 : 1,
         curvePrecision: 0,
         strokeWidthModulations: [modStrokeWidth],
         strokeWidth,
@@ -120,7 +124,7 @@ export function createGeometryController (tasks, state) {
         styleIndex
       }
 
-      if (!isExisting) vertices.push(startPoint)
+      if (!isConnected) vertices.push(startPoint)
       segments.push(nextSegment)
       Object.assign(stateGeom, {
         candidatePoint: null,
@@ -220,7 +224,6 @@ export function createGeometryController (tasks, state) {
       vertices.splice(-vertCount, vertCount)
     },
 
-    // TODO: Create variation on DistanceConstraint that accepts indices in this segment format
     expandIndicesToLines (indices) {
       return indices.slice(0, -1).reduce((all, v, i) => {
         const a = indices[i]

@@ -44,7 +44,6 @@ export function createSimulationController (tasks, state, renderer) {
       })
 
       segments.slice(1).forEach((segment) => {
-        // const lines = geometry.expandIndicesToLines(segment.indices)
         const lines = tasks.requestSync('geometry.expandIndicesToLines', segment.indices)
         lines.forEach((line) => {
           const distance = vec2.distance(
