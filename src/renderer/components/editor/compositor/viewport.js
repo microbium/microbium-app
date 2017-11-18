@@ -92,6 +92,9 @@ export function createViewportController (tasks, state) {
           requestSync('simulation.toggle')
           viewport.updateClassName()
           break
+        case 'Backspace':
+          requestSync('geometry.deleteLastVertex')
+          break
         case 'Cmd+Backspace':
           requestSync('geometry.deleteLastSegment')
           break

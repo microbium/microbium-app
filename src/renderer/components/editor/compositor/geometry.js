@@ -112,10 +112,11 @@ export function createGeometryController (tasks, state) {
       const startPoint = isConnected ? point : vec2.clone(point)
       const startIndex = isConnected ? index : vertices.length
 
+      const connectedIndices = isConnected ? [0] : []
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
         indices: [startIndex],
-        uniqueIndicesCount: isConnected ? 0 : 1,
+        connectedIndices,
         curvePrecision: 0,
         strokeWidthModulations: [modStrokeWidth],
         strokeWidth,
@@ -141,7 +142,7 @@ export function createGeometryController (tasks, state) {
       } = stateGeom
       if (!activeSegment) return
 
-      const { indices, strokeWidthModulations } = activeSegment
+      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
       const hasCandidate = !!stateGeom.candidatePoint
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
 
@@ -155,7 +156,6 @@ export function createGeometryController (tasks, state) {
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint
-        activeSegment.uniqueIndicesCount++
         indices.push(vertices.length)
         vertices.push(candidatePoint)
         strokeWidthModulations.push(modStrokeWidth)
@@ -165,11 +165,10 @@ export function createGeometryController (tasks, state) {
 
       if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
         const isConnected = index != null
-        const isConnectedSelf = isConnected && indices.indexOf(index) !== -1
 
-        if (isConnectedSelf) {
-          activeSegment.uniqueIndicesCount--
+        if (isConnected) {
           indices[indices.length - 1] = index
+          connectedIndices.push(indices.length - 1)
           vertices.pop()
         }
 
@@ -183,15 +182,16 @@ export function createGeometryController (tasks, state) {
     completeActiveSegment (index) {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
-      const { indices, strokeWidthModulations } = activeSegment
+      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
 
       const firstIndex = indices[0]
       const isConnected = index != null
       const isClosed = isConnected && firstIndex === index
+      const isConnectedDup = isConnected && indices[indices.length - 1] === index
 
-      if (isConnected) {
+      if (isConnected && !isConnectedDup) {
         indices[indices.length - 1] = index
-        activeSegment.uniqueIndicesCount--
+        connectedIndices.push(indices.length - 1)
         vertices.pop()
       }
 
@@ -201,6 +201,9 @@ export function createGeometryController (tasks, state) {
         indices: new Uint16Array(indices),
         strokeWidthModulations: new Float32Array(strokeWidthModulations)
       })
+
+      geometry.ensureActiveSegmentValid()
+      stateGeom.activeSegment = null
     },
 
     ensureActiveSegmentValid () {
@@ -216,11 +219,34 @@ export function createGeometryController (tasks, state) {
       }
     },
 
+    deleteLastVertex () {
+      const stateGeom = state.geometry
+      const { activeSegment, vertices } = stateGeom
+      if (!activeSegment) return
+      const { indices, connectedIndices } = activeSegment
+      if (indices.length <= 1) return
+      const lastConnectedIndex = connectedIndices[connectedIndices.length - 1]
+
+      if (lastConnectedIndex === indices.length - 2) {
+        connectedIndices.pop()
+      } else {
+        vertices.splice(-2, 1)
+      }
+
+      indices.splice(-2, 1)
+      indices[indices.length - 1] = vertices.length - 1
+
+      const prevPointOffset = indices.length > 1 ? 2 : 3
+      stateGeom.prevPoint = vertices.length >= 2
+        ? vertices[vertices.length - prevPointOffset] : vec2.create()
+    },
+
     deleteLastSegment () {
-      const { segments, vertices } = state.geometry
+      const { activeSegment, segments, vertices } = state.geometry
+      if (activeSegment) return
       if (segments.length <= 1) return // Preserve base segment
       const lastSegment = segments.pop()
-      const vertCount = lastSegment.uniqueIndicesCount
+      const vertCount = lastSegment.indices.length - lastSegment.connectedIndices.length
       vertices.splice(-vertCount, vertCount)
     },
 
@@ -240,7 +266,7 @@ export function createGeometryController (tasks, state) {
     'createSegment',
     'updateActiveSegment',
     'completeActiveSegment',
-    'ensureActiveSegmentValid',
+    'deleteLastVertex',
     'deleteLastSegment'
   ]
 

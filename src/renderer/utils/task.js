@@ -57,7 +57,7 @@ export function createTaskManager (...queueNames) {
 
   tasks.requestSync = (responderName, ...args) => {
     const responder = responders[responderName]
-    if (!responder) throw new Error(`No responder for ${responderName}.`)
+    if (!responder) throw new Error(`No responder for ${responderName}`)
     return responder.fn.apply(responder.context, args)
   }
 

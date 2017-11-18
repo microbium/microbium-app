@@ -40,6 +40,14 @@ export function createMenuTemplate (app, actions) {
       label: 'Edit',
       submenu: [
         {
+          id: 'delete-last-vertex',
+          label: 'Delete Last Vertex',
+          accelerator: 'Backspace',
+          click () {
+            actions.deleteLastVertex()
+          }
+        },
+        {
           id: 'delete-last-segment',
           label: 'Delete Last Segment',
           accelerator: 'Cmd+Backspace',

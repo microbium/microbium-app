@@ -210,7 +210,6 @@ export function createDragController (tasks, state) {
         up, maxDistance / scale, 1)
 
       requestSync('geometry.completeActiveSegment', close && close.index)
-      requestSync('geometry.ensureActiveSegmentValid')
     }
   }
 

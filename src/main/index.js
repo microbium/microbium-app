@@ -95,7 +95,9 @@ function createMenu () {
     },
     deleteLastSegment () {
       sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
-      console.log('deleteLastSegment')
+    },
+    deleteLastVertex () {
+      sendWindowMessage('main', 'key-command', {code: 'Backspace'})
     },
     togglePalette () {
       toggleWindow('palette')
