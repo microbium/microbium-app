@@ -260,7 +260,7 @@ export function createGeometryController (tasks, state) {
     }
   }
 
-  const registeredMethods = [
+  tasks.registerResponders([
     'expandIndicesToLines',
     'findClosestPoint',
     'createSegment',
@@ -268,11 +268,7 @@ export function createGeometryController (tasks, state) {
     'completeActiveSegment',
     'deleteLastVertex',
     'deleteLastSegment'
-  ]
-
-  registeredMethods.forEach((name) => {
-    tasks.registerResponder(`geometry.${name}`, geometry, geometry[name])
-  })
+  ], geometry, 'geometry')
 
   return geometry
 }

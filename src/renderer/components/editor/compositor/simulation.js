@@ -1,4 +1,5 @@
 import { vec2, mat2d } from 'gl-matrix'
+import { distance2 } from '@/utils/array'
 
 import {
   BoundingPlaneConstraint,
@@ -24,6 +25,8 @@ export function createSimulationController (tasks, state, renderer) {
         logger.time('create simulation')
         simulation.createFromGeometry()
         logger.timeEnd('create simulation')
+      } else {
+        simulation.destroy()
       }
     },
 
@@ -85,6 +88,16 @@ export function createSimulationController (tasks, state, renderer) {
       })
     },
 
+    destroy () {
+      Object.assign(state.simulation, {
+        system: null,
+        bounds: null,
+        nudge: null,
+        diffusor: null,
+        rotator: null
+      })
+    },
+
     updateForces () {
       const { nudge, diffusor, rotator, tick } = state.simulation
       const { move, velocity } = state.seek
@@ -110,11 +123,29 @@ export function createSimulationController (tasks, state, renderer) {
         const iy = ix + 1
         vec2.set(vert, positions[ix], positions[iy])
       })
+    },
+
+    computeParticleVelocities () {
+      const { system } = state.simulation
+      if (!system) return null
+
+      const { positions, positionsPrev } = system
+      const velocities = []
+      const timeFactor = 1// 1 / (1 / 60 * 1000)
+
+      system.each((index) => {
+        const distance = distance2(positions, positionsPrev, index, index)
+        velocities.push(distance * timeFactor)
+      })
+
+      return velocities
     }
   }
 
-  tasks.registerResponder('simulation.toggle',
-    simulation, simulation.toggle)
+  tasks.registerResponders([
+    'toggle',
+    'computeParticleVelocities'
+  ], simulation, 'simulation')
 
   return simulation
 }

@@ -1,3 +1,4 @@
+const { sqrt } = Math
 const _map = Array.prototype.map
 
 export function createArrayCursor (array) {
@@ -52,4 +53,14 @@ export function expand2 (arr, Ctor = Array) {
     out[i] = v
   }
   return out
+}
+
+export function distance2 (aBuff, bBuff, ai, bi) {
+  const aix = ai * 3
+  const bix = bi * 3
+
+  const dx = aBuff[aix] - bBuff[bix]
+  const dy = aBuff[aix + 1] - bBuff[bix + 1]
+
+  return sqrt(dx * dx + dy * dy)
 }

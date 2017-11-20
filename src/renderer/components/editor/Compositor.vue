@@ -64,6 +64,7 @@ import {
   drawFocus
 } from '@/draw/routines/geometry'
 
+const TICK_MSG_INTERVAL = 20
 const DISABLE_RENDER = false
 
 const scratchVec2A = vec2.create()
@@ -195,7 +196,7 @@ function mountCompositor ($el, $refs, $electron) {
       view.updatePaletteState(null, null, state.controls)
     },
 
-    update () {
+    update (tick) {
       this.syncStrokeWidthMod()
       if (state.simulation.isRunning) {
         state.simulation.tick++
@@ -203,7 +204,9 @@ function mountCompositor ($el, $refs, $electron) {
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
-      this.sendFrameState()
+      if (tick % TICK_MSG_INTERVAL === 0) {
+        this.sendFrameState()
+      }
     },
 
     syncStrokeWidthMod () {
@@ -221,8 +224,11 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     sendFrameState () {
-      const message = io.serializeFrameState()
-      $electron.ipcRenderer.send('external-message', message)
+      const data = io.serializeFrameState()
+      $electron.ipcRenderer.send('external-message', {
+        type: 'FRAME',
+        data
+      })
     },
 
     // FEAT: Add postprocessing pipeline

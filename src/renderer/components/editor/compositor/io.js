@@ -2,6 +2,8 @@ import { flatten2, expand2 } from '@/utils/array'
 import { roundToPlaces } from '@/utils/number'
 
 export function createIOController (tasks, state) {
+  const { requestSync } = tasks
+
   const io = {
     serializeScene () {
       const { geometry, controls } = state
@@ -60,9 +62,20 @@ export function createIOController (tasks, state) {
     },
 
     serializeFrameState () {
-      const { simulation } = state
+      const { seek, simulation } = state
+      const cursorVelocity = seek.velocity
+      const simIsRunning = simulation.isRunning
+      const particleVelocities = requestSync('simulation.computeParticleVelocities')
+
+      let velocities = null
+      if (particleVelocities) {
+        velocities = particleVelocities.map((n) => roundToPlaces(n, 2))
+      }
+
       return {
-        simIsRunning: simulation.isRunning
+        cursorVelocity,
+        simIsRunning,
+        velocities
       }
     }
   }

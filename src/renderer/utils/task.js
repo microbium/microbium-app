@@ -55,6 +55,12 @@ export function createTaskManager (...queueNames) {
     }
   }
 
+  tasks.registerResponders = (responderNames, context, namespace) => {
+    responderNames.forEach((name) => {
+      tasks.registerResponder(`${namespace}.${name}`, context, context[name])
+    })
+  }
+
   tasks.requestSync = (responderName, ...args) => {
     const responder = responders[responderName]
     if (!responder) throw new Error(`No responder for ${responderName}`)
