@@ -61,6 +61,7 @@ export function createCompositorState () {
   }
 
   const simulation = {
+    wasRunning: false,
     isRunning: false,
     tick: 0,
     system: null

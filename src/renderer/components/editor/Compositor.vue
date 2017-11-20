@@ -204,9 +204,13 @@ function mountCompositor ($el, $refs, $electron) {
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
+      if (state.simulation.isRunning && !state.simulation.wasRunning) {
+        this.sendGeometryState()
+      }
       if (tick % TICK_MSG_INTERVAL === 0) {
         this.sendFrameState()
       }
+      state.simulation.wasRunning = state.simulation.isRunning
     },
 
     syncStrokeWidthMod () {
@@ -223,8 +227,16 @@ function mountCompositor ($el, $refs, $electron) {
       })
     },
 
+    sendGeometryState () {
+      const data = io.serializeMinimalGeometry()
+      $electron.ipcRenderer.send('external-message', {
+        type: 'SCENE',
+        data
+      })
+    },
+
     sendFrameState () {
-      const data = io.serializeFrameState()
+      const data = io.serializeFrame()
       $electron.ipcRenderer.send('external-message', {
         type: 'FRAME',
         data

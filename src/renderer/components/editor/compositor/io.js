@@ -46,6 +46,36 @@ export function createIOController (tasks, state) {
       }
     },
 
+    serializeMinimalGeometry () {
+      const { geometry } = state
+      const segments = geometry.segments.map((seg) => {
+        return io.serializeArray(seg.indices, 0)
+      })
+      const vertices = io.serializeArray(flatten2(geometry.vertices), 2)
+      return {
+        segments,
+        vertices
+      }
+    },
+
+    serializeFrame () {
+      const { seek, simulation } = state
+      const cursorVelocity = seek.velocity
+      const simIsRunning = simulation.isRunning
+      const particleVelocities = requestSync('simulation.computeParticleVelocities')
+
+      let velocities = null
+      if (particleVelocities) {
+        velocities = io.serializeArray(particleVelocities, 2)
+      }
+
+      return {
+        cursorVelocity,
+        simIsRunning,
+        velocities
+      }
+    },
+
     serializeArray (arr, precision) {
       return arr.map((n) => roundToPlaces(n, precision))
         .join(',')
@@ -59,24 +89,6 @@ export function createIOController (tasks, state) {
     deserializeIntArray (str) {
       return str.split(',')
         .map((s) => parseInt(s, 10))
-    },
-
-    serializeFrameState () {
-      const { seek, simulation } = state
-      const cursorVelocity = seek.velocity
-      const simIsRunning = simulation.isRunning
-      const particleVelocities = requestSync('simulation.computeParticleVelocities')
-
-      let velocities = null
-      if (particleVelocities) {
-        velocities = particleVelocities.map((n) => roundToPlaces(n, 2))
-      }
-
-      return {
-        cursorVelocity,
-        simIsRunning,
-        velocities
-      }
     }
   }
 
