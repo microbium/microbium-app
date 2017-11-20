@@ -57,6 +57,13 @@ export function createIOController (tasks, state) {
     deserializeIntArray (str) {
       return str.split(',')
         .map((s) => parseInt(s, 10))
+    },
+
+    serializeFrameState () {
+      const { simulation } = state
+      return {
+        simIsRunning: simulation.isRunning
+      }
     }
   }
 

@@ -19,18 +19,20 @@ import {
   basename
 } from 'path'
 
+import { ipcExternal } from './io/socket'
 import { createMenuTemplate } from './menu'
+
+const IS_DEV = process.env.NODE_ENV === 'development'
+const DEBUG_MAIN = false
+const DEBUG_PALETTE = false
 
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
-if (process.env.NODE_ENV !== 'development') {
+if (!IS_DEV) {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
-
-const DEBUG_MAIN = false
-const DEBUG_PALETTE = false
 
 const appMenus = {
   main: null
@@ -39,12 +41,14 @@ const appWindows = {
   main: null,
   palette: null
 }
-const mainURL = process.env.NODE_ENV === 'development'
+
+const mainURL = IS_DEV
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
-const paletteURL = process.env.NODE_ENV === 'development'
+const paletteURL = IS_DEV
   ? `http://localhost:9080/#/palette`
   : `file://${__dirname}/index.html#/palette`
+
 const store = new Store()
 
 function createMenu () {
@@ -300,6 +304,10 @@ function toggleMenuItem (name) {
     menuItemOff.visible = menuItemOff.enabled = true
   }
 }
+
+ipcMain.on('external-message', (event, data) => {
+  ipcExternal.send(data)
+})
 
 ipcMain.on('toggle-window', (event, data) => {
   toggleWindow('palette')

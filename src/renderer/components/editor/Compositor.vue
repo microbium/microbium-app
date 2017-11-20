@@ -203,6 +203,7 @@ function mountCompositor ($el, $refs, $electron) {
         state.simulation.system.tick(1)
         simulation.syncGeometry()
       }
+      this.sendFrameState()
     },
 
     syncStrokeWidthMod () {
@@ -217,6 +218,11 @@ function mountCompositor ($el, $refs, $electron) {
         key,
         value
       })
+    },
+
+    sendFrameState () {
+      const message = io.serializeFrameState()
+      $electron.ipcRenderer.send('external-message', message)
     },
 
     // FEAT: Add postprocessing pipeline
