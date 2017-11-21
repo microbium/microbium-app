@@ -43,7 +43,7 @@ import { createTextureManager } from '@/utils/texture'
 import {
   createDrawRect,
   createSetupDrawScreen,
-  createDrawHashBlur,
+  createDrawBoxBlur,
   createDrawScreen
 } from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
@@ -111,8 +111,8 @@ function mountCompositor ($el, $refs, $electron) {
       attributes: {
         antialias: false,
         preserveDrawingBuffer: false,
-        premultipliedAlpha: true,
-        alpha: true
+        premultipliedAlpha: false,
+        alpha: false
       }
     })
 
@@ -121,7 +121,7 @@ function mountCompositor ($el, $refs, $electron) {
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
-      drawHashBlur: createDrawHashBlur(regl),
+      drawBoxBlur: createDrawBoxBlur(regl),
       drawRect: createDrawRect(regl)
     }
 
@@ -270,6 +270,8 @@ function mountCompositor ($el, $refs, $electron) {
 
       const shouldRender = view.updateGeometry(tick)
       if (shouldRender) view.renderScene(tick)
+
+      state.viewport.didResize = false
     },
 
     updateGeometry (tick) {
@@ -313,17 +315,16 @@ function mountCompositor ($el, $refs, $electron) {
 
     renderScene (tick) {
       const { postBuffers } = renderer
-      const { setupDrawScreen, drawHashBlur, drawScreen } = renderer.commands
-      const { offset, scale, size } = state.viewport
+      const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
+      const { offset, scale, size, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
 
-      const width = size[0]
-      const height = size[1]
-      const sceneBuffer = postBuffers.getWrite(width, height)
-      const fxBuffer = postBuffers.getRead(width, height)
+      postBuffers.resize(size[0], size[1])
+      const sceneBuffer = postBuffers.getWrite()
+      const fxBuffer = postBuffers.getRead()
 
       sceneBuffer.use(() => {
-        view.renderClearRect()
+        view.renderClearRect(0.6, didResize ? 1 : 0.04)
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
           scale: scale + zoomOffset
@@ -335,21 +336,21 @@ function mountCompositor ($el, $refs, $electron) {
 
       setupDrawScreen(() => {
         fxBuffer.use(() => {
-          drawHashBlur({
+          drawBoxBlur({
             color: sceneBuffer,
-            radius: 12,
-            offset: Math.sin(tick * 0.001),
-            width,
-            height
+            resolution: size
           })
         })
 
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: 0.8
+          bloomIntensity: 0.4,
+          resolution: size
         })
       })
+
+      postBuffers.swap()
     },
 
     // NOTE: Called once to setup non-dynamic UI
@@ -358,11 +359,16 @@ function mountCompositor ($el, $refs, $electron) {
       drawPolarGrid(state, uiGrid.ctx)
     },
 
-    renderClearRect () {
+    renderClearRect (colorFactor, alpha) {
       const { drawRect } = renderer.commands
       state.renderer.drawCalls++
       drawRect({
-        color: [0.06, 0.08, 0.084, 0.15]
+        color: [
+          0.6 * colorFactor,
+          0.8 * colorFactor,
+          0.84 * colorFactor,
+          alpha
+        ]
       })
     },
 
@@ -370,7 +376,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { lineScaleFactor } = cameras.scene
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
-      return baseThickness * lerp(1, scale + zoomOffset, lineScaleFactor)
+      return (baseThickness + 0.25) * lerp(1, scale + zoomOffset, lineScaleFactor)
     },
 
     shouldAdjustThickness () {

@@ -35,7 +35,7 @@ export function createCompositorState () {
   }
 
   const viewport = {
-    controlsVisible: false,
+    didResize: false,
     pixelRatio: 1,
     size: vec2.create(),
     center: vec2.create(),
