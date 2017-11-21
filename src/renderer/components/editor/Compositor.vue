@@ -33,13 +33,19 @@ import { TEXTURES } from '@/constants/line-styles'
 
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
+import { createPostBuffers } from '@/utils/fbo'
 import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
 import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
 
 import { createTextureManager } from '@/utils/texture'
-import { createDrawRect } from '@/draw/commands/screen-space'
+import {
+  createDrawRect,
+  createSetupDrawScreen,
+  createDrawHashBlur,
+  createDrawScreen
+} from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
@@ -103,20 +109,27 @@ function mountCompositor ($el, $refs, $electron) {
         'OES_element_index_uint'
       ],
       attributes: {
-        antialias: true,
-        preserveDrawingBuffer: true,
+        antialias: false,
+        preserveDrawingBuffer: false,
         premultipliedAlpha: true,
         alpha: true
       }
     })
 
-    const drawRect = createDrawRect(regl)
-    const createTexture = createTextureManager(regl, TEXTURES)
+    const textures = createTextureManager(regl, TEXTURES)
+    const postBuffers = createPostBuffers(regl)
+    const commands = {
+      setupDrawScreen: createSetupDrawScreen(regl),
+      drawScreen: createDrawScreen(regl),
+      drawHashBlur: createDrawHashBlur(regl),
+      drawRect: createDrawRect(regl)
+    }
 
     return {
       regl,
-      drawRect,
-      createTexture
+      textures,
+      postBuffers,
+      commands
     }
   }
 
@@ -246,19 +259,23 @@ function mountCompositor ($el, $refs, $electron) {
     // FEAT: Add postprocessing pipeline
     // Experiment with fxaa, fisheye, noise, maybe DOF
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
-    render () {
+    render (tick) {
       const { regl } = renderer
-      const { offset, scale } = state.viewport
-      const { panOffset, zoomOffset } = state.drag
-      const { isRunning } = state.simulation
-      const sceneContexts = scene.contexts
-      const uiMain = sceneUI.main
       const stateRenderer = state.renderer
 
       if (DISABLE_RENDER) return
 
       stateRenderer.drawCalls = 0
       regl.poll()
+
+      const shouldRender = view.updateGeometry(tick)
+      if (shouldRender) view.renderScene(tick)
+    },
+
+    updateGeometry (tick) {
+      const { isRunning } = state.simulation
+      const sceneContexts = scene.contexts
+      const uiMain = sceneUI.main
 
       sceneContexts.forEach(({ lines }) => {
         lines.reset()
@@ -290,15 +307,48 @@ function mountCompositor ($el, $refs, $electron) {
           logger.log('resize lines buffer', context.index, nextSize)
         }
       })
-      if (didResizeBuffer) return
 
-      view.renderClearRect()
-      cameras.scene.setup({
-        offset: vec2.add(scratchVec2A, offset, panOffset),
-        scale: scale + zoomOffset
-      }, () => {
-        view.renderLines()
-        view.renderUI()
+      return !didResizeBuffer
+    },
+
+    renderScene (tick) {
+      const { postBuffers } = renderer
+      const { setupDrawScreen, drawHashBlur, drawScreen } = renderer.commands
+      const { offset, scale, size } = state.viewport
+      const { panOffset, zoomOffset } = state.drag
+
+      const width = size[0]
+      const height = size[1]
+      const sceneBuffer = postBuffers.getWrite(width, height)
+      const fxBuffer = postBuffers.getRead(width, height)
+
+      sceneBuffer.use(() => {
+        view.renderClearRect()
+        cameras.scene.setup({
+          offset: vec2.add(scratchVec2A, offset, panOffset),
+          scale: scale + zoomOffset
+        }, () => {
+          view.renderLines()
+          view.renderUI()
+        })
+      })
+
+      setupDrawScreen(() => {
+        fxBuffer.use(() => {
+          drawHashBlur({
+            color: sceneBuffer,
+            radius: 12,
+            offset: Math.sin(tick * 0.001),
+            width,
+            height
+          })
+        })
+
+        drawScreen({
+          color: sceneBuffer,
+          bloom: fxBuffer,
+          bloomIntensity: 0.8
+        })
       })
     },
 
@@ -309,7 +359,7 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     renderClearRect () {
-      const { drawRect } = renderer
+      const { drawRect } = renderer.commands
       state.renderer.drawCalls++
       drawRect({
         color: [0.06, 0.08, 0.084, 0.15]

@@ -5,7 +5,7 @@ import linesEntitiesVert from '@/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@/shaders/lines-entities.frag'
 
 export function createScene (tasks, state, renderer) {
-  const { createTexture, regl } = renderer
+  const { regl, textures } = renderer
   const { styles } = state.controls
 
   const blend = {
@@ -35,9 +35,9 @@ export function createScene (tasks, state, renderer) {
     tint: regl.prop('tint'),
     // FEAT: Add multiple screen space tinting functions
     useScreenTintFunc: regl.prop('useScreenTintFunc'),
-    diffuseMap: (params, { diffuseMap }) => createTexture(diffuseMap),
+    diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),
     useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
-    alphaMap: (params, { alphaMap }) => createTexture(alphaMap, alphaMapOpts),
+    alphaMap: (params, { alphaMap }) => textures.get(alphaMap, alphaMapOpts),
     useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
   }
 
