@@ -35,6 +35,7 @@ export function createCompositorState () {
   }
 
   const viewport = {
+    showStats: false,
     didResize: false,
     pixelRatio: Math.max(window.devicePixelRatio || 1, 1.5),
     size: vec2.create(),
@@ -69,7 +70,9 @@ export function createCompositorState () {
   }
 
   const renderer = {
-    drawCalls: 0
+    drawCalls: 0,
+    fullScreenPasses: 0,
+    lineQuads: 0
   }
 
   const controls = createControlsState()

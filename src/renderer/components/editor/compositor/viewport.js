@@ -70,6 +70,7 @@ export function createViewportController (tasks, state) {
       const { code } = event
       const stateDrag = state.drag
       const stateInput = state.input
+      const stateViewport = state.viewport
 
       switch (code) {
         case 'AltLeft':
@@ -82,6 +83,9 @@ export function createViewportController (tasks, state) {
           break
         case 'ShiftLeft':
           stateInput.shift = false
+          break
+        case 'Backquote':
+          stateViewport.showStats = !stateViewport.showStats
           break
       }
     },

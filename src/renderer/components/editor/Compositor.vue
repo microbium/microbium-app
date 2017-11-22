@@ -1,6 +1,11 @@
 <template>
   <div class="editor-compositor">
     <div class="editor-compositor__scene" ref="scene"></div>
+    <ul class="editor-compositor__stats" v-if="state && state.viewport.showStats">
+      <li>line quads: {{ state.renderer.lineQuads }}</li>
+      <li>draw calls: {{ state.renderer.drawCalls }}</li>
+      <li>full screen passes: {{ state.renderer.fullScreenPasses }}</li>
+    </ul>
   </div>
 </template>
 
@@ -13,6 +18,15 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+  }
+
+  &__stats {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    font: 10px/1 Monaco, monospace;
+    list-style: none;
+    pointer-events: none;
   }
 }
 
@@ -261,9 +275,10 @@ function mountCompositor ($el, $refs, $electron) {
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
-      const stateRenderer = state.renderer
 
-      stateRenderer.drawCalls = 0
+      state.renderer.drawCalls = 0
+      state.renderer.fullScreenPasses = 0
+      state.renderer.lineQuads = 0
       regl.poll()
 
       const shouldRender = view.updateRenderableGeometry(tick)
@@ -301,6 +316,7 @@ function mountCompositor ($el, $refs, $electron) {
 
       let didResizeBuffer = false
       sceneContexts.forEach((context) => {
+        state.renderer.lineQuads += context.lines.state.cursor.quad
         if (context.lines.state.cursor.element > context.bufferSize) {
           const nextSize = context.bufferSize = context.bufferSize + 4096
           context.lines.resize(nextSize)
@@ -324,6 +340,7 @@ function mountCompositor ($el, $refs, $electron) {
       const fxBuffer = postBuffers.getRead()
 
       sceneBuffer.use(() => {
+        state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
         view.renderClearRect(
           (isRunning ? 0.65 : 0.7),
@@ -340,6 +357,7 @@ function mountCompositor ($el, $refs, $electron) {
       setupDrawScreen(() => {
         fxBuffer.use(() => {
           state.renderer.drawCalls++
+          state.renderer.fullScreenPasses++
           drawBoxBlur({
             color: sceneBuffer,
             resolution
@@ -347,6 +365,7 @@ function mountCompositor ($el, $refs, $electron) {
         })
 
         state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
@@ -469,18 +488,25 @@ function mountCompositor ($el, $refs, $electron) {
   tasks.add(view, 'update')
   tasks.add(view, 'render')
   view.inject()
+
+  return {
+    state
+  }
 }
 
 export default {
   name: 'editor-compositor',
 
   data () {
-    return {}
+    return {
+      state: null
+    }
   },
 
   mounted () {
     const { $el, $refs, $electron } = this
-    mountCompositor($el, $refs, $electron)
+    const { state } = mountCompositor($el, $refs, $electron)
+    this.state = state
   },
 
   components: {},
