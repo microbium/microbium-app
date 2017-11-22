@@ -103,6 +103,7 @@ function mountCompositor ($el, $refs, $electron) {
   function createRenderer () {
     const regl = createREGL({
       container: containers.scene,
+      pixelRatio: state.viewport.pixelRatio,
       extensions: [
         // 'angle_instanced_arrays',
         'OES_standard_derivatives',
@@ -121,7 +122,7 @@ function mountCompositor ($el, $refs, $electron) {
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
-      drawBoxBlur: createDrawBoxBlur(regl, {radius: 2}),
+      drawBoxBlur: createDrawBoxBlur(regl, {radius: 3}),
       drawRect: createDrawRect(regl)
     }
 
@@ -315,11 +316,11 @@ function mountCompositor ($el, $refs, $electron) {
     renderScene (tick) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
-      const { offset, scale, size, didResize } = state.viewport
+      const { offset, scale, resolution, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
 
-      postBuffers.resize(size[0], size[1])
+      postBuffers.resize(resolution[0], resolution[1])
       const sceneBuffer = postBuffers.getWrite()
       const fxBuffer = postBuffers.getRead()
 
@@ -339,19 +340,21 @@ function mountCompositor ($el, $refs, $electron) {
 
       setupDrawScreen(() => {
         fxBuffer.use(() => {
+          state.renderer.drawCalls++
           drawBoxBlur({
             color: sceneBuffer,
-            resolution: size
+            resolution
           })
         })
 
+        state.renderer.drawCalls++
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
           bloomIntensity: isRunning ? 0.5 : 0.4,
           noiseIntensity: isRunning ? 0.3 : 0.1,
           tick,
-          resolution: size
+          resolution
         })
       })
 
