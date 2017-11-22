@@ -312,7 +312,6 @@ function mountCompositor ($el, $refs, $electron) {
       return !didResizeBuffer
     },
 
-    // FEAT: Experiment with fxaa, fisheye, noise, maybe DOF
     renderScene (tick) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands

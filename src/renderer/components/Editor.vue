@@ -1,5 +1,6 @@
 <template>
   <div class="editor">
+    <!-- FEAT: Add open file title -->
     <div class="editor-toolbar"></div>
     <editor-compositor />
     <div class="editor-background"></div>
