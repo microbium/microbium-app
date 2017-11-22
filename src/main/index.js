@@ -124,6 +124,7 @@ function createMenu () {
 function openSceneFile (path) {
   readFile(path, 'utf8')
     .then((data) => {
+      setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
       sendWindowMessage('main', 'deserialize-scene', data)
     })
@@ -293,6 +294,11 @@ function requestWindowResponse (name, messageKey, messageData) {
       resolve(data)
     })
   })
+}
+
+function setMenuState (name, key, value) {
+  const item = appMenus.main.getMenuItemById(name)
+  item[key] = value
 }
 
 function toggleMenuItem (name) {
