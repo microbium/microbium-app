@@ -121,7 +121,7 @@ function mountCompositor ($el, $refs, $electron) {
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
-      drawBoxBlur: createDrawBoxBlur(regl, {radius: 3}),
+      drawBoxBlur: createDrawBoxBlur(regl, {radius: 2}),
       drawRect: createDrawRect(regl)
     }
 
@@ -260,21 +260,20 @@ function mountCompositor ($el, $refs, $electron) {
     // Experiment with fxaa, fisheye, noise, maybe DOF
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     render (tick) {
+      if (DISABLE_RENDER) return
       const { regl } = renderer
       const stateRenderer = state.renderer
-
-      if (DISABLE_RENDER) return
 
       stateRenderer.drawCalls = 0
       regl.poll()
 
-      const shouldRender = view.updateGeometry(tick)
+      const shouldRender = view.updateRenderableGeometry(tick)
       if (shouldRender) view.renderScene(tick)
 
       state.viewport.didResize = false
     },
 
-    updateGeometry (tick) {
+    updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
       const sceneContexts = scene.contexts
       const uiMain = sceneUI.main
@@ -350,6 +349,8 @@ function mountCompositor ($el, $refs, $electron) {
           color: sceneBuffer,
           bloom: fxBuffer,
           bloomIntensity: isRunning ? 0.5 : 0.4,
+          noiseIntensity: isRunning ? 0.3 : 0.1,
+          tick,
           resolution: size
         })
       })
