@@ -19,10 +19,11 @@ import {
   basename
 } from 'path'
 
-import { ipcExternal } from './io/socket'
+import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
+const ENABLE_IPC_EXTERNAL = false
 const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
 
@@ -33,6 +34,10 @@ const DEBUG_PALETTE = false
 if (!IS_DEV) {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
+const ipcExternal = ENABLE_IPC_EXTERNAL
+  ? createMessageSocket(41234, 'localhost')
+  : null
 
 const appMenus = {
   main: null
@@ -306,6 +311,7 @@ function toggleMenuItem (name) {
 }
 
 ipcMain.on('external-message', (event, data) => {
+  if (!ENABLE_IPC_EXTERNAL) return
   ipcExternal.send(data)
 })
 

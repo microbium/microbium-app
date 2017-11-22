@@ -1,6 +1,6 @@
 import { createSocket } from 'dgram'
 
-function createMessageSocket (port, address) {
+export function createMessageSocket (port, address) {
   const socket = createSocket('udp4')
 
   function send (message) {
@@ -19,10 +19,4 @@ function serializeMessage (message) {
     case 'object':
       return JSON.stringify(message)
   }
-}
-
-const ipcExternal = createMessageSocket(41234, 'localhost')
-
-export {
-  ipcExternal
 }
