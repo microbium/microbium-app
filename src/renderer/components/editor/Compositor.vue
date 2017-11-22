@@ -403,6 +403,8 @@ function mountCompositor ($el, $refs, $electron) {
 
       for (let i = contexts.length - 1; i >= 0; i--) {
         const { index, lines } = contexts[i]
+        if (lines.state.cursor.vertex === 0) continue
+
         const style = styles[index]
         const {
           textureIndex, alphaTextureIndex, alphaFuncIndex,
