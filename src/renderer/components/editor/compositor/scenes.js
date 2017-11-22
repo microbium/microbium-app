@@ -31,7 +31,7 @@ export function createScene (tasks, state, renderer) {
   const uniforms = {
     angle: regl.prop('angle'),
     angleAlpha: regl.prop('angleAlpha'),
-    hatchAlpha: regl.prop('hatchAlpha'),
+    dashFunction: regl.prop('dashFunction'),
     tint: regl.prop('tint'),
     // FEAT: Add multiple screen space tinting functions
     useScreenTintFunc: regl.prop('useScreenTintFunc'),

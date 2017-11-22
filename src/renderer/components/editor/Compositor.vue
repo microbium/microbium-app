@@ -461,7 +461,7 @@ function mountCompositor ($el, $refs, $electron) {
             model,
             diffuseMap: diffuseMap.path,
             alphaMap: alphaMap.path,
-            hatchAlpha: alphaFunc.hatchAlpha,
+            dashFunction: alphaFunc.dashFunction,
             tint,
             useScreenTintFunc,
             thickness,

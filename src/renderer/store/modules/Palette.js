@@ -104,12 +104,17 @@ export function createControlsState () {
       {
         index: 0,
         name: 'Solid',
-        hatchAlpha: 0
+        dashFunction: 0
       },
       {
         index: 1,
         name: 'Radial Dash',
-        hatchAlpha: 1
+        dashFunction: 1
+      },
+      {
+        index: 2,
+        name: 'Concentric Dash',
+        dashFunction: 2
       }
     ],
 

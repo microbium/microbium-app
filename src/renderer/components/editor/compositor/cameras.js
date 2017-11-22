@@ -9,7 +9,7 @@ export function createCameras (tasks, state, renderer) {
   const scratchVec3B = vec3.create()
 
   const baseUniforms = {
-    viewResolution: () => state.viewport.size,
+    viewResolution: () => state.viewport.resolution,
     viewOffset: regl.prop('offset')
   }
 

@@ -2,12 +2,14 @@
 
 precision highp float;
 
+#define PI 3.141592653589793
+
 uniform vec2 viewResolution;
 uniform vec2 viewOffset;
 
-uniform float hatchAlpha;
 uniform sampler2D diffuseMap;
 uniform sampler2D alphaMap;
+uniform int dashFunction;
 uniform int useDiffuseMap;
 uniform int useAlphaMap;
 uniform int useScreenTintFunc;
@@ -15,7 +17,14 @@ uniform int useScreenTintFunc;
 varying vec4 vColor;
 varying vec3 vUDO;
 
-float radialHatch (vec2 coord, float scale, float thickness) {
+float radialHatch (vec2 coord, float steps, float scale, float thickness) {
+  float rcoord = atan(coord.x, coord.y) * steps / PI * scale;
+  float line = abs(fract(rcoord - 0.5) - 0.5) / fwidth(rcoord);
+  float rthickness = thickness * length(coord) / steps;
+  return rthickness - min(line, rthickness);
+}
+
+float concentricHatch (vec2 coord, float scale, float thickness) {
   float rcoord = length(coord) * scale;
   float line = abs(fract(rcoord - 0.5) - 0.5) / fwidth(rcoord);
   return thickness - min(line, thickness);
@@ -47,9 +56,8 @@ void main() {
     outAlpha *= alphaMapValue;// * smoothstep(0.0, 2.0, 1.0 - alphaMapCoords.x);
   }
 
-  if (hatchAlpha > 0.0) {
-    outAlpha *= mix(1.0, radialHatch(position, 0.1, 3.0), hatchAlpha);
-  }
+  if (dashFunction == 1) outAlpha *= radialHatch(position, 800.0, 0.1, 10.0);
+  else if (dashFunction == 2) outAlpha *= concentricHatch(position, 0.1, 3.0);
 
   gl_FragColor = vec4(outColor, outAlpha);
 }
