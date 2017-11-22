@@ -77,7 +77,7 @@ function createMenu () {
         multiSelections: false,
         filters: fileTypeFilters
       }, (fileNames) => {
-        if (!fileNames.length) return
+        if (!(fileNames && fileNames.length)) return
         const fileName = fileNames[0]
         store.set('openScenePath', fileName)
         openSceneFile(fileName)
