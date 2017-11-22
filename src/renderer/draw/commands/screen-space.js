@@ -1,10 +1,15 @@
-import basic from '@/shaders/basic.frag'
-import postFX from '@/shaders/post-fx.vert'
+import injectDefines from 'glsl-inject-defines'
+
+import basicFrag from '@/shaders/basic.frag'
+import postFXVert from '@/shaders/post-fx.vert'
+import postFXFrag from '@/shaders/post-fx.frag'
+import postFXBoxBlurFrag from '@/shaders/post-fx-box-blur.frag'
+import postFXHashBlurFrag from '@/shaders/post-fx-hash-blur.frag'
 
 export function createDrawRect (regl) {
   return regl({
-    frag: basic,
-    vert: postFX,
+    frag: basicFrag,
+    vert: postFXVert,
     attributes: {
       position: [-4, -4, 4, -4, 0, 4]
     },
@@ -20,6 +25,56 @@ export function createDrawRect (regl) {
     depth: { enable: false },
     uniforms: {
       color: regl.prop('color')
+    }
+  })
+}
+
+export function createSetupDrawScreen (regl) {
+  return regl({
+    vert: postFXVert,
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
+  })
+}
+
+export function createDrawBoxBlur (regl, params = {}) {
+  const defines = {
+    BLUR_RADIUS: params.radius || 1
+  }
+  return regl({
+    frag: injectDefines(postFXBoxBlurFrag, defines),
+    uniforms: {
+      color: regl.prop('color'),
+      resolution: regl.prop('resolution')
+    }
+  })
+}
+
+export function createDrawHashBlur (regl) {
+  return regl({
+    frag: postFXHashBlurFrag,
+    uniforms: {
+      color: regl.prop('color'),
+      radius: regl.prop('radius'),
+      offset: regl.prop('offset'),
+      resolution: regl.prop('resolution')
+    }
+  })
+}
+
+export function createDrawScreen (regl) {
+  return regl({
+    frag: postFXFrag,
+    uniforms: {
+      color: regl.prop('color'),
+      bloom: regl.prop('bloom'),
+      bloomIntensity: regl.prop('bloomIntensity'),
+      noiseIntensity: regl.prop('noiseIntensity'),
+      tick: regl.prop('tick'),
+      resolution: regl.prop('resolution')
     }
   })
 }

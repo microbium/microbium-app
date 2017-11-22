@@ -33,13 +33,19 @@ import { TEXTURES } from '@/constants/line-styles'
 
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
+import { createPostBuffers } from '@/utils/fbo'
 import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
 import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
 
 import { createTextureManager } from '@/utils/texture'
-import { createDrawRect } from '@/draw/commands/screen-space'
+import {
+  createDrawRect,
+  createSetupDrawScreen,
+  createDrawBoxBlur,
+  createDrawScreen
+} from '@/draw/commands/screen-space'
 import { createCompositorState } from '@/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
@@ -97,26 +103,34 @@ function mountCompositor ($el, $refs, $electron) {
   function createRenderer () {
     const regl = createREGL({
       container: containers.scene,
+      pixelRatio: state.viewport.pixelRatio,
       extensions: [
         // 'angle_instanced_arrays',
         'OES_standard_derivatives',
         'OES_element_index_uint'
       ],
       attributes: {
-        antialias: true,
-        preserveDrawingBuffer: true,
-        premultipliedAlpha: true,
-        alpha: true
+        antialias: false,
+        preserveDrawingBuffer: false,
+        premultipliedAlpha: false,
+        alpha: false
       }
     })
 
-    const drawRect = createDrawRect(regl)
-    const createTexture = createTextureManager(regl, TEXTURES)
+    const textures = createTextureManager(regl, TEXTURES)
+    const postBuffers = createPostBuffers(regl)
+    const commands = {
+      setupDrawScreen: createSetupDrawScreen(regl),
+      drawScreen: createDrawScreen(regl),
+      drawBoxBlur: createDrawBoxBlur(regl, {radius: 3}),
+      drawRect: createDrawRect(regl)
+    }
 
     return {
       regl,
-      drawRect,
-      createTexture
+      textures,
+      postBuffers,
+      commands
     }
   }
 
@@ -246,19 +260,24 @@ function mountCompositor ($el, $refs, $electron) {
     // FEAT: Add postprocessing pipeline
     // Experiment with fxaa, fisheye, noise, maybe DOF
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
-    render () {
-      const { regl } = renderer
-      const { offset, scale } = state.viewport
-      const { panOffset, zoomOffset } = state.drag
-      const { isRunning } = state.simulation
-      const sceneContexts = scene.contexts
-      const uiMain = sceneUI.main
-      const stateRenderer = state.renderer
-
+    render (tick) {
       if (DISABLE_RENDER) return
+      const { regl } = renderer
+      const stateRenderer = state.renderer
 
       stateRenderer.drawCalls = 0
       regl.poll()
+
+      const shouldRender = view.updateRenderableGeometry(tick)
+      if (shouldRender) view.renderScene(tick)
+
+      state.viewport.didResize = false
+    },
+
+    updateRenderableGeometry (tick) {
+      const { isRunning } = state.simulation
+      const sceneContexts = scene.contexts
+      const uiMain = sceneUI.main
 
       sceneContexts.forEach(({ lines }) => {
         lines.reset()
@@ -290,16 +309,56 @@ function mountCompositor ($el, $refs, $electron) {
           logger.log('resize lines buffer', context.index, nextSize)
         }
       })
-      if (didResizeBuffer) return
 
-      view.renderClearRect()
-      cameras.scene.setup({
-        offset: vec2.add(scratchVec2A, offset, panOffset),
-        scale: scale + zoomOffset
-      }, () => {
-        view.renderLines()
-        view.renderUI()
+      return !didResizeBuffer
+    },
+
+    renderScene (tick) {
+      const { postBuffers } = renderer
+      const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
+      const { offset, scale, resolution, didResize } = state.viewport
+      const { panOffset, zoomOffset } = state.drag
+      const { isRunning } = state.simulation
+
+      postBuffers.resize(resolution[0], resolution[1])
+      const sceneBuffer = postBuffers.getWrite()
+      const fxBuffer = postBuffers.getRead()
+
+      sceneBuffer.use(() => {
+        // TODO: Tween between clear states
+        view.renderClearRect(
+          (isRunning ? 0.65 : 0.7),
+          (didResize ? 1 : (isRunning ? 0.025 : 0.2)))
+        cameras.scene.setup({
+          offset: vec2.add(scratchVec2A, offset, panOffset),
+          scale: scale + zoomOffset
+        }, () => {
+          view.renderLines()
+          view.renderUI()
+        })
       })
+
+      setupDrawScreen(() => {
+        fxBuffer.use(() => {
+          state.renderer.drawCalls++
+          drawBoxBlur({
+            color: sceneBuffer,
+            resolution
+          })
+        })
+
+        state.renderer.drawCalls++
+        drawScreen({
+          color: sceneBuffer,
+          bloom: fxBuffer,
+          bloomIntensity: isRunning ? 0.5 : 0.4,
+          noiseIntensity: isRunning ? 0.3 : 0.1,
+          tick,
+          resolution
+        })
+      })
+
+      if (isRunning) postBuffers.swap()
     },
 
     // NOTE: Called once to setup non-dynamic UI
@@ -308,11 +367,16 @@ function mountCompositor ($el, $refs, $electron) {
       drawPolarGrid(state, uiGrid.ctx)
     },
 
-    renderClearRect () {
-      const { drawRect } = renderer
+    renderClearRect (colorFactor, alpha) {
+      const { drawRect } = renderer.commands
       state.renderer.drawCalls++
       drawRect({
-        color: [0.06, 0.08, 0.084, 0.15]
+        color: [
+          0.6 * colorFactor,
+          0.8 * colorFactor,
+          0.84 * colorFactor,
+          alpha
+        ]
       })
     },
 
@@ -320,7 +384,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { lineScaleFactor } = cameras.scene
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
-      return baseThickness * lerp(1, scale + zoomOffset, lineScaleFactor)
+      return (baseThickness + 0.25) * lerp(1, scale + zoomOffset, lineScaleFactor)
     },
 
     shouldAdjustThickness () {
@@ -379,6 +443,7 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     renderUI () {
+      const { isRunning } = state.simulation
       const { contexts } = sceneUI
       const model = mat4.identity(scratchMat4A)
       const tint = [1, 1, 1, 1]
@@ -386,7 +451,9 @@ function mountCompositor ($el, $refs, $electron) {
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      contexts.forEach(({ lines }) => {
+      contexts.forEach(({ name, lines }) => {
+        if (isRunning && name === 'grid') return
+        state.renderer.drawCalls++
         lines.draw({
           model,
           tint,

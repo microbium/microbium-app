@@ -40,7 +40,9 @@ export function createViewportController (tasks, state) {
 
       vec2.set(stateViewport.size, width, height)
       vec2.set(stateViewport.center, width / 2, height / 2)
-      stateViewport.pixelRatio = window.devicePixelRatio || 1
+      vec2.scale(stateViewport.resolution,
+        stateViewport.size, stateViewport.pixelRatio)
+      stateViewport.didResize = true
       tasks.run('resize', event)
     },
 

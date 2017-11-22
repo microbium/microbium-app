@@ -35,9 +35,10 @@ export function createCompositorState () {
   }
 
   const viewport = {
-    controlsVisible: false,
-    pixelRatio: 1,
+    didResize: false,
+    pixelRatio: Math.max(window.devicePixelRatio || 1, 1.5),
     size: vec2.create(),
+    resolution: vec2.create(),
     center: vec2.create(),
     offset: vec2.create(),
     scale: 1

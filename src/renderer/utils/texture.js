@@ -2,7 +2,7 @@ export function createTextureManager (regl, textureMap) {
   const cache = {}
   const empty = regl.texture()
 
-  return function createTexture (key, textureOpts = {}) {
+  function getTexture (key, textureOpts = {}) {
     if (key == null) return empty
 
     const cached = cache[key]
@@ -22,5 +22,9 @@ export function createTextureManager (regl, textureMap) {
     }
 
     return texture
+  }
+
+  return {
+    get: getTexture
   }
 }
