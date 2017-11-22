@@ -8,9 +8,9 @@ export function createPostBuffers (regl) {
     write: createBuffer()
   }
   const getBuffer = (name) => {
-    return (width, height) => {
+    return (size) => {
       const buffer = buffers[name]
-      if (width && height) buffer.resize(width, height)
+      if (size) buffer.resize(size[0], size[1])
       return buffer
     }
   }
@@ -19,10 +19,10 @@ export function createPostBuffers (regl) {
     getRead: getBuffer('read'),
     getWrite: getBuffer('write'),
 
-    resize (width, height) {
+    resize (size) {
       const { read, write } = buffers
-      read.resize(width, height)
-      write.resize(width, height)
+      read.resize(size[0], size[1])
+      write.resize(size[0], size[1])
     },
 
     swap () {

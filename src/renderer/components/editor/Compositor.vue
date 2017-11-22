@@ -319,7 +319,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
 
-      postBuffers.resize(resolution[0], resolution[1])
+      postBuffers.resize(resolution)
       const sceneBuffer = postBuffers.getWrite()
       const fxBuffer = postBuffers.getRead()
 
@@ -350,8 +350,8 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: isRunning ? 0.5 : 0.4,
-          noiseIntensity: isRunning ? 0.3 : 0.1,
+          bloomIntensity: isRunning ? 0.4 : 0.3,
+          noiseIntensity: isRunning ? 0.2 : 0.0,
           tick,
           resolution
         })
