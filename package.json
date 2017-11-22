@@ -59,6 +59,7 @@
     "glsl-hash-blur": "^1.0.3",
     "glsl-inject-defines": "^1.0.3",
     "glsl-noise": "^0.0.0",
+    "glsl-random": "^0.0.5",
     "particulate": "^0.3.3",
     "regl": "^1.3.0",
     "regl-line-builder": "^0.3.0",

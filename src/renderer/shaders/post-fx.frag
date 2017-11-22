@@ -10,7 +10,7 @@ uniform vec2 resolution;
 varying vec2 uv;
 
 #pragma glslify: fxaa = require(glsl-fxaa)
-#pragma glslify: random = require(./random)
+#pragma glslify: random = require(glsl-random)
 
 void main() {
   vec2 fragCoord = uv * resolution;
