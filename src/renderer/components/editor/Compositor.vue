@@ -1,11 +1,16 @@
 <template>
   <div class="editor-compositor">
     <div class="editor-compositor__scene" ref="scene"></div>
-    <ul class="editor-compositor__stats" v-if="state && state.viewport.showStats">
-      <li>line quads: {{ state.renderer.lineQuads }}</li>
-      <li>draw calls: {{ state.renderer.drawCalls }}</li>
-      <li>full screen passes: {{ state.renderer.fullScreenPasses }}</li>
-    </ul>
+    <div class="editor-compositor__stats" v-if="state && state.viewport.showStats">
+      <div>resolution: {{ state.viewport.resolution[0] }}w
+        {{ state.viewport.resolution[1] }}h
+        ({{ state.viewport.pixelRatio }}x)</div>
+      <hr />
+      <div>line quads: {{ state.renderer.lineQuads }}</div>
+      <hr />
+      <div>draw calls: {{ state.renderer.drawCalls }}</div>
+      <div>full screen passes: {{ state.renderer.fullScreenPasses }}</div>
+    </div>
   </div>
 </template>
 
@@ -24,9 +29,17 @@
     position: absolute;
     bottom: 14px;
     left: 14px;
+
+    color: #444;
     font: 10px/1 Monaco, monospace;
-    list-style: none;
     pointer-events: none;
+
+    > hr {
+      border: none;
+      border-top: 1px solid #888;
+      margin: 4px 0;
+      width: 20px;
+    }
   }
 }
 

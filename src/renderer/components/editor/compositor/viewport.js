@@ -40,8 +40,9 @@ export function createViewportController (tasks, state) {
 
       vec2.set(stateViewport.size, width, height)
       vec2.set(stateViewport.center, width / 2, height / 2)
-      vec2.scale(stateViewport.resolution,
-        stateViewport.size, stateViewport.pixelRatio)
+      vec2.set(stateViewport.resolution,
+        Math.round(stateViewport.size[0] * stateViewport.pixelRatio),
+        Math.round(stateViewport.size[1] * stateViewport.pixelRatio))
       stateViewport.didResize = true
       tasks.run('resize', event)
     },
