@@ -1,5 +1,4 @@
 precision highp float;
-const int BLUR_RADIUS = 2;
 uniform sampler2D color;
 uniform vec2 resolution;
 varying vec2 uv;

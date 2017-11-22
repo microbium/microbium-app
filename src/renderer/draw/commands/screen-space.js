@@ -1,3 +1,5 @@
+import injectDefines from 'glsl-inject-defines'
+
 import basicFrag from '@/shaders/basic.frag'
 import postFXVert from '@/shaders/post-fx.vert'
 import postFXFrag from '@/shaders/post-fx.frag'
@@ -38,9 +40,12 @@ export function createSetupDrawScreen (regl) {
   })
 }
 
-export function createDrawBoxBlur (regl) {
+export function createDrawBoxBlur (regl, params = {}) {
+  const defines = {
+    BLUR_RADIUS: params.radius || 1
+  }
   return regl({
-    frag: postFXBoxBlurFrag,
+    frag: injectDefines(postFXBoxBlurFrag, defines),
     uniforms: {
       color: regl.prop('color'),
       resolution: regl.prop('resolution')

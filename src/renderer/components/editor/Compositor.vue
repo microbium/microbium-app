@@ -121,7 +121,7 @@ function mountCompositor ($el, $refs, $electron) {
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
-      drawBoxBlur: createDrawBoxBlur(regl),
+      drawBoxBlur: createDrawBoxBlur(regl, {radius: 3}),
       drawRect: createDrawRect(regl)
     }
 
@@ -318,13 +318,17 @@ function mountCompositor ($el, $refs, $electron) {
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
       const { offset, scale, size, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
+      const { isRunning } = state.simulation
 
       postBuffers.resize(size[0], size[1])
       const sceneBuffer = postBuffers.getWrite()
       const fxBuffer = postBuffers.getRead()
 
       sceneBuffer.use(() => {
-        view.renderClearRect(0.6, didResize ? 1 : 0.04)
+        // TODO: Tween between clear states
+        view.renderClearRect(
+          (isRunning ? 0.65 : 0.7),
+          (didResize ? 1 : (isRunning ? 0.025 : 0.2)))
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
           scale: scale + zoomOffset
@@ -345,12 +349,12 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: 0.4,
+          bloomIntensity: isRunning ? 0.5 : 0.4,
           resolution: size
         })
       })
 
-      postBuffers.swap()
+      if (isRunning) postBuffers.swap()
     },
 
     // NOTE: Called once to setup non-dynamic UI
@@ -435,6 +439,7 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     renderUI () {
+      const { isRunning } = state.simulation
       const { contexts } = sceneUI
       const model = mat4.identity(scratchMat4A)
       const tint = [1, 1, 1, 1]
@@ -442,7 +447,9 @@ function mountCompositor ($el, $refs, $electron) {
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      contexts.forEach(({ lines }) => {
+      contexts.forEach(({ name, lines }) => {
+        if (isRunning && name === 'grid') return
+        state.renderer.drawCalls++
         lines.draw({
           model,
           tint,
