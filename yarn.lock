@@ -3839,13 +3839,31 @@ globule@^1.0.0:
     lodash "~4.17.4"
     minimatch "~3.0.2"
 
-glsl-inject-defines@^1.0.1:
+glsl-fxaa@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/glsl-fxaa/-/glsl-fxaa-3.0.0.tgz#f432228fba9d2a8a7240943c593d20c3176f3b93"
+
+glsl-hash-blur@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/glsl-hash-blur/-/glsl-hash-blur-1.0.3.tgz#85ce037f744de15e6fda9e38dbcd93504b7647c4"
+  dependencies:
+    glsl-random "0.0.5"
+
+glsl-inject-defines@^1.0.1, glsl-inject-defines@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/glsl-inject-defines/-/glsl-inject-defines-1.0.3.tgz#dd1aacc2c17fcb2bd3fc32411c6633d0d7b60fd4"
   dependencies:
     glsl-token-inject-block "^1.0.0"
     glsl-token-string "^1.0.1"
     glsl-tokenizer "^2.0.2"
+
+glsl-noise@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/glsl-noise/-/glsl-noise-0.0.0.tgz#367745f3a33382c0eeec4cb54b7e99cfc1d7670b"
+
+glsl-random@0.0.5, glsl-random@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/glsl-random/-/glsl-random-0.0.5.tgz#bd00c8c1ab1f5587e5fe2d48e83c50c5b9798b5b"
 
 glsl-resolve@0.0.1:
   version "0.0.1"
