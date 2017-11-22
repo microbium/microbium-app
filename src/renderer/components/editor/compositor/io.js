@@ -1,6 +1,8 @@
 import { flatten2, expand2 } from '@/utils/array'
 import { roundToPlaces } from '@/utils/number'
 
+// OPTIM: Maybe use proto-buffers for state serialization
+// https://github.com/mafintosh/protocol-buffers
 export function createIOController (tasks, state) {
   const { requestSync } = tasks
 

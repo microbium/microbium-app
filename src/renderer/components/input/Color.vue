@@ -36,7 +36,7 @@ export default {
   watch: {
     hexValue () {
       const value = this.hexValue
-      this.$emit('input', value.toUpperCase())
+      this.$emit('input', value)
     }
   }
 }

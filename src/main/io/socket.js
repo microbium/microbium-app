@@ -4,8 +4,7 @@ function createMessageSocket (port, address) {
   const socket = createSocket('udp4')
 
   function send (message) {
-    const messageStr = stringifyMessage(message)
-    socket.send(messageStr, port, address)
+    socket.send(serializeMessage(message), port, address)
   }
 
   return {
@@ -13,7 +12,7 @@ function createMessageSocket (port, address) {
   }
 }
 
-function stringifyMessage (message) {
+function serializeMessage (message) {
   switch (typeof message) {
     case 'string':
       return message

@@ -23,7 +23,7 @@
 
     <div class="palette-item">
       <div class="palette-item__label">
-        <b>{{ model.strokeColor }}
+        <b>{{ model.strokeColor.toUpperCase() }}
           <input-color v-model="model.strokeColor" />
         </b> stroke color
       </div>

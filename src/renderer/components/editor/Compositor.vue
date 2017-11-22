@@ -257,9 +257,6 @@ function mountCompositor ($el, $refs, $electron) {
       })
     },
 
-    // FEAT: Add postprocessing pipeline
-    // Experiment with fxaa, fisheye, noise, maybe DOF
-    // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
@@ -274,6 +271,7 @@ function mountCompositor ($el, $refs, $electron) {
       state.viewport.didResize = false
     },
 
+    // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
       const sceneContexts = scene.contexts
@@ -313,6 +311,7 @@ function mountCompositor ($el, $refs, $electron) {
       return !didResizeBuffer
     },
 
+    // FEAT: Experiment with fxaa, fisheye, noise, maybe DOF
     renderScene (tick) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands

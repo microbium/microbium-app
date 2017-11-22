@@ -19,7 +19,7 @@
 
     <div class="palette-item">
       <div class="palette-item__label">
-        <b>{{ model.tintHex }}
+        <b>{{ model.tintHex.toUpperCase() }}
           <input-color v-model="model.tintHex" />
         </b> tint
       </div>
