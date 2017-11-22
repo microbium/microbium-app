@@ -329,7 +329,6 @@ function mountCompositor ($el, $refs, $electron) {
 
       let didResizeBuffer = false
       sceneContexts.forEach((context) => {
-        state.renderer.lineQuads += context.lines.state.cursor.quad
         if (context.lines.state.cursor.element > context.bufferSize) {
           const nextSize = context.bufferSize = context.bufferSize + 4096
           context.lines.resize(nextSize)
@@ -471,6 +470,7 @@ function mountCompositor ($el, $refs, $electron) {
           }
         })
         state.renderer.drawCalls += instances.length
+        state.renderer.lineQuads += lines.state.cursor.quad
         lines.draw(instances)
       }
     },
@@ -487,6 +487,7 @@ function mountCompositor ($el, $refs, $electron) {
       contexts.forEach(({ name, lines }) => {
         if (isRunning && name === 'grid') return
         state.renderer.drawCalls++
+        state.renderer.lineQuads += lines.state.cursor.quad
         lines.draw({
           model,
           tint,
