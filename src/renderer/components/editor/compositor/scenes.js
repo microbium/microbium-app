@@ -3,6 +3,7 @@ import { LineBuilder } from 'regl-line-builder'
 import { curve } from '@/utils/draw'
 import linesEntitiesVert from '@/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@/shaders/lines-entities.frag'
+import linesUIFrag from '@/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
   const { regl, textures } = renderer
@@ -79,7 +80,10 @@ export function createUIScene (tasks, state, renderer) {
     // TODO: Make bufferSize smallest possible for UI
     const bufferSize = 2 ** 9
     const lines = LineBuilder.create(regl, {
-      bufferSize
+      bufferSize,
+      drawArgs: {
+        frag: linesUIFrag
+      }
     })
 
     const ctx = lines.getContext('2d')

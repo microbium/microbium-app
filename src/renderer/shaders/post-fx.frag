@@ -9,14 +9,11 @@ uniform vec2 resolution;
 
 varying vec2 uv;
 
-#pragma glslify: fxaa = require(glsl-fxaa)
 #pragma glslify: random = require(glsl-random)
 
 void main() {
   vec2 fragCoord = uv * resolution;
-
-  vec4 fColor = fxaa(color, fragCoord, resolution);
-  // vec4 fColor = texture2D(color, uv);
+  vec4 fColor = texture2D(color, uv);
 
   float fNoise = 0.0;
   if (noiseIntensity > 0.0) {

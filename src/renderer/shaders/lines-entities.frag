@@ -17,6 +17,8 @@ uniform int useScreenTintFunc;
 varying vec4 vColor;
 varying vec3 vUDO;
 
+#pragma glslify: lineAntialiasAlpha = require(./line-antialias-alpha, fwidth=fwidth)
+
 float radialHatch (vec2 coord, float steps, float scale, float thickness) {
   float rcoord = atan(coord.x, coord.y) * steps / PI * scale;
   float line = abs(fract(rcoord - 0.5) - 0.5) / fwidth(rcoord);
@@ -38,7 +40,7 @@ void main() {
   vec3 udo = vUDO;
 
   vec3 outColor = vColor.rgb;
-  float outAlpha = vColor.a;
+  float outAlpha = vColor.a * lineAntialiasAlpha(udo.x);
 
   if (useDiffuseMap == 1) {
     outColor *= texture2D(diffuseMap, coord).rgb;
