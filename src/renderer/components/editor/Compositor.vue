@@ -382,7 +382,7 @@ function mountCompositor ($el, $refs, $electron) {
           color: sceneBuffer,
           bloom: fxBuffer,
           bloomIntensity: isRunning ? 0.4 : 0.3,
-          noiseIntensity: isRunning ? 0.2 : 0.0,
+          noiseIntensity: isRunning ? 0.125 : 0.0,
           tick,
           resolution
         })

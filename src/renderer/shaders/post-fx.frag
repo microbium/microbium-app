@@ -20,7 +20,7 @@ void main() {
 
   float fNoise = 0.0;
   if (noiseIntensity > 0.0) {
-    float nx = random(fract(uv + tick * 0.01));
+    float nx = random(fract(uv + tick * 0.001));
     fNoise = (clamp(0.1 + nx, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
   }
 
