@@ -174,7 +174,7 @@ function createMainWindow () {
   // TODO: Should probably save state in main process
   // then sync to windows .. this is fine for now
   const onMessage = (event, data) => {
-    main.webContents.send('message', data)
+    sendWindowMessage('main', 'message', data)
   }
 
   createSceneMenuItem.enabled = false
@@ -244,7 +244,7 @@ function createPaletteWindow (displaySize) {
     palette.show()
 
     ipcMain.on('palette-message', (event, data) => {
-      palette.webContents.send('message', data)
+      sendWindowMessage('palette', 'message', data)
     })
   })
 
@@ -269,11 +269,17 @@ function toggleWindow (name) {
   else win.showInactive()
 }
 
-function setWindowFilePath (name, path) {
+function setWindowFilePath (name, fullPath) {
   const win = appWindows[name]
   if (!win) return
-  win.setTitle(basename(path))
-  win.setRepresentedFilename(path)
+  const fileName = basename(fullPath)
+  sendWindowMessage('main', 'message', {
+    type: 'UPDATE_FILE_PATH',
+    fullPath,
+    fileName
+  })
+  win.setTitle(fileName)
+  win.setRepresentedFilename(fullPath)
 }
 
 function sendWindowMessage (name, messageKey, messageData) {

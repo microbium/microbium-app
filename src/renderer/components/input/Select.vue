@@ -14,6 +14,12 @@
   width: 100%;
   height: 100%;
   opacity: 0;
+
+  > select {
+    position: relative;
+    width: auto;
+    height: 100%;
+  }
 }
 </style>
 
