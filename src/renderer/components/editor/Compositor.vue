@@ -412,9 +412,11 @@ function mountCompositor ($el, $refs, $electron) {
 
     computeLineThickness (baseThickness) {
       const { lineScaleFactor } = cameras.scene
-      const { scale } = state.viewport
+      const { scale, pixelRatio } = state.viewport
       const { zoomOffset } = state.drag
-      return (baseThickness + 0.25) * lerp(1, scale + zoomOffset, lineScaleFactor)
+      const pixelRatioAdjust = 0.5 / pixelRatio
+      return (baseThickness + pixelRatioAdjust) *
+        lerp(1, scale + zoomOffset, lineScaleFactor)
     },
 
     shouldAdjustThickness () {
