@@ -50,7 +50,7 @@
   &__title {
     position: relative;
     margin: 0 auto;
-    padding: 8px 0;
+    padding: 11px 0;
     width: 240px;
 
     color: rgba(#98EAFE, 0.5);
