@@ -31,35 +31,35 @@ export function createControlsState () {
         textureIndex: 0,
         alphaTextureIndex: 0,
         alphaFuncIndex: 0,
-        tintHex: '#ffffff',
+        tintHex: '#FFFFFF',
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 1
+        strokeWidthMod: 0.6
       },
       {
         index: 1,
-        name: 'Radial Dash',
+        name: 'Dashed',
         textureIndex: 0,
         alphaTextureIndex: 0,
         alphaFuncIndex: 1,
-        tintHex: '#A3A3CC',
+        tintHex: '#EEEEEE',
         tintAlpha: 1,
         useScreenTintFunc: 0,
-        thickness: 1,
-        strokeWidthMod: 1
+        thickness: 0.25,
+        strokeWidthMod: 0.6
       },
       {
         index: 2,
-        name: 'Watercolor',
-        textureIndex: 1,
-        alphaTextureIndex: 0,
+        name: 'Hairy',
+        textureIndex: 0,
+        alphaTextureIndex: 1,
         alphaFuncIndex: 0,
-        tintHex: '#FFFFFF',
+        tintHex: '#AAAAAA',
         tintAlpha: 1,
-        useScreenTintFunc: 1,
-        thickness: 1,
-        strokeWidthMod: 1
+        useScreenTintFunc: 0,
+        thickness: 4,
+        strokeWidthMod: 0.3
       }
     ],
 
