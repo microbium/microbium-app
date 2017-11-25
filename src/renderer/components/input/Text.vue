@@ -65,6 +65,11 @@ export default {
   },
 
   watch: {
+    // OPTIM: Better way to respond to upstream prop change?
+    value () {
+      this.textValue = this.value
+    },
+
     textValue () {
       const value = this.textValue.trim() || '-'
       this.$emit('input', value)
