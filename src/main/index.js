@@ -121,12 +121,6 @@ function createMenu () {
     },
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
-    },
-    quit () {
-      appShouldQuit = true
-      process.nextTick(() => {
-        app.quit()
-      })
     }
   })
 
@@ -354,6 +348,9 @@ ipcMain.on('toggle-window', (event, data) => {
   toggleMenuItem('palette')
 })
 
+app.on('before-quit', () => {
+  appShouldQuit = true
+})
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
