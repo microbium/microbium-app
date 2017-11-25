@@ -370,6 +370,7 @@ function mountCompositor ($el, $refs, $electron) {
         fxBuffer.use(() => {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
+          // OPTIM: Investigate blur effect optimizations
           drawBoxBlur({
             color: sceneBuffer,
             resolution
