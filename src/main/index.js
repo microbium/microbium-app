@@ -216,6 +216,7 @@ function createPaletteWindow (displaySize) {
     frame: DEBUG_PALETTE,
     focusable: true,
     resizable: true,
+    closable: false,
     minimizable: false,
     maximizable: false,
     fullscreen: false,
