@@ -6,6 +6,9 @@
         {{ state.viewport.resolution[1] }}h
         ({{ state.viewport.pixelRatio }}x)</div>
       <hr />
+      <div>pin constraints: {{ pinConstraintCount }}</div>
+      <div>local constraints: {{ localConstraintCount }}</div>
+      <hr />
       <div>line quads: {{ state.renderer.lineQuads }}</div>
       <hr />
       <div>draw calls: {{ state.renderer.drawCalls }}</div>
@@ -31,13 +34,13 @@
     left: 14px;
 
     color: #444;
-    font: 10px/1 Monaco, monospace;
+    font: 10px/1.2 Monaco, monospace;
     pointer-events: none;
 
     > hr {
       border: none;
-      border-top: 1px solid #888;
-      margin: 4px 0;
+      border-top: 2px solid rgba(#92D9E7, 0.8);
+      margin: 6px 0;
       width: 20px;
     }
   }
@@ -527,6 +530,23 @@ export default {
   },
 
   components: {},
-  methods: {}
+
+  methods: {
+    countConstraints (name) {
+      if (!(this.state && this.state.simulation.system)) return null
+      const { system } = this.state.simulation
+      return system[`_${name}`]
+        .reduce((accum, constraint) => accum + constraint._count, 0)
+    }
+  },
+
+  computed: {
+    pinConstraintCount () {
+      return this.countConstraints('pinConstraints') || '-'
+    },
+    localConstraintCount () {
+      return this.countConstraints('localConstraints') || '-'
+    }
+  }
 }
 </script>
