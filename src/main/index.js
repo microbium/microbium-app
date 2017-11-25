@@ -124,7 +124,9 @@ function createMenu () {
     },
     quit () {
       appShouldQuit = true
-      app.quit()
+      process.nextTick(() => {
+        app.quit()
+      })
     }
   })
 
