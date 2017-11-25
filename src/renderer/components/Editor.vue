@@ -3,7 +3,9 @@
     <div class="editor-toolbar">
       <div class="editor-toolbar__draggable"></div>
       <div class="editor-toolbar__title" v-if="fileName && !isFullscreen">
-        {{ fileName }}
+        <span @click.meta="openFileLocation">
+          {{ fileName }}
+        </span>
         <!-- TODO: Nice to have file path dropdown like native title bar -->
         <!--
         <input-select>
@@ -56,6 +58,7 @@
     color: rgba(#98EAFE, 0.5);
     font-size: 14px;
     text-align: center;
+    cursor: default;
   }
 
   .input-select > select {
@@ -140,6 +143,10 @@ export default {
     updateFilePath (data) {
       this.fileName = data.fileName
       this.fileFullPath = data.fullPath
+    },
+
+    openFileLocation () {
+      this.$electron.shell.showItemInFolder(this.fileFullPath)
     },
 
     resize (event) {
