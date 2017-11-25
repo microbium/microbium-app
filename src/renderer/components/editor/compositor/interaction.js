@@ -30,7 +30,7 @@ export function createSeekController (tasks, state) {
       }
 
       const lastOffset = isDrawing ? 1 : 0
-      const ignoreIndex = isDrawing
+      const ignoreIndex = (isDrawing && activeSegment)
         ? activeSegment.indices[activeSegment.indices.length - 2]
         : -1
       const close = requestSync('geometry.findClosestPoint',
@@ -210,8 +210,16 @@ export function createDragController (tasks, state) {
         up, maxDistance / scale, 1)
 
       requestSync('geometry.completeActiveSegment', close && close.index)
+    },
+
+    cancelDraw () {
+      state.drag.isDrawing = false
     }
   }
+
+  tasks.registerResponders([
+    'cancelDraw'
+  ], drag, 'drag')
 
   return drag
 }

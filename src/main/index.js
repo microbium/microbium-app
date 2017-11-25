@@ -112,7 +112,12 @@ function createMenu () {
     },
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Backspace'})
+        sendWindowMessage('main', 'key-command', {code: 'X'})
+      }
+    },
+    completeSegment () {
+      if (appWindows.main && appWindows.main.isFocused()) {
+        sendWindowMessage('main', 'key-command', {code: 'C'})
       }
     },
     togglePalette () {

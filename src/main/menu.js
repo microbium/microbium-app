@@ -42,9 +42,17 @@ export function createMenuTemplate (app, actions) {
         {
           id: 'delete-last-vertex',
           label: 'Delete Last Vertex',
-          accelerator: 'Backspace',
+          accelerator: 'X',
           click () {
             actions.deleteLastVertex()
+          }
+        },
+        {
+          id: 'complete-segment',
+          label: 'Complete Segment',
+          accelerator: 'C',
+          click () {
+            actions.completeSegment()
           }
         },
         {

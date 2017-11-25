@@ -187,13 +187,18 @@ export function createGeometryController (tasks, state) {
       const { indices, connectedIndices, strokeWidthModulations } = activeSegment
 
       const firstIndex = indices[0]
-      const isConnected = index != null
+      const isConnected = index != null && index !== -1
       const isClosed = isConnected && firstIndex === index
       const isConnectedDup = isConnected && indices[indices.length - 1] === index
 
       if (isConnected && !isConnectedDup) {
         indices[indices.length - 1] = index
         connectedIndices.push(indices.length - 1)
+        vertices.pop()
+      }
+      if (index === -1) {
+        indices.pop()
+        strokeWidthModulations.pop()
         vertices.pop()
       }
 
@@ -206,6 +211,11 @@ export function createGeometryController (tasks, state) {
 
       geometry.ensureActiveSegmentValid()
       stateGeom.activeSegment = null
+    },
+
+    // TODO: Improve name ...
+    completeActiveSegmentPopCursor () {
+      geometry.completeActiveSegment(-1)
     },
 
     ensureActiveSegmentValid () {
@@ -258,6 +268,7 @@ export function createGeometryController (tasks, state) {
     'createSegment',
     'updateActiveSegment',
     'completeActiveSegment',
+    'completeActiveSegmentPopCursor',
     'deleteLastVertex',
     'deleteLastSegment'
   ], geometry, 'geometry')
