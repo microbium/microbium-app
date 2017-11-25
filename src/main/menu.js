@@ -99,6 +99,24 @@ export function createMenuTemplate (app, actions) {
             actions.togglePalette()
           }
         },
+        {
+          id: 'status-on',
+          label: 'Show Status',
+          accelerator: 'Cmd+/',
+          click () {
+            actions.toggleStatus()
+          }
+        },
+        {
+          id: 'status-off',
+          label: 'Hide Status',
+          accelerator: 'Cmd+/',
+          enabled: false,
+          visible: false,
+          click () {
+            actions.toggleStatus()
+          }
+        },
         {type: 'separator'},
         {role: 'togglefullscreen'}
       ]

@@ -105,6 +105,12 @@ function createMenu () {
         // toggleMenuItem('simulation')
       }
     },
+    toggleStatus () {
+      if (appWindows.main && appWindows.main.isFocused()) {
+        sendWindowMessage('main', 'key-command', {code: 'Cmd+/'})
+        toggleMenuItem('status')
+      }
+    },
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})

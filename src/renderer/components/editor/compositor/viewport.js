@@ -25,6 +25,10 @@ export function createViewportController (tasks, state) {
       }
     },
 
+    toggleStats () {
+      state.viewport.showStats = !state.viewport.showStats
+    },
+
     projectScreen (screen) {
       const { center, offset, scale } = state.viewport
       vec2.sub(screen, screen, center)
@@ -71,7 +75,6 @@ export function createViewportController (tasks, state) {
       const { code } = event
       const stateDrag = state.drag
       const stateInput = state.input
-      const stateViewport = state.viewport
 
       switch (code) {
         case 'AltLeft':
@@ -84,9 +87,6 @@ export function createViewportController (tasks, state) {
           break
         case 'ShiftLeft':
           stateInput.shift = false
-          break
-        case 'Backquote':
-          stateViewport.showStats = !stateViewport.showStats
           break
       }
     },
@@ -108,6 +108,9 @@ export function createViewportController (tasks, state) {
           break
         case 'Cmd+Backspace':
           requestSync('geometry.deleteLastSegment')
+          break
+        case 'Cmd+/':
+          viewport.toggleStats()
           break
       }
     },
