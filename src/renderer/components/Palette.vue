@@ -14,7 +14,10 @@
         <h2 slot="title">Style Layers</h2>
         <palette-group v-for="style in styles"
           :key="style.index" nested :open="style.index == 0">
-          <h2 slot="title">{{ style.name }}</h2>
+          <h2 slot="title">
+            {{ style.name }}
+            <input-text v-model="style.name" />
+          </h2>
           <palette-style :model="style"
             :textures="textures"
             :alphaTextures="alphaTextures"
@@ -46,6 +49,8 @@ $base-color: rgba(#000, 0.15);
   cursor: default;
 
   h2 {
+    position: relative;
+    display: inline-block;
     font-size: 1em;
     font-weight: inherit;
   }
@@ -117,6 +122,7 @@ $base-color: rgba(#000, 0.15);
 <script>
 import { createControlsState } from '@/store/modules/Palette'
 
+import InputText from '@/components/input/Text'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
@@ -126,6 +132,7 @@ export default {
   name: 'palette',
 
   components: {
+    InputText,
     PaletteGroup,
     PaletteStyle,
     PaletteTool,

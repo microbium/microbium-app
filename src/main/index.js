@@ -98,15 +98,21 @@ function createMenu () {
       })
     },
     toggleSimulation () {
-      sendWindowMessage('main', 'key-command', {code: 'Space'})
-      // FIXME: Inconsistent key input capturing after toggling menu item state
-      // toggleMenuItem('simulation')
+      if (appWindows.main && appWindows.main.isFocused()) {
+        sendWindowMessage('main', 'key-command', {code: 'Space'})
+        // FIXME: Inconsistent key input capturing after toggling menu item state
+        // toggleMenuItem('simulation')
+      }
     },
     deleteLastSegment () {
-      sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
+      if (appWindows.main && appWindows.main.isFocused()) {
+        sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
+      }
     },
     deleteLastVertex () {
-      sendWindowMessage('main', 'key-command', {code: 'Backspace'})
+      if (appWindows.main && appWindows.main.isFocused()) {
+        sendWindowMessage('main', 'key-command', {code: 'Backspace'})
+      }
     },
     togglePalette () {
       toggleWindow('palette')
@@ -179,24 +185,10 @@ function createMainWindow () {
 
   createSceneMenuItem.enabled = false
   main.loadURL(mainURL)
-
-  let paletteIsHidden = false
-  main.on('focus', () => {
-    if (DEBUG_PALETTE) return
-    if (paletteIsHidden && appWindows.palette) {
-      appWindows.palette.show()
-      paletteIsHidden = false
-    }
-  })
-  main.on('blur', () => {
-    if (DEBUG_PALETTE) return
-    if (appWindows.palette) {
-      appWindows.palette.hide()
-      paletteIsHidden = true
-    }
-  })
-
   ipcMain.on('main-message', onMessage)
+  main.on('focus', onWindowFocus)
+  main.on('blur', onWindowBlur)
+
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
     createSceneMenuItem.enabled = true
@@ -222,7 +214,7 @@ function createPaletteWindow (displaySize) {
     minHeight: 600,
     backgroundColor: DEBUG_PALETTE ? '#444444' : null,
     frame: DEBUG_PALETTE,
-    focusable: DEBUG_PALETTE,
+    focusable: true,
     resizable: true,
     minimizable: false,
     maximizable: false,
@@ -240,6 +232,8 @@ function createPaletteWindow (displaySize) {
   })
 
   palette.loadURL(paletteURL)
+  palette.on('blur', onWindowBlur)
+
   palette.once('ready-to-show', () => {
     palette.show()
 
@@ -251,6 +245,20 @@ function createPaletteWindow (displaySize) {
   palette.on('closed', () => {
     appWindows.palette = null
   })
+}
+
+let paletteIsHidden = false
+function onWindowFocus () {
+  if (paletteIsHidden && appWindows.palette) {
+    appWindows.palette.show()
+    paletteIsHidden = false
+  }
+}
+function onWindowBlur () {
+  if (appWindows.palette && !BrowserWindow.getFocusedWindow()) {
+    appWindows.palette.hide()
+    paletteIsHidden = true
+  }
 }
 
 function createStartWindows () {
