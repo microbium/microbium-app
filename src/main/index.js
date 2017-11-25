@@ -55,6 +55,7 @@ const paletteURL = IS_DEV
   : `file://${__dirname}/index.html#/palette`
 
 const store = new Store()
+let appShouldQuit = false
 
 function createMenu () {
   if (appMenus.main !== null) return
@@ -120,6 +121,10 @@ function createMenu () {
     },
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
+    },
+    quit () {
+      appShouldQuit = true
+      app.quit()
     }
   })
 
@@ -216,7 +221,7 @@ function createPaletteWindow (displaySize) {
     frame: DEBUG_PALETTE,
     focusable: true,
     resizable: true,
-    closable: false,
+    closable: true, // FIXME: Setting false prevents app quit ...
     minimizable: false,
     maximizable: false,
     fullscreen: false,
@@ -236,22 +241,28 @@ function createPaletteWindow (displaySize) {
   palette.on('blur', onWindowBlur)
 
   palette.once('ready-to-show', () => {
-    palette.show()
-
+    palette.showInactive()
     ipcMain.on('palette-message', (event, data) => {
       sendWindowMessage('palette', 'message', data)
     })
   })
 
+  palette.on('close', (event) => {
+    if (appShouldQuit) return
+    event.preventDefault()
+    toggleWindow('palette')
+    toggleMenuItem('palette')
+  })
   palette.on('closed', () => {
     appWindows.palette = null
   })
 }
 
+// FIXME: Hiding palette when opening new scene window
 let paletteIsHidden = false
 function onWindowFocus () {
   if (paletteIsHidden && appWindows.palette) {
-    appWindows.palette.show()
+    appWindows.palette.showInactive()
     paletteIsHidden = false
   }
 }

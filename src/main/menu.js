@@ -127,7 +127,13 @@ export function createMenuTemplate (app, actions) {
         {role: 'hideothers'},
         {role: 'unhide'},
         {type: 'separator'},
-        {role: 'quit'}
+        {
+          label: 'Quit Bacterium',
+          accelerator: 'Cmd+Q',
+          click () {
+            actions.quit()
+          }
+        }
       ]
     })
 
