@@ -7,7 +7,9 @@
       <palette-group open>
         <h2 slot="title">Line Tool</h2>
         <palette-tool :model="lineTool"
-          :styles="styles" :inputModTypes="inputModTypes" />
+          :styles="styles"
+          :inputModTypes="inputModTypes"
+          :physicsTypes="physicsTypes" />
       </palette-group>
 
       <palette-group open>

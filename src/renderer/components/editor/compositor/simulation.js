@@ -39,23 +39,33 @@ export function createSimulationController (tasks, state, renderer) {
         system.setPosition(i, vert[0], vert[1], 0)
       })
 
-      // NOTE: First base segment is pinned to center
-      segments[0].indices.slice(1).forEach((index) => {
-        const position = system.getPosition(index, [])
-        const pin = PointConstraint.create(position, index)
-        system.addPinConstraint(pin)
-      })
+      segments.forEach((segment) => {
+        const { indices, physicsTypeIndex, isClosed } = segment
 
-      segments.slice(1).forEach((segment) => {
-        const lines = tasks.requestSync('geometry.expandIndicesToLines', segment.indices)
-        lines.forEach((line) => {
-          const distance = vec2.distance(
-            vertices[line[0]],
-            vertices[line[1]])
-          const constraint = DistanceConstraint.create(
-            [distance * 0.95, distance], line)
-          system.addConstraint(constraint)
-        })
+        switch (physicsTypeIndex) {
+          // Static (pinned) segment
+          case 0:
+            indices.forEach((index, i) => {
+              if (isClosed && i === 0) return
+              const position = system.getPosition(index, [])
+              const pin = PointConstraint.create(position, index)
+              system.addPinConstraint(pin)
+            })
+            break
+
+          // Dynamic segment
+          case 1:
+            const lines = simulation.expandIndicesToLines(indices)
+            lines.forEach((line) => {
+              const distance = vec2.distance(
+                vertices[line[0]],
+                vertices[line[1]])
+              const constraint = DistanceConstraint.create(
+                [distance * 0.95, distance], line)
+              system.addConstraint(constraint)
+            })
+            break
+        }
       })
 
       const bounds = BoundingPlaneConstraint.create(
@@ -86,6 +96,15 @@ export function createSimulationController (tasks, state, renderer) {
         diffusor,
         rotator
       })
+    },
+
+    expandIndicesToLines (indices) {
+      return indices.slice(0, -1).reduce((all, v, i) => {
+        const a = indices[i]
+        const b = indices[i + 1]
+        all.push([a, b])
+        return all
+      }, [])
     },
 
     destroy () {

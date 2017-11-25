@@ -84,6 +84,7 @@ export function createGeometryController (tasks, state) {
         strokeAlpha: 0.95,
         strokeWidthMod: 0,
         inputModTypeIndex: 0,
+        physicsTypeIndex: 0,
         styleIndex: 0
       })
 
@@ -105,7 +106,7 @@ export function createGeometryController (tasks, state) {
       const { segments, vertices } = stateGeom
       const {
         strokeWidth, strokeColor, strokeAlpha,
-        styleIndex
+        physicsTypeIndex, styleIndex
       } = state.controls.lineTool
 
       const isConnected = index != null
@@ -122,6 +123,7 @@ export function createGeometryController (tasks, state) {
         strokeWidth,
         strokeColor,
         strokeAlpha,
+        physicsTypeIndex,
         styleIndex
       }
 
@@ -248,20 +250,10 @@ export function createGeometryController (tasks, state) {
       const lastSegment = segments.pop()
       const vertCount = lastSegment.indices.length - lastSegment.connectedIndices.length
       vertices.splice(-vertCount, vertCount)
-    },
-
-    expandIndicesToLines (indices) {
-      return indices.slice(0, -1).reduce((all, v, i) => {
-        const a = indices[i]
-        const b = indices[i + 1]
-        all.push([a, b])
-        return all
-      }, [])
     }
   }
 
   tasks.registerResponders([
-    'expandIndicesToLines',
     'findClosestPoint',
     'createSegment',
     'updateActiveSegment',

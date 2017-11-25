@@ -6,6 +6,7 @@ export function createControlsState () {
       strokeAlpha: 1,
       strokeWidthMod: 0,
       inputModTypeIndex: 1,
+      physicsTypeIndex: 1,
       styleIndex: 0
     },
 
@@ -21,6 +22,17 @@ export function createControlsState () {
       {
         index: 2,
         name: 'Pen Pressure'
+      }
+    ],
+
+    physicsTypes: [
+      {
+        index: 0,
+        name: 'Static'
+      },
+      {
+        index: 1,
+        name: 'Dynamic'
       }
     ],
 

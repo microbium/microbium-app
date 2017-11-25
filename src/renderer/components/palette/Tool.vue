@@ -38,6 +38,18 @@
 
     <div class="palette-item">
       <div class="palette-item__label">
+        <b>{{ physicsTypeName }}
+          <input-select v-model="model.physicsTypeIndex">
+            <option v-for="type in physicsTypes" :value="type.index">
+              {{ type.name }}
+            </option>
+          </input-select>
+        </b> physics body
+      </div>
+    </div>
+
+    <div class="palette-item">
+      <div class="palette-item__label">
         <b>{{ strokeStyleName }}
           <input-select v-model="model.styleIndex">
             <option v-for="style in styles" :value="style.index">
@@ -72,7 +84,8 @@ export default {
   props: {
     model: Object,
     styles: Array,
-    inputModTypes: Array
+    inputModTypes: Array,
+    physicsTypes: Array
   },
 
   computed: {
@@ -94,6 +107,11 @@ export default {
     strokeStyleName () {
       const style = this.styles[this.model.styleIndex]
       return style.name
+    },
+
+    physicsTypeName () {
+      const type = this.physicsTypes[this.model.physicsTypeIndex]
+      return type.name
     }
   }
 }
