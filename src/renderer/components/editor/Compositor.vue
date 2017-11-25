@@ -358,7 +358,7 @@ function mountCompositor ($el, $refs, $electron) {
         state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
         view.renderClearRect(
-          (isRunning ? 0.65 : 0.7),
+          (isRunning ? 0.85 : 0.7),
           (didResize ? 1 : (isRunning ? 0.025 : 0.2)))
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
@@ -385,7 +385,7 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: isRunning ? 0.4 : 0.3,
+          bloomIntensity: isRunning ? 0.5 : 0.65,
           noiseIntensity: isRunning ? 0.125 : 0.0,
           tick,
           resolution
