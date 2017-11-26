@@ -55,7 +55,7 @@
     padding: 11px 0;
     width: 240px;
 
-    color: rgba(#98EAFE, 0.5);
+    color: rgba(49,64,68,0.95);
     font-size: 14px;
     text-align: center;
     cursor: default;
