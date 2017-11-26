@@ -33,6 +33,23 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.saveScene(false)
           }
+        },
+        {type: 'separator'},
+        {
+          id: 'start-screen-recording',
+          label: 'Start Screen Recording',
+          enabled: true,
+          click () {
+            actions.startScreenRecording()
+          }
+        },
+        {
+          id: 'stop-screen-recording',
+          label: 'Stop Screen Recording',
+          enabled: false,
+          click () {
+            actions.stopScreenRecording()
+          }
         }
       ]
     },

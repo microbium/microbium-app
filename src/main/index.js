@@ -10,13 +10,17 @@ import {
   Menu
 } from 'electron'
 import Store from 'electron-store'
+import createVideoRecorder from '@jpweeks/electron-recorder'
 
 import {
   readFile,
-  writeFile
+  writeFile,
+  rename as renameFile
 } from 'fs-extra'
 import {
-  basename
+  basename,
+  dirname,
+  join as pathJoin
 } from 'path'
 
 import { createMessageSocket } from './io/socket'
@@ -57,6 +61,10 @@ const paletteURL = IS_DEV
 const store = new Store()
 let appShouldQuit = false
 
+// ------------------------------------------------------------
+// Application Menu
+// ----------------
+
 function createMenu () {
   if (appMenus.main !== null) return
 
@@ -64,6 +72,12 @@ function createMenu () {
     {
       name: 'Bacterium Scene',
       extensions: ['bctm']
+    }
+  ]
+  const videoTypeFilters = [
+    {
+      name: 'Videos',
+      extensions: ['mov']
     }
   ]
 
@@ -132,6 +146,24 @@ function createMenu () {
     },
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
+    },
+    startScreenRecording () {
+      setMenuState('start-screen-recording', 'enabled', false)
+      setMenuState('stop-screen-recording', 'enabled', true)
+      startWindowScreenRecording('main')
+    },
+    stopScreenRecording () {
+      setMenuState('start-screen-recording', 'enabled', true)
+      setMenuState('stop-screen-recording', 'enabled', false)
+      stopWindowScreenRecording('main')
+        .then((recording) => {
+          dialog.showSaveDialog(null, {
+            filters: videoTypeFilters
+          }, (fileName) => {
+            if (!fileName) return
+            saveScreenRecording(recording, fileName)
+          })
+        })
     }
   })
 
@@ -139,35 +171,9 @@ function createMenu () {
   Menu.setApplicationMenu(menu)
 }
 
-function openSceneFile (path) {
-  readFile(path, 'utf8')
-    .then((data) => {
-      setMenuState('simulation-toggle', 'checked', false)
-      setWindowFilePath('main', path)
-      sendWindowMessage('main', 'deserialize-scene', data)
-    })
-}
-
-function saveSceneFile (path) {
-  requestWindowResponse('main', 'serialize-scene', null)
-    .then((data) => JSON.stringify(data))
-    .then((str) => writeFile(path, str))
-    .then(() => {
-      setWindowFilePath('main', path)
-      console.log(`Saved scene to ${path}.`)
-    })
-    .catch((err) => {
-      throw err
-    })
-}
-
-function restoreLastSession () {
-  ipcMain.on('main-started', () => {
-    const openScenePath = store.get('openScenePath')
-    if (!openScenePath) return
-    openSceneFile(openScenePath)
-  })
-}
+// ------------------------------------------------------------
+// Main Window
+// -----------
 
 function createMainWindow () {
   if (appWindows.main !== null) return
@@ -207,6 +213,10 @@ function createMainWindow () {
     appWindows.main = null
   })
 }
+
+// ------------------------------------------------------------
+// Palette Window
+// --------------
 
 function createPaletteWindow (displaySize) {
   if (appWindows.palette !== null) return
@@ -264,6 +274,10 @@ function createPaletteWindow (displaySize) {
     appWindows.palette = null
   })
 }
+
+// ------------------------------------------------------------
+// Window Management
+// -----------------
 
 // FIXME: Hiding palette when opening new scene window
 let paletteIsHidden = false
@@ -329,8 +343,101 @@ function requestWindowResponse (name, messageKey, messageData) {
   })
 }
 
+// ------------------------------------------------------------
+// Scene Persistence
+// -----------------
+
+function openSceneFile (path) {
+  readFile(path, 'utf8')
+    .then((data) => {
+      setMenuState('simulation-toggle', 'checked', false)
+      setWindowFilePath('main', path)
+      sendWindowMessage('main', 'deserialize-scene', data)
+    })
+}
+
+function saveSceneFile (path) {
+  requestWindowResponse('main', 'serialize-scene', null)
+    .then((data) => JSON.stringify(data))
+    .then((str) => writeFile(path, str))
+    .then(() => {
+      setWindowFilePath('main', path)
+      console.log(`Saved scene to ${path}.`)
+    })
+    .catch((err) => {
+      throw err
+    })
+}
+
+function restoreLastSession () {
+  ipcMain.on('main-started', () => {
+    const openScenePath = store.get('openScenePath')
+    if (!openScenePath) return
+    openSceneFile(openScenePath)
+  })
+}
+
+// ------------------------------------------------------------
+// Screen Recording
+// ----------------
+
+const activeRecordings = {}
+function startWindowScreenRecording (name) {
+  const win = appWindows[name]
+  if (!win || activeRecordings[name]) {
+    return Promise.reject(
+      new Error(`window ${name} does not exist or recording has started`))
+  }
+
+  const output = pathJoin(dirname(store.path), 'temp-output.mov')
+  const video = createVideoRecorder(win, {
+    fps: 24,
+    quality: 100,
+    format: 'mov',
+    output
+  })
+  const recording = activeRecordings[name] = {
+    isRecording: true,
+    output,
+    video
+  }
+
+  function frame () {
+    if (recording.isRecording) video.frame(frame)
+    else recording.video.end()
+  }
+  frame()
+
+  return Promise.resolve(recording)
+}
+
+function stopWindowScreenRecording (name) {
+  const win = appWindows[name]
+  const recording = activeRecordings[name]
+  if (!(win && recording)) {
+    return Promise.reject(
+      new Error(`window ${name} does not exist or recording has not started`))
+  }
+
+  recording.isRecording = false
+  activeRecordings[name] = null
+
+  return Promise.resolve(recording)
+}
+
+function saveScreenRecording (recording, fileName) {
+  renameFile(recording.output, fileName)
+}
+
+// ------------------------------------------------------------
+// Menu State
+// ----------
+
 function setMenuState (name, key, value) {
   const item = appMenus.main.getMenuItemById(name)
+  if (!item) {
+    throw new Error(`Menu item ${name} does not exist`)
+  }
   item[key] = value
 }
 
@@ -348,6 +455,8 @@ function toggleMenuItem (name) {
     menuItemOff.visible = menuItemOff.enabled = true
   }
 }
+
+// ------------------------------------------------------------
 
 ipcMain.on('external-message', (event, data) => {
   if (!ENABLE_IPC_EXTERNAL) return
