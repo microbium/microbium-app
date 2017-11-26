@@ -391,6 +391,8 @@ function startWindowScreenRecording (name) {
 
   const output = pathJoin(dirname(store.path), 'temp-output.mov')
   const video = createVideoRecorder(win, {
+    // FIXME: Path is wrong in built app
+    ffmpeg: '/usr/local/bin/ffmpeg',
     fps: 24,
     quality: 100,
     format: 'mov',
