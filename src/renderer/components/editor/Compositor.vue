@@ -131,9 +131,9 @@ function mountCompositor ($el, $refs, $electron) {
   const io = createIOController(tasks, state)
 
   function createRenderer () {
+    const canvas = document.createElement('canvas')
     const regl = createREGL({
-      container: containers.scene,
-      pixelRatio: state.viewport.pixelRatio,
+      canvas,
       extensions: [
         // 'angle_instanced_arrays',
         'OES_standard_derivatives',
@@ -156,8 +156,27 @@ function mountCompositor ($el, $refs, $electron) {
       drawRect: createDrawRect(regl)
     }
 
+    tasks.defer((containers) => {
+      containers.scene.appendChild(canvas)
+      return Promise.resolve()
+    }, 'inject')
+
+    tasks.add((event) => {
+      const { size, resolution } = state.viewport
+      canvas.width = resolution[0]
+      canvas.height = resolution[1]
+      Object.assign(canvas.style, {
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        width: size[0] + 'px',
+        height: size[1] + 'px'
+      })
+    }, 'resize')
+
     return {
       regl,
+      canvas,
       textures,
       postBuffers,
       commands
@@ -288,6 +307,7 @@ function mountCompositor ($el, $refs, $electron) {
       })
     },
 
+    // FEAT: Enable screen capture / video export
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
