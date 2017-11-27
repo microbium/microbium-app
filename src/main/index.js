@@ -10,6 +10,7 @@ import {
   Menu
 } from 'electron'
 import Store from 'electron-store'
+import log from 'electron-log'
 import createVideoRecorder from '@jpweeks/electron-recorder'
 
 import {
@@ -31,6 +32,7 @@ import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
+const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
 const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
@@ -42,6 +44,8 @@ const DEBUG_PALETTE = false
 if (!IS_DEV) {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
+log.transports.file.level = LOG_LEVEL_FILE
 
 const ipcExternal = ENABLE_IPC_EXTERNAL
   ? createMessageSocket(41234, 'localhost')
@@ -63,6 +67,7 @@ const paletteURL = IS_DEV
   : `file://${__dirname}/index.html#/palette`
 
 const store = new Store()
+let appIsReady = false
 let appShouldQuit = false
 
 // ------------------------------------------------------------
@@ -359,6 +364,9 @@ function openSceneFile (path) {
       setWindowFilePath('main', path)
       sendWindowMessage('main', 'deserialize-scene', data)
     })
+    .catch((err) => {
+      log.error(err)
+    })
 }
 
 function saveSceneFile (path) {
@@ -371,7 +379,7 @@ function saveSceneFile (path) {
       console.log(`Saved scene to ${path}.`)
     })
     .catch((err) => {
-      throw err
+      log.error(err)
     })
 }
 
@@ -476,6 +484,13 @@ ipcMain.on('toggle-window', (event, data) => {
   toggleMenuItem('palette')
 })
 
+app.on('open-file', (event, fileName) => {
+  log.info('open-file', fileName)
+  store.set('openScenePath', fileName)
+  if (!appIsReady) return
+  if (!appWindows.main) createMainWindow()
+  else openSceneFile(fileName)
+})
 app.on('before-quit', () => {
   appShouldQuit = true
 })
@@ -485,7 +500,10 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('ready', createStartWindows)
+app.on('ready', () => {
+  appIsReady = true
+  createStartWindows()
+})
 app.on('activate', createStartWindows)
 
 app.commandLine.appendSwitch('--ignore-gpu-blacklist')
