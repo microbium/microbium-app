@@ -1,5 +1,32 @@
-import { flatten2, expand2 } from '@/utils/array'
+import { map, flatten2, expand2 } from '@/utils/array'
 import { roundToPlaces } from '@/utils/number'
+
+const ABBRV_KEY = {
+  'sw': 'strokeWidth',
+  'sc': 'strokeColor',
+  'sa': 'strokeAlpha',
+  'sm': 'strokeWidthMod',
+  'mt': 'inputModTypeIndex',
+  'pt': 'physicsTypeIndex',
+  'si': 'styleIndex',
+
+  'ii': 'indices',
+  'ci': 'connectedIndices',
+  'cp': 'curvePrecision',
+  'wm': 'strokeWidthModulations',
+  'cl': 'isClosed',
+  'co': 'isComplete',
+
+  'ge': 'geometry',
+  'cn': 'controls',
+  'sg': 'segments',
+  'vt': 'vertices'
+}
+const KEY_ABBRV = Object.keys(ABBRV_KEY)
+  .reduce((map, key) => {
+    map[ABBRV_KEY[key]] = key
+    return map
+  }, {})
 
 // OPTIM: Maybe use proto-buffers for state serialization
 // https://github.com/mafintosh/protocol-buffers
@@ -8,27 +35,36 @@ export function createIOController (tasks, state) {
 
   const io = {
     serializeScene () {
+      const mapKeys = io.mapKeys.bind(null, KEY_ABBRV)
       const { geometry, controls } = state
-      const segments = geometry.segments
+      const { segments, vertices } = geometry
+
+      const segmentsOut = segments
         .map((seg) => {
           return Object.assign({}, seg, {
             indices: io.serializeArray(seg.indices, 0),
             strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 4)
           })
         })
-      const vertices = io.serializeArray(flatten2(geometry.vertices), 4)
-      return {
-        geometry: {
-          segments,
-          vertices
-        },
+        .map((seg) => mapKeys(seg))
+      const verticesOut = io.serializeArray(flatten2(vertices), 4)
+
+      return mapKeys({
+        geometry: mapKeys({
+          segments: segmentsOut,
+          vertices: verticesOut
+        }),
         controls: Object.assign({}, controls)
-      }
+      })
     },
 
     deserializeScene (json) {
-      const { geometry, controls } = json
-      const segments = geometry.segments
+      const mapKeys = io.mapKeys.bind(null, ABBRV_KEY)
+      const { geometry, controls } = mapKeys(json)
+      const { segments, vertices } = mapKeys(geometry)
+
+      const segmentsOut = segments
+        .map((seg) => mapKeys(seg))
         .map((seg) => {
           return Object.assign({}, seg, {
             indices: new Uint16Array(
@@ -37,15 +73,23 @@ export function createIOController (tasks, state) {
               io.deserializeFloatArray(seg.strokeWidthModulations))
           })
         })
-      const vertices = expand2(
-        io.deserializeFloatArray(geometry.vertices), Float32Array)
+      const verticesOut = expand2(
+        io.deserializeFloatArray(vertices), Float32Array)
+
       return {
         geometry: {
-          segments,
-          vertices
+          segments: segmentsOut,
+          vertices: verticesOut
         },
         controls: Object.assign({}, controls)
       }
+    },
+
+    mapKeys (map, src) {
+      return Object.keys(src).reduce((out, key) => {
+        out[map[key] || key] = src[key]
+        return out
+      }, {})
     },
 
     serializeMinimalGeometry () {
@@ -79,7 +123,7 @@ export function createIOController (tasks, state) {
     },
 
     serializeArray (arr, precision) {
-      return arr.map((n) => roundToPlaces(n, precision))
+      return map(arr, (n) => roundToPlaces(n, precision))
         .join(',')
     },
 

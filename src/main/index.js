@@ -22,6 +22,10 @@ import {
   dirname,
   join as pathJoin
 } from 'path'
+import {
+  deflateSync,
+  inflateSync
+} from 'zlib'
 
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
@@ -348,7 +352,8 @@ function requestWindowResponse (name, messageKey, messageData) {
 // -----------------
 
 function openSceneFile (path) {
-  readFile(path, 'utf8')
+  readFile(path, null)
+    .then((buf) => inflateSync(buf))
     .then((data) => {
       setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
@@ -359,7 +364,8 @@ function openSceneFile (path) {
 function saveSceneFile (path) {
   requestWindowResponse('main', 'serialize-scene', null)
     .then((data) => JSON.stringify(data))
-    .then((str) => writeFile(path, str))
+    .then((str) => deflateSync(str))
+    .then((buf) => writeFile(path, buf))
     .then(() => {
       setWindowFilePath('main', path)
       console.log(`Saved scene to ${path}.`)
