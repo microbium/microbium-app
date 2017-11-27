@@ -58,6 +58,10 @@ const appWindows = {
   main: null,
   palette: null
 }
+const paletteVisibility = {
+  isHidden: false,
+  isHiddenUser: false
+}
 
 const mainURL = IS_DEV
   ? `http://localhost:9080`
@@ -150,6 +154,7 @@ function createMenu () {
       }
     },
     togglePalette () {
+      paletteVisibility.isHiddenUser = !paletteVisibility.isHiddenUser
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
@@ -212,9 +217,11 @@ function createMainWindow () {
 
   createSceneMenuItem.enabled = false
   main.loadURL(mainURL)
-  ipcMain.on('main-message', onMessage)
+  onWindowFocus()
+
   main.on('focus', onWindowFocus)
   main.on('blur', onWindowBlur)
+  ipcMain.on('main-message', onMessage)
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
@@ -276,6 +283,7 @@ function createPaletteWindow (displaySize) {
   palette.on('close', (event) => {
     if (appShouldQuit) return
     event.preventDefault()
+    paletteVisibility.isHiddenUser = !paletteVisibility.isHiddenUser
     toggleWindow('palette')
     toggleMenuItem('palette')
   })
@@ -288,18 +296,18 @@ function createPaletteWindow (displaySize) {
 // Window Management
 // -----------------
 
-// FIXME: Hiding palette when opening new scene window
-let paletteIsHidden = false
 function onWindowFocus () {
-  if (paletteIsHidden && appWindows.palette) {
+  if (paletteVisibility.isHidden &&
+    !paletteVisibility.isHiddenUser &&
+    appWindows.palette) {
     appWindows.palette.showInactive()
-    paletteIsHidden = false
+    paletteVisibility.isHidden = false
   }
 }
 function onWindowBlur () {
   if (appWindows.palette && !BrowserWindow.getFocusedWindow()) {
     appWindows.palette.hide()
-    paletteIsHidden = true
+    paletteVisibility.isHidden = true
   }
 }
 
