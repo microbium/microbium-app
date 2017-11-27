@@ -371,6 +371,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { offset, scale, resolution, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
+      const { postEffects } = state.controls
 
       postBuffers.resize(resolution)
       const sceneBuffer = postBuffers.getWrite()
@@ -379,9 +380,11 @@ function mountCompositor ($el, $refs, $electron) {
       sceneBuffer.use(() => {
         state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
+        // TODO: Improve variable bloom darkness
         view.renderClearRect(
           (isRunning ? 0.85 : 0.7),
-          (didResize ? 1 : (isRunning ? 0.025 : 0.2)))
+          (didResize ? 1 : (!isRunning ? 0.2
+            : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
           scale: scale + zoomOffset
@@ -408,8 +411,10 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: isRunning ? 0.5 : 0.65,
-          noiseIntensity: isRunning ? 0.125 : 0.0,
+          bloomIntensity: (!isRunning ? 0.65
+            : (0.5 * postEffects.bloomIntensityFactor)),
+          noiseIntensity: (!isRunning ? 0.0
+            : (0.06 * postEffects.noiseIntensityFactor)),
           tick,
           resolution
         })

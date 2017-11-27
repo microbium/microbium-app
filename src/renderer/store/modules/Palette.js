@@ -133,6 +133,12 @@ export function createControlsState () {
     modifiers: {
       polarIterations: 3,
       curveSubDivisions: 6
+    },
+
+    postEffects: {
+      clearAlphaFactor: 1,
+      bloomIntensityFactor: 1,
+      noiseIntensityFactor: 1
     }
   }
 }

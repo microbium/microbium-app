@@ -27,9 +27,14 @@
         </palette-group>
       </palette-group>
 
-      <palette-group>
+      <palette-group open>
         <h2 slot="title">Geometry Modifiers</h2>
         <palette-modifiers :model="modifiers" />
+      </palette-group>
+
+      <palette-group open>
+        <h2 slot="title">Post Effects</h2>
+        <palette-effects :model="postEffects" />
       </palette-group>
     </div>
   </div>
@@ -129,6 +134,7 @@ import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
 import PaletteModifiers from '@/components/palette/Modifiers'
+import PaletteEffects from '@/components/palette/Effects'
 
 export default {
   name: 'palette',
@@ -138,7 +144,8 @@ export default {
     PaletteGroup,
     PaletteStyle,
     PaletteTool,
-    PaletteModifiers
+    PaletteModifiers,
+    PaletteEffects
   },
 
   data () {
@@ -178,7 +185,8 @@ export default {
   watch: {
     lineTool: createStateSyncer('lineTool'),
     styles: createStateSyncer('styles'),
-    modifiers: createStateSyncer('modifiers')
+    modifiers: createStateSyncer('modifiers'),
+    postEffects: createStateSyncer('postEffects')
   }
 }
 
