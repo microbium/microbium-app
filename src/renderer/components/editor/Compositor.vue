@@ -1,6 +1,7 @@
 <template>
   <div class="editor-compositor">
     <div class="editor-compositor__scene" ref="scene"></div>
+    <!-- OPTIM: Investigate perf issues with stats rendering -->
     <div class="editor-compositor__stats" v-if="state && state.viewport.showStats">
       <div>resolution: {{ state.viewport.resolution[0] }}w
         {{ state.viewport.resolution[1] }}h
@@ -324,6 +325,7 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
+    // OPTIM: Only update scene geometry when simulating or actively editing
     updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
       const sceneContexts = scene.contexts
@@ -402,6 +404,7 @@ function mountCompositor ($el, $refs, $electron) {
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
+        // FIXME: Noise renders strangely when dev tools panel is open
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
