@@ -5,19 +5,19 @@ Organic creature drawing and simulating toy for macOS.
 
 ## Build Setup
 
-**Install dependencies**
+**Install dependencies**  
 `yarn install`
 
-**Serve with hot reload at `localhost:9080`**
+**Serve with hot reload at `localhost:9080`**  
 `yarn dev`
 
-**Build electron application for production**
+**Build electron application for production**  
 `yarn build`
 
-**Run unit & end-to-end tests**
+**Run unit & end-to-end tests**  
 `yarn test`
 
-**Lint all JS/Vue component files in `src/`**
+**Lint all JS/Vue component files in `src/`**  
 `yarn lint`
 
 
