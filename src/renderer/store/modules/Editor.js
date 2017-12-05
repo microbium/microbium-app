@@ -70,6 +70,8 @@ export function createCompositorState () {
   }
 
   const renderer = {
+    lastRenderHash: null,
+    updateOverlapTick: 0,
     drawCalls: 0,
     fullScreenPasses: 0,
     lineQuads: 0
@@ -87,6 +89,30 @@ export function createCompositorState () {
     renderer,
     controls
   }
+}
+
+export function hashRenderState (state) {
+  return [
+    state.seek.index,
+    vec2Str(state.seek.move),
+    boolStr(state.drag.isDown),
+    vec2Str(state.drag.panOffset),
+    state.drag.zoomOffset,
+    vec2Str(state.viewport.size),
+    vec2Str(state.viewport.offset),
+    state.viewport.scale,
+    state.geometry.segments.length,
+    state.geometry.vertices.length,
+    boolStr(state.simulation.isRunning),
+    state.simulation.tick
+  ].join('-')
+}
+
+function boolStr (bool) {
+  return bool ? '1' : '0'
+}
+function vec2Str (v) {
+  return v[0] + ',' + v[1]
 }
 
 // TODO: Maybe implement some compositor state in observable store

@@ -77,7 +77,10 @@ import {
   createDrawBoxBlur,
   createDrawScreen
 } from '@/draw/commands/screen-space'
-import { createCompositorState } from '@/store/modules/Editor'
+import {
+  createCompositorState,
+  hashRenderState
+} from '@/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
@@ -312,20 +315,26 @@ function mountCompositor ($el, $refs, $electron) {
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
+      const stateRenderer = state.renderer
+      const nextRenderHash = hashRenderState(state)
 
-      state.renderer.drawCalls = 0
-      state.renderer.fullScreenPasses = 0
-      state.renderer.lineQuads = 0
+      stateRenderer.drawCalls = 0
+      stateRenderer.fullScreenPasses = 0
+      stateRenderer.lineQuads = 0
       regl.poll()
 
-      const shouldRender = view.updateRenderableGeometry(tick)
-      if (shouldRender) view.renderScene(tick)
+      const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash
+      const shouldRender = (shouldUpdate || stateRenderer.updateOverlapTick-- > 0) &&
+        view.updateRenderableGeometry(tick)
 
+      if (shouldRender) view.renderScene(tick)
+      if (shouldUpdate) stateRenderer.updateOverlapTick = 20
+
+      stateRenderer.lastRenderHash = nextRenderHash
       state.viewport.didResize = false
     },
 
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
-    // OPTIM: Only update scene geometry when simulating or actively editing
     updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
       const sceneContexts = scene.contexts
