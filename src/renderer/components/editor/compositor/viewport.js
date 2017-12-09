@@ -2,29 +2,8 @@ import { vec2 } from 'gl-matrix'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
-  let containers = null
 
   const viewport = {
-    inject (containers_) {
-      containers = containers_
-      return Promise.resolve()
-    },
-
-    updateClassName () {
-      const { scene } = containers
-      const { isRunning } = state.simulation
-      const simulateClassName = 'mode--simulate'
-      const editClassName = 'mode--edit'
-
-      if (isRunning) {
-        scene.classList.add(simulateClassName)
-        scene.classList.remove(editClassName)
-      } else {
-        scene.classList.add(editClassName)
-        scene.classList.remove(simulateClassName)
-      }
-    },
-
     toggleStats () {
       state.viewport.showStats = !state.viewport.showStats
     },
@@ -97,7 +76,6 @@ export function createViewportController (tasks, state) {
       switch (code) {
         case 'Space':
           requestSync('simulation.toggle')
-          viewport.updateClassName()
           break
         case 'X':
           requestSync('geometry.deleteLastVertex')
@@ -124,7 +102,6 @@ export function createViewportController (tasks, state) {
     }
   }
 
-  tasks.defer(viewport, 'inject')
   tasks.registerResponder('viewport.projectScreen',
     viewport, viewport.projectScreen)
 

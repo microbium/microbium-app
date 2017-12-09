@@ -8,7 +8,7 @@ export function createSeekController (tasks, state) {
     pointerMove (event) {
       const stateSeek = state.seek
       const { activeSegment } = state.geometry
-      const { isDrawing } = state.drag
+      const { shouldNavigate, isDrawing } = state.drag
       const { scale } = state.viewport
       const { move, movePrev } = stateSeek
 
@@ -24,7 +24,7 @@ export function createSeekController (tasks, state) {
       stateSeek.velocity = velocity
       stateSeek.timePrev = time
 
-      if (velocity > 0.2) {
+      if (shouldNavigate || velocity > 0.2) {
         stateSeek.index = null
         return
       }
@@ -143,7 +143,6 @@ export function createDragController (tasks, state) {
     // FEAT: Add damping / improve feel to panning and zooming
     beginPan (down) {},
 
-    // FEAT: Update cursor while grab / panning
     movePan (move, velocity) {
       const { panOffset, down } = state.drag
       const { scale } = state.viewport

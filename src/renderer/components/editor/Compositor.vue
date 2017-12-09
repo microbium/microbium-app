@@ -1,6 +1,6 @@
 <template>
   <div class="editor-compositor">
-    <div class="editor-compositor__scene" ref="scene"></div>
+    <div class="editor-compositor__scene" :class="sceneClassNames" ref="scene"></div>
     <!-- OPTIM: Investigate perf issues with stats rendering -->
     <div class="editor-compositor__stats" v-if="state && state.viewport.showStats">
       <div>resolution: {{ state.viewport.resolution[0] }}w
@@ -27,6 +27,12 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+
+    &.mode--simulate { cursor: none; }
+    &.mode--edit { cursor: crosshair; }
+    &.navigate--will-pan { cursor: -webkit-grab; }
+    &.navigate--pan { cursor: -webkit-grabbing; }
+    &.navigate--will-zoom { cursor: -webkit-zoom-in; }
   }
 
   &__stats {
@@ -45,14 +51,9 @@
       width: 20px;
     }
   }
+
 }
 
-.mode--simulate {
-  cursor: none;
-}
-.mode--edit {
-  cursor: crosshair;
-}
 </style>
 
 <script>
@@ -200,7 +201,6 @@ function mountCompositor ($el, $refs, $electron) {
   const view = {
     inject () {
       tasks.flush('inject', containers).then(() => {
-        viewport.updateClassName()
         viewport.resize()
         view.initGeometry()
         view.bindEvents()
@@ -311,7 +311,6 @@ function mountCompositor ($el, $refs, $electron) {
       })
     },
 
-    // FEAT: Enable screen capture / video export
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
@@ -578,9 +577,25 @@ export default {
   },
 
   computed: {
+    sceneClassNames () {
+      const { state } = this
+      if (!state) return
+      const { simulation, drag } = state
+
+      return {
+        'mode--edit': !simulation.isRunning,
+        'mode--simulate': simulation.isRunning,
+        'navigate--will-pan': drag.shouldNavigate && !drag.shouldZoom,
+        'navigate--pan': drag.isPanning,
+        'navigate--will-zoom': drag.shouldZoom,
+        'navigate--zoom': drag.isZooming
+      }
+    },
+
     pinConstraintCount () {
       return this.countConstraints('pinConstraints') || '-'
     },
+
     localConstraintCount () {
       return this.countConstraints('localConstraints') || '-'
     }
