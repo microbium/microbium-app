@@ -127,6 +127,11 @@ export function createControlsState () {
         index: 2,
         name: 'Concentric Dash',
         dashFunction: 2
+      },
+      {
+        index: 3,
+        name: 'Bulging Dash',
+        dashFunction: 3
       }
     ],
 

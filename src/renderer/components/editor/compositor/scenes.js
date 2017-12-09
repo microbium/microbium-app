@@ -23,17 +23,22 @@ export function createScene (tasks, state, renderer) {
     },
     color: [0, 0, 0, 0]
   }
+
   const alphaMapOpts = {
     min: 'nearest',
     mag: 'nearest',
     wrap: ['clamp', 'repeat'],
     format: 'rgb'
   }
+
   const uniforms = {
     angle: regl.prop('angle'),
     angleAlpha: regl.prop('angleAlpha'),
+
+    tick: regl.prop('tick'),
     dashFunction: regl.prop('dashFunction'),
     tint: regl.prop('tint'),
+
     // FEAT: Add multiple screen space tinting functions
     useScreenTintFunc: regl.prop('useScreenTintFunc'),
     diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),

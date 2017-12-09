@@ -465,7 +465,7 @@ function mountCompositor ($el, $refs, $electron) {
 
     renderLines () {
       const { contexts } = scene
-      const { isRunning } = state.simulation
+      const { isRunning, tick } = state.simulation
       const { polarIterations } = state.controls.modifiers
       const { styles, textures, alphaTextures, alphaFunctions } = state.controls
 
@@ -500,6 +500,7 @@ function mountCompositor ($el, $refs, $electron) {
           return {
             angle: index * polarStep,
             angleAlpha: index === 0 ? 1 : polarAlpha,
+            tick,
             model,
             diffuseMap: diffuseMap.path,
             alphaMap: alphaMap.path,
