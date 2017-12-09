@@ -322,7 +322,8 @@ function mountCompositor ($el, $refs, $electron) {
       stateRenderer.lineQuads = 0
       regl.poll()
 
-      const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash
+      const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash ||
+        stateRenderer.needsUpdate
       const shouldRender = (shouldUpdate || stateRenderer.updateOverlapTick-- > 0) &&
         view.updateRenderableGeometry(tick)
 
@@ -330,6 +331,7 @@ function mountCompositor ($el, $refs, $electron) {
       if (shouldUpdate) stateRenderer.updateOverlapTick = 20
 
       stateRenderer.lastRenderHash = nextRenderHash
+      stateRenderer.needsUpdate = false
       state.viewport.didResize = false
     },
 

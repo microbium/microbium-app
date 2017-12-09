@@ -97,6 +97,7 @@ export function createViewportController (tasks, state) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value
+          state.renderer.needsUpdate = true
           break
       }
     }
