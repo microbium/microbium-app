@@ -19,37 +19,9 @@ varying vec4 vColor;
 varying vec3 vUDO;
 
 #pragma glslify: lineAntialiasAlpha = require(./line-antialias-alpha, fwidth=fwidth)
-
-float radialDash (vec2 coord, float steps, float scale, float thickness) {
-  float rcoord = atan(coord.x, coord.y) * steps / PI * scale;
-  float line = abs(fract(rcoord - 0.5) - 0.5) / fwidth(rcoord);
-  float rthickness = thickness * length(coord) / steps;
-  return rthickness - min(line, rthickness);
-}
-
-float concentricDash (vec2 coord, float scale, float thickness) {
-  float rcoord = length(coord) * scale;
-  float line = abs(fract(rcoord - 0.5) - 0.5) / fwidth(rcoord);
-  return thickness - min(line, thickness);
-}
-
-float bulgingDash (
-  vec3 udo,
-  float repeat, float offset,
-  float shapeStart, float shapeEnd
-) {
-  vec2 coord = vec2(
-    (udo.x + 1.0) * 0.5,
-    sin((udo.y - offset) * 0.2) * 0.5 + 0.5);
-
-  float lineWidth = max(0.0, sin(coord.x * PI)) *
-    (1.0 - sin(coord.x * PI) * 0.25);
-  float lineStep = sin((coord.y * PI) * repeat) *
-    (shapeEnd - shapeStart) + shapeStart;
-  float line = pow(smoothstep(1.0 - lineWidth, 1.0, lineStep), 0.5);
-
-  return smoothstep(0.0, 1.0, line);
-}
+#pragma glslify: radialDash = require(./alpha/radial-dash, fwidth=fwidth, PI=PI)
+#pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
+#pragma glslify: bulgingDash = require(./alpha/bulging-dash, fwidth=fwidth, PI=PI)
 
 void main() {
   vec2 fragCoord = gl_FragCoord.xy;
@@ -82,7 +54,7 @@ void main() {
   } else if (dashFunction == 2) {
     outAlpha *= concentricDash(position, 0.1, 3.0);
   } else if (dashFunction == 3) {
-    outAlpha *= bulgingDash(udo, 2.0, tick, 0.4, 1.0);
+    outAlpha *= bulgingDash(udo, 1.5, -tick * 0.5, 0.35, 0.9);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);
