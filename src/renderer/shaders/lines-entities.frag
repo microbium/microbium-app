@@ -23,6 +23,13 @@ varying vec3 vUDO;
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: bulgingDash = require(./alpha/bulging-dash, fwidth=fwidth, PI=PI)
 
+float sampleAlphaMap (vec3 udo, sampler2D map) {
+  vec2 coords = vec2(
+    abs(udo.x),
+    fract(udo.y / 40.0) * 0.8 + 0.1);
+  return texture2D(map, coords).r; // * smoothstep(0.0, 2.0, 1.0 - coords.x);
+}
+
 void main() {
   vec2 fragCoord = gl_FragCoord.xy;
   vec2 fragCenter = fragCoord - viewResolution * 0.5;
@@ -42,11 +49,7 @@ void main() {
   }
 
   if (useAlphaMap == 1) {
-    vec2 alphaMapCoords = vec2(
-      abs(udo.x),
-      fract(udo.y / 40.0) * 0.8 + 0.1);
-    float alphaMapValue = texture2D(alphaMap, alphaMapCoords).r;
-    outAlpha *= alphaMapValue;// * smoothstep(0.0, 2.0, 1.0 - alphaMapCoords.x);
+    outAlpha *= sampleAlphaMap(udo, alphaMap);
   }
 
   if (dashFunction == 1) {

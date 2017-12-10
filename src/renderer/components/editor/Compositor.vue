@@ -51,9 +51,7 @@
       width: 20px;
     }
   }
-
 }
-
 </style>
 
 <script>
@@ -392,7 +390,7 @@ function mountCompositor ($el, $refs, $electron) {
         // TODO: Tween between clear states
         // TODO: Improve variable bloom darkness
         view.renderClearRect(
-          (isRunning ? 0.85 : 0.7),
+          (isRunning ? 0.85 : 0.75),
           (didResize ? 1 : (!isRunning ? 0.2
             : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
@@ -421,7 +419,7 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: sceneBuffer,
           bloom: fxBuffer,
-          bloomIntensity: (!isRunning ? 0.65
+          bloomIntensity: (!isRunning ? 0.4
             : (0.5 * postEffects.bloomIntensityFactor)),
           noiseIntensity: (!isRunning ? 0.0
             : (0.06 * postEffects.noiseIntensityFactor)),

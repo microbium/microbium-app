@@ -95,8 +95,8 @@ export function createCompositorState () {
 export function hashRenderState (state) {
   return [
     state.seek.index,
-    vec2Str(state.seek.move),
     boolStr(state.drag.isDown),
+    vec2Str(state.drag.move),
     vec2Str(state.drag.panOffset),
     state.drag.zoomOffset,
     vec2Str(state.viewport.size),

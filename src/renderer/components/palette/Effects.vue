@@ -1,19 +1,19 @@
 <template>
   <div class="palette-effects">
     <div class="palette-item">
-      <input-range min="0" max="2" step="0.1" v-model="model.clearAlphaFactor" />
+      <input-range min="0" max="2" step="0.05" v-model="model.clearAlphaFactor" />
       <div class="palette-item__label">
         <b>{{ clearAlphaName }}</b> clear alpha
       </div>
     </div>
     <div class="palette-item">
-      <input-range min="0" max="3" step="0.1" v-model="model.bloomIntensityFactor" />
+      <input-range min="0" max="2" step="0.05" v-model="model.bloomIntensityFactor" />
       <div class="palette-item__label">
         <b>{{ bloomFactorName }}</b> bloom intensity
       </div>
     </div>
     <div class="palette-item">
-      <input-range min="0" max="5" step="0.1" v-model="model.noiseIntensityFactor" />
+      <input-range min="0" max="5" step="0.05" v-model="model.noiseIntensityFactor" />
       <div class="palette-item__label">
         <b>{{ noiseFactorName }}</b> noise intensity
       </div>
@@ -42,17 +42,17 @@ export default {
   computed: {
     clearAlphaName () {
       const { clearAlphaFactor } = this.model
-      return `${roundToPlaces(clearAlphaFactor, 1)}x`
+      return `${roundToPlaces(clearAlphaFactor, 2)}x`
     },
 
     bloomFactorName () {
       const { bloomIntensityFactor } = this.model
-      return `${roundToPlaces(bloomIntensityFactor, 1)}x`
+      return `${roundToPlaces(bloomIntensityFactor, 2)}x`
     },
 
     noiseFactorName () {
       const { noiseIntensityFactor } = this.model
-      return `${roundToPlaces(noiseIntensityFactor, 1)}x`
+      return `${roundToPlaces(noiseIntensityFactor, 2)}x`
     }
   }
 }

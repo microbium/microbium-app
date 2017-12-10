@@ -13,7 +13,7 @@ export function createGeometryController (tasks, state) {
       }
       const linkSizeAvg = segmentLength / (indices.length - 1)
       return clamp(0, 1,
-        mapLinear(4, 120, 0, 1, linkSizeAvg || 0))
+        mapLinear(12, 120, 0, 1, linkSizeAvg || 0))
     },
 
     // NOTE: Map storke modulation to range [-1, 1] from active input type
