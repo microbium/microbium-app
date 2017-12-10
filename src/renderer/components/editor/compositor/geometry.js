@@ -5,17 +5,15 @@ import { clamp, mapLinear } from '@/utils/math'
 
 export function createGeometryController (tasks, state) {
   const geometry = {
-    // TODO: Improve curve precision mapping
     computeCurvePrecision: function (vertices, indices) {
       let segmentLength = 0
       for (let i = 0; i < indices.length - 1; i++) {
         segmentLength += vec2.distance(
           vertices[indices[i]], vertices[indices[i + 1]])
       }
-
       const linkSizeAvg = segmentLength / (indices.length - 1)
-      return Math.round(clamp(0, 1,
-        mapLinear(12, 120, 0, 1, linkSizeAvg)))
+      return clamp(0, 1,
+        mapLinear(4, 120, 0, 1, linkSizeAvg || 0))
     },
 
     // NOTE: Map storke modulation to range [-1, 1] from active input type

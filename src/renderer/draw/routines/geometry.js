@@ -27,7 +27,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
-    const curvePrecision = segment.curvePrecision * curveSubDivisions
+    const curvePrecision = Math.round(segment.curvePrecision * curveSubDivisions)
     const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 0.25
 
     ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
@@ -65,9 +65,10 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     } = segment
 
     const count = isClosed ? indices.length - 1 : indices.length
-    const curvePrecision = segment.curvePrecision * curveSubDivisions
+    const curvePrecision = Math.round(segment.curvePrecision * curveSubDivisions)
     if (count < 2 || curvePrecision <= 1) continue
 
+    // OPTIM: Reduce data transformations needed to draw curves
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
     const points = map(indices, (i) => vertices[i])
