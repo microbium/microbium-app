@@ -34,10 +34,11 @@ export function createCompositorState () {
     upTimeLast: 0
   }
 
+  // TODO: Expose pixelRatio setting to user
   const viewport = {
     showStats: false,
     didResize: false,
-    pixelRatio: (window.devicePixelRatio || 1),
+    pixelRatio: Math.min(1.5, (window.devicePixelRatio || 1)),
     size: vec2.create(),
     resolution: vec2.create(),
     center: vec2.create(),
