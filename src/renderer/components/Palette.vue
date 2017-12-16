@@ -12,7 +12,7 @@
           :physicsTypes="physicsTypes" />
       </palette-group>
 
-      <palette-group open>
+      <palette-group>
         <h2 slot="title">Style Layers</h2>
         <palette-group v-for="style in styles"
           :key="style.index" nested :open="style.index == 0">
@@ -27,12 +27,22 @@
         </palette-group>
       </palette-group>
 
-      <palette-group open>
+      <palette-group>
         <h2 slot="title">Geometry Modifiers</h2>
         <palette-modifiers :model="modifiers" />
       </palette-group>
 
-      <palette-group open>
+      <palette-group>
+        <h2 slot="title">Simulation Forces</h2>
+        <palette-group v-for="force in forces"
+          :key="force.id" nested>
+          <h2 slot="title">{{ force.name }}</h2>
+          <palette-force :model="force"
+            :forceScales="forceScales" />
+        </palette-group>
+      </palette-group>
+
+      <palette-group>
         <h2 slot="title">Post Effects</h2>
         <palette-effects :model="postEffects" />
       </palette-group>
@@ -133,6 +143,7 @@ import InputText from '@/components/input/Text'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
+import PaletteForce from '@/components/palette/Force'
 import PaletteModifiers from '@/components/palette/Modifiers'
 import PaletteEffects from '@/components/palette/Effects'
 
@@ -144,6 +155,7 @@ export default {
     PaletteGroup,
     PaletteStyle,
     PaletteTool,
+    PaletteForce,
     PaletteModifiers,
     PaletteEffects
   },
@@ -185,6 +197,7 @@ export default {
   watch: {
     lineTool: createStateSyncer('lineTool'),
     styles: createStateSyncer('styles'),
+    forces: createStateSyncer('forces'),
     modifiers: createStateSyncer('modifiers'),
     postEffects: createStateSyncer('postEffects')
   }

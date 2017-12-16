@@ -135,6 +135,48 @@ export function createControlsState () {
       }
     ],
 
+    forces: [
+      {
+        id: 'nudge',
+        name: 'Nudge',
+        radius: 8,
+        radiusScaleIndex: 0,
+        intensity: 0.1
+      },
+      {
+        id: 'diffusor',
+        name: 'Diffusor',
+        radius: 8,
+        radiusScaleIndex: 1,
+        intensity: 0.1
+      },
+      {
+        id: 'rotator',
+        name: 'Rotator',
+        radius: 8,
+        radiusScaleIndex: 1,
+        intensity: 0.1
+      }
+    ],
+
+    forceScales: [
+      {
+        index: 0,
+        name: '10x',
+        value: 10
+      },
+      {
+        index: 1,
+        name: '100x',
+        value: 100
+      },
+      {
+        index: 2,
+        name: '1000x',
+        value: 1000
+      }
+    ],
+
     modifiers: {
       polarIterations: 3,
       curveSubDivisions: 6

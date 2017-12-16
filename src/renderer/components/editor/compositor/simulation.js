@@ -73,25 +73,21 @@ export function createSimulationController (tasks, state, renderer) {
       bounds.friction = 0.01
       system.addConstraint(bounds)
 
-      const nudge = RepulsorForce.create([0, 0, 0], {
-        radius: 80,
-        intensity: 0.1
-      })
-      const diffusor = RepulsorForce.create([0, 0, 0], {
-        radius: 800,
-        intensity: 0.01
-      })
-      const rotator = RotatorForce.create([0, 0, 0], {
-        radius: 800,
-        intensity: 0.01
-      })
+      const nudge = RepulsorForce.create([0, 0, 0])
+      const diffusor = RepulsorForce.create([0, 0, 0])
+      const rotator = RotatorForce.create([0, 0, 0])
       system.addForce(nudge)
       system.addForce(diffusor)
       system.addForce(rotator)
 
+      const forces = [nudge, diffusor, rotator]
+
+      // TODO: Cleanup specific name references
+      // OPTIM: Prevent setting up vue observers on simulation instances
       Object.assign(state.simulation, {
         system,
         bounds,
+        forces,
         nudge,
         diffusor,
         rotator
@@ -118,7 +114,8 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     updateForces () {
-      const { nudge, diffusor, rotator, tick } = state.simulation
+      const { forces, tick } = state.simulation
+      const { forces: cforces, forceScales } = state.controls
       const { move, velocity } = state.seek
       const { polarIterations } = state.controls.modifiers
 
@@ -126,11 +123,17 @@ export function createSimulationController (tasks, state, renderer) {
       const angleIndex = tick % polarIterations
       const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
       const nudgePosition = vec2.transformMat2d(scratchVec2A, move, rotation)
-      nudge.set(nudgePosition[0], nudgePosition[1], 0)
-      nudge.intensity = Math.min(velocity, 3) * 1.5 + 2
 
-      diffusor.intensity = Math.sin(tick * 0.012) * 0.01
-      rotator.intensity = Math.sin(tick * 0.01) * 0.01
+      forces.forEach((force, i) => {
+        const { id, radius, radiusScaleIndex, intensity } = cforces[i]
+        force.setRadius(radius * forceScales[radiusScaleIndex].value)
+        if (id === 'nudge') {
+          force.set(nudgePosition[0], nudgePosition[1], 0)
+          force.intensity = Math.min(velocity, 3) * intensity * 10 + 2
+        } else {
+          force.intensity = Math.sin(tick * 0.01) * intensity * 0.1
+        }
+      })
     },
 
     syncGeometry () {
