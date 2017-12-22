@@ -30,6 +30,7 @@ import {
 
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
+import { fitRect } from './window'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
@@ -189,20 +190,23 @@ function createMenu () {
 // Main Window
 // -----------
 
-function createMainWindow () {
+function createMainWindow (displaySize) {
   if (appWindows.main !== null) return
   const createSceneMenuItem = appMenus.main.getMenuItemById('create-scene')
-
-  const windowSize = {
-    width: DEBUG_MAIN ? 1600 : 1200,
-    height: 1200
-  }
+  const transform = fitRect(displaySize, {
+    padding: 60,
+    aspect: displaySize.width / displaySize.height,
+    alignX: 0.5,
+    alignY: 0.5
+  })
 
   const main = appWindows.main = new BrowserWindow({
     titleBarStyle: DEBUG_MAIN ? null : 'hiddenInset',
     backgroundColor: '#A9D3DC',
-    width: windowSize.width,
-    height: windowSize.height,
+    x: transform.x,
+    y: transform.y,
+    width: transform.width,
+    height: transform.height,
     show: true,
     webPreferences: {
       devTools: DEBUG_MAIN
@@ -239,17 +243,17 @@ function createPaletteWindow (displaySize) {
 
   const windowSize = {
     width: DEBUG_PALETTE ? 1200 : 320,
-    height: 800
+    height: Math.round(displaySize.height * (2 / 3))
   }
 
   const palette = appWindows.palette = new BrowserWindow({
-    x: (displaySize.width - 1200) / 2 - windowSize.width + 10,
-    y: (displaySize.height - windowSize.height) / 2,
+    x: 20,
+    y: Math.round((displaySize.height - windowSize.height) / 3),
     width: windowSize.width,
     minWidth: 320,
     maxWidth: DEBUG_PALETTE ? null : 320,
     height: windowSize.height,
-    minHeight: 600,
+    minHeight: 500,
     backgroundColor: DEBUG_PALETTE ? '#444444' : null,
     frame: DEBUG_PALETTE,
     focusable: true,
@@ -259,7 +263,7 @@ function createPaletteWindow (displaySize) {
     maximizable: false,
     fullscreen: false,
     fullscreenable: false,
-    hasShadow: false,
+    hasShadow: true,
     vibrancy: 'dark',
     show: false,
     alwaysOnTop: !DEBUG_PALETTE,
