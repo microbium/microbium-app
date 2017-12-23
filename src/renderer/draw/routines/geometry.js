@@ -1,3 +1,4 @@
+import { vec2 } from 'gl-matrix'
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 
@@ -14,6 +15,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
+  if (!segments.length) return
 
   for (let s = segmentStart; s < segmentCount; s++) {
     const segment = segments[s]
@@ -56,6 +58,7 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
   const { curveSubDivisions } = state.controls.modifiers
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
+  if (!segments.length) return
 
   for (let s = segmentStart; s < segmentCount; s++) {
     const segment = segments[s]
@@ -95,24 +98,50 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
   }
 }
 
+// OPTIM: Minimize state stack changes
 export function drawFocus (state, ctx, index) {
   const { vertices } = state.geometry
+  const { size } = state.viewport
   const point = vertices[index]
   if (!point) return
 
-  ctx.globalAlpha = 0.8
-  ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
+  const count = 4
+  const angleStep = PI * 2 / count
+  const pointRad = vec2.length(point)
+  const innerRad = 6
+  const outerRad = pointRad * 0.3
+  const outerSize = Math.max(size[0], size[1])
+
+  ctx.save()
+  ctx.translate(point[0], point[1])
+  ctx.globalAlpha = 0.9
   ctx.lineWidth = 1
+  ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
+
   ctx.beginPath()
-  ctx.arc(point[0], point[1], 6, 0, PI * 2 - PI * 0.1)
+  for (let i = 0; i < count; i++) {
+    if (i === 0) ctx.moveTo(innerRad, 0)
+    else ctx.lineTo(innerRad, 0)
+    ctx.rotate(angleStep)
+  }
   ctx.closePath()
   ctx.stroke()
 
-  ctx.globalAlpha = 0.05
-  ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
+  ctx.translate(-point[0], -point[1])
+  ctx.rotate(Math.atan2(point[1], point[0]))
+  ctx.globalAlpha = 0.15
   ctx.lineWidth = 0.5
+  ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
+
   ctx.beginPath()
-  ctx.arc(point[0], point[1], 18, 0, PI * 2 - PI * 0.1)
-  ctx.closePath()
+  ctx.moveTo(outerRad, 0)
+  ctx.lineTo(outerRad + outerSize, 0)
   ctx.stroke()
+
+  // FIXME: Radius not aligned ..
+  ctx.beginPath()
+  ctx.arc(0, 0, pointRad + 6, -0.2, 0.2)
+  ctx.stroke()
+
+  ctx.restore()
 }
