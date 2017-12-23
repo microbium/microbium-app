@@ -377,7 +377,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
       const { offset, scale, resolution, didResize } = state.viewport
-      const { panOffset, zoomOffset } = state.drag
+      const { isPanning, isZooming, panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
 
@@ -391,8 +391,9 @@ function mountCompositor ($el, $refs, $electron) {
         // TODO: Improve variable bloom darkness
         view.renderClearRect(
           (isRunning ? 0.85 : 0.75),
-          (didResize ? 1 : (!isRunning ? 0.2
-            : (0.025 * postEffects.clearAlphaFactor))))
+          ((didResize || isPanning || isZooming) ? 1
+            : (!isRunning ? 0.2
+              : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
           scale: scale + zoomOffset
