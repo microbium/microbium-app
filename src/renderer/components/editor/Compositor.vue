@@ -7,8 +7,8 @@
         {{ state.viewport.resolution[1] }}h
         ({{ state.viewport.pixelRatio }}x)</div>
       <hr />
-      <div>pin constraints: {{ pinConstraintCount }}</div>
-      <div>local constraints: {{ localConstraintCount }}</div>
+      <div>pin constraints: {{ state.simulation.pinConstraintCount || '-' }}</div>
+      <div>local constraints: {{ state.simulation.localConstraintCount || '-' }}</div>
       <hr />
       <div>line quads: {{ state.renderer.lineQuads }}</div>
       <hr />
@@ -229,11 +229,8 @@ function mountCompositor ($el, $refs, $electron) {
       $electron.ipcRenderer.on('deserialize-scene', view.deserializeScene)
     },
 
+    // OPTIM: Improve initial load of scene geometry from file
     initGeometry () {
-      // logger.time('deserialize scene')
-      // const initialState = route.deserializeGeometryFromLocalStorage()
-      // logger.timeEnd('deserialize scene')
-      // logger.log('initial state', initialState)
       const initialState = null
       if (initialState && initialState.segments.length) {
         geometry.createBaseFromState(initialState)
@@ -374,7 +371,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
       const { offset, scale, resolution, didResize } = state.viewport
-      const { isPanning, isZooming, panOffset, zoomOffset } = state.drag
+      const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
 
@@ -388,8 +385,8 @@ function mountCompositor ($el, $refs, $electron) {
         // TODO: Improve variable bloom darkness
         view.renderClearRect(
           (isRunning ? 0.85 : 0.75),
-          ((didResize || (!isRunning && (isPanning || isZooming))) ? 1
-            : (!isRunning ? 0.2
+          (didResize ? 1
+            : (!isRunning ? 0.6
               : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
           offset: vec2.add(scratchVec2A, offset, panOffset),
@@ -566,15 +563,6 @@ export default {
 
   components: {},
 
-  methods: {
-    countConstraints (name) {
-      if (!(this.state && this.state.simulation.system)) return null
-      const { system } = this.state.simulation
-      return system[`_${name}`]
-        .reduce((accum, constraint) => accum + constraint._count, 0)
-    }
-  },
-
   computed: {
     sceneClassNames () {
       const { state } = this
@@ -589,14 +577,6 @@ export default {
         'navigate--will-zoom': drag.shouldZoom,
         'navigate--zoom': drag.isZooming
       }
-    },
-
-    pinConstraintCount () {
-      return this.countConstraints('pinConstraints') || '-'
-    },
-
-    localConstraintCount () {
-      return this.countConstraints('localConstraints') || '-'
     }
   }
 }

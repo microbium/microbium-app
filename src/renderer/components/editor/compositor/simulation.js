@@ -82,10 +82,17 @@ export function createSimulationController (tasks, state, renderer) {
 
       const forces = [nudge, diffusor, rotator]
 
+      const pinConstraintCount = simulation.countConstraints(
+        system, 'pinConstraints')
+      const localConstraintCount = simulation.countConstraints(
+        system, 'localConstraints')
+
       // TODO: Cleanup specific name references
       // OPTIM: Prevent setting up vue observers on simulation instances
       Object.assign(state.simulation, {
         system,
+        pinConstraintCount,
+        localConstraintCount,
         bounds,
         forces,
         nudge,
@@ -103,10 +110,18 @@ export function createSimulationController (tasks, state, renderer) {
       }, [])
     },
 
+    countConstraints (system, name) {
+      return system[`_${name}`]
+        .reduce((accum, constraint) => accum + constraint._count, 0)
+    },
+
     destroy () {
       Object.assign(state.simulation, {
         system: null,
+        pinConstraintCount: null,
+        localConstraintCount: null,
         bounds: null,
+        forces: null,
         nudge: null,
         diffusor: null,
         rotator: null

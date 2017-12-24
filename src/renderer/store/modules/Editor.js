@@ -67,7 +67,9 @@ export function createCompositorState () {
     wasRunning: false,
     isRunning: false,
     tick: 0,
-    system: null
+    system: null,
+    pinConstraintCount: null,
+    localConstraintCount: null
   }
 
   const renderer = {
