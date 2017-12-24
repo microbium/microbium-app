@@ -17,7 +17,6 @@
       </div>
     </div>
     <editor-compositor />
-    <div class="editor-background"></div>
   </div>
 </template>
 
@@ -63,35 +62,6 @@
 
   .input-select > select {
     font-size: 14px;
-  }
-}
-
-.editor-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-
-  background-image: url(../assets/images/background.png);
-  background-repeat: repeat;
-  background-position: 50% 50%;
-  background-size: 200px 200px;
-  opacity: 0.8;
-
-  pointer-events: none;
-
-  &:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: radial-gradient(circle farthest-corner at 50% 50%,
-      transparent 76%,
-      rgba(#58BAA5, 0.16) 85%,
-      rgba(darken(#58BAA5, 20), 0.64) 100%);
   }
 }
 </style>

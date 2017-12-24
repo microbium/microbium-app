@@ -48,7 +48,7 @@ export function createDrawBoxBlur (regl, params = {}) {
     frag: injectDefines(postFXBoxBlurFrag, defines),
     uniforms: {
       color: regl.prop('color'),
-      resolution: regl.prop('resolution')
+      viewResolution: regl.prop('viewResolution')
     }
   })
 }
@@ -60,7 +60,7 @@ export function createDrawHashBlur (regl) {
       color: regl.prop('color'),
       radius: regl.prop('radius'),
       offset: regl.prop('offset'),
-      resolution: regl.prop('resolution')
+      viewResolution: regl.prop('viewResolution')
     }
   })
 }
@@ -74,7 +74,8 @@ export function createDrawScreen (regl) {
       bloomIntensity: regl.prop('bloomIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
       tick: regl.prop('tick'),
-      resolution: regl.prop('resolution')
+      viewResolution: regl.prop('viewResolution'),
+      viewOffset: regl.prop('viewOffset')
     }
   })
 }

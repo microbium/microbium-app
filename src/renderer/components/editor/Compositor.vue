@@ -55,7 +55,7 @@
 </style>
 
 <script>
-import { vec2, mat4 } from 'gl-matrix'
+import { vec2, vec3, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
@@ -107,6 +107,7 @@ const TICK_MSG_INTERVAL = 20
 const DISABLE_RENDER = false
 
 const scratchVec2A = vec2.create()
+const scratchVec3A = vec3.create()
 const scratchMat4A = mat4.create()
 
 // TODO: Better integrate with vue component
@@ -370,10 +371,15 @@ function mountCompositor ($el, $refs, $electron) {
     renderScene (tick) {
       const { postBuffers } = renderer
       const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
-      const { offset, scale, resolution, didResize } = state.viewport
+      const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
+
+      const viewResolution = vec3.set(scratchVec3A,
+        resolution[0], resolution[1], pixelRatio)
+      const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
+      const viewScale = scale + zoomOffset
 
       postBuffers.resize(resolution)
       const sceneBuffer = postBuffers.getWrite()
@@ -389,8 +395,9 @@ function mountCompositor ($el, $refs, $electron) {
             : (!isRunning ? 0.6
               : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
-          offset: vec2.add(scratchVec2A, offset, panOffset),
-          scale: scale + zoomOffset
+          viewResolution,
+          viewOffset,
+          viewScale
         }, () => {
           view.renderLines()
           view.renderUI()
@@ -404,7 +411,7 @@ function mountCompositor ($el, $refs, $electron) {
           // OPTIM: Investigate blur effect optimizations
           drawBoxBlur({
             color: sceneBuffer,
-            resolution
+            viewResolution
           })
         })
 
@@ -419,7 +426,8 @@ function mountCompositor ($el, $refs, $electron) {
           noiseIntensity: (!isRunning ? 0.0
             : (0.06 * postEffects.noiseIntensityFactor)),
           tick,
-          resolution
+          viewOffset,
+          viewResolution
         })
       })
 

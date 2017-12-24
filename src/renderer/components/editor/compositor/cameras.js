@@ -9,8 +9,8 @@ export function createCameras (tasks, state, renderer) {
   const scratchVec3B = vec3.create()
 
   const baseUniforms = {
-    viewResolution: () => state.viewport.resolution,
-    viewOffset: regl.prop('offset')
+    viewResolution: regl.prop('viewResolution'),
+    viewOffset: regl.prop('viewOffset')
   }
 
   const sceneOrtho = (() => {
@@ -21,9 +21,9 @@ export function createCameras (tasks, state, renderer) {
       uniforms: {
         ...baseUniforms,
         view: (params, context) => {
-          const { offset, scale } = context
-          const offset3 = vec3.set(scratchVec3A, offset[0], offset[1], 0)
-          const scale3 = vec3.set(scratchVec3B, scale, scale, scale)
+          const { viewOffset, viewScale } = context
+          const offset3 = vec3.set(scratchVec3A, viewOffset[0], viewOffset[1], 0)
+          const scale3 = vec3.set(scratchVec3B, viewScale, viewScale, viewScale)
           mat4.fromTranslation(view, offset3)
           mat4.scale(view, view, scale3)
           return view
@@ -62,9 +62,9 @@ export function createCameras (tasks, state, renderer) {
         ...baseUniforms,
         // FEAT: Improve perspective camera controls
         view: (params, context) => {
-          const { offset, scale } = context
-          vec3.set(eye, -offset[0], -offset[1], -435 / scale)
-          vec3.set(center, -offset[0], -offset[1], 0)
+          const { viewOffset, viewScale } = context
+          vec3.set(eye, -viewOffset[0], -viewOffset[1], -435 / viewScale)
+          vec3.set(center, -viewOffset[0], -viewOffset[1], 0)
           mat4.lookAt(view, eye, center, up)
           return view
         },

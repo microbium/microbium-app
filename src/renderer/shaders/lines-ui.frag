@@ -2,7 +2,7 @@
 
 precision highp float;
 
-uniform vec2 viewResolution;
+uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
 
 varying vec4 vColor;

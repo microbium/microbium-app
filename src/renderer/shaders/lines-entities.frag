@@ -4,7 +4,7 @@ precision highp float;
 
 #define PI 3.141592653589793
 
-uniform vec2 viewResolution;
+uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
 uniform float tick;
 
@@ -31,10 +31,10 @@ float sampleAlphaMap (vec3 udo, sampler2D map) {
 }
 
 void main() {
-  vec2 fragCoord = gl_FragCoord.xy;
-  vec2 fragCenter = fragCoord - viewResolution * 0.5;
+  vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
+  vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
   vec2 position = fragCenter - vec2(viewOffset.x, -viewOffset.y);
-  vec2 coord = fragCoord / viewResolution;
+  vec2 coord = fragCoord / viewResolution.xy;
   vec3 udo = vUDO;
 
   vec3 outColor = vColor.rgb;
