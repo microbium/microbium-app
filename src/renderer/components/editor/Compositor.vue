@@ -391,7 +391,7 @@ function mountCompositor ($el, $refs, $electron) {
         // TODO: Improve variable bloom darkness
         view.renderClearRect(
           (isRunning ? 0.85 : 0.75),
-          ((didResize || isPanning || isZooming) ? 1
+          ((didResize || (!isRunning && (isPanning || isZooming))) ? 1
             : (!isRunning ? 0.2
               : (0.025 * postEffects.clearAlphaFactor))))
         cameras.scene.setup({
