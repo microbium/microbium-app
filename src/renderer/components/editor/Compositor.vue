@@ -237,8 +237,6 @@ function mountCompositor ($el, $refs, $electron) {
       const initialState = null
       if (initialState && initialState.segments.length) {
         geometry.createBaseFromState(initialState)
-      } else {
-        geometry.createBaseSegment()
       }
     },
 
@@ -352,10 +350,9 @@ function mountCompositor ($el, $refs, $electron) {
         drawOriginTick(state, uiMain.ctx)
       } else {
         drawOrigin(state, uiMain.ctx)
-        drawGeometry(state, [uiMain], 0, 1)
       }
 
-      drawGeometry(state, sceneContexts, 1)
+      drawGeometry(state, sceneContexts, 0)
       if (!isRunning && state.seek.index != null) {
         drawFocus(state, uiMain.ctx, state.seek.index)
       }

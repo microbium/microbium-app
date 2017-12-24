@@ -1,6 +1,4 @@
 import { vec2 } from 'gl-matrix'
-
-import { UI_PALETTE } from '@/constants/color-palettes'
 import { clamp, mapLinear } from '@/utils/math'
 
 export function createGeometryController (tasks, state) {
@@ -67,36 +65,6 @@ export function createGeometryController (tasks, state) {
         segments,
         vertices
       })
-    },
-
-    createBaseSegment () {
-      const radius = 22
-      const count = 5
-      const { lineTool } = state.controls
-      const prevLineTool = Object.assign({}, lineTool)
-
-      state.geometry.shouldAppend = true
-      Object.assign(state.controls.lineTool, {
-        strokeWidth: 1,
-        strokeColor: UI_PALETTE.BACK_PRIMARY,
-        strokeAlpha: 0.95,
-        strokeWidthMod: 0,
-        inputModTypeIndex: 0,
-        physicsTypeIndex: 0,
-        styleIndex: 0
-      })
-
-      geometry.createSegment([radius, 0])
-      for (let i = 1; i < (1 + count); i++) {
-        const angle = i / count * Math.PI * 2
-        const x = Math.cos(angle) * radius
-        const y = Math.sin(angle) * radius
-        geometry.updateActiveSegment([x, y])
-      }
-      geometry.completeActiveSegment(0)
-
-      state.geometry.shouldAppend = false
-      Object.assign(state.controls.lineTool, prevLineTool)
     },
 
     createSegment (point, index) {
