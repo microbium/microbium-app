@@ -129,7 +129,7 @@ export function drawFocus (state, ctx, index) {
 
   ctx.translate(-point[0], -point[1])
   ctx.rotate(Math.atan2(point[1], point[0]))
-  ctx.globalAlpha = 0.15
+  ctx.globalAlpha = 0.8
   ctx.lineWidth = 0.5
   ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
 
