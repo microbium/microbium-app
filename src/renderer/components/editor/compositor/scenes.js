@@ -83,7 +83,7 @@ export function createUIScene (tasks, state, renderer) {
 
   const contexts = ['main', 'grid'].map((name, index) => {
     // TODO: Make bufferSize smallest possible for UI
-    const bufferSize = 2 ** 9
+    const bufferSize = 2 ** 10
     const lines = LineBuilder.create(regl, {
       bufferSize,
       drawArgs: {

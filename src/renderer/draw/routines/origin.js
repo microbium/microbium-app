@@ -35,9 +35,9 @@ export function drawOriginTick (state, ctx) {
 }
 
 export function drawPolarGrid (state, ctx) {
-  const radialOffsets = [100, 400]
-  const polarIterations = [8, 30]
-  const tickSizes = [4, 8]
+  const radialOffsets = [100, 400, 900]
+  const polarIterations = [13, 41, 91]
+  const tickSizes = [2, 3, 4]
 
   ctx.save()
 
@@ -55,7 +55,7 @@ export function drawPolarGrid (state, ctx) {
       ctx.lineWidth = 0.5
       ctx.strokeStyle = isEven
         ? UI_PALETTE.BACK_SECONDARY
-        : UI_PALETTE.BACK_PRIMARY
+        : UI_PALETTE.BACK_TERTIARY
 
       ctx.beginPath()
       ctx.moveTo(0, radius - length)
