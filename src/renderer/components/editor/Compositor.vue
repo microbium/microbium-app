@@ -2,18 +2,18 @@
   <div class="editor-compositor">
     <div class="editor-compositor__scene" :class="sceneClassNames" ref="scene"></div>
     <!-- OPTIM: Investigate perf issues with stats rendering -->
-    <div class="editor-compositor__stats" v-if="state && state.viewport.showStats">
-      <div>resolution: {{ state.viewport.resolution[0] }}w
-        {{ state.viewport.resolution[1] }}h
-        ({{ state.viewport.pixelRatio }}x)</div>
+    <div class="editor-compositor__stats" v-if="viewport && viewport.showStats">
+      <div>resolution: {{ viewport.resolution[0] }}w
+        {{ viewport.resolution[1] }}h
+        ({{ viewport.pixelRatio }}x)</div>
       <hr />
-      <div>pin constraints: {{ state.simulation.pinConstraintCount || '-' }}</div>
-      <div>local constraints: {{ state.simulation.localConstraintCount || '-' }}</div>
+      <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
+      <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
       <hr />
-      <div>line quads: {{ state.renderer.lineQuads }}</div>
+      <div>line quads: {{ renderer.lineQuads }}</div>
       <hr />
-      <div>draw calls: {{ state.renderer.drawCalls }}</div>
-      <div>full screen passes: {{ state.renderer.fullScreenPasses }}</div>
+      <div>draw calls: {{ renderer.drawCalls }}</div>
+      <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
     </div>
   </div>
 </template>
@@ -260,20 +260,21 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     update (tick) {
-      this.syncStrokeWidthMod()
-      if (state.simulation.isRunning) {
-        state.simulation.tick++
-        simulation.updateForces()
-        state.simulation.system.tick(1)
-        simulation.syncGeometry()
+      const { isRunning, wasRunning } = state.simulation
+      if (!isRunning) {
+        this.syncStrokeWidthMod()
       }
-      if (state.simulation.isRunning && !state.simulation.wasRunning) {
+      if (isRunning) {
+        state.simulation.tick++
+        simulation.update(tick)
+      }
+      if (isRunning && !wasRunning) {
         this.sendGeometryState()
       }
       if (tick % TICK_MSG_INTERVAL === 0) {
         this.sendFrameState()
       }
-      state.simulation.wasRunning = state.simulation.isRunning
+      state.simulation.wasRunning = isRunning
     },
 
     syncStrokeWidthMod () {
@@ -572,23 +573,28 @@ export default {
 
   data () {
     return {
-      state: null
+      drag: null,
+      renderer: null,
+      simulation: null,
+      viewport: null
     }
   },
 
   mounted () {
     const { $el, $refs, $electron } = this
     const { state } = mountCompositor($el, $refs, $electron)
-    this.state = state
+    this.drag = state.drag
+    this.renderer = state.renderer
+    this.simulation = state.simulation
+    this.viewport = state.viewport
   },
 
   components: {},
 
   computed: {
     sceneClassNames () {
-      const { state } = this
-      if (!state) return
-      const { simulation, drag } = state
+      const { simulation, drag } = this
+      if (!(drag || simulation)) return
 
       return {
         'mode--edit': !simulation.isRunning,

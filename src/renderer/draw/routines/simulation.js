@@ -29,7 +29,7 @@ export function drawSimulatorUI (state, ctx) {
 
 export function drawSimulatorOriginUI (state, ctx) {
   if (!state.simulation.isRunning) return
-  const { diffusor, rotator } = state.simulation
+  const { diffusor, rotator } = state.simulationForces
 
   ctx.save()
   ctx.globalAlpha = 0.8
@@ -51,7 +51,7 @@ export function drawSimulatorOriginUI (state, ctx) {
 
 export function drawSimulatorForceUI (state, ctx, baseRadius, alpha) {
   if (!state.simulation.isRunning) return
-  const { nudge } = state.simulation
+  const { nudge } = state.simulationForces
   const { move } = state.seek
 
   ctx.save()

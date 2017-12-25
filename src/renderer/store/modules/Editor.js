@@ -67,7 +67,7 @@ export function createCompositorState () {
     wasRunning: false,
     isRunning: false,
     tick: 0,
-    system: null,
+    forcesCount: null,
     pinConstraintCount: null,
     localConstraintCount: null
   }

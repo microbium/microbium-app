@@ -82,22 +82,25 @@ export function createSimulationController (tasks, state, renderer) {
 
       const forces = [nudge, diffusor, rotator]
 
+      const forcesCount = forces.length
       const pinConstraintCount = simulation.countConstraints(
         system, 'pinConstraints')
       const localConstraintCount = simulation.countConstraints(
         system, 'localConstraints')
 
       // TODO: Cleanup specific name references
-      // OPTIM: Prevent setting up vue observers on simulation instances
-      Object.assign(state.simulation, {
-        system,
-        pinConstraintCount,
-        localConstraintCount,
-        bounds,
-        forces,
+      // OPTIM: Minimize / cleanup vue reactive state ...
+      state.simulationSystem = system
+      state.simulationForces = {
+        all: forces,
         nudge,
         diffusor,
         rotator
+      }
+      Object.assign(state.simulation, {
+        forcesCount,
+        pinConstraintCount,
+        localConstraintCount
       })
     },
 
@@ -116,21 +119,25 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     destroy () {
+      state.simulationSystem = null
+      state.simulationForces = null
       Object.assign(state.simulation, {
-        system: null,
+        forcesCount: null,
         pinConstraintCount: null,
-        localConstraintCount: null,
-        bounds: null,
-        forces: null,
-        nudge: null,
-        diffusor: null,
-        rotator: null
+        localConstraintCount: null
       })
     },
 
+    update (tick) {
+      simulation.updateForces()
+      state.simulationSystem.tick(1)
+      simulation.syncGeometry()
+    },
+
     updateForces () {
-      const { forces, tick } = state.simulation
-      const { forces: cforces, forceScales } = state.controls
+      const { all: allForces } = state.simulationForces
+      const { tick } = state.simulation
+      const { forces, forceScales } = state.controls
       const { move, velocity } = state.seek
       const { polarIterations } = state.controls.modifiers
 
@@ -139,8 +146,8 @@ export function createSimulationController (tasks, state, renderer) {
       const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
       const nudgePosition = vec2.transformMat2d(scratchVec2A, move, rotation)
 
-      forces.forEach((force, i) => {
-        const { id, radius, radiusScaleIndex, intensity } = cforces[i]
+      allForces.forEach((force, i) => {
+        const { id, radius, radiusScaleIndex, intensity } = forces[i]
         force.setRadius(radius * forceScales[radiusScaleIndex].value)
         if (id === 'nudge') {
           force.set(nudgePosition[0], nudgePosition[1], 0)
@@ -152,7 +159,7 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     syncGeometry () {
-      const { positions } = state.simulation.system
+      const { positions } = state.simulationSystem
       const { vertices } = state.geometry
 
       vertices.forEach((vert, i) => {
@@ -163,7 +170,7 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     computeParticleVelocities () {
-      const { system } = state.simulation
+      const system = state.simulationSystem
       if (!system) return null
 
       const { positions, positionsPrev } = system

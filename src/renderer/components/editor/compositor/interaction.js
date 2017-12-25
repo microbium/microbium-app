@@ -80,6 +80,7 @@ export function createDragController (tasks, state) {
     },
 
     // TODO: Manage different interactions / commands separately
+    // TODO: Investigate laggy feel to panning and drawing
     pointerMove (event) {
       const stateDrag = state.drag
       const { velocity } = state.seek
