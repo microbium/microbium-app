@@ -1,34 +1,32 @@
-export function createPostBuffers (regl) {
+export function createPostBuffers (regl, ...names) {
   const createBuffer = () => regl.framebuffer({
     color: regl.texture({wrap: 'clamp'}),
     depth: false
   })
-  const buffers = {
-    read: createBuffer(),
-    write: createBuffer()
-  }
-  const getBuffer = (name) => {
-    return (size) => {
+
+  const buffers = {}
+  names.forEach((name) => {
+    buffers[name] = createBuffer()
+  })
+
+  return {
+    get (name, size) {
       const buffer = buffers[name]
       if (size) buffer.resize(size[0], size[1])
       return buffer
-    }
-  }
-
-  return {
-    getRead: getBuffer('read'),
-    getWrite: getBuffer('write'),
-
-    resize (size) {
-      const { read, write } = buffers
-      read.resize(size[0], size[1])
-      write.resize(size[0], size[1])
     },
 
-    swap () {
-      const { read, write } = buffers
-      buffers.read = write
-      buffers.write = read
+    swap (nameA, nameB) {
+      const bufferA = buffers[nameA]
+      const bufferB = buffers[nameB]
+      buffers[nameA] = bufferB
+      buffers[nameB] = bufferA
+    },
+
+    resize (size) {
+      names.forEach((name) => {
+        buffers[name].resize(size[0], size[1])
+      })
     }
   }
 }

@@ -3851,6 +3851,10 @@ glsl-blend@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/glsl-blend/-/glsl-blend-1.0.3.tgz#0f636604f0e9e7cab647888c58ce7c79e67eef7c"
 
+glsl-fast-gaussian-blur@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/glsl-fast-gaussian-blur/-/glsl-fast-gaussian-blur-1.0.2.tgz#95bc77f644a22f06e5ed58e128697f8b17290b08"
+
 glsl-fxaa@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/glsl-fxaa/-/glsl-fxaa-3.0.0.tgz#f432228fba9d2a8a7240943c593d20c3176f3b93"

@@ -4,6 +4,7 @@ import basicFrag from '@/shaders/basic.frag'
 import postFXVert from '@/shaders/post-fx.vert'
 import postFXFrag from '@/shaders/post-fx.frag'
 import postFXBoxBlurFrag from '@/shaders/post-fx-box-blur.frag'
+import postFXGaussBlurFrag from '@/shaders/post-fx-gaussian-blur.frag'
 import postFXHashBlurFrag from '@/shaders/post-fx-hash-blur.frag'
 
 export function createDrawRect (regl) {
@@ -48,6 +49,17 @@ export function createDrawBoxBlur (regl, params = {}) {
     frag: injectDefines(postFXBoxBlurFrag, defines),
     uniforms: {
       color: regl.prop('color'),
+      viewResolution: regl.prop('viewResolution')
+    }
+  })
+}
+
+export function createDrawGaussBlur (regl) {
+  return regl({
+    frag: postFXGaussBlurFrag,
+    uniforms: {
+      color: regl.prop('color'),
+      blurDirection: regl.prop('blurDirection'),
       viewResolution: regl.prop('viewResolution')
     }
   })

@@ -74,7 +74,7 @@ import { createTextureManager } from '@/utils/texture'
 import {
   createDrawRect,
   createSetupDrawScreen,
-  createDrawBoxBlur,
+  createDrawGaussBlur,
   createDrawScreen
 } from '@/draw/commands/screen-space'
 import {
@@ -153,11 +153,11 @@ function mountCompositor ($el, $refs, $electron) {
     })
 
     const textures = createTextureManager(regl, TEXTURES)
-    const postBuffers = createPostBuffers(regl)
+    const postBuffers = createPostBuffers(regl, 'A', 'B', 'C')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
-      drawBoxBlur: createDrawBoxBlur(regl, {radius: 3}),
+      drawGaussBlur: createDrawGaussBlur(regl),
       drawRect: createDrawRect(regl)
     }
 
@@ -371,7 +371,7 @@ function mountCompositor ($el, $refs, $electron) {
 
     renderScene (tick) {
       const { postBuffers } = renderer
-      const { setupDrawScreen, drawBoxBlur, drawScreen } = renderer.commands
+      const { setupDrawScreen, drawScreen } = renderer.commands
       const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -383,10 +383,8 @@ function mountCompositor ($el, $refs, $electron) {
       const viewScale = scale + zoomOffset
 
       postBuffers.resize(resolution)
-      const sceneBuffer = postBuffers.getWrite()
-      const fxBuffer = postBuffers.getRead()
 
-      sceneBuffer.use(() => {
+      postBuffers.get('A').use(() => {
         state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
         // TODO: Improve variable bloom darkness
@@ -405,22 +403,14 @@ function mountCompositor ($el, $refs, $electron) {
       })
 
       setupDrawScreen(() => {
-        fxBuffer.use(() => {
-          state.renderer.drawCalls++
-          state.renderer.fullScreenPasses++
-          // OPTIM: Investigate blur effect optimizations
-          drawBoxBlur({
-            color: sceneBuffer,
-            viewResolution
-          })
-        })
+        view.renderSceneBlurPasses(viewResolution, 2, 1)
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         // FIXME: Noise renders strangely when dev tools panel is open
         drawScreen({
-          color: sceneBuffer,
-          bloom: fxBuffer,
+          color: postBuffers.get('A'),
+          bloom: postBuffers.get('C'),
           bloomIntensity: (!isRunning ? 0.4
             : (0.4 * postEffects.bloomIntensityFactor)),
           noiseIntensity: (!isRunning ? 0.0
@@ -431,7 +421,30 @@ function mountCompositor ($el, $refs, $electron) {
         })
       })
 
-      if (isRunning) postBuffers.swap()
+      if (isRunning) postBuffers.swap('A', 'C')
+    },
+
+    renderSceneBlurPasses (viewResolution, radiusStep, count) {
+      const { postBuffers } = renderer
+      const { drawGaussBlur } = renderer.commands
+
+      for (let i = 0; i < count * 2; i++) {
+        postBuffers.swap('C', 'B')
+        postBuffers.get('C').use(() => {
+          const radius = 1 + Math.floor(i / 2) * radiusStep
+          const blurDirection = (i % 2 === 0)
+            ? [radius, 0]
+            : [0, radius]
+
+          state.renderer.drawCalls++
+          state.renderer.fullScreenPasses++
+          drawGaussBlur({
+            color: postBuffers.get(i === 0 ? 'A' : 'B'),
+            blurDirection,
+            viewResolution
+          })
+        })
+      }
     },
 
     // NOTE: Called once to setup non-dynamic UI
