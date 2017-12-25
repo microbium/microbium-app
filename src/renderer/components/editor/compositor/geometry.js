@@ -222,7 +222,7 @@ export function createGeometryController (tasks, state) {
     deleteLastSegment () {
       const { activeSegment, segments, vertices } = state.geometry
       if (activeSegment) return
-      if (segments.length <= 1) return // Preserve base segment
+      if (segments.length <= 0) return
       const lastSegment = segments.pop()
       const vertCount = lastSegment.indices.length - lastSegment.connectedIndices.length
       vertices.splice(-vertCount, vertCount)
