@@ -190,8 +190,10 @@ function createMenu () {
 // Main Window
 // -----------
 
-function createMainWindow (displaySize) {
+function createMainWindow () {
   if (appWindows.main !== null) return
+  const displaySize = getDisplaySize()
+
   const createSceneMenuItem = appMenus.main.getMenuItemById('create-scene')
   const transform = fitRect(displaySize, {
     padding: 60,
@@ -238,9 +240,10 @@ function createMainWindow (displaySize) {
 // Palette Window
 // --------------
 
-function createPaletteWindow (displaySize) {
+function createPaletteWindow () {
   if (appWindows.palette !== null) return
 
+  const displaySize = getDisplaySize()
   const windowSize = {
     width: DEBUG_PALETTE ? 1200 : 320,
     height: Math.round(displaySize.height * (2 / 3))
@@ -315,11 +318,14 @@ function onWindowBlur () {
   }
 }
 
+function getDisplaySize () {
+  return screen.getPrimaryDisplay().workAreaSize
+}
+
 function createStartWindows () {
-  const displaySize = screen.getPrimaryDisplay().workAreaSize
   createMenu()
-  createMainWindow(displaySize)
-  createPaletteWindow(displaySize)
+  createMainWindow()
+  createPaletteWindow()
   restoreLastSession()
 }
 
