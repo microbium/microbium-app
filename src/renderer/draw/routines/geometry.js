@@ -101,7 +101,6 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
 // OPTIM: Minimize state stack changes
 export function drawFocus (state, ctx, index) {
   const { vertices } = state.geometry
-  const { size } = state.viewport
   const point = vertices[index]
   if (!point) return
 
@@ -109,8 +108,6 @@ export function drawFocus (state, ctx, index) {
   const angleStep = PI * 2 / count
   const pointRad = vec2.length(point)
   const innerRad = 6
-  const outerRad = pointRad * 0.3
-  const outerSize = Math.max(size[0], size[1])
 
   ctx.save()
   ctx.translate(point[0], point[1])
@@ -129,18 +126,18 @@ export function drawFocus (state, ctx, index) {
 
   ctx.translate(-point[0], -point[1])
   ctx.rotate(Math.atan2(point[1], point[0]))
-  ctx.globalAlpha = 0.8
+  ctx.globalAlpha = 0.5
   ctx.lineWidth = 0.5
-  ctx.strokeStyle = UI_PALETTE.HI_SECONDARY
+  ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
   ctx.beginPath()
-  ctx.moveTo(outerRad, 0)
-  ctx.lineTo(outerRad + outerSize, 0)
+  ctx.moveTo(pointRad - 120, 0)
+  ctx.lineTo(pointRad + 120, 0)
   ctx.stroke()
 
-  // FIXME: Radius not aligned ..
   ctx.beginPath()
-  ctx.arc(0, 0, pointRad + 6, -0.2, 0.2)
+  ctx.moveTo(pointRad, -40)
+  ctx.lineTo(pointRad, +40)
   ctx.stroke()
 
   ctx.restore()
