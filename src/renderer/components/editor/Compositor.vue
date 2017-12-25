@@ -33,6 +33,7 @@
     &.navigate--will-pan { cursor: -webkit-grab; }
     &.navigate--pan { cursor: -webkit-grabbing; }
     &.navigate--will-zoom { cursor: -webkit-zoom-in; }
+    &.navigate--zoom { cursor: -webkit-zoom-in; }
   }
 
   &__stats {
@@ -582,7 +583,7 @@ export default {
         'mode--simulate': simulation.isRunning,
         'navigate--will-pan': drag.shouldNavigate && !drag.shouldZoom,
         'navigate--pan': drag.isPanning,
-        'navigate--will-zoom': drag.shouldZoom,
+        'navigate--will-zoom': drag.shouldNavigate && drag.shouldZoom && !drag.isPanning,
         'navigate--zoom': drag.isZooming
       }
     }
