@@ -390,8 +390,7 @@ function mountCompositor ($el, $refs, $electron) {
         state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
         // TODO: Improve variable bloom darkness
-        view.renderClearRect(
-          (isRunning ? 0.85 : 0.75),
+        view.renderClearRect(0.75,
           (didResize ? 1
             : (!isRunning ? 0.6
               : (0.025 * postEffects.clearAlphaFactor))))
@@ -423,7 +422,7 @@ function mountCompositor ($el, $refs, $electron) {
           color: sceneBuffer,
           bloom: fxBuffer,
           bloomIntensity: (!isRunning ? 0.4
-            : (0.5 * postEffects.bloomIntensityFactor)),
+            : (0.4 * postEffects.bloomIntensityFactor)),
           noiseIntensity: (!isRunning ? 0.0
             : (0.06 * postEffects.noiseIntensityFactor)),
           tick,

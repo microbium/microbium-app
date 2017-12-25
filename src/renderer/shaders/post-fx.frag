@@ -15,6 +15,7 @@ uniform vec2 viewOffset;
 varying vec2 uv;
 
 #pragma glslify: random = require(glsl-random)
+#pragma glslify: blendColorBurn = require(glsl-blend/color-burn)
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
 
@@ -42,8 +43,10 @@ void main() {
     1.0);
 
   vec4 fVignette = vec4(
-    vec3(vignette(uv, 0.85, 0.5)),
+    vec3(vignette(uv, 0.7, 0.4)),
     0.0);
 
-  gl_FragColor = (fColor + (fColor * fNoise) + fDash + fBloom - (1.0 - fVignette));
+  gl_FragColor = vec4(blendColorBurn(
+    (fColor + (fColor * fNoise) + fDash + fBloom).rgb,
+    (fVignette).rgb), 1.0);
 }
