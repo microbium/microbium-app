@@ -41,6 +41,10 @@ export default {
   },
 
   watch: {
+    value () {
+      this.actualValue = this.value
+    },
+
     actualValue () {
       const value = this.actualValue
       this.$emit('input', value)

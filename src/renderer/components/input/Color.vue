@@ -34,6 +34,10 @@ export default {
   },
 
   watch: {
+    value () {
+      this.hexValue = this.value
+    },
+
     hexValue () {
       const value = this.hexValue
       this.$emit('input', value)
