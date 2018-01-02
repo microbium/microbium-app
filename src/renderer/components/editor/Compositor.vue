@@ -28,6 +28,14 @@
     height: 100%;
     overflow: hidden;
 
+    > canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
     &.mode--simulate { cursor: none; }
     &.mode--edit { cursor: crosshair; }
     &.navigate--will-pan { cursor: -webkit-grab; }
@@ -167,16 +175,9 @@ function mountCompositor ($el, $refs, $electron) {
     }, 'inject')
 
     tasks.add((event) => {
-      const { size, resolution } = state.viewport
+      const { resolution } = state.viewport
       canvas.width = resolution[0]
       canvas.height = resolution[1]
-      Object.assign(canvas.style, {
-        position: 'absolute',
-        top: '0px',
-        left: '0px',
-        width: size[0] + 'px',
-        height: size[1] + 'px'
-      })
     }, 'resize')
 
     return {
@@ -222,7 +223,7 @@ function mountCompositor ($el, $refs, $electron) {
     bindEvents () {
       containers.scene.addEventListener('pointermove', seek.pointerMove, false)
       containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
-      window.addEventListener('resize', debounce(1 / 60, viewport.resize), false)
+      window.addEventListener('resize', debounce(120, viewport.resize), false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
       $electron.ipcRenderer.on('message', viewport.message)

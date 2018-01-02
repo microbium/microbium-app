@@ -204,7 +204,7 @@ function createMainWindow () {
 
   const main = appWindows.main = new BrowserWindow({
     titleBarStyle: DEBUG_MAIN ? null : 'hiddenInset',
-    backgroundColor: '#A9D3DC',
+    backgroundColor: '#53B5C9',
     x: transform.x,
     y: transform.y,
     width: transform.width,
