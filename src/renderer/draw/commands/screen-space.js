@@ -85,6 +85,7 @@ export function createDrawScreen (regl) {
       bloom: regl.prop('bloom'),
       bloomIntensity: regl.prop('bloomIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
+      colorShift: regl.prop('colorShift'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset')

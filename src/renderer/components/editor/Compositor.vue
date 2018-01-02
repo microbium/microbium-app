@@ -417,6 +417,7 @@ function mountCompositor ($el, $refs, $electron) {
             : (0.4 * postEffects.bloomIntensityFactor)),
           noiseIntensity: (!isRunning ? 0.0
             : (0.06 * postEffects.noiseIntensityFactor)),
+          colorShift: postEffects.colorShift,
           tick,
           viewOffset,
           viewResolution

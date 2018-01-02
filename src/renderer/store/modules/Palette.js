@@ -185,7 +185,8 @@ export function createControlsState () {
     postEffects: {
       clearAlphaFactor: 1,
       bloomIntensityFactor: 1,
-      noiseIntensityFactor: 1
+      noiseIntensityFactor: 1,
+      colorShift: [0, 0, 0]
     }
   }
 }
