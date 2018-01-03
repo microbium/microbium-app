@@ -23,6 +23,7 @@
   },
   "build": {
     "productName": "Bacterium",
+    "copyright": "Copyright © 2017-2018 Jay Weeks",
     "appId": "com.jayweeks.bacterium",
     "fileAssociations": [
       {
