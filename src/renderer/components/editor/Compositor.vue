@@ -373,7 +373,7 @@ function mountCompositor ($el, $refs, $electron) {
 
     renderScene (tick) {
       const { postBuffers } = renderer
-      const { setupDrawScreen, drawScreen } = renderer.commands
+      const { setupDrawScreen, drawRect, drawScreen } = renderer.commands
       const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -384,16 +384,25 @@ function mountCompositor ($el, $refs, $electron) {
       const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
       const viewScale = scale + zoomOffset
 
-      postBuffers.resize(resolution)
+      const { bloom, noise, colorShift } = postEffects
+      const shouldRenderBloom = bloom.blurPasses > 0 && bloom.intensityFactor > 0
 
+      postBuffers.resize(resolution)
       postBuffers.get('A').use(() => {
-        state.renderer.fullScreenPasses++
         // TODO: Tween between clear states
-        // TODO: Improve variable bloom darkness
-        view.renderClearRect(0.75,
-          (didResize ? 1
-            : (!isRunning ? 0.6
-              : (0.025 * postEffects.clearAlphaFactor))))
+        const clearColor = Colr.fromHex(postEffects.clear.colorHex)
+          .toRgbArray()
+          .map((v) => v / 255)
+        clearColor.push(didResize ? 1
+          : (!isRunning ? 0.6
+            : (0.025 * postEffects.clear.alphaFactor)))
+
+        // state.renderer.fullScreenPasses++
+        state.renderer.drawCalls++
+        drawRect({
+          color: clearColor
+        })
+
         cameras.scene.setup({
           viewResolution,
           viewOffset,
@@ -405,7 +414,8 @@ function mountCompositor ($el, $refs, $electron) {
       })
 
       setupDrawScreen(() => {
-        view.renderSceneBlurPasses(viewResolution, 2, 1)
+        view.renderSceneBlurPasses(viewResolution,
+          bloom.blurStep, bloom.blurPasses)
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
@@ -413,18 +423,19 @@ function mountCompositor ($el, $refs, $electron) {
         drawScreen({
           color: postBuffers.get('A'),
           bloom: postBuffers.get('C'),
-          bloomIntensity: (!isRunning ? 0.4
-            : (0.4 * postEffects.bloomIntensityFactor)),
+          bloomIntensity: !shouldRenderBloom ? 0
+            : (!isRunning ? 0.4
+              : (0.4 * bloom.intensityFactor)),
           noiseIntensity: (!isRunning ? 0.0
-            : (0.06 * postEffects.noiseIntensityFactor)),
-          colorShift: postEffects.colorShift,
+            : (0.06 * noise.intensityFactor)),
+          colorShift: colorShift,
           tick,
           viewOffset,
           viewResolution
         })
       })
 
-      if (isRunning) postBuffers.swap('A', 'C')
+      if (isRunning && shouldRenderBloom) postBuffers.swap('A', 'C')
     },
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
@@ -434,7 +445,7 @@ function mountCompositor ($el, $refs, $electron) {
       for (let i = 0; i < count * 2; i++) {
         postBuffers.swap('C', 'B')
         postBuffers.get('C').use(() => {
-          const radius = 1 + Math.floor(i / 2) * radiusStep
+          const radius = (1 + Math.floor(i / 2)) * radiusStep
           const blurDirection = (i % 2 === 0)
             ? [radius, 0]
             : [0, radius]
@@ -454,19 +465,6 @@ function mountCompositor ($el, $refs, $electron) {
     renderOnce () {
       const uiGrid = sceneUI.grid
       drawPolarGrid(state, uiGrid.ctx)
-    },
-
-    renderClearRect (colorFactor, alpha) {
-      const { drawRect } = renderer.commands
-      state.renderer.drawCalls++
-      drawRect({
-        color: [
-          0.6 * colorFactor,
-          0.8 * colorFactor,
-          0.84 * colorFactor,
-          alpha
-        ]
-      })
     },
 
     computeLineThickness (baseThickness) {

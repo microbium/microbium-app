@@ -183,9 +183,18 @@ export function createControlsState () {
     },
 
     postEffects: {
-      clearAlphaFactor: 1,
-      bloomIntensityFactor: 1,
-      noiseIntensityFactor: 1,
+      clear: {
+        colorHex: '#7399A1',
+        alphaFactor: 1
+      },
+      noise: {
+        intensityFactor: 1
+      },
+      bloom: {
+        intensityFactor: 1,
+        blurPasses: 1,
+        blurStep: 2
+      },
       colorShift: [0, 0, 0]
     }
   }

@@ -2,14 +2,24 @@
   <div class="palette-effects">
     <palette-group nested>
       <h2 slot="title">Background</h2>
+
       <div class="palette-item">
-        <input-range min="0" max="2" step="0.05" v-model="model.clearAlphaFactor" />
+        <div class="palette-item__label">
+          <b>{{ model.clear.colorHex.toUpperCase() }}
+            <input-color v-model="model.clear.colorHex" />
+          </b> clear color
+        </div>
+      </div>
+
+      <div class="palette-item">
+        <input-range min="0" max="2" step="0.05" v-model="model.clear.alphaFactor" />
         <div class="palette-item__label">
           <b>{{ clearAlphaName }}</b> clear alpha
         </div>
       </div>
+
       <div class="palette-item">
-        <input-range min="0" max="5" step="0.05" v-model="model.noiseIntensityFactor" />
+        <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ noiseFactorName }}</b> noise intensity
         </div>
@@ -18,10 +28,25 @@
 
     <palette-group nested>
       <h2 slot="title">Bloom</h2>
+
       <div class="palette-item">
-        <input-range min="0" max="2" step="0.05" v-model="model.bloomIntensityFactor" />
+        <input-range min="0" max="2" step="0.05" v-model="model.bloom.intensityFactor" />
         <div class="palette-item__label">
-          <b>{{ bloomFactorName }}</b> bloom intensity
+          <b>{{ bloomFactorName }}</b> intensity
+        </div>
+      </div>
+
+      <div class="palette-item">
+        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurPassesName }}</b> blur passes
+        </div>
+      </div>
+
+      <div class="palette-item">
+        <input-range min="1" max="20" step="1" v-model="model.bloom.blurStep" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurStepName }}</b> blur radius interval
         </div>
       </div>
     </palette-group>
@@ -34,12 +59,14 @@
           <b>{{ colorShiftHueName }}</b> hue
         </div>
       </div>
+
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[1]" />
         <div class="palette-item__label">
           <b>{{ colorShiftSatName }}</b> saturation
         </div>
       </div>
+
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[2]" />
         <div class="palette-item__label">
@@ -55,6 +82,7 @@
 
 <script>
 import { roundToPlaces } from '@/utils/number'
+import InputColor from '@/components/input/Color'
 import InputRange from '@/components/input/Range'
 import PaletteGroup from '@/components/palette/Group'
 
@@ -62,6 +90,7 @@ export default {
   name: 'palette-effects',
 
   components: {
+    InputColor,
     InputRange,
     PaletteGroup
   },
@@ -72,18 +101,28 @@ export default {
 
   computed: {
     clearAlphaName () {
-      const { clearAlphaFactor } = this.model
-      return `${roundToPlaces(clearAlphaFactor, 2)}x`
-    },
-
-    bloomFactorName () {
-      const { bloomIntensityFactor } = this.model
-      return `${roundToPlaces(bloomIntensityFactor, 2)}x`
+      const { clear } = this.model
+      return `${roundToPlaces(clear.alphaFactor, 2)}x`
     },
 
     noiseFactorName () {
-      const { noiseIntensityFactor } = this.model
-      return `${roundToPlaces(noiseIntensityFactor, 2)}x`
+      const { noise } = this.model
+      return `${roundToPlaces(noise.intensityFactor, 2)}x`
+    },
+
+    bloomFactorName () {
+      const { bloom } = this.model
+      return `${roundToPlaces(bloom.intensityFactor, 2)}x`
+    },
+
+    bloomBlurPassesName () {
+      const { bloom } = this.model
+      return bloom.blurPasses
+    },
+
+    bloomBlurStepName () {
+      const { bloom } = this.model
+      return `${bloom.blurStep}px`
     },
 
     colorShiftHueName () {

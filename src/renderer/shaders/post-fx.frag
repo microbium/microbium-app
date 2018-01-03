@@ -31,27 +31,34 @@ void main() {
 
   vec4 fColor = texture2D(color, uv);
 
+  // Color Shift
   vec3 hColor = rgb2hsv(fColor.rgb);
   fColor.rgb = hsv2rgb(
     vec3(fract(hColor.r + colorShift.r),
       clamp(hColor.g + colorShift.g, 0.0, 1.5),
       clamp(hColor.b + colorShift.b, 0.0, 1.0)));
 
+  // Noise
   float fNoise = 0.0;
   if (noiseIntensity > 0.0) {
     float nx = random(fract(uv + tick * 0.001));
     fNoise = (clamp(0.1 + nx, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
   }
 
+  // Bloom
   vec4 fBloom = vec4(0.0);
   if (bloomIntensity > 0.0) {
     fBloom = texture2D(bloom, uv) * bloomIntensity;
+  } else {
+    fBloom = fColor * 0.4;
   }
 
+  // Origin Concentric Grid
   vec4 fDash = 0.05 * vec4(
     vec3(concentricDash(fragPosition, 0.15, 1.0)),
     1.0);
 
+  // Vignette
   vec4 fVignette = vec4(
     vec3(vignette(uv, 0.7, 0.4)),
     0.0);
