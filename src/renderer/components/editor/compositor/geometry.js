@@ -150,8 +150,9 @@ export function createGeometryController (tasks, state) {
     completeActiveSegment (index) {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
-      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
+      if (!activeSegment) return
 
+      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
       const firstIndex = indices[0]
       const isConnected = index != null && index !== -1
       const isClosed = isConnected && firstIndex === index
