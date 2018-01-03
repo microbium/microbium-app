@@ -3,7 +3,8 @@
   "version": "0.4.0",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
   "description": "Bacterium Drawing Tool",
-  "license": null,
+  "private": true,
+  "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
   "scripts": {
     "start": "node .electron-vue/dev-runner.js",
