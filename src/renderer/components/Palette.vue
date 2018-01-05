@@ -6,45 +6,45 @@
     <div class="palette__content">
       <palette-group open>
         <h2 slot="title">Line Tool</h2>
-        <palette-tool :model="lineTool"
-          :styles="styles"
-          :inputModTypes="inputModTypes"
-          :physicsTypes="physicsTypes" />
+        <palette-tool :model="controls.lineTool"
+          :styles="controls.styles"
+          :inputModTypes="controls.inputModTypes"
+          :physicsTypes="controls.physicsTypes" />
+      </palette-group>
+
+      <palette-group>
+        <h2 slot="title">Geometry Modifiers</h2>
+        <palette-modifiers :model="controls.modifiers" />
       </palette-group>
 
       <palette-group>
         <h2 slot="title">Style Layers</h2>
-        <palette-group v-for="style in styles"
-          :key="style.index" nested :open="style.index == 0">
+        <palette-group v-for="style in controls.styles"
+          :key="style.index" nested>
           <h2 slot="title">
             {{ style.name }}
             <input-text v-model="style.name" />
           </h2>
           <palette-style :model="style"
-            :textures="textures"
-            :alphaTextures="alphaTextures"
-            :alphaFunctions="alphaFunctions" />
+            :textures="controls.textures"
+            :alphaTextures="controls.alphaTextures"
+            :alphaFunctions="controls.alphaFunctions" />
         </palette-group>
       </palette-group>
 
       <palette-group>
-        <h2 slot="title">Geometry Modifiers</h2>
-        <palette-modifiers :model="modifiers" />
-      </palette-group>
-
-      <palette-group>
         <h2 slot="title">Simulation Forces</h2>
-        <palette-group v-for="force in forces"
+        <palette-group v-for="force in controls.forces"
           :key="force.id" nested>
           <h2 slot="title">{{ force.name }}</h2>
           <palette-force :model="force"
-            :forceScales="forceScales" />
+            :forceScales="controls.forceScales" />
         </palette-group>
       </palette-group>
 
       <palette-group>
         <h2 slot="title">Post Effects</h2>
-        <palette-effects :model="postEffects" />
+        <palette-effects :model="controls.postEffects" />
       </palette-group>
     </div>
   </div>
@@ -161,7 +161,9 @@ export default {
   },
 
   data () {
-    return createControlsState()
+    return {
+      controls: createControlsState()
+    }
   },
 
   created () {
