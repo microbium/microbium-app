@@ -28,11 +28,15 @@ export function createControlsState () {
     physicsTypes: [
       {
         index: 0,
-        name: 'Static'
+        name: 'Anchor'
       },
       {
         index: 1,
-        name: 'Dynamic'
+        name: 'Bone'
+      },
+      {
+        index: 2,
+        name: 'Muscle'
       }
     ],
 

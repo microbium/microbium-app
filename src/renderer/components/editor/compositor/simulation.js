@@ -30,40 +30,34 @@ export function createSimulationController (tasks, state, renderer) {
       }
     },
 
+    // Create
+
     createFromGeometry () {
       const { segments, vertices } = state.geometry
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
+      const boneGroups = []
+      const muscleGroups = []
 
+      // Set particle positions
       vertices.forEach((vert, i) => {
         system.setPosition(i, vert[0], vert[1], 0)
       })
 
+      // Create segment constraints
       segments.forEach((segment) => {
-        const { indices, physicsTypeIndex, isClosed } = segment
-
-        switch (physicsTypeIndex) {
-          // Static (pinned) segment
+        switch (segment.physicsTypeIndex) {
           case 0:
-            indices.forEach((index, i) => {
-              if (isClosed && i === 0) return
-              const position = system.getPosition(index, [])
-              const pin = PointConstraint.create(position, index)
-              system.addPinConstraint(pin)
-            })
+            // Anchor (pinned)
+            this.createStaticSegment(system, segment)
             break
-
-          // Dynamic segment
           case 1:
-            const lines = simulation.expandIndicesToLines(indices)
-            lines.forEach((line) => {
-              const distance = vec2.distance(
-                vertices[line[0]],
-                vertices[line[1]])
-              const constraint = DistanceConstraint.create(
-                [distance * 0.95, distance], line)
-              system.addConstraint(constraint)
-            })
+            // Bone (free)
+            this.createDynamicSegment(system, segment, boneGroups)
+            break
+          case 2:
+            // Muscle (expand / contract)
+            this.createDynamicSegment(system, segment, muscleGroups)
             break
         }
       })
@@ -91,6 +85,10 @@ export function createSimulationController (tasks, state, renderer) {
       // TODO: Cleanup specific name references
       // OPTIM: Minimize / cleanup vue reactive state ...
       state.simulationSystem = system
+      state.simulationConstraintGroups = {
+        bones: boneGroups,
+        muscles: muscleGroups
+      }
       state.simulationForces = {
         all: forces,
         nudge,
@@ -101,6 +99,37 @@ export function createSimulationController (tasks, state, renderer) {
         forcesCount,
         pinConstraintCount,
         localConstraintCount
+      })
+    },
+
+    createStaticSegment (system, segment) {
+      segment.indices.forEach((index, i) => {
+        if (segment.isClosed && i === 0) return
+        const position = system.getPosition(index, [])
+        const pin = PointConstraint.create(position, index)
+        system.addPinConstraint(pin)
+      })
+    },
+
+    createDynamicSegment (system, segment, group) {
+      const lines = simulation.expandIndicesToLines(segment.indices)
+      const constraints = []
+
+      lines.forEach((line) => {
+        const distance = system.getDistance(line[0], line[1])
+        const constraint = DistanceConstraint.create(
+          [distance * 0.95, distance], line)
+
+        system.addConstraint(constraint)
+        constraints.push({
+          distance,
+          constraint
+        })
+      })
+
+      group.push({
+        segment,
+        constraints
       })
     },
 
@@ -120,6 +149,7 @@ export function createSimulationController (tasks, state, renderer) {
 
     destroy () {
       state.simulationSystem = null
+      state.simulationConstraintGroups = null
       state.simulationForces = null
       Object.assign(state.simulation, {
         forcesCount: null,
@@ -128,10 +158,27 @@ export function createSimulationController (tasks, state, renderer) {
       })
     },
 
+    // Update
+
     update (tick) {
+      simulation.updateMuscles()
       simulation.updateForces()
       state.simulationSystem.tick(1)
       simulation.syncGeometry()
+    },
+
+    updateMuscles () {
+      const { tick } = state.simulation
+      const { muscles } = state.simulationConstraintGroups
+
+      muscles.forEach(({constraints}) => {
+        const distanceScale = Math.sin(tick * 0.01) * 0.25 + 0.75
+
+        constraints.forEach(({distance, constraint}) => {
+          const nextDistance = distance * distanceScale
+          constraint.setDistance(nextDistance * 0.9, nextDistance)
+        })
+      })
     },
 
     updateForces () {
