@@ -127,7 +127,7 @@ export default {
 
     colorShiftHueName () {
       const { colorShift } = this.model
-      return `${roundToPlaces(colorShift[0] * 360, 1)}`
+      return `${roundToPlaces(colorShift[0] * 360, 1)}°`
     },
 
     colorShiftSatName () {
