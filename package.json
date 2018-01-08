@@ -141,6 +141,7 @@
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^13.0.5",
     "vue-style-loader": "^3.0.1",
+    "vue-svg-loader": "^0.4.0",
     "vue-template-compiler": "^2.4.2",
     "webpack": "^3.5.2",
     "webpack-dev-server": "^2.7.1",

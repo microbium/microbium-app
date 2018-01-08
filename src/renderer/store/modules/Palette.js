@@ -1,5 +1,9 @@
 export function createControlsState () {
   return {
+    activeMode: {
+      name: 'draw'
+    },
+
     lineTool: {
       strokeWidth: 2,
       strokeColor: '#222222',
@@ -9,6 +13,15 @@ export function createControlsState () {
       physicsTypeIndex: 1,
       styleIndex: 0
     },
+
+    modeTypes: [
+      {
+        name: 'draw'
+      },
+      {
+        name: 'select'
+      }
+    ],
 
     inputModTypes: [
       {

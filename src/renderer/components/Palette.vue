@@ -2,7 +2,11 @@
   <div class="palette">
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
+      <palette-modes class="palette__toolbar__modes"
+        :activeMode="controls.activeMode"
+        :modeTypes="controls.modeTypes" />
     </div>
+
     <div class="palette__content">
       <palette-group open>
         <h2 slot="title">Line Tool</h2>
@@ -81,6 +85,14 @@ $base-color: rgba(#000, 0.15);
     width: 100%;
     height: $toolbar-height;
     -webkit-app-region: drag;
+
+    &__modes {
+      position: absolute;
+      top: 0;
+      right: 8px;
+      width: calc(100% - 40px);
+      height: 100%;
+    }
   }
 
   &__close {
@@ -140,6 +152,7 @@ $base-color: rgba(#000, 0.15);
 import { createControlsState } from '@/store/modules/Palette'
 
 import InputText from '@/components/input/Text'
+import PaletteModes from '@/components/palette/Modes'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
@@ -152,6 +165,7 @@ export default {
 
   components: {
     InputText,
+    PaletteModes,
     PaletteGroup,
     PaletteStyle,
     PaletteTool,
