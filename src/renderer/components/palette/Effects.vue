@@ -1,32 +1,17 @@
 <template>
   <div class="palette-effects">
-    <palette-group nested>
-      <h2 slot="title">Background</h2>
-
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ model.clear.colorHex.toUpperCase() }}
-            <input-color v-model="model.clear.colorHex" />
-          </b> clear color
-        </div>
-      </div>
-
-      <div class="palette-item">
-        <input-range min="0" max="2" step="0.05" v-model="model.clear.alphaFactor" />
-        <div class="palette-item__label">
-          <b>{{ clearAlphaName }}</b> clear alpha
-        </div>
-      </div>
+    <palette-group nested open>
+      <h2 slot="title">Noise</h2>
 
       <div class="palette-item">
         <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
         <div class="palette-item__label">
-          <b>{{ noiseFactorName }}</b> noise intensity
+          <b>{{ noiseFactorName }}</b> intensity
         </div>
       </div>
     </palette-group>
 
-    <palette-group nested>
+    <palette-group nested open>
       <h2 slot="title">Bloom</h2>
 
       <div class="palette-item">
@@ -51,7 +36,7 @@
       </div>
     </palette-group>
 
-    <palette-group nested>
+    <palette-group nested open>
       <h2 slot="title">Color Shift</h2>
       <div class="palette-item">
         <input-range min="0" max="1" step="0.01" v-model="model.colorShift[0]" />

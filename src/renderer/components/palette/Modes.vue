@@ -2,9 +2,10 @@
   <div class="palette-modes">
     <div v-for="mode in modeTypes"
       class="palette-modes__toggle"
-      :class="{ 'palette-modes__toggle--active': activeMode.name === mode.name }"
-      @click="setActiveMode(mode.name)">
-      <icon :name="mode.name" />
+      :class="{ 'palette-modes__toggle--active': activeMode.id === mode.id }"
+      :title="mode.name"
+      @click="setActiveMode(mode.id)">
+      <icon :name="mode.id" />
     </div>
   </div>
 </template>
@@ -63,8 +64,8 @@ export default {
   },
 
   methods: {
-    setActiveMode (name) {
-      this.activeMode.name = name
+    setActiveMode (id) {
+      this.activeMode.id = id
     }
   }
 }

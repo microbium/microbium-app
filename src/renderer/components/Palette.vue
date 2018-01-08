@@ -29,10 +29,10 @@
       </palette-group>
 
       <palette-group open
-        :hidden="!showGeometryPanels">
+        :hidden="!showStylePanels">
         <h2 slot="title">Style Layers</h2>
-        <palette-group v-for="style in controls.styles"
-          :key="style.index" nested>
+        <palette-group v-for="(style, index) in controls.styles"
+          :key="style.index" nested :open="index === 0">
           <h2 slot="title">
             {{ style.name }}
             <input-text v-model="style.name" />
@@ -48,7 +48,7 @@
         :hidden="!showForcesPanels">
         <h2 slot="title">Simulation Forces</h2>
         <palette-group v-for="force in controls.forces"
-          :key="force.id" nested>
+          :key="force.id" nested open>
           <h2 slot="title">{{ force.name }}</h2>
           <palette-force :model="force"
             :forceScales="controls.forceScales" />
@@ -57,7 +57,13 @@
 
       <palette-group open
         :hidden="!showEffectsPanels">
-        <h2 slot="title">Post Effects</h2>
+        <h2 slot="title">Scene</h2>
+        <palette-scene :model="controls.postEffects" />
+      </palette-group>
+
+      <palette-group open
+        :hidden="!showEffectsPanels">
+        <h2 slot="title">Visual Effects</h2>
         <palette-effects :model="controls.postEffects" />
       </palette-group>
     </div>
@@ -171,6 +177,7 @@ import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
 import PaletteForce from '@/components/palette/Force'
 import PaletteModifiers from '@/components/palette/Modifiers'
+import PaletteScene from '@/components/palette/Scene'
 import PaletteEffects from '@/components/palette/Effects'
 
 export default {
@@ -184,6 +191,7 @@ export default {
     PaletteTool,
     PaletteForce,
     PaletteModifiers,
+    PaletteScene,
     PaletteEffects
   },
 
@@ -229,6 +237,7 @@ export default {
     isDrawMode: createModeCondition('activeMode', 'draw'),
     isSelectMode: createModeCondition('activeMode', 'select'),
     showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
+    showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
@@ -242,9 +251,9 @@ export default {
   }
 }
 
-function createModeCondition (modeType, name) {
+function createModeCondition (modeType, id) {
   return function () {
-    return this.controls[modeType].name === name
+    return this.controls[modeType].id === id
   }
 }
 

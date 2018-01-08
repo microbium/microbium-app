@@ -1,11 +1,11 @@
 export function createControlsState () {
   return {
     activeMode: {
-      name: 'draw'
+      id: 'draw'
     },
 
     activePalettes: {
-      name: 'geometry'
+      id: 'geometry'
     },
 
     lineTool: {
@@ -20,22 +20,31 @@ export function createControlsState () {
 
     modeTypes: [
       {
-        name: 'draw'
+        id: 'draw',
+        name: 'Draw'
       },
       {
-        name: 'select'
+        id: 'select',
+        name: 'Select'
       }
     ],
 
     paletteTypes: [
       {
-        name: 'geometry'
+        id: 'geometry',
+        name: 'Geometry'
       },
       {
-        name: 'forces'
+        id: 'styles',
+        name: 'Styles'
       },
       {
-        name: 'effects'
+        id: 'forces',
+        name: 'Forces'
+      },
+      {
+        id: 'effects',
+        name: 'Effects'
       }
     ],
 
