@@ -15,6 +15,7 @@
 
   display: flex;
   justify-content: flex-end;
+  margin-left: 12px;
 
   &__toggle {
     position: relative;
@@ -32,15 +33,14 @@
     }
 
     path {
-      fill: none;
-      stroke: #fff;
-      stroke-width: 2;
+      fill: #fff;;
+      // stroke: #fff;
     }
   }
 
   &__toggle--active {
     path {
-      fill: #fff;
+      fill: #41EDC1;
       stroke: none;
     }
   }

@@ -4,6 +4,10 @@ export function createControlsState () {
       name: 'draw'
     },
 
+    activePalettes: {
+      name: 'geometry'
+    },
+
     lineTool: {
       strokeWidth: 2,
       strokeColor: '#222222',
@@ -20,6 +24,18 @@ export function createControlsState () {
       },
       {
         name: 'select'
+      }
+    ],
+
+    paletteTypes: [
+      {
+        name: 'geometry'
+      },
+      {
+        name: 'forces'
+      },
+      {
+        name: 'effects'
       }
     ],
 

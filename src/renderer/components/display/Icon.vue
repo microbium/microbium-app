@@ -7,8 +7,13 @@
 </style>
 
 <script>
+// TODO: Improve linking icon assets
+// TODO: Improve icon designs
 import drawIcon from '@/assets/icons/draw.svg'
 import selectIcon from '@/assets/icons/select.svg'
+import geometryIcon from '@/assets/icons/geometry.svg'
+import forcesIcon from '@/assets/icons/forces.svg'
+import effectsIcon from '@/assets/icons/effects.svg'
 
 export default {
   name: 'icon',
@@ -19,7 +24,10 @@ export default {
 
   components: {
     drawIcon,
-    selectIcon
+    selectIcon,
+    geometryIcon,
+    forcesIcon,
+    effectsIcon
   },
 
   computed: {

@@ -2,13 +2,19 @@
   <div class="palette">
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
-      <palette-modes class="palette__toolbar__modes"
-        :activeMode="controls.activeMode"
-        :modeTypes="controls.modeTypes" />
+      <div class="palette__toolbar__modes">
+        <palette-modes
+          :activeMode="controls.activeMode"
+          :modeTypes="controls.modeTypes" />
+        <palette-modes
+          :activeMode="controls.activePalettes"
+          :modeTypes="controls.paletteTypes" />
+      </div>
     </div>
 
     <div class="palette__content">
-      <palette-group open>
+      <palette-group open
+        :hidden="!showGeometryPanels">
         <h2 slot="title">Line Tool</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
@@ -16,12 +22,14 @@
           :physicsTypes="controls.physicsTypes" />
       </palette-group>
 
-      <palette-group>
+      <palette-group open
+        :hidden="!showGeometryPanels">
         <h2 slot="title">Geometry Modifiers</h2>
         <palette-modifiers :model="controls.modifiers" />
       </palette-group>
 
-      <palette-group>
+      <palette-group open
+        :hidden="!showGeometryPanels">
         <h2 slot="title">Style Layers</h2>
         <palette-group v-for="style in controls.styles"
           :key="style.index" nested>
@@ -36,7 +44,8 @@
         </palette-group>
       </palette-group>
 
-      <palette-group>
+      <palette-group open
+        :hidden="!showForcesPanels">
         <h2 slot="title">Simulation Forces</h2>
         <palette-group v-for="force in controls.forces"
           :key="force.id" nested>
@@ -46,7 +55,8 @@
         </palette-group>
       </palette-group>
 
-      <palette-group>
+      <palette-group open
+        :hidden="!showEffectsPanels">
         <h2 slot="title">Post Effects</h2>
         <palette-effects :model="controls.postEffects" />
       </palette-group>
@@ -90,6 +100,9 @@ $base-color: rgba(#000, 0.15);
       position: absolute;
       top: 0;
       right: 8px;
+
+      display: flex;
+      justify-content: flex-end;
       width: calc(100% - 40px);
       height: 100%;
     }
@@ -212,12 +225,26 @@ export default {
     }
   },
 
+  computed: {
+    isDrawMode: createModeCondition('activeMode', 'draw'),
+    isSelectMode: createModeCondition('activeMode', 'select'),
+    showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
+    showForcesPanels: createModeCondition('activePalettes', 'forces'),
+    showEffectsPanels: createModeCondition('activePalettes', 'effects')
+  },
+
   watch: {
     'controls.lineTool': createStateSyncer('lineTool'),
     'controls.styles': createStateSyncer('styles'),
     'controls.forces': createStateSyncer('forces'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.postEffects': createStateSyncer('postEffects')
+  }
+}
+
+function createModeCondition (modeType, name) {
+  return function () {
+    return this.controls[modeType].name === name
   }
 }
 

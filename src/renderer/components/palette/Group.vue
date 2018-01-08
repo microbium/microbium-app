@@ -1,6 +1,6 @@
 <template>
   <section class="palette-group"
-    :class="openStateClassNames">
+    :class="[openStateClassNames, mainClassNames]">
     <div class="palette-group__header"
       :class="openStateClassNames">
       <div class="palette-group__title"
@@ -28,6 +28,10 @@ $toggle-duration: 200ms;
 
 .palette-group {
   position: relative;
+
+  &.hidden {
+    display: none;
+  }
 
   &__header {
     position: relative;
@@ -117,6 +121,7 @@ export default {
 
   props: {
     open: Boolean,
+    hidden: Boolean,
     nested: Boolean
   },
 
@@ -155,6 +160,12 @@ export default {
   },
 
   computed: {
+    mainClassNames () {
+      return {
+        'hidden': this.hidden
+      }
+    },
+
     openStateClassNames () {
       return {
         'open': this.isOpen,
