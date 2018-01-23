@@ -40,11 +40,12 @@ $toggle-duration: 200ms;
 
     &.nested {
       background: transparent;
-      padding: 8px 28px;
+      padding: 6px 26px 6px 26px;
     }
 
     &.open {
       background: transparent;
+      font-weight: bold;
     }
   }
 
@@ -68,6 +69,15 @@ $toggle-duration: 200ms;
       transition: transform $toggle-duration;
     }
 
+    &.nested {
+      left: 4px;
+      width: 30px;
+
+      &:after {
+        height: calc(100% - 8px);
+      }
+    }
+
     &.open {
       &:after {
         transform: translate(-50%, -50%) rotate(45deg);
@@ -82,7 +92,7 @@ $toggle-duration: 200ms;
     transition: transform $toggle-duration;
 
     &.nested {
-      font-size: 15px;
+      font-size: 14px;
     }
 
     &.open {
@@ -100,7 +110,7 @@ $toggle-duration: 200ms;
     position: relative;
     left: 0;
     bottom: 0;
-    padding: 0 6px 16px;
+    padding: 0 10px 16px;
     width: 100%;
     height: auto;
 
