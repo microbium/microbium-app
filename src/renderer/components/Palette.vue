@@ -3,9 +3,11 @@
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
       <div class="palette__toolbar__modes">
+        <!--
         <palette-modes
           :activeMode="controls.activeMode"
           :modeTypes="controls.modeTypes" />
+        -->
         <palette-modes
           :activeMode="controls.activePalettes"
           :modeTypes="controls.paletteTypes" />
