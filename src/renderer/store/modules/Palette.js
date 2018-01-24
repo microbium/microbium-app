@@ -14,7 +14,7 @@ export function createControlsState () {
       strokeAlpha: 1,
       strokeWidthMod: 0,
       inputModTypeIndex: 1,
-      physicsTypeIndex: 1,
+      constraintIndex: 1,
       styleIndex: 0
     },
 
@@ -42,6 +42,11 @@ export function createControlsState () {
         id: 'forces',
         name: 'Forces'
       },
+      // TODO: Create constraints icon
+      {
+        id: 'constraints',
+        name: 'Constraints'
+      },
       {
         id: 'effects',
         name: 'Effects'
@@ -60,21 +65,6 @@ export function createControlsState () {
       {
         index: 2,
         name: 'Pen Pressure'
-      }
-    ],
-
-    physicsTypes: [
-      {
-        index: 0,
-        name: 'Anchor'
-      },
-      {
-        index: 1,
-        name: 'Bone'
-      },
-      {
-        index: 2,
-        name: 'Muscle'
       }
     ],
 
@@ -216,6 +206,48 @@ export function createControlsState () {
         index: 2,
         name: '1000x',
         value: 1000
+      }
+    ],
+
+    constraints: [
+      {
+        index: 0,
+        name: 'Muscle',
+        typeIndex: 2,
+        slipTolerance: 0.1,
+        engineCadence: 0.1,
+        engineFlex: 0.25
+      },
+      {
+        index: 1,
+        name: 'Bone',
+        typeIndex: 1,
+        slipTolerance: 0.1,
+        engineCadence: 0.1,
+        engineFlex: 0
+      },
+      {
+        index: 2,
+        name: 'Anchor',
+        typeIndex: 0,
+        slipTolerance: 0,
+        engineCadence: 0.1,
+        engineFlex: 0
+      }
+    ],
+
+    constraintTypes: [
+      {
+        index: 0,
+        name: 'Pin'
+      },
+      {
+        index: 1,
+        name: 'Stick'
+      },
+      {
+        index: 2,
+        name: 'Engine'
       }
     ],
 

@@ -1,5 +1,6 @@
 import { vec2, mat2d } from 'gl-matrix'
 import { distance2 } from '@/utils/array'
+import { mapLinear } from '@/utils/math'
 
 import {
   BoundingPlaneConstraint,
@@ -33,11 +34,12 @@ export function createSimulationController (tasks, state, renderer) {
     // Create
 
     createFromGeometry () {
+      const { constraints } = state.controls
       const { segments, vertices } = state.geometry
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
-      const boneGroups = []
-      const muscleGroups = []
+      const stickGroups = []
+      const engineGroups = []
 
       // Set particle positions
       vertices.forEach((vert, i) => {
@@ -46,18 +48,22 @@ export function createSimulationController (tasks, state, renderer) {
 
       // Create segment constraints
       segments.forEach((segment) => {
-        switch (segment.physicsTypeIndex) {
+        const config = constraints[segment.constraintIndex]
+        switch (config.typeIndex) {
           case 0:
-            // Anchor (pinned)
-            this.createStaticSegment(system, segment)
+            // Pin
+            this.createStaticSegment(system,
+              segment, config)
             break
           case 1:
-            // Bone (free)
-            this.createDynamicSegment(system, segment, boneGroups)
+            // Stick
+            this.createDynamicSegment(system,
+              segment, config, stickGroups)
             break
           case 2:
-            // Muscle (expand / contract)
-            this.createDynamicSegment(system, segment, muscleGroups)
+            // Engine
+            this.createDynamicSegment(system,
+              segment, config, engineGroups)
             break
         }
       })
@@ -86,8 +92,8 @@ export function createSimulationController (tasks, state, renderer) {
       // OPTIM: Minimize / cleanup vue reactive state ...
       state.simulationSystem = system
       state.simulationConstraintGroups = {
-        bones: boneGroups,
-        muscles: muscleGroups
+        sticks: stickGroups,
+        engines: engineGroups
       }
       state.simulationForces = {
         all: forces,
@@ -102,7 +108,7 @@ export function createSimulationController (tasks, state, renderer) {
       })
     },
 
-    createStaticSegment (system, segment) {
+    createStaticSegment (system, segment, config) {
       segment.indices.forEach((index, i) => {
         if (segment.isClosed && i === 0) return
         const position = system.getPosition(index, [])
@@ -111,14 +117,15 @@ export function createSimulationController (tasks, state, renderer) {
       })
     },
 
-    createDynamicSegment (system, segment, group) {
+    createDynamicSegment (system, segment, config, group) {
+      const { slipTolerance } = config
       const lines = simulation.expandIndicesToLines(segment.indices)
       const constraints = []
 
       lines.forEach((line) => {
         const distance = system.getDistance(line[0], line[1])
         const constraint = DistanceConstraint.create(
-          [distance * 0.95, distance], line)
+          [distance * (1 - slipTolerance), distance], line)
 
         system.addConstraint(constraint)
         constraints.push({
@@ -161,22 +168,28 @@ export function createSimulationController (tasks, state, renderer) {
     // Update
 
     update (tick) {
-      simulation.updateMuscles()
+      simulation.updateEngines()
       simulation.updateForces()
       state.simulationSystem.tick(1)
       simulation.syncGeometry()
     },
 
-    updateMuscles () {
+    // TODO: Enable extending beyond base segment size
+    updateEngines () {
+      const { constraints: constraintConfigs } = state.controls
       const { tick } = state.simulation
-      const { muscles } = state.simulationConstraintGroups
+      const { engines } = state.simulationConstraintGroups
 
-      muscles.forEach(({constraints}) => {
-        const distanceScale = Math.sin(tick * 0.01) * 0.25 + 0.75
+      engines.forEach(({segment, constraints}) => {
+        const config = constraintConfigs[segment.constraintIndex]
+        const { slipTolerance, engineCadence, engineFlex } = config
+        const distanceScale = Math.sin(tick * engineCadence) *
+          mapLinear(0, 1, 0, 0.5, engineFlex) +
+          mapLinear(0, 1, 1, 0.5, engineFlex)
 
         constraints.forEach(({distance, constraint}) => {
           const nextDistance = distance * distanceScale
-          constraint.setDistance(nextDistance * 0.9, nextDistance)
+          constraint.setDistance(nextDistance * (1 - slipTolerance), nextDistance)
         })
       })
     },

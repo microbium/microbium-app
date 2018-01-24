@@ -7,7 +7,7 @@ const ABBRV_KEY = {
   'sa': 'strokeAlpha',
   'sm': 'strokeWidthMod',
   'mt': 'inputModTypeIndex',
-  'pt': 'physicsTypeIndex',
+  'ct': 'constraintIndex',
   'si': 'styleIndex',
 
   'ii': 'indices',

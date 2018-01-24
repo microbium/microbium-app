@@ -20,6 +20,7 @@
         <h2 slot="title">Line Tool</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
+          :constraints="controls.constraints"
           :inputModTypes="controls.inputModTypes"
           :physicsTypes="controls.physicsTypes" />
       </palette-group>
@@ -54,6 +55,20 @@
           <h2 slot="title">{{ force.name }}</h2>
           <palette-force :model="force"
             :forceScales="controls.forceScales" />
+        </palette-group>
+      </palette-group>
+
+      <palette-group open
+        :hidden="!showConstraintsPanels">
+        <h2 slot="title">Simulation Constraints</h2>
+        <palette-group v-for="constraint in controls.constraints"
+          :key="constraint.index" nested open>
+          <h2 slot="title">
+            {{ constraint.name }}
+            <input-text v-model="constraint.name" />
+          </h2>
+          <palette-constraint :model="constraint"
+            :constraintTypes="controls.constraintTypes" />
         </palette-group>
       </palette-group>
 
@@ -178,6 +193,7 @@ import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
 import PaletteForce from '@/components/palette/Force'
+import PaletteConstraint from '@/components/palette/Constraint'
 import PaletteModifiers from '@/components/palette/Modifiers'
 import PaletteScene from '@/components/palette/Scene'
 import PaletteEffects from '@/components/palette/Effects'
@@ -192,6 +208,7 @@ export default {
     PaletteStyle,
     PaletteTool,
     PaletteForce,
+    PaletteConstraint,
     PaletteModifiers,
     PaletteScene,
     PaletteEffects
@@ -241,6 +258,7 @@ export default {
     showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
     showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
+    showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
 
@@ -248,6 +266,7 @@ export default {
     'controls.lineTool': createStateSyncer('lineTool'),
     'controls.styles': createStateSyncer('styles'),
     'controls.forces': createStateSyncer('forces'),
+    'controls.constraints': createStateSyncer('constraints'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.postEffects': createStateSyncer('postEffects')
   }

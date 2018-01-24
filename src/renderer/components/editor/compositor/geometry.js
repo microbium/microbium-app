@@ -72,7 +72,7 @@ export function createGeometryController (tasks, state) {
       const { segments, vertices } = stateGeom
       const {
         strokeWidth, strokeColor, strokeAlpha,
-        physicsTypeIndex, styleIndex
+        constraintIndex, styleIndex
       } = state.controls.lineTool
 
       const isConnected = index != null
@@ -89,7 +89,7 @@ export function createGeometryController (tasks, state) {
         strokeWidth,
         strokeColor,
         strokeAlpha,
-        physicsTypeIndex,
+        constraintIndex,
         styleIndex
       }
 

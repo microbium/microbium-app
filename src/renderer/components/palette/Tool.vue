@@ -38,13 +38,13 @@
 
     <div class="palette-item">
       <div class="palette-item__label">
-        <b>{{ physicsTypeName }}
-          <input-select v-model="model.physicsTypeIndex">
-            <option v-for="type in physicsTypes" :value="type.index">
-              {{ type.name }}
+        <b>{{ strokeConstraintName }}
+          <input-select v-model="model.constraintIndex">
+            <option v-for="constraint in constraints" :value="constraint.index">
+              {{ constraint.name }}
             </option>
           </input-select>
-        </b> physics body
+        </b> simulation constraint
       </div>
     </div>
 
@@ -84,6 +84,7 @@ export default {
   props: {
     model: Object,
     styles: Array,
+    constraints: Array,
     inputModTypes: Array,
     physicsTypes: Array
   },
@@ -109,8 +110,8 @@ export default {
       return style.name
     },
 
-    physicsTypeName () {
-      const type = this.physicsTypes[this.model.physicsTypeIndex]
+    strokeConstraintName () {
+      const type = this.constraints[this.model.constraintIndex]
       return type.name
     }
   }
