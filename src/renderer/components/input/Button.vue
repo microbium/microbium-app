@@ -8,6 +8,7 @@
 .input-button {
   position: relative;
   display: inline-block;
+  margin: 0 2px;
   background: transparent;
   border: none;
   outline: none;

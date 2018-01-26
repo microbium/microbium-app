@@ -12,7 +12,8 @@
           :class="openStateClassNames">
           <slot name="title" />
         </div>
-        <div class="palette-group__controls">
+        <div class="palette-group__controls"
+          :class="openStateClassNames">
           <slot name="controls" />
         </div>
       </div>
@@ -45,12 +46,11 @@ $toggle-duration: 200ms;
     align-items: center;
 
     background: $base-color;
-    padding: 0 28px;
+    padding: 0 16px 0 28px;
     height: 38px;
 
     &.nested {
       background: transparent;
-      padding: 0 26px;
       height: 26px;
     }
 
@@ -120,9 +120,14 @@ $toggle-duration: 200ms;
 
   &__controls {
     position: relative;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity $toggle-duration,
+      visibility $toggle-duration;
 
     &.open {
-      // display: block;
+      opacity: 1;
+      visibility: visible;
     }
   }
 

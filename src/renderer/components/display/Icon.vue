@@ -16,6 +16,7 @@ import drawIcon from '@/assets/icons/draw.svg'
 import effectsIcon from '@/assets/icons/effects.svg'
 import forcesIcon from '@/assets/icons/forces.svg'
 import geometryIcon from '@/assets/icons/geometry.svg'
+import minusIcon from '@/assets/icons/minus.svg'
 import plusIcon from '@/assets/icons/plus.svg'
 import selectIcon from '@/assets/icons/select.svg'
 import stylesIcon from '@/assets/icons/styles.svg'
@@ -34,6 +35,7 @@ export default {
     effectsIcon,
     forcesIcon,
     geometryIcon,
+    minusIcon,
     plusIcon,
     selectIcon,
     stylesIcon

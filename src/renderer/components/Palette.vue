@@ -61,6 +61,7 @@
       <palette-group open
         :hidden="!showConstraintsPanels">
         <h2 slot="title">Simulation Constraints</h2>
+        <!-- TODO: Cleanup, refactor into constraints (list) component -->
         <palette-group v-for="constraint in controls.constraints"
           :key="constraint.index" nested open>
           <h2 slot="title">
@@ -69,8 +70,12 @@
           </h2>
           <div slot="controls">
             <input-button
+              :action="removeConstraintGroup.bind(null, constraint)">
+              <icon name="minus" :size="12" />
+            </input-button>
+            <input-button
               :action="duplicateConstraintGroup.bind(null, constraint)">
-              <icon name="plus" :size="14" />
+              <icon name="plus" :size="12" />
             </input-button>
           </div>
           <palette-constraint :model="constraint"
@@ -235,6 +240,15 @@ export default {
   },
 
   methods: {
+    // TODO: Enable removing constraint group anywhere in list
+    // TODO: Ensure segments don't depend on removed group
+    removeConstraintGroup (constraintGroup) {
+      const { constraints } = this.controls
+      const { index } = constraintGroup
+      if (index !== constraints.length - 1) return
+      constraints.splice(index, 1)
+    },
+
     duplicateConstraintGroup (constraintGroup) {
       const { constraints } = this.controls
       const { name } = constraintGroup
