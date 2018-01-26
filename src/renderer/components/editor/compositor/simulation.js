@@ -119,11 +119,12 @@ export function createSimulationController (tasks, state, renderer) {
 
     createDynamicSegment (system, segment, config, group) {
       const { slipTolerance } = config
+      const { lineLengths } = segment
       const lines = simulation.expandIndicesToLines(segment.indices)
       const constraints = []
 
-      lines.forEach((line) => {
-        const distance = system.getDistance(line[0], line[1])
+      lines.forEach((line, i) => {
+        const distance = lineLengths[i]
         const constraint = DistanceConstraint.create(
           [distance * (1 - slipTolerance), distance], line)
 

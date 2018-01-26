@@ -29,6 +29,17 @@ export function createGeometryController (tasks, state) {
       return 0
     },
 
+    computeLineLengths (vertices, indices) {
+      const count = indices.length - 1
+      const lengths = new Float32Array(count)
+      for (let i = 0; i < count; i++) {
+        lengths[i] = vec2.distance(
+          vertices[indices[i]],
+          vertices[indices[i + 1]])
+      }
+      return lengths
+    },
+
     // OPTIM: Maybe optimize with spacial index (kd-tree)
     findClosestPoint (target, maxDist = 10, lastOffset = 0, ignoreIndex = -1) {
       const { vertices } = state.geometry
@@ -169,11 +180,16 @@ export function createGeometryController (tasks, state) {
         vertices.pop()
       }
 
+      const nextIndices = new Uint16Array(indices)
+      const nextStrokeWidthModulations = new Float32Array(strokeWidthModulations)
+      const lineLengths = this.computeLineLengths(vertices, indices)
+
       Object.assign(activeSegment, {
         isClosed,
         isComplete: true,
-        indices: new Uint16Array(indices),
-        strokeWidthModulations: new Float32Array(strokeWidthModulations)
+        indices: nextIndices,
+        lineLengths,
+        strokeWidthModulations: nextStrokeWidthModulations
       })
 
       geometry.ensureActiveSegmentValid()
