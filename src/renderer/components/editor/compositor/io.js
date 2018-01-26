@@ -13,6 +13,7 @@ const ABBRV_KEY = {
   'ii': 'indices',
   'ci': 'connectedIndices',
   'cp': 'curvePrecision',
+  'll': 'lineLengths',
   'wm': 'strokeWidthModulations',
   'cl': 'isClosed',
   'co': 'isComplete',
@@ -43,6 +44,7 @@ export function createIOController (tasks, state) {
         .map((seg) => {
           return Object.assign({}, seg, {
             indices: io.serializeArray(seg.indices, 0),
+            lineLengths: io.serializeArray(seg.lineLengths, 4),
             strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 4)
           })
         })
@@ -69,6 +71,8 @@ export function createIOController (tasks, state) {
           return Object.assign({}, seg, {
             indices: new Uint16Array(
               io.deserializeIntArray(seg.indices)),
+            lineLengths: new Float32Array(
+              io.deserializeFloatArray(seg.lineLengths)),
             strokeWidthModulations: new Float32Array(
               io.deserializeFloatArray(seg.strokeWidthModulations))
           })
