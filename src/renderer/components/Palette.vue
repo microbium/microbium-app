@@ -62,7 +62,7 @@
         :hidden="!showConstraintsPanels">
         <h2 slot="title">Simulation Constraints</h2>
         <!-- TODO: Cleanup, refactor into constraints (list) component -->
-        <palette-group v-for="constraint in controls.constraints"
+        <palette-group v-for="(constraint, index) in controls.constraints"
           :key="constraint.index" nested open>
           <h2 slot="title">
             {{ constraint.name }}
@@ -70,6 +70,7 @@
           </h2>
           <div slot="controls">
             <input-button
+              v-if="index === controls.constraints.length - 1"
               :action="removeConstraintGroup.bind(null, constraint)">
               <icon name="minus" :size="12" />
             </input-button>
