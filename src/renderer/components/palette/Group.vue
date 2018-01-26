@@ -3,13 +3,19 @@
     :class="[openStateClassNames, mainClassNames]">
     <div class="palette-group__header"
       :class="openStateClassNames">
-      <div class="palette-group__title"
-        :class="openStateClassNames">
-        <slot name="title" />
-      </div>
       <div class="palette-group__toggle"
         :class="openStateClassNames"
         @click="toggleOpen"></div>
+      <div class="palette-group__header__inner"
+        :class="openStateClassNames">
+        <div class="palette-group__title"
+          :class="openStateClassNames">
+          <slot name="title" />
+        </div>
+        <div class="palette-group__controls">
+          <slot name="controls" />
+        </div>
+      </div>
     </div>
     <div class="palette-group__content"
       :style="contentStyle">
@@ -35,17 +41,34 @@ $toggle-duration: 200ms;
 
   &__header {
     position: relative;
+    display: flex;
+    align-items: center;
+
     background: $base-color;
-    padding: 10px 28px;
+    padding: 0 28px;
+    height: 38px;
 
     &.nested {
       background: transparent;
-      padding: 6px 26px 6px 26px;
+      padding: 0 26px;
+      height: 26px;
     }
 
     &.open {
       background: transparent;
       font-weight: bold;
+    }
+
+    &__inner {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      transition: transform $toggle-duration;
+
+      &.open {
+        transform: translateX(8px);
+      }
     }
   }
 
@@ -89,14 +112,17 @@ $toggle-duration: 200ms;
     position: relative;
     font-size: 17px;
     font-weight: lighter;
-    transition: transform $toggle-duration;
 
     &.nested {
       font-size: 14px;
     }
+  }
+
+  &__controls {
+    position: relative;
 
     &.open {
-      transform: translateX(8px);
+      // display: block;
     }
   }
 

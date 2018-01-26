@@ -67,6 +67,12 @@
             {{ constraint.name }}
             <input-text v-model="constraint.name" />
           </h2>
+          <div slot="controls">
+            <input-button
+              :action="duplicateConstraintGroup.bind(null, constraint)">
+              <icon name="plus" :size="14" />
+            </input-button>
+          </div>
           <palette-constraint :model="constraint"
             :constraintTypes="controls.constraintTypes" />
         </palette-group>
@@ -187,7 +193,9 @@ $base-color: rgba(#000, 0.15);
 <script>
 import { createControlsState } from '@/store/modules/Palette'
 
+import Icon from '@/components/display/Icon'
 import InputText from '@/components/input/Text'
+import InputButton from '@/components/input/Button'
 import PaletteModes from '@/components/palette/Modes'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
@@ -202,7 +210,9 @@ export default {
   name: 'palette',
 
   components: {
+    Icon,
     InputText,
+    InputButton,
     PaletteModes,
     PaletteGroup,
     PaletteStyle,
@@ -225,6 +235,20 @@ export default {
   },
 
   methods: {
+    duplicateConstraintGroup (constraintGroup) {
+      const { constraints } = this.controls
+      const { name } = constraintGroup
+      const nameCount = constraints.reduce((accum, c) => {
+        return accum + (c.name.indexOf(name) === 0 ? 1 : 0)
+      }, 0)
+
+      const duplicate = Object.assign({}, constraintGroup, {
+        index: constraints.length,
+        name: `${name} ${1 + nameCount}`
+      })
+      constraints.push(duplicate)
+    },
+
     handleMessage (event, data) {
       const { controls } = this
       switch (data.type) {
