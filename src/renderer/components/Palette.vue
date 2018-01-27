@@ -61,27 +61,9 @@
       <palette-group open
         :hidden="!showConstraintsPanels">
         <h2 slot="title">Simulation Constraints</h2>
-        <!-- TODO: Cleanup, refactor into constraints (list) component -->
-        <palette-group v-for="(constraint, index) in controls.constraints"
-          :key="constraint.index" nested open>
-          <h2 slot="title">
-            {{ constraint.name }}
-            <input-text v-model="constraint.name" />
-          </h2>
-          <div slot="controls">
-            <input-button
-              v-if="index === controls.constraints.length - 1"
-              :action="removeConstraintGroup.bind(null, constraint)">
-              <icon name="minus" :size="12" />
-            </input-button>
-            <input-button
-              :action="duplicateConstraintGroup.bind(null, constraint)">
-              <icon name="plus" :size="12" />
-            </input-button>
-          </div>
-          <palette-constraint :model="constraint"
-            :constraintTypes="controls.constraintTypes" />
-        </palette-group>
+        <palette-constraint-list
+          :list="controls.constraints"
+          :constraintTypes="controls.constraintTypes" />
       </palette-group>
 
       <palette-group open
@@ -207,7 +189,7 @@ import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
 import PaletteForce from '@/components/palette/Force'
-import PaletteConstraint from '@/components/palette/Constraint'
+import PaletteConstraintList from '@/components/palette/ConstraintList'
 import PaletteModifiers from '@/components/palette/Modifiers'
 import PaletteScene from '@/components/palette/Scene'
 import PaletteEffects from '@/components/palette/Effects'
@@ -224,7 +206,7 @@ export default {
     PaletteStyle,
     PaletteTool,
     PaletteForce,
-    PaletteConstraint,
+    PaletteConstraintList,
     PaletteModifiers,
     PaletteScene,
     PaletteEffects
@@ -241,29 +223,6 @@ export default {
   },
 
   methods: {
-    // TODO: Enable removing constraint group anywhere in list
-    // TODO: Ensure segments don't depend on removed group
-    removeConstraintGroup (constraintGroup) {
-      const { constraints } = this.controls
-      const { index } = constraintGroup
-      if (index !== constraints.length - 1) return
-      constraints.splice(index, 1)
-    },
-
-    duplicateConstraintGroup (constraintGroup) {
-      const { constraints } = this.controls
-      const { name } = constraintGroup
-      const nameCount = constraints.reduce((accum, c) => {
-        return accum + (c.name.indexOf(name) === 0 ? 1 : 0)
-      }, 0)
-
-      const duplicate = Object.assign({}, constraintGroup, {
-        index: constraints.length,
-        name: `${name} ${1 + nameCount}`
-      })
-      constraints.push(duplicate)
-    },
-
     handleMessage (event, data) {
       const { controls } = this
       switch (data.type) {
