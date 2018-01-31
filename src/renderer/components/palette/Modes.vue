@@ -5,7 +5,7 @@
       :class="{ 'palette-modes__toggle--active': activeMode.id === mode.id }"
       :title="mode.name"
       @click="setActiveMode(mode.id)">
-      <icon :name="mode.id" />
+      <icon :name="mode.id" :size="18" />
     </div>
   </div>
 </template>
@@ -20,18 +20,11 @@
 
   &__toggle {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 24px;
     height: 100%;
-
-    .icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-
-      width: $icon-size;
-      height: $icon-size;
-      transform: translate(-50%, -50%);
-    }
 
     path {
       stroke: #fff;

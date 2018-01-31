@@ -10,7 +10,6 @@
 
 <script>
 // TODO: Improve linking icon assets
-// TODO: Improve icon designs
 import constraintsIcon from '@/assets/icons/constraints.svg'
 import drawIcon from '@/assets/icons/draw.svg'
 import effectsIcon from '@/assets/icons/effects.svg'
