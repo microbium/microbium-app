@@ -36,20 +36,19 @@ export function createControlsState () {
       },
       {
         id: 'styles',
-        name: 'Styles'
+        name: 'Layer Styles'
       },
       {
         id: 'forces',
-        name: 'Forces'
+        name: 'Simulation Forces'
       },
-      // TODO: Create constraints icon
       {
         id: 'constraints',
-        name: 'Constraints'
+        name: 'Simulation Constraints'
       },
       {
         id: 'effects',
-        name: 'Effects'
+        name: 'Scene Effects'
       }
     ],
 

@@ -34,15 +34,13 @@
     }
 
     path {
-      fill: #fff;;
-      // stroke: #fff;
+      stroke: #fff;
     }
   }
 
   &__toggle--active {
     path {
-      fill: #41EDC1;
-      stroke: none;
+      stroke: #41EDC1;
     }
   }
 }
