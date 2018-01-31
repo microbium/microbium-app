@@ -62,8 +62,10 @@ $toggle-duration: 200ms;
     &__inner {
       position: relative;
       display: flex;
+      align-items: center;
       justify-content: space-between;
       width: 100%;
+      height: 100%;
       transition: transform $toggle-duration;
 
       &.open {
@@ -92,6 +94,7 @@ $toggle-duration: 200ms;
       transition: transform $toggle-duration;
     }
 
+    // TODO: Improve nested toggle spacing (esp editable titles!)
     &.nested {
       left: 4px;
       width: 30px;

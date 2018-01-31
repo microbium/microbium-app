@@ -6,6 +6,10 @@
         {{ style.name }}
         <input-text v-model="style.name" />
       </h2>
+      <div slot="controls">
+        <palette-style-preview :model="style"
+          :width="100" :height="22" :segments="6" />
+      </div>
       <palette-style :model="style"
         :textures="textures"
         :alphaTextures="alphaTextures"
@@ -21,6 +25,7 @@
 import InputText from '@/components/input/Text'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteStyle from '@/components/palette/Style'
+import PaletteStylePreview from '@/components/palette/StylePreview'
 
 export default {
   name: 'palette-style-list',
@@ -35,7 +40,8 @@ export default {
   components: {
     InputText,
     PaletteGroup,
-    PaletteStyle
+    PaletteStyle,
+    PaletteStylePreview
   }
 }
 </script>
