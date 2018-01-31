@@ -245,7 +245,7 @@ function createPaletteWindow () {
 
   const displaySize = getDisplaySize()
   const windowSize = {
-    width: DEBUG_PALETTE ? 1200 : 320,
+    width: 320,
     height: Math.round(displaySize.height * (2 / 3))
   }
 
@@ -254,11 +254,11 @@ function createPaletteWindow () {
     y: Math.round((displaySize.height - windowSize.height) / 3),
     width: windowSize.width,
     minWidth: 320,
-    maxWidth: DEBUG_PALETTE ? null : 320,
+    maxWidth: 320,
     height: windowSize.height,
     minHeight: 500,
-    backgroundColor: DEBUG_PALETTE ? '#444444' : null,
-    frame: DEBUG_PALETTE,
+    backgroundColor: null,
+    frame: false,
     focusable: true,
     resizable: true,
     closable: true, // FIXME: Setting false prevents app quit ...
@@ -269,7 +269,7 @@ function createPaletteWindow () {
     hasShadow: true,
     vibrancy: 'dark',
     show: false,
-    alwaysOnTop: !DEBUG_PALETTE,
+    alwaysOnTop: true,
     webPreferences: {
       // TODO: Would be nice to have native-feeling bounce ...
       scrollBounce: false,
@@ -281,6 +281,9 @@ function createPaletteWindow () {
   palette.on('blur', onWindowBlur)
 
   palette.once('ready-to-show', () => {
+    if (DEBUG_PALETTE) {
+      palette.webContents.openDevTools({mode: 'detach'})
+    }
     palette.showInactive()
     ipcMain.on('palette-message', (event, data) => {
       sendWindowMessage('palette', 'message', data)
@@ -304,6 +307,7 @@ function createPaletteWindow () {
 // -----------------
 
 function onWindowFocus () {
+  if (DEBUG_PALETTE) return
   if (paletteVisibility.isHidden &&
     !paletteVisibility.isHiddenUser &&
     appWindows.palette) {
@@ -312,6 +316,7 @@ function onWindowFocus () {
   }
 }
 function onWindowBlur () {
+  if (DEBUG_PALETTE) return
   if (appWindows.palette && !BrowserWindow.getFocusedWindow()) {
     appWindows.palette.hide()
     paletteVisibility.isHidden = true
