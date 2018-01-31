@@ -68,7 +68,7 @@ export default {
 
     pathPointsB () {
       return this.genPathPoints(
-        this.width, this.height, 2, 6)
+        this.width, this.height, 12, 6)
     },
 
     strokeWidth () {
@@ -80,14 +80,14 @@ export default {
       const { strokeWidth } = this
       const { strokeWidthMod } = this.model
       return clamp(0, 8,
-        strokeWidth + strokeWidth * strokeWidthMod * -0.2)
+        strokeWidth + strokeWidth * strokeWidthMod * -0.1)
     },
 
     strokeWidthB () {
       const { strokeWidth } = this
       const { strokeWidthMod } = this.model
       return clamp(0, 8,
-        strokeWidth + strokeWidth * strokeWidthMod * 1)
+        strokeWidth + strokeWidth * strokeWidthMod * 0.6)
     },
 
     strokeColor () {
