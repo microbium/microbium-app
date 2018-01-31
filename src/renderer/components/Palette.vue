@@ -34,17 +34,11 @@
       <palette-group open
         :hidden="!showStylePanels">
         <h2 slot="title">Style Layers</h2>
-        <palette-group v-for="(style, index) in controls.styles"
-          :key="style.index" nested :open="index === 0">
-          <h2 slot="title">
-            {{ style.name }}
-            <input-text v-model="style.name" />
-          </h2>
-          <palette-style :model="style"
-            :textures="controls.textures"
-            :alphaTextures="controls.alphaTextures"
-            :alphaFunctions="controls.alphaFunctions" />
-        </palette-group>
+        <palette-style-list
+          :list="controls.styles"
+          :textures="controls.textures"
+          :alphaTextures="controls.alphaTextures"
+          :alphaFunctions="controls.alphaFunctions" />
       </palette-group>
 
       <palette-group open
@@ -186,10 +180,10 @@ import InputText from '@/components/input/Text'
 import InputButton from '@/components/input/Button'
 import PaletteModes from '@/components/palette/Modes'
 import PaletteGroup from '@/components/palette/Group'
-import PaletteStyle from '@/components/palette/Style'
 import PaletteTool from '@/components/palette/Tool'
 import PaletteForce from '@/components/palette/Force'
 import PaletteConstraintList from '@/components/palette/ConstraintList'
+import PaletteStyleList from '@/components/palette/StyleList'
 import PaletteModifiers from '@/components/palette/Modifiers'
 import PaletteScene from '@/components/palette/Scene'
 import PaletteEffects from '@/components/palette/Effects'
@@ -203,10 +197,10 @@ export default {
     InputButton,
     PaletteModes,
     PaletteGroup,
-    PaletteStyle,
     PaletteTool,
     PaletteForce,
     PaletteConstraintList,
+    PaletteStyleList,
     PaletteModifiers,
     PaletteScene,
     PaletteEffects
