@@ -246,7 +246,8 @@ function createPaletteWindow () {
   const displaySize = getDisplaySize()
   const windowSize = {
     width: 320,
-    height: Math.round(displaySize.height * (2 / 3))
+    height: Math.min(800,
+      Math.round(displaySize.height * (2 / 3)))
   }
 
   const palette = appWindows.palette = new BrowserWindow({
@@ -254,7 +255,7 @@ function createPaletteWindow () {
     y: Math.round((displaySize.height - windowSize.height) / 3),
     width: windowSize.width,
     minWidth: 320,
-    maxWidth: 320,
+    maxWidth: DEBUG_PALETTE ? 900 : 320,
     height: windowSize.height,
     minHeight: 500,
     backgroundColor: null,
@@ -268,6 +269,7 @@ function createPaletteWindow () {
     fullscreenable: false,
     hasShadow: true,
     vibrancy: 'dark',
+    transparent: true,
     show: false,
     alwaysOnTop: true,
     webPreferences: {
