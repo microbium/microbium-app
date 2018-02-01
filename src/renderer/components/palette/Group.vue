@@ -13,7 +13,7 @@
           <slot name="title" />
         </div>
         <div class="palette-group__controls"
-          :class="openStateClassNames">
+          :class="[ openStateClassNames, persistentControls ? 'persistent' : '' ]">
           <slot name="controls" />
         </div>
       </div>
@@ -46,7 +46,7 @@ $toggle-duration: 200ms;
     align-items: center;
 
     background: $base-color;
-    padding: 0 16px 0 28px;
+    padding: 0 16px 0 30px;
     height: 38px;
 
     &.nested {
@@ -76,6 +76,7 @@ $toggle-duration: 200ms;
 
   &__toggle {
     position: absolute;
+    z-index: 1;
     top: 0;
     left: 0;
     width: 34px;
@@ -94,10 +95,9 @@ $toggle-duration: 200ms;
       transition: transform $toggle-duration;
     }
 
-    // TODO: Improve nested toggle spacing (esp editable titles!)
     &.nested {
       left: 4px;
-      width: 30px;
+      width: 26px;
 
       &:after {
         height: calc(100% - 8px);
@@ -128,7 +128,8 @@ $toggle-duration: 200ms;
     transition: opacity $toggle-duration,
       visibility $toggle-duration;
 
-    &.open {
+    &.open,
+    &.persistent {
       opacity: 1;
       visibility: visible;
     }
@@ -166,7 +167,8 @@ export default {
   props: {
     open: Boolean,
     hidden: Boolean,
-    nested: Boolean
+    nested: Boolean,
+    persistentControls: Boolean
   },
 
   data () {
