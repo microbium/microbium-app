@@ -335,8 +335,9 @@ function mountCompositor ($el, $refs, $electron) {
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
-      const sceneContexts = scene.contexts
+      const { styles } = state.controls
       const uiMain = sceneUI.main
+      const sceneContexts = scene.syncContexts(styles)
 
       sceneContexts.forEach(({ lines }) => {
         lines.reset()

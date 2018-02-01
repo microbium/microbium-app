@@ -7,7 +7,6 @@ import linesUIFrag from '@/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
   const { regl, textures } = renderer
-  const { styles } = state.controls
 
   const blend = {
     enable: true,
@@ -49,7 +48,9 @@ export function createScene (tasks, state, renderer) {
 
   // OPTIM: Investigate huge perf issues in Chrome when using instancing
   // OPTIM: Optimize shared state between contexts
-  const contexts = styles.map((style, index) => {
+  const contexts = []
+
+  function createContext (style, index) {
     const bufferSize = 2 ** 12
     const lines = LineBuilder.create(regl, {
       bufferSize,
@@ -71,10 +72,30 @@ export function createScene (tasks, state, renderer) {
       lines,
       ctx
     }
-  })
+  }
+
+  function syncContexts (styles) {
+    const diff = styles.length - contexts.length
+    if (diff < 0) {
+      for (let i = 0; i < diff; i++) {
+        const context = contexts.pop()
+        context.destroy()
+      }
+    } else if (diff > 0) {
+      const styleStart = contexts.length - 1
+      for (let i = 0; i < diff; i++) {
+        const index = styleStart + 1
+        const style = styles[index]
+        const context = createContext(style, index)
+        contexts.push(context)
+      }
+    }
+    return contexts
+  }
 
   return {
-    contexts
+    contexts,
+    syncContexts
   }
 }
 
