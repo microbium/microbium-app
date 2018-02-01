@@ -1,7 +1,13 @@
 <template>
-  <label class="input-text">
-    <input type="text" v-bind:size="((textValue.length || 1) * 1.2 + 3)"
-      ref="input" v-model="textValue" @keyup.enter="submit" />
+  <label class="input-text"
+    :class="{ 'input-text--focus': isFocused }">
+    <input type="text" ref="input"
+      :size="inputSize"
+      :maxlength="maxlength"
+      v-model="textValue"
+      @keyup.enter="submit"
+      @focus="focus"
+      @blur="blur" />
   </label>
 </template>
 
@@ -45,12 +51,15 @@
 export default {
   name: 'input-text',
   props: {
-    value: String
+    value: String,
+    maxlength: Number,
+    maxsize: Number
   },
 
   data () {
     return {
-      textValue: null
+      textValue: null,
+      isFocused: false
     }
   },
 
@@ -59,8 +68,23 @@ export default {
   },
 
   methods: {
+    focus () {
+      this.isFocused = true
+    },
+
+    blur () {
+      this.isFocused = false
+    },
+
     submit () {
       this.$refs.input.blur()
+    }
+  },
+
+  computed: {
+    inputSize () {
+      return Math.min(this.maxsize || 32,
+        Math.round((this.textValue.length || 1) * 1.2 + 3))
     }
   },
 

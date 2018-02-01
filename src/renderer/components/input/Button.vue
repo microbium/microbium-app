@@ -1,5 +1,6 @@
 <template>
-  <button class="input-button" @click="action">
+  <button class="input-button"
+    :class="{ 'disabled': disabled }" @click="triggerAction">
     <slot />
   </button>
 </template>
@@ -23,14 +24,28 @@
   path {
     fill: #fff;
   }
+
+  &.disabled {
+    opacity: 0.1;
+  }
 }
 </style>
 
 <script>
 export default {
   name: 'input-button',
+
   props: {
-    action: Function
+    action: Function,
+    disabled: Boolean
+  },
+
+  methods: {
+    triggerAction (event) {
+      if (!this.disabled && this.action) {
+        this.action.call(null, event)
+      }
+    }
   }
 }
 </script>

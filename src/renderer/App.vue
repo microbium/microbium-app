@@ -25,6 +25,14 @@ body {
   -webkit-user-select: none;
 }
 
+.text-ellipsis {
+  display: inline-block;
+  padding: 0 0 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @keyframes fadein {
   from {
     opacity: 0;

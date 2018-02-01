@@ -123,6 +123,10 @@ $toggle-duration: 200ms;
 
   &__controls {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
     opacity: 0;
     visibility: hidden;
     transition: opacity $toggle-duration,

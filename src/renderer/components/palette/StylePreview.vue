@@ -17,6 +17,7 @@
 <style lang="scss">
 .palette-style-preview {
   display: block;
+  margin: 0 8px;
 }
 </style>
 
