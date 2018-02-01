@@ -36,7 +36,7 @@ export function createControlsState () {
       },
       {
         id: 'styles',
-        name: 'Layer Styles'
+        name: 'Style Layers'
       },
       {
         id: 'constraints',
