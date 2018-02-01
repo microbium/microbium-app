@@ -12,7 +12,7 @@
       <palette-style-preview slot="controls"
         :model="style" :width="80" :height="22" :segments="6" />
       <input-button slot="controls"
-        :disabled="index !== list.length - 1"
+        :disabled="index === 0 || index !== list.length - 1"
         :action="removeListItem.bind(null, style)">
         <icon name="minus" :size="12" />
       </input-button>

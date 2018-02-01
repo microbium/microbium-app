@@ -10,7 +10,7 @@
       </h2>
 
       <input-button slot="controls"
-        :disabled="index !== list.length - 1"
+        :disabled="index === 0 || index !== list.length - 1"
         :action="removeListItem.bind(null, constraint)">
         <icon name="minus" :size="12" />
       </input-button>
