@@ -74,12 +74,18 @@ export function createScene (tasks, state, renderer) {
     }
   }
 
+  // TODO: Resove dependent segments
+  function removeContext (context, index) {
+    context.destroy()
+  }
+
   function syncContexts (styles) {
     const diff = styles.length - contexts.length
     if (diff < 0) {
       for (let i = 0; i < diff; i++) {
-        const context = contexts.pop()
-        context.destroy()
+        const index = contexts.length - 1
+        const context = contexts[index]
+        removeContext(context, index)
       }
     } else if (diff > 0) {
       const styleStart = contexts.length - 1
