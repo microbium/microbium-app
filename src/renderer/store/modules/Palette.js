@@ -94,15 +94,15 @@ export function createControlsState () {
       },
       {
         index: 2,
-        name: 'Hairy',
+        name: 'Crawling',
         textureIndex: 0,
-        alphaTextureIndex: 1,
-        alphaFuncIndex: 0,
+        alphaTextureIndex: 0,
+        alphaFuncIndex: 3,
         tintHex: '#AAAAAA',
         tintAlpha: 1,
         useScreenTintFunc: 0,
-        thickness: 4,
-        strokeWidthMod: 0.3
+        thickness: 1,
+        strokeWidthMod: 1.2
       }
     ],
 
