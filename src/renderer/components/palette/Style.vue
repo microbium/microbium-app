@@ -32,6 +32,9 @@
       </div>
     </div>
 
+    <!-- FEAT: Add support for user-defined textures, improve alpha / tint mapping
+     -->
+    <!--
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ textureName }}
@@ -55,6 +58,7 @@
         </b> alpha texture
       </div>
     </div>
+    -->
 
     <div class="palette-item">
       <div class="palette-item__label">
