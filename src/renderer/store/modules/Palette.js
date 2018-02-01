@@ -39,12 +39,12 @@ export function createControlsState () {
         name: 'Layer Styles'
       },
       {
-        id: 'forces',
-        name: 'Simulation Forces'
-      },
-      {
         id: 'constraints',
         name: 'Simulation Constraints'
+      },
+      {
+        id: 'forces',
+        name: 'Simulation Forces'
       },
       {
         id: 'effects',
