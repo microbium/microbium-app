@@ -197,6 +197,7 @@ export function createGeometryController (tasks, state) {
     },
 
     // TODO: Improve name ...
+    // FIXME: Closed segments not flagged with this method
     completeActiveSegmentPopCursor () {
       geometry.completeActiveSegment(-1)
     },
@@ -214,6 +215,7 @@ export function createGeometryController (tasks, state) {
       }
     },
 
+    // Delete last vertex in active segment
     deleteLastVertex () {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
@@ -236,6 +238,7 @@ export function createGeometryController (tasks, state) {
         ? vertices[vertices.length - prevPointOffset] : vec2.create()
     },
 
+    // Delete last completed segment
     deleteLastSegment () {
       const { activeSegment, segments, vertices } = state.geometry
       if (activeSegment) return
@@ -243,6 +246,16 @@ export function createGeometryController (tasks, state) {
       const lastSegment = segments.pop()
       const vertCount = lastSegment.indices.length - lastSegment.connectedIndices.length
       vertices.splice(-vertCount, vertCount)
+    },
+
+    // Merge segment props from one state to another
+    mergeSegmentProp (propName, vFrom, vTo) {
+      const { segments } = state.geometry
+      segments.forEach((segment) => {
+        if (segment[propName] === vFrom) {
+          segment[propName] = vTo
+        }
+      })
     }
   }
 
@@ -253,7 +266,8 @@ export function createGeometryController (tasks, state) {
     'completeActiveSegment',
     'completeActiveSegmentPopCursor',
     'deleteLastVertex',
-    'deleteLastSegment'
+    'deleteLastSegment',
+    'mergeSegmentProp'
   ], geometry, 'geometry')
 
   return geometry

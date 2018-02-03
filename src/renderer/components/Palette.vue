@@ -38,7 +38,8 @@
           :list="controls.styles"
           :textures="controls.textures"
           :alphaTextures="controls.alphaTextures"
-          :alphaFunctions="controls.alphaFunctions" />
+          :alphaFunctions="controls.alphaFunctions"
+          :willRemoveListItem="willRemoveStyle" />
       </palette-group>
 
       <palette-group open
@@ -234,6 +235,15 @@ export default {
         type: 'UPDATE_CONTROLS',
         group,
         value
+      })
+    },
+
+    willRemoveStyle (style, index) {
+      this.$electron.ipcRenderer.send('main-message', {
+        type: 'MERGE_SEGMENT_PROP',
+        propName: 'styleIndex',
+        indexFrom: index,
+        indexTo: index - 1
       })
     },
 

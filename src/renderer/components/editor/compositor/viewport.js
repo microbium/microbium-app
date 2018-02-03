@@ -99,6 +99,10 @@ export function createViewportController (tasks, state) {
           state.controls[data.group] = data.value
           state.renderer.needsUpdate = true
           break
+        case 'MERGE_SEGMENT_PROP':
+          requestSync('geometry.mergeSegmentProp',
+            data.propName, data.indexFrom, data.indexTo)
+          break
       }
     }
   }
