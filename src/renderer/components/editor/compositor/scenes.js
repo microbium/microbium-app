@@ -90,7 +90,7 @@ export function createScene (tasks, state, renderer) {
     } else if (diff > 0) {
       const styleStart = contexts.length - 1
       for (let i = 0; i < diff; i++) {
-        const index = styleStart + 1
+        const index = styleStart + 1 + i
         const style = styles[index]
         const context = createContext(style, index)
         contexts.push(context)
