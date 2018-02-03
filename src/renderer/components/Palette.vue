@@ -58,7 +58,8 @@
         <h2 slot="title">Simulation Constraints</h2>
         <palette-constraint-list
           :list="controls.constraints"
-          :constraintTypes="controls.constraintTypes" />
+          :constraintTypes="controls.constraintTypes"
+          :willRemoveListItem="willRemoveConstraint" />
       </palette-group>
 
       <palette-group open
@@ -242,6 +243,15 @@ export default {
       this.$electron.ipcRenderer.send('main-message', {
         type: 'MERGE_SEGMENT_PROP',
         propName: 'styleIndex',
+        indexFrom: index,
+        indexTo: index - 1
+      })
+    },
+
+    willRemoveConstraint (constraint, index) {
+      this.$electron.ipcRenderer.send('main-message', {
+        type: 'MERGE_SEGMENT_PROP',
+        propName: 'constraintIndex',
         indexFrom: index,
         indexTo: index - 1
       })

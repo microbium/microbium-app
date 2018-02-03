@@ -50,7 +50,8 @@ export default {
 
   props: {
     list: Array,
-    constraintTypes: Array
+    constraintTypes: Array,
+    willRemoveListItem: Function
   },
 
   mixins: [EditableListMixin],
