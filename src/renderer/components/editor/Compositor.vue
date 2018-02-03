@@ -113,6 +113,7 @@ import {
 } from '@/draw/routines/geometry'
 
 const TICK_MSG_INTERVAL = 20
+const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
 
 const scratchVec2A = vec2.create()
@@ -301,6 +302,7 @@ function mountCompositor ($el, $refs, $electron) {
     },
 
     sendFrameState () {
+      if (DISABLE_FRAME_SYNC) return
       const data = io.serializeFrame()
       $electron.ipcRenderer.send('external-message', {
         type: 'FRAME',
