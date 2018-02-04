@@ -7,20 +7,20 @@
       :stroke-dasharray="strokeDashArray"
       fill="none">
       <polyline
-        :points="genPathPoints(width, height, 4, 2)"
+        :points="pathPointsA"
         :stroke-width="modStrokeWidth(-0.2)" />
       <polyline
-        :points="genPathPoints(width * 0.8, height, 4, 2)"
+        :points="pathPointsB"
         :stroke-width="modStrokeWidth(0)" />
       <polyline
-        :points="genPathPoints(width * 0.6, height, 4, 2)"
+        :points="pathPointsC"
         :stroke-width="modStrokeWidth(0.4)" />
     </g>
     <g :transform="`translate(0, ${height / 2})`">
       <polygon
         fill="#41EDC1"
         stroke-width="1"
-        :points="genEndPoints(4, 0, 3)" />
+        :points="pathPointsOrigin" />
     </g>
   </svg>
 </template>
@@ -84,6 +84,22 @@ export default {
   },
 
   computed: {
+    pathPointsOrigin () {
+      return this.genEndPoints(4, 0, 3)
+    },
+
+    pathPointsA () {
+      return this.genPathPoints(this.width, this.height, 4, 2)
+    },
+
+    pathPointsB () {
+      return this.genPathPoints(this.width * 0.8, this.height, 4, 2)
+    },
+
+    pathPointsC () {
+      return this.genPathPoints(this.width * 0.6, this.height, 4, 2)
+    },
+
     strokeWidth () {
       const { thickness } = this.model
       return mapLinear(0, 5, 0, 7, thickness)
