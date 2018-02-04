@@ -7,7 +7,7 @@
       :stroke-opacity="strokeOpacity"
       :stroke-dasharray="strokeDashArray"
       fill="none">
-      <g>
+      <g transform="rotate(-10)">
         <polyline
           :points="pathPointsA"
           :stroke-width="strokeWidthA" />
@@ -18,7 +18,7 @@
           :points="pathPointsC"
           :stroke-width="strokeWidthC" />
       </g>
-      <g transform="rotate(180)">
+      <g transform="rotate(170)">
         <polyline
           :points="pathPointsA"
           :stroke-width="strokeWidthA" />
@@ -78,8 +78,7 @@ export default {
 
     genPathSamples () {
       const count = this.segments - 1
-      const target = (Math.random() > 0.5 ? 1 : -1) *
-        (0.5 + Math.random() * 0.5)
+      const target = (0.5 + Math.random() * 0.5)
       const samples = (new Array(count))
         .fill(0)
         .map((n, i) => (
@@ -96,7 +95,7 @@ export default {
       return pointsAttr(pathSamples
         .map((n, i) => ([
           mapLinear(0, count - 1, padWidth, width - padWidth, i),
-          mapLinear(0, 1, 0, (height - padHeight) * 0.5, n)
+          mapLinear(0, 1, 0, height - padHeight, n)
         ])))
     },
 
@@ -118,15 +117,18 @@ export default {
     },
 
     pathPointsA () {
-      return this.genPathPoints(this.width * 0.5, this.height, 0, 2)
+      return this.genPathPoints(
+        this.width * 0.5, this.height * 0.6, 0, 2)
     },
 
     pathPointsB () {
-      return this.genPathPoints(this.width * 0.4, this.height, 0, 2)
+      return this.genPathPoints(
+        this.width * 0.4, this.height * 0.6, 0, 2)
     },
 
     pathPointsC () {
-      return this.genPathPoints(this.width * 0.3, this.height, 0, 2)
+      return this.genPathPoints(
+        this.width * 0.3, this.height * 0.6, 0, 2)
     },
 
     strokeWidth () {
@@ -162,11 +164,11 @@ export default {
         case 0:
           return ''
         case 1:
-          return '2, 4'
+          return '2, 3'
         case 2:
-          return '4, 2'
+          return '3, 2'
         case 3:
-          return '2, 4, 2, 8'
+          return '2, 3, 2, 1'
       }
     }
   }
