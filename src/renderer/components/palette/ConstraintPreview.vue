@@ -51,10 +51,10 @@ import {
   // clamp,
   mapLinear
 } from '@/utils/math'
-
-function pointsAttr (points) {
-  return points.map((v) => v.join(',')).join(' ')
-}
+import {
+  pointsAttr,
+  pointsCircle
+} from '@/utils/svg'
 
 export default {
   name: 'palette-constraint-preview',
@@ -66,17 +66,7 @@ export default {
   },
 
   methods: {
-    genEndPoints (x, y, radius) {
-      const count = 4
-      return pointsAttr((new Array(count))
-        .fill(0)
-        .map((n, i) => {
-          const angle = i / (count) * Math.PI * 2
-          const px = Math.cos(angle) * radius
-          const py = Math.sin(angle) * radius
-          return [x + px, y + py]
-        }))
-    },
+    genEndPoints: pointsCircle.bind(null, 4),
 
     genSegmentPoints (x0, x1) {
       return pointsAttr([

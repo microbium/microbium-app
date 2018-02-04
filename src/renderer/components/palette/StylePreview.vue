@@ -6,10 +6,21 @@
       :stroke-opacity="strokeOpacity"
       :stroke-dasharray="strokeDashArray"
       fill="none">
-      <polyline :points="pathPointsA"
-        :stroke-width="strokeWidthA" />
-      <polyline :points="pathPointsB"
-        :stroke-width="strokeWidthB" />
+      <polyline
+        :points="genPathPoints(width, height, 4, 2)"
+        :stroke-width="modStrokeWidth(-0.2)" />
+      <polyline
+        :points="genPathPoints(width * 0.8, height, 4, 2)"
+        :stroke-width="modStrokeWidth(0)" />
+      <polyline
+        :points="genPathPoints(width * 0.6, height, 4, 2)"
+        :stroke-width="modStrokeWidth(0.4)" />
+    </g>
+    <g :transform="`translate(0, ${height / 2})`">
+      <polygon
+        fill="#41EDC1"
+        stroke-width="1"
+        :points="genEndPoints(4, 0, 3)" />
     </g>
   </svg>
 </template>
@@ -26,6 +37,9 @@ import {
   clamp,
   mapLinear
 } from '@/utils/math'
+import {
+  pointsCircle
+} from '@/utils/svg'
 
 export default {
   name: 'palette-style-preview',
@@ -38,13 +52,14 @@ export default {
   },
 
   methods: {
+    genEndPoints: pointsCircle.bind(null, 4),
+
     genPathSamples () {
-      const count = this.segments - 2
+      const count = this.segments - 1
       const samples = (new Array(count))
         .fill(0)
         .map((n, i) => (Math.random() * 2 - 1))
       samples.unshift(0)
-      samples.push(0)
       return samples
     },
 
@@ -58,37 +73,20 @@ export default {
         ]))
         .map((v) => v.join(','))
         .join(' ')
+    },
+
+    modStrokeWidth (factor) {
+      const { strokeWidth } = this
+      const { strokeWidthMod } = this.model
+      return clamp(0, 8,
+        strokeWidth + strokeWidth * strokeWidthMod * factor)
     }
   },
 
   computed: {
-    pathPointsA () {
-      return this.genPathPoints(
-        this.width, this.height, 2, 2)
-    },
-
-    pathPointsB () {
-      return this.genPathPoints(
-        this.width, this.height, 12, 6)
-    },
-
     strokeWidth () {
       const { thickness } = this.model
       return mapLinear(0, 5, 0, 7, thickness)
-    },
-
-    strokeWidthA () {
-      const { strokeWidth } = this
-      const { strokeWidthMod } = this.model
-      return clamp(0, 8,
-        strokeWidth + strokeWidth * strokeWidthMod * -0.1)
-    },
-
-    strokeWidthB () {
-      const { strokeWidth } = this
-      const { strokeWidthMod } = this.model
-      return clamp(0, 8,
-        strokeWidth + strokeWidth * strokeWidthMod * 0.6)
     },
 
     strokeColor () {
