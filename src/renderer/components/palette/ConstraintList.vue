@@ -1,7 +1,7 @@
 <template>
   <div class="palette-constraint-list">
     <palette-group v-for="(constraint, index) in list"
-      :key="constraint.index" nested open>
+      :key="constraint.index" nested persistent-controls open>
       <h2 slot="title" :title="constraint.name">
         <input-text v-model="constraint.name" :maxsize="18" />
         <span class="text-ellipsis">
@@ -9,6 +9,8 @@
         </span>
       </h2>
 
+      <palette-constraint-preview slot="controls"
+        :model="constraint" :width="80" :height="22" />
       <input-button slot="controls"
         :disabled="index === 0 || index !== list.length - 1"
         :action="removeListItem.bind(null, constraint)">
@@ -43,6 +45,7 @@ import InputButton from '@/components/input/Button'
 import InputText from '@/components/input/Text'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteConstraint from '@/components/palette/Constraint'
+import PaletteConstraintPreview from '@/components/palette/ConstraintPreview'
 import EditableListMixin from '@/mixins/EditableListMixin'
 
 export default {
@@ -50,8 +53,7 @@ export default {
 
   props: {
     list: Array,
-    constraintTypes: Array,
-    willRemoveListItem: Function
+    constraintTypes: Array
   },
 
   mixins: [EditableListMixin],
@@ -61,7 +63,8 @@ export default {
     InputButton,
     InputText,
     PaletteGroup,
-    PaletteConstraint
+    PaletteConstraint,
+    PaletteConstraintPreview
   }
 }
 </script>
