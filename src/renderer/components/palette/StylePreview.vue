@@ -2,25 +2,46 @@
   <svg class="palette-style-preview"
     :width="width" :height="height">
     <g
+      :transform="`translate(${width / 2}, ${height / 2})`"
       :stroke="strokeColor"
       :stroke-opacity="strokeOpacity"
       :stroke-dasharray="strokeDashArray"
       fill="none">
-      <polyline
-        :points="pathPointsA"
-        :stroke-width="modStrokeWidth(-0.2)" />
-      <polyline
-        :points="pathPointsB"
-        :stroke-width="modStrokeWidth(0)" />
-      <polyline
-        :points="pathPointsC"
-        :stroke-width="modStrokeWidth(0.4)" />
+      <g>
+        <polyline
+          :points="pathPointsA"
+          :stroke-width="strokeWidthA" />
+        <polyline
+          :points="pathPointsB"
+          :stroke-width="strokeWidthB" />
+        <polyline
+          :points="pathPointsC"
+          :stroke-width="strokeWidthC" />
+      </g>
+      <g transform="rotate(180)">
+        <polyline
+          :points="pathPointsA"
+          :stroke-width="strokeWidthA" />
+        <polyline
+          :points="pathPointsB"
+          :stroke-width="strokeWidthB" />
+        <polyline
+          :points="pathPointsC"
+          :stroke-width="strokeWidthC" />
+      </g>
     </g>
-    <g :transform="`translate(0, ${height / 2})`">
+    <g
+      :transform="`translate(${width / 2}, ${height / 2})`">
       <polygon
         fill="#41EDC1"
-        stroke-width="1"
+        stroke="none"
         :points="pathPointsOrigin" />
+      <polygon
+        stroke="#41EDC1"
+        stroke-width="1"
+        stroke-dasharray="4,2"
+        fill="none"
+        :points="pathPointsOriginOuter" />
     </g>
   </svg>
 </template>
@@ -38,6 +59,7 @@ import {
   mapLinear
 } from '@/utils/math'
 import {
+  pointsAttr,
   pointsCircle
 } from '@/utils/svg'
 
@@ -56,9 +78,14 @@ export default {
 
     genPathSamples () {
       const count = this.segments - 1
+      const target = (Math.random() > 0.5 ? 1 : -1) *
+        (0.5 + Math.random() * 0.5)
       const samples = (new Array(count))
         .fill(0)
-        .map((n, i) => (Math.random() * 2 - 1))
+        .map((n, i) => (
+          Math.pow(i / (count - 1), 2) * target) +
+          (Math.random() * 2 - 1) * 0.05
+        )
       samples.unshift(0)
       return samples
     },
@@ -66,13 +93,11 @@ export default {
     genPathPoints (width, height, padWidth, padHeight) {
       const pathSamples = this.genPathSamples()
       const count = pathSamples.length
-      return pathSamples
+      return pointsAttr(pathSamples
         .map((n, i) => ([
           mapLinear(0, count - 1, padWidth, width - padWidth, i),
-          mapLinear(-1, 1, padHeight, height - padHeight, n)
-        ]))
-        .map((v) => v.join(','))
-        .join(' ')
+          mapLinear(0, 1, 0, (height - padHeight) * 0.5, n)
+        ])))
     },
 
     modStrokeWidth (factor) {
@@ -85,24 +110,40 @@ export default {
 
   computed: {
     pathPointsOrigin () {
-      return this.genEndPoints(4, 0, 3)
+      return this.genEndPoints(0, 0, 3)
+    },
+
+    pathPointsOriginOuter () {
+      return this.genEndPoints(0, 0, 5)
     },
 
     pathPointsA () {
-      return this.genPathPoints(this.width, this.height, 4, 2)
+      return this.genPathPoints(this.width * 0.5, this.height, 0, 2)
     },
 
     pathPointsB () {
-      return this.genPathPoints(this.width * 0.8, this.height, 4, 2)
+      return this.genPathPoints(this.width * 0.4, this.height, 0, 2)
     },
 
     pathPointsC () {
-      return this.genPathPoints(this.width * 0.6, this.height, 4, 2)
+      return this.genPathPoints(this.width * 0.3, this.height, 0, 2)
     },
 
     strokeWidth () {
       const { thickness } = this.model
       return mapLinear(0, 5, 0, 7, thickness)
+    },
+
+    strokeWidthA () {
+      return this.modStrokeWidth(-0.3)
+    },
+
+    strokeWidthB () {
+      return this.modStrokeWidth(0)
+    },
+
+    strokeWidthC () {
+      return this.modStrokeWidth(0.6)
     },
 
     strokeColor () {

@@ -10,7 +10,7 @@
       </h2>
 
       <palette-style-preview slot="controls"
-        :model="style" :width="80" :height="22" :segments="4" />
+        :model="style" :width="80" :height="22" :segments="5" />
       <input-button slot="controls"
         :disabled="index === 0 || index !== list.length - 1"
         :action="removeListItem.bind(null, style)">
