@@ -255,7 +255,7 @@ function createPaletteWindow () {
     y: Math.round((displaySize.height - windowSize.height) / 3),
     width: windowSize.width,
     minWidth: 320,
-    maxWidth: DEBUG_PALETTE ? 900 : 320,
+    maxWidth: DEBUG_PALETTE ? 900 : 420,
     height: windowSize.height,
     minHeight: 500,
     backgroundColor: null,
