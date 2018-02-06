@@ -1,17 +1,6 @@
 <template>
   <div class="palette-effects">
     <palette-group nested open>
-      <h2 slot="title">Noise</h2>
-
-      <div class="palette-item">
-        <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
-        <div class="palette-item__label">
-          <b>{{ noiseFactorName }}</b> intensity
-        </div>
-      </div>
-    </palette-group>
-
-    <palette-group nested open>
       <h2 slot="title">Bloom</h2>
 
       <div class="palette-item">
@@ -36,7 +25,7 @@
       </div>
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group nested>
       <h2 slot="title">Color Shift</h2>
       <div class="palette-item">
         <input-range min="0" max="1" step="0.01" v-model="model.colorShift[0]" />
@@ -56,6 +45,17 @@
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[2]" />
         <div class="palette-item__label">
           <b>{{ colorShiftValName }}</b> value
+        </div>
+      </div>
+    </palette-group>
+
+    <palette-group nested>
+      <h2 slot="title">Noise</h2>
+
+      <div class="palette-item">
+        <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ noiseFactorName }}</b> intensity
         </div>
       </div>
     </palette-group>
