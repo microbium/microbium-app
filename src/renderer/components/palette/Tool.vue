@@ -1,7 +1,11 @@
 <template>
   <div class="palette-tool">
-    <palette-group nested open>
-      <h2 slot="title">Stroke Weight</h2>
+    <palette-group nested persistent-controls open>
+      <h2 slot="title">Appearance</h2>
+
+      <!-- TODO: Reflect stroke width, color, opacity in preview -->
+      <palette-style-preview slot="controls"
+        :model="segmentStyle" :width="80" :height="22" :segments="5" />
 
       <div class="palette-item">
         <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth" />
@@ -23,22 +27,6 @@
           </b> width modulation
         </div>
       </div>
-    </palette-group>
-
-    <palette-group nested open>
-      <h2 slot="title">Appearance</h2>
-
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ strokeStyleName }}
-            <input-select v-model="model.styleIndex">
-              <option v-for="style in styles" :value="style.index">
-                {{ style.name }}
-              </option>
-            </input-select>
-          </b> style layer
-        </div>
-      </div>
 
       <div class="palette-item">
         <div class="palette-item__label">
@@ -54,10 +42,25 @@
           <b>{{ strokeAlphaName }}</b> stroke opacity
         </div>
       </div>
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ strokeStyleName }}
+            <input-select v-model="model.styleIndex">
+              <option v-for="style in styles" :value="style.index">
+                {{ style.name }}
+              </option>
+            </input-select>
+          </b> style layer
+        </div>
+      </div>
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group nested persistent-controls open>
       <h2 slot="title">Behavior</h2>
+
+      <palette-constraint-preview slot="controls"
+        :model="segmentConstraint" :width="80" :height="22" />
 
       <div class="palette-item">
         <div class="palette-item__label">
@@ -84,6 +87,8 @@ import InputColor from '@/components/input/Color'
 import InputSelect from '@/components/input/Select'
 import InputRange from '@/components/input/Range'
 import PaletteGroup from '@/components/palette/Group'
+import PaletteConstraintPreview from '@/components/palette/ConstraintPreview'
+import PaletteStylePreview from '@/components/palette/StylePreview'
 
 export default {
   name: 'palette-tool',
@@ -92,7 +97,9 @@ export default {
     InputColor,
     InputSelect,
     InputRange,
-    PaletteGroup
+    PaletteGroup,
+    PaletteConstraintPreview,
+    PaletteStylePreview
   },
 
   props: {
@@ -104,6 +111,14 @@ export default {
   },
 
   computed: {
+    segmentStyle () {
+      return this.styles[this.model.styleIndex]
+    },
+
+    segmentConstraint () {
+      return this.constraints[this.model.constraintIndex]
+    },
+
     strokeWidthName () {
       const { strokeWidth } = this.model
       return `${roundToPlaces(strokeWidth, 2)}pt`
