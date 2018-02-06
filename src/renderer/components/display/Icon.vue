@@ -19,6 +19,7 @@ import minusIcon from '@/assets/icons/minus.svg'
 import plusIcon from '@/assets/icons/plus.svg'
 import selectIcon from '@/assets/icons/select.svg'
 import stylesIcon from '@/assets/icons/styles.svg'
+import toolIcon from '@/assets/icons/tool.svg'
 
 export default {
   name: 'icon',
@@ -37,7 +38,8 @@ export default {
     minusIcon,
     plusIcon,
     selectIcon,
-    stylesIcon
+    stylesIcon,
+    toolIcon
   },
 
   computed: {

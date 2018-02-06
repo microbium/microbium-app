@@ -1,6 +1,7 @@
 import { vec2 } from 'gl-matrix'
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
+import { clamp, mapLinear } from '@/utils/math'
 
 const { PI, max } = Math
 
@@ -11,8 +12,7 @@ export function drawGeometry (state, contexts, segmentStart, segmentCount) {
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
-  const { styles } = state.controls
-  const { curveSubDivisions } = state.controls.modifiers
+  const { styles, modifiers } = state.controls
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
   if (!segments.length) return
@@ -21,7 +21,8 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const segment = segments[s]
     const {
       indices, isClosed, styleIndex,
-      strokeWidthModulations, strokeColor, strokeAlpha
+      strokeWidthModulations, strokeColor, strokeAlpha,
+      linkSizeAvg
     } = segment
 
     const count = isClosed ? indices.length - 1 : indices.length
@@ -29,7 +30,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
-    const curvePrecision = Math.round(segment.curvePrecision * curveSubDivisions)
+    const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
     const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 0.25
 
     ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
@@ -54,8 +55,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
 export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
-  const { styles } = state.controls
-  const { curveSubDivisions } = state.controls.modifiers
+  const { styles, modifiers } = state.controls
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
   if (!segments.length) return
@@ -64,11 +64,12 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
     const segment = segments[s]
     const {
       indices, isClosed, styleIndex,
-      strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha
+      strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha,
+      linkSizeAvg
     } = segment
 
     const count = isClosed ? indices.length - 1 : indices.length
-    const curvePrecision = Math.round(segment.curvePrecision * curveSubDivisions)
+    const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
     if (count < 2 || curvePrecision <= 1) continue
 
     // OPTIM: Reduce data transformations needed to draw curves
@@ -96,6 +97,14 @@ export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount
 
     ctx.stroke()
   }
+}
+
+// TODO: Improve curve precision mapping
+function computeCurvePrecision (
+  {subDivisions, segMinLength, segMaxLength},
+  linkSizeAvg) {
+  return Math.round(subDivisions * clamp(0, 1,
+    mapLinear(segMinLength, segMaxLength * 10, 0, 1, linkSizeAvg)))
 }
 
 // OPTIM: Minimize state stack changes

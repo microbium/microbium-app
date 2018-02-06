@@ -5,7 +5,7 @@ export function createControlsState () {
     },
 
     activePalettes: {
-      id: 'geometry'
+      id: 'tool'
     },
 
     lineTool: {
@@ -31,8 +31,12 @@ export function createControlsState () {
 
     paletteTypes: [
       {
+        id: 'tool',
+        name: 'Line Tool'
+      },
+      {
         id: 'geometry',
-        name: 'Geometry'
+        name: 'Geometry Modifiers'
       },
       {
         id: 'styles',
@@ -40,7 +44,7 @@ export function createControlsState () {
       },
       {
         id: 'constraints',
-        name: 'Simulation Constraints'
+        name: 'Constraint Types'
       },
       {
         id: 'forces',
@@ -48,7 +52,7 @@ export function createControlsState () {
       },
       {
         id: 'effects',
-        name: 'Scene Effects'
+        name: 'Visual Effects'
       }
     ],
 
@@ -252,7 +256,11 @@ export function createControlsState () {
 
     modifiers: {
       polarIterations: 3,
-      curveSubDivisions: 6
+      curve: {
+        segMinLength: 12,
+        segMaxLength: 12, // x10
+        subDivisions: 6
+      }
     },
 
     postEffects: {

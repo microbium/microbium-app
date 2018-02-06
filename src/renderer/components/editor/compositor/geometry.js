@@ -3,15 +3,13 @@ import { clamp, mapLinear } from '@/utils/math'
 
 export function createGeometryController (tasks, state) {
   const geometry = {
-    computeCurvePrecision: function (vertices, indices) {
+    computeLinkSizeAvg: function (vertices, indices) {
       let segmentLength = 0
       for (let i = 0; i < indices.length - 1; i++) {
         segmentLength += vec2.distance(
           vertices[indices[i]], vertices[indices[i + 1]])
       }
-      const linkSizeAvg = segmentLength / (indices.length - 1)
-      return clamp(0, 1,
-        mapLinear(12, 120, 0, 1, linkSizeAvg || 0))
+      return (segmentLength / (indices.length - 1)) || 0
     },
 
     // NOTE: Map storke modulation to range [-1, 1] from active input type
@@ -95,7 +93,7 @@ export function createGeometryController (tasks, state) {
       const nextSegment = {
         indices: [startIndex],
         connectedIndices,
-        curvePrecision: 0,
+        linkSizeAvg: 0,
         strokeWidthModulations: [modStrokeWidth],
         strokeWidth,
         strokeColor,
@@ -129,9 +127,9 @@ export function createGeometryController (tasks, state) {
       const dist = vec2.distance(prevPoint, candidatePoint)
 
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
-      const curvePrecision = geometry.computeCurvePrecision(vertices, indices)
+      const linkSizeAvg = geometry.computeLinkSizeAvg(vertices, indices)
 
-      activeSegment.curvePrecision = curvePrecision
+      activeSegment.linkSizeAvg = linkSizeAvg
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint

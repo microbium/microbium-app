@@ -16,7 +16,7 @@
 
     <div class="palette__content">
       <palette-group open
-        :hidden="!showGeometryPanels">
+        :hidden="!showToolPanels">
         <h2 slot="title">Line Tool</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
@@ -55,17 +55,11 @@
 
       <palette-group open
         :hidden="!showConstraintsPanels">
-        <h2 slot="title">Simulation Constraints</h2>
+        <h2 slot="title">Constraint Types</h2>
         <palette-constraint-list
           :list="controls.constraints"
           :constraintTypes="controls.constraintTypes"
           :willRemoveListItem="willRemoveConstraint" />
-      </palette-group>
-
-      <palette-group open
-        :hidden="!showEffectsPanels">
-        <h2 slot="title">Scene</h2>
-        <palette-scene :model="controls.postEffects" />
       </palette-group>
 
       <palette-group open
@@ -132,7 +126,7 @@ $base-color: rgba(#000, 0.15);
     border-radius: 50%;
 
     &:hover {
-      background: #f00;
+      background: #aaa;
     }
   }
 
@@ -187,7 +181,6 @@ import PaletteForce from '@/components/palette/Force'
 import PaletteConstraintList from '@/components/palette/ConstraintList'
 import PaletteStyleList from '@/components/palette/StyleList'
 import PaletteModifiers from '@/components/palette/Modifiers'
-import PaletteScene from '@/components/palette/Scene'
 import PaletteEffects from '@/components/palette/Effects'
 
 export default {
@@ -204,7 +197,6 @@ export default {
     PaletteConstraintList,
     PaletteStyleList,
     PaletteModifiers,
-    PaletteScene,
     PaletteEffects
   },
 
@@ -267,6 +259,7 @@ export default {
   computed: {
     isDrawMode: createModeCondition('activeMode', 'draw'),
     isSelectMode: createModeCondition('activeMode', 'select'),
+    showToolPanels: createModeCondition('activePalettes', 'tool'),
     showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
     showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),

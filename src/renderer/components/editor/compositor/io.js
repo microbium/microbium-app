@@ -12,7 +12,7 @@ const ABBRV_KEY = {
 
   'ii': 'indices',
   'ci': 'connectedIndices',
-  'cp': 'curvePrecision',
+  'la': 'linkSizeAvg',
   'll': 'lineLengths',
   'wm': 'strokeWidthModulations',
   'cl': 'isClosed',

@@ -1,6 +1,25 @@
 <template>
   <div class="palette-effects">
     <palette-group nested open>
+      <h2 slot="title">Background</h2>
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ model.clear.colorHex.toUpperCase() }}
+            <input-color v-model="model.clear.colorHex" />
+          </b> color
+        </div>
+      </div>
+
+      <div class="palette-item">
+        <input-range min="0" max="2" step="0.05" v-model="model.clear.alphaFactor" />
+        <div class="palette-item__label">
+          <b>{{ clearAlphaName }}</b> fade out
+        </div>
+      </div>
+    </palette-group>
+
+    <palette-group nested open>
       <h2 slot="title">Bloom</h2>
 
       <div class="palette-item">
