@@ -27,43 +27,47 @@ export function drawSimulatorUI (state, ctx) {
   ctx.restore()
 }
 
+// TODO: Redesign simulator origin UI
 export function drawSimulatorOriginUI (state, ctx) {
-  if (!state.simulation.isRunning) return
-  const { diffusor, rotator } = state.simulationForces
+  // if (!state.simulation.isRunning) return
+  // const { diffusor, rotator } = state.simulationForces
 
-  ctx.save()
-  ctx.globalAlpha = 0.8
+  // ctx.save()
+  // ctx.globalAlpha = 0.8
 
-  ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
-  ctx.lineWidth = 1.5
-  ctx.beginPath()
-  ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * PI, rotator.intensity > 0)
-  ctx.stroke()
+  // ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
+  // ctx.lineWidth = 1.5
+  // ctx.beginPath()
+  // ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * PI, rotator.intensity > 0)
+  // ctx.stroke()
 
-  ctx.strokeStyle = UI_PALETTE.BACK_SECONDARY
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, PI * 2)
-  ctx.stroke()
+  // ctx.strokeStyle = UI_PALETTE.BACK_SECONDARY
+  // ctx.lineWidth = 1
+  // ctx.beginPath()
+  // ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, PI * 2)
+  // ctx.stroke()
 
-  ctx.restore()
+  // ctx.restore()
 }
 
 export function drawSimulatorForceUI (state, ctx, baseRadius, alpha) {
   if (!state.simulation.isRunning) return
-  const { nudge } = state.simulationForces
-  const { move } = state.seek
+  const { points } = state.simulationForces
 
   ctx.save()
   ctx.globalAlpha = 0.8 * alpha
   ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
 
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.arc(move[0], move[1],
-    baseRadius + nudge.intensity * 1.5,
-    0, PI * 2)
-  ctx.stroke()
+  points.forEach(({position, force}) => {
+    const { intensity } = force
+
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(position[0], position[1],
+      baseRadius + intensity * 1.5,
+      0, PI * 2)
+    ctx.stroke()
+  })
 
   ctx.restore()
 }

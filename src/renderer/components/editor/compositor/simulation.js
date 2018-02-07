@@ -34,21 +34,63 @@ export function createSimulationController (tasks, state, renderer) {
     // Create
 
     createFromGeometry () {
-      const { constraints } = state.controls
+      const { constraintGroups, forces } = state.controls
       const { segments, vertices } = state.geometry
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
-      const stickGroups = []
-      const engineGroups = []
 
       // Set particle positions
       vertices.forEach((vert, i) => {
         system.setPosition(i, vert[0], vert[1], 0)
       })
 
-      // Create segment constraints
+      const { stickGroups, engineGroups } = simulation
+        .createSegmentConstraints(system, segments, constraintGroups)
+      const { boundsGroups } = simulation.createGlobalConstraints(system)
+      const { pointForces } = simulation.createForces(system, forces)
+
+      const forcesCount = simulation.countForces(system)
+      const pinConstraintCount = simulation.countConstraints(
+        system, 'pinConstraints')
+      const localConstraintCount = simulation.countConstraints(
+        system, 'localConstraints')
+
+      // TODO: Cleanup specific name references
+      // OPTIM: Minimize / cleanup vue reactive state ...
+      state.simulationSystem = system
+      state.simulationConstraintGroups = {
+        bounds: boundsGroups,
+        sticks: stickGroups,
+        engines: engineGroups
+      }
+      state.simulationForces = {
+        points: pointForces
+      }
+      Object.assign(state.simulation, {
+        forcesCount,
+        pinConstraintCount,
+        localConstraintCount
+      })
+    },
+
+    createGlobalConstraints (system) {
+      const bounds = BoundingPlaneConstraint.create(
+        [0, 0, 0], [0, 0, 1], Infinity)
+
+      bounds.friction = 0.01
+      system.addConstraint(bounds)
+
+      return {
+        boundsGroups: [bounds]
+      }
+    },
+
+    createSegmentConstraints (system, segments, constraintGroups) {
+      const stickGroups = []
+      const engineGroups = []
+
       segments.forEach((segment) => {
-        const config = constraints[segment.constraintIndex]
+        const config = constraintGroups[segment.constraintIndex]
         switch (config.typeIndex) {
           case 0:
             // Pin
@@ -68,44 +110,10 @@ export function createSimulationController (tasks, state, renderer) {
         }
       })
 
-      const bounds = BoundingPlaneConstraint.create(
-        [0, 0, 0], [0, 0, 1], Infinity)
-      bounds.friction = 0.01
-      system.addConstraint(bounds)
-
-      const nudge = RepulsorForce.create([0, 0, 0])
-      const diffusor = RepulsorForce.create([0, 0, 0])
-      const rotator = RotatorForce.create([0, 0, 0])
-      system.addForce(nudge)
-      system.addForce(diffusor)
-      system.addForce(rotator)
-
-      const forces = [nudge, diffusor, rotator]
-
-      const forcesCount = forces.length
-      const pinConstraintCount = simulation.countConstraints(
-        system, 'pinConstraints')
-      const localConstraintCount = simulation.countConstraints(
-        system, 'localConstraints')
-
-      // TODO: Cleanup specific name references
-      // OPTIM: Minimize / cleanup vue reactive state ...
-      state.simulationSystem = system
-      state.simulationConstraintGroups = {
-        sticks: stickGroups,
-        engines: engineGroups
+      return {
+        stickGroups,
+        engineGroups
       }
-      state.simulationForces = {
-        all: forces,
-        nudge,
-        diffusor,
-        rotator
-      }
-      Object.assign(state.simulation, {
-        forcesCount,
-        pinConstraintCount,
-        localConstraintCount
-      })
     },
 
     createStaticSegment (system, segment, config) {
@@ -148,6 +156,51 @@ export function createSimulationController (tasks, state, renderer) {
         all.push([a, b])
         return all
       }, [])
+    },
+
+    createForces (system, forces) {
+      const pointForces = []
+
+      forces.forEach((config) => {
+        switch (config.typeIndex) {
+          case 0:
+            // Attractor / Repulsor
+            this.createAttractorRepulsorForce(system,
+              config, pointForces)
+            break
+          case 1:
+            // Rotator
+            this.createRotatorForce(system,
+              config, pointForces)
+            break
+        }
+      })
+
+      return {
+        pointForces
+      }
+    },
+
+    createAttractorRepulsorForce (system, config, group) {
+      const force = RepulsorForce.create([0, 0, 0])
+      system.addForce(force)
+      group.push({
+        position: vec2.create(),
+        force
+      })
+    },
+
+    createRotatorForce (system, config, group) {
+      const force = RotatorForce.create([0, 0, 0])
+      system.addForce(force)
+      group.push({
+        position: vec2.create(),
+        force
+      })
+    },
+
+    countForces (system) {
+      return system._forces.length
     },
 
     countConstraints (system, name) {
@@ -196,25 +249,51 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     updateForces () {
-      const { all: allForces } = state.simulationForces
+      const { points } = state.simulationForces
       const { tick } = state.simulation
       const { forces, forceScales } = state.controls
       const { move, velocity } = state.seek
       const { polarIterations } = state.controls.modifiers
 
+      // TODO: Improve pointer force polar distribution
       const angleStep = Math.PI * 2 / polarIterations
       const angleIndex = tick % polarIterations
       const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
-      const nudgePosition = vec2.transformMat2d(scratchVec2A, move, rotation)
+      const pointerPosition = vec2.transformMat2d(scratchVec2A, move, rotation)
 
-      allForces.forEach((force, i) => {
-        const { id, radius, radiusScaleIndex, intensity } = forces[i]
+      points.forEach(({position, force}, i) => {
+        const {
+          positionTypeIndex, intensityTypeIndex,
+          radius, radiusScaleIndex, intensity
+        } = forces[i]
+
         force.setRadius(radius * forceScales[radiusScaleIndex].value)
-        if (id === 'nudge') {
-          force.set(nudgePosition[0], nudgePosition[1], 0)
-          force.intensity = Math.min(velocity, 3) * intensity * 10 + 2
-        } else {
-          force.intensity = Math.sin(tick * 0.01) * intensity * 0.1
+
+        switch (positionTypeIndex) {
+          case 0:
+            // Static
+            // FEAT: Enable force polar positioning
+            break
+          case 1:
+            // Pointer
+            vec2.copy(position, move)
+            force.set(pointerPosition[0], pointerPosition[1], 0)
+            break
+        }
+
+        switch (intensityTypeIndex) {
+          case 0:
+            // Static
+            force.intensity = intensity
+            break
+          case 1:
+            // Pointer Velocity
+            force.intensity = Math.min(velocity, 3) * intensity * 10 + 2
+            break
+          case 2:
+            // Ebb and Flow
+            force.intensity = Math.sin(tick * 0.01) * intensity * 0.1
+            break
         }
       })
     },

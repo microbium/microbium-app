@@ -20,7 +20,7 @@
         <h2 slot="title">{{ paletteTypesMap.tool.name }}</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
-          :constraints="controls.constraints"
+          :constraints="controls.constraintGroups"
           :inputModTypes="controls.inputModTypes"
           :physicsTypes="controls.physicsTypes" />
       </palette-group>
@@ -45,11 +45,9 @@
       <palette-group open
         :hidden="!showForcesPanels">
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
-        <palette-group v-for="force in controls.forces"
-          :key="force.id" nested open>
-          <h2 slot="title">{{ force.name }}</h2>
-          <palette-force :model="force"
-            :forceScales="controls.forceScales" />
+        <palette-force-list
+          :list="controls.forces"
+          :forceScales="controls.forceScales" />
         </palette-group>
       </palette-group>
 
@@ -57,7 +55,7 @@
         :hidden="!showConstraintsPanels">
         <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
         <palette-constraint-list
-          :list="controls.constraints"
+          :list="controls.constraintGroups"
           :constraintTypes="controls.constraintTypes"
           :willRemoveListItem="willRemoveConstraint" />
       </palette-group>
@@ -177,7 +175,7 @@ import InputButton from '@/components/input/Button'
 import PaletteModes from '@/components/palette/Modes'
 import PaletteGroup from '@/components/palette/Group'
 import PaletteTool from '@/components/palette/Tool'
-import PaletteForce from '@/components/palette/Force'
+import PaletteForceList from '@/components/palette/ForceList'
 import PaletteConstraintList from '@/components/palette/ConstraintList'
 import PaletteStyleList from '@/components/palette/StyleList'
 import PaletteModifiers from '@/components/palette/Modifiers'
@@ -188,16 +186,16 @@ export default {
 
   components: {
     Icon,
-    InputText,
     InputButton,
-    PaletteModes,
-    PaletteGroup,
-    PaletteTool,
-    PaletteForce,
+    InputText,
     PaletteConstraintList,
-    PaletteStyleList,
+    PaletteEffects,
+    PaletteForceList,
+    PaletteGroup,
+    PaletteModes,
     PaletteModifiers,
-    PaletteEffects
+    PaletteStyleList,
+    PaletteTool
   },
 
   data () {

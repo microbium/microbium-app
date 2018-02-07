@@ -172,25 +172,71 @@ export function createControlsState () {
 
     forces: [
       {
-        id: 'nudge',
+        index: 0,
         name: 'Nudge',
+        typeIndex: 0,
+        positionTypeIndex: 1,
+        intensityTypeIndex: 1,
         radius: 8,
         radiusScaleIndex: 0,
         intensity: 0.1
       },
       {
-        id: 'diffusor',
+        index: 1,
         name: 'Diffusor',
+        typeIndex: 0,
+        positionTypeIndex: 0,
+        intensityTypeIndex: 2,
         radius: 8,
         radiusScaleIndex: 1,
         intensity: 0.1
       },
       {
-        id: 'rotator',
+        index: 2,
         name: 'Rotator',
+        typeIndex: 1,
+        positionTypeIndex: 0,
+        intensityTypeIndex: 2,
         radius: 8,
         radiusScaleIndex: 1,
         intensity: 0.1
+      }
+    ],
+
+    forceTypes: [
+      {
+        index: 0,
+        name: 'Attractor / Repulsor'
+      },
+      {
+        index: 1,
+        name: 'Rotator'
+      }
+    ],
+
+    forcePositionTypes: [
+      {
+        index: 0,
+        name: 'Static'
+      },
+      {
+        index: 1,
+        name: 'Pointer'
+      }
+    ],
+
+    forceIntensityTypes: [
+      {
+        index: 0,
+        name: 'Static'
+      },
+      {
+        index: 1,
+        name: 'Pointer Velocity'
+      },
+      {
+        index: 2,
+        name: 'Ebb and Flow'
       }
     ],
 
@@ -212,7 +258,7 @@ export function createControlsState () {
       }
     ],
 
-    constraints: [
+    constraintGroups: [
       {
         index: 0,
         name: 'Muscle',
@@ -274,7 +320,7 @@ export function createControlsState () {
       bloom: {
         intensityFactor: 1,
         blurPasses: 1,
-        blurStep: 2
+        blurStep: 1
       },
       colorShift: [0, 0, 0]
     }
