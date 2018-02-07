@@ -47,6 +47,9 @@
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
         <palette-force-list
           :list="controls.forces"
+          :forceTypes="controls.forceTypes"
+          :forcePositionTypes="controls.forcePositionTypes"
+          :forceIntensityTypes="controls.forceIntensityTypes"
           :forceScales="controls.forceScales" />
         </palette-group>
       </palette-group>

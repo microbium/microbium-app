@@ -20,6 +20,9 @@
       </input-button>
 
       <palette-force :model="force"
+        :forceTypes="forceTypes"
+        :forcePositionTypes="forcePositionTypes"
+        :forceIntensityTypes="forceIntensityTypes"
         :forceScales="forceScales" />
     </palette-group>
   </div>
@@ -50,6 +53,9 @@ export default {
 
   props: {
     list: Array,
+    forceTypes: Array,
+    forcePositionTypes: Array,
+    forceIntensityTypes: Array,
     forceScales: Array
   },
 

@@ -161,6 +161,15 @@ $toggle-duration: 200ms;
       position: absolute;
     }
   }
+
+  hr {
+    border: none;
+    border-bottom: 2px solid #fff;
+    margin: 2px 8px 10px;
+    padding: 0;
+    width: 10%;
+    opacity: 0.1;
+  }
 }
 </style>
 

@@ -288,6 +288,7 @@ export function createSimulationController (tasks, state, renderer) {
             break
           case 1:
             // Pointer Velocity
+            // FIXME: Too intense for statically positioned force
             force.intensity = Math.min(velocity, 3) * intensity * 10 + 2
             break
           case 2:
