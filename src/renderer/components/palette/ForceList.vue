@@ -9,6 +9,7 @@
         </span>
       </h2>
 
+      <!-- FEAT: Create force preview component -->
       <input-button slot="controls"
         :disabled="index === 0 || index !== list.length - 1"
         :action="removeListItem.bind(null, force)">

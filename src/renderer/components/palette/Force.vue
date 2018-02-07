@@ -30,12 +30,6 @@
 
     <!-- Radius -->
     <div class="palette-item">
-      <input-range min="0" max="10" step="0.01" v-model="model.radius" />
-      <div class="palette-item__label">
-        <b>{{ radiusName }}</b> radius
-      </div>
-    </div>
-    <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ radiusScaleName }}
           <input-select v-model="model.radiusScaleIndex">
@@ -46,15 +40,15 @@
         </b> radius scale factor
       </div>
     </div>
+    <div class="palette-item">
+      <input-range min="0" max="10" step="0.01" v-model="model.radius" />
+      <div class="palette-item__label">
+        <b>{{ radiusName }}</b> radius
+      </div>
+    </div>
     <hr />
 
     <!-- Intensity -->
-    <div class="palette-item">
-      <input-range min="-2" max="2" step="0.01" v-model="model.intensity" />
-      <div class="palette-item__label">
-        <b>{{ intensityName }}</b> intensity
-      </div>
-    </div>
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ intensityTypeName }}
@@ -66,6 +60,13 @@
         </b> intensity mapping
       </div>
     </div>
+    <div class="palette-item">
+      <input-range min="-2" max="2" step="0.01" v-model="model.intensity" />
+      <div class="palette-item__label">
+        <b>{{ intensityName }}</b> intensity
+      </div>
+    </div>
+    <hr />
   </div>
 </template>
 

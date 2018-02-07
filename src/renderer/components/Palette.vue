@@ -139,6 +139,15 @@ $base-color: rgba(#000, 0.15);
     width: 100%;
     height: calc(100% - #{$toolbar-height});
   }
+
+  hr {
+    border: none;
+    border-bottom: 2px solid #fff;
+    margin: 4px 8px 10px;
+    padding: 0;
+    width: 10%;
+    opacity: 0.1;
+  }
 }
 
 .palette-item {

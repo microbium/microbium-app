@@ -7,13 +7,27 @@
       <palette-style-preview slot="controls"
         :model="segmentStyle" :width="80" :height="22" :segments="5" />
 
+      <!-- Style type -->
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ strokeStyleName }}
+            <input-select v-model="model.styleIndex">
+              <option v-for="style in styles" :value="style.index">
+                {{ style.name }}
+              </option>
+            </input-select>
+          </b> style layer
+        </div>
+      </div>
+      <hr />
+
+      <!-- Stroke width -->
       <div class="palette-item">
         <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth" />
         <div class="palette-item__label">
           <b>{{ strokeWidthName }}</b> base width
         </div>
       </div>
-
       <div class="palette-item">
         <input-range class="range-slider--knob-hidden"
           min="-1" max="1" step="0.025" v-model="model.strokeWidthMod" />
@@ -27,7 +41,9 @@
           </b> width modulation
         </div>
       </div>
+      <hr />
 
+      <!-- Stroke color -->
       <div class="palette-item">
         <div class="palette-item__label">
           <b>{{ model.strokeColor.toUpperCase() }}
@@ -35,25 +51,13 @@
           </b> stroke color
         </div>
       </div>
-
       <div class="palette-item">
         <input-range min="0" max="1" step="0.01" v-model="model.strokeAlpha" />
         <div class="palette-item__label">
           <b>{{ strokeAlphaName }}</b> stroke opacity
         </div>
       </div>
-
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ strokeStyleName }}
-            <input-select v-model="model.styleIndex">
-              <option v-for="style in styles" :value="style.index">
-                {{ style.name }}
-              </option>
-            </input-select>
-          </b> style layer
-        </div>
-      </div>
+      <hr />
     </palette-group>
 
     <palette-group nested persistent-controls open>
@@ -73,6 +77,7 @@
           </b> simulation constraint
         </div>
       </div>
+      <hr />
     </palette-group>
   </div>
 </template>

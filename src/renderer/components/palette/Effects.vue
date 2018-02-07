@@ -10,13 +10,13 @@
           </b> color
         </div>
       </div>
-
       <div class="palette-item">
         <input-range min="0" max="2" step="0.05" v-model="model.clear.alphaFactor" />
         <div class="palette-item__label">
           <b>{{ clearAlphaName }}</b> fade out
         </div>
       </div>
+      <hr />
     </palette-group>
 
     <palette-group nested open>
@@ -28,6 +28,7 @@
           <b>{{ bloomFactorName }}</b> intensity
         </div>
       </div>
+      <hr />
 
       <div class="palette-item">
         <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
@@ -35,37 +36,37 @@
           <b>{{ bloomBlurPassesName }}</b> blur passes
         </div>
       </div>
-
       <div class="palette-item">
         <input-range min="1" max="20" step="1" v-model="model.bloom.blurStep" />
         <div class="palette-item__label">
           <b>{{ bloomBlurStepName }}</b> blur radius interval
         </div>
       </div>
+      <hr />
     </palette-group>
 
     <palette-group nested>
       <h2 slot="title">Color Shift</h2>
+
       <div class="palette-item">
-        <input-range min="0" max="1" step="0.01" v-model="model.colorShift[0]" />
+        <input-range min="-0.5" max="0.5" step="0.005" v-model="model.colorShift[0]" />
         <div class="palette-item__label">
           <b>{{ colorShiftHueName }}</b> hue
         </div>
       </div>
-
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[1]" />
         <div class="palette-item__label">
           <b>{{ colorShiftSatName }}</b> saturation
         </div>
       </div>
-
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[2]" />
         <div class="palette-item__label">
           <b>{{ colorShiftValName }}</b> value
         </div>
       </div>
+      <hr />
     </palette-group>
 
     <palette-group nested>
@@ -77,6 +78,7 @@
           <b>{{ noiseFactorName }}</b> intensity
         </div>
       </div>
+      <hr />
     </palette-group>
   </div>
 </template>

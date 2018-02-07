@@ -13,26 +13,32 @@
         </b> constraint
       </div>
     </div>
+    <hr />
 
-    <div class="palette-item" v-if="hasSlipTolerance">
-      <input-range min="0" max="1" step="0.01" v-model="model.slipTolerance" />
-      <div class="palette-item__label">
-        <b>{{ slipToleranceName }}</b> slip tolerance
+    <div v-if="hasSlipTolerance">
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.slipTolerance" />
+        <div class="palette-item__label">
+          <b>{{ slipToleranceName }}</b> slip tolerance
+        </div>
       </div>
+      <hr />
     </div>
 
-    <div class="palette-item" v-if="hasEngine">
-      <input-range min="0" max="1" step="0.01" v-model="model.engineFlex" />
-      <div class="palette-item__label">
-        <b>{{ engineFlexName }}</b> distance flex
+    <div v-if="hasEngine">
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.engineFlex" />
+        <div class="palette-item__label">
+          <b>{{ engineFlexName }}</b> distance flex
+        </div>
       </div>
-    </div>
-
-    <div class="palette-item" v-if="hasEngine">
-      <input-range min="0" max="0.5" step="0.01" v-model="model.engineCadence" />
-      <div class="palette-item__label">
-        <b>{{ engineCadenceName }}</b> flex cadence
+      <div class="palette-item">
+        <input-range min="0" max="0.5" step="0.01" v-model="model.engineCadence" />
+        <div class="palette-item__label">
+          <b>{{ engineCadenceName }}</b> flex cadence
+        </div>
       </div>
+      <hr />
     </div>
   </div>
 </template>

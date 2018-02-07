@@ -1,5 +1,20 @@
 <template>
   <div class="palette-style">
+    <!-- Stroke pattern -->
+    <div class="palette-item">
+      <div class="palette-item__label">
+        <b>{{ alphaFunctionName }}
+          <input-select v-model="model.alphaFuncIndex">
+            <option v-for="alphaFunc in alphaFunctions" :value="alphaFunc.index">
+              {{ alphaFunc.name }}
+            </option>
+          </input-select>
+        </b> stroke pattern
+      </div>
+    </div>
+    <hr />
+
+    <!-- Stroke width -->
     <div class="palette-item">
       <input-range min="0" max="5" step="0.1"
         v-model="model.thickness" />
@@ -7,7 +22,6 @@
         <b>{{ thicknessName }}</b> stroke width factor
       </div>
     </div>
-
     <div class="palette-item">
       <input-range min="0" max="5" step="0.1"
         v-model="model.strokeWidthMod" />
@@ -16,7 +30,9 @@
         stroke modulation
       </div>
     </div>
+    <hr />
 
+    <!-- Color -->
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ model.tintHex.toUpperCase() }}
@@ -24,13 +40,13 @@
         </b> tint
       </div>
     </div>
-
     <div class="palette-item">
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
       <div class="palette-item__label">
         <b>{{ tintAlphaName }}</b> opacity
       </div>
     </div>
+    <hr />
 
     <!-- FEAT: Add support for user-defined textures, improve alpha / tint mapping
      -->
@@ -59,18 +75,6 @@
       </div>
     </div>
     -->
-
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ alphaFunctionName }}
-          <input-select v-model="model.alphaFuncIndex">
-            <option v-for="alphaFunc in alphaFunctions" :value="alphaFunc.index">
-              {{ alphaFunc.name }}
-            </option>
-          </input-select>
-        </b> alpha function
-      </div>
-    </div>
   </div>
 </template>
 
