@@ -17,7 +17,7 @@
     <div class="palette__content">
       <palette-group open
         :hidden="!showToolPanels">
-        <h2 slot="title">Line Tool</h2>
+        <h2 slot="title">{{ paletteTypesMap.tool.name }}</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
           :constraints="controls.constraints"
@@ -27,13 +27,13 @@
 
       <palette-group open
         :hidden="!showGeometryPanels">
-        <h2 slot="title">Geometry Modifiers</h2>
+        <h2 slot="title">{{ paletteTypesMap.geometry.name }}</h2>
         <palette-modifiers :model="controls.modifiers" />
       </palette-group>
 
       <palette-group open
         :hidden="!showStylePanels">
-        <h2 slot="title">Style Layers</h2>
+        <h2 slot="title">{{ paletteTypesMap.styles.name }}</h2>
         <palette-style-list
           :list="controls.styles"
           :textures="controls.textures"
@@ -44,7 +44,7 @@
 
       <palette-group open
         :hidden="!showForcesPanels">
-        <h2 slot="title">Simulation Forces</h2>
+        <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
         <palette-group v-for="force in controls.forces"
           :key="force.id" nested open>
           <h2 slot="title">{{ force.name }}</h2>
@@ -55,7 +55,7 @@
 
       <palette-group open
         :hidden="!showConstraintsPanels">
-        <h2 slot="title">Constraint Types</h2>
+        <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
         <palette-constraint-list
           :list="controls.constraints"
           :constraintTypes="controls.constraintTypes"
@@ -64,7 +64,7 @@
 
       <palette-group open
         :hidden="!showEffectsPanels">
-        <h2 slot="title">Visual Effects</h2>
+        <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
         <palette-effects :model="controls.postEffects" />
       </palette-group>
     </div>
@@ -257,8 +257,17 @@ export default {
   },
 
   computed: {
+    paletteTypesMap () {
+      const { paletteTypes } = this.controls
+      return paletteTypes.reduce((map, type) => {
+        map[type.id] = type
+        return map
+      }, {})
+    },
+
     isDrawMode: createModeCondition('activeMode', 'draw'),
     isSelectMode: createModeCondition('activeMode', 'select'),
+
     showToolPanels: createModeCondition('activePalettes', 'tool'),
     showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
     showStylePanels: createModeCondition('activePalettes', 'styles'),
