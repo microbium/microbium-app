@@ -235,7 +235,7 @@ export function createControlsStaticParams () {
       },
       {
         id: 'constraints',
-        name: 'Constraint Types'
+        name: 'Constraint Groups'
       },
       {
         id: 'forces',
