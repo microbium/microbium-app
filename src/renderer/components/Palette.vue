@@ -293,7 +293,7 @@ export default {
     'controls.lineTool': createStateSyncer('lineTool'),
     'controls.styles': createStateSyncer('styles'),
     'controls.forces': createStateSyncer('forces'),
-    'controls.constraints': createStateSyncer('constraints'),
+    'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.postEffects': createStateSyncer('postEffects')
   }
