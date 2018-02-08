@@ -136,7 +136,7 @@ export function createControlsState () {
         positionTypeIndex: 0,
         intensityTypeIndex: 2,
         polarAngle: 30,
-        polarOffset: 200,
+        polarOffset: 14,
         radius: 20,
         intensity: 0.1
       },
@@ -147,7 +147,7 @@ export function createControlsState () {
         positionTypeIndex: 0,
         intensityTypeIndex: 2,
         polarAngle: 20,
-        polarOffset: 300,
+        polarOffset: 17,
         radius: 22,
         intensity: 0.1
       }

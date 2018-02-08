@@ -259,6 +259,10 @@ export function createSimulationController (tasks, state, renderer) {
       return baseRadius * baseRadius
     },
 
+    computePolarOffset (basePolarOffset) {
+      return basePolarOffset * basePolarOffset
+    },
+
     updateForces () {
       const { points } = state.simulationForces
       const { tick } = state.simulation
@@ -275,7 +279,8 @@ export function createSimulationController (tasks, state, renderer) {
       points.forEach((item, i) => {
         const config = forces[i]
         const {
-          positionTypeIndex, intensityTypeIndex, radius
+          positionTypeIndex, intensityTypeIndex, radius,
+          polarAngle, polarOffset
         } = config
         const { position, force } = item
         const intensity = positionTypeIndex === 1
@@ -288,16 +293,17 @@ export function createSimulationController (tasks, state, renderer) {
         switch (positionTypeIndex) {
           case 0:
             // Static
-            const polarOffset = vec2.set(scratchVec2B, config.polarOffset, 0)
-            const polarAngle = Math.PI * config.polarAngle / 180
-            const polarRotation = mat2d.fromRotation(scratchMat2dB, polarAngle)
+            const polarOffsetVec = vec2.set(scratchVec2B,
+              simulation.computePolarOffset(polarOffset), 0)
+            const polarAngleRad = Math.PI * polarAngle / 180
+            const polarRotation = mat2d.fromRotation(scratchMat2dB, polarAngleRad)
             const polarTickRotation = mat2d.fromRotation(scratchMat2dC,
-              angleStep * angleIndex * polarAngle)
+              angleStep * angleIndex * polarAngleRad)
 
             const polarPosition = vec2.transformMat2d(scratchVec2C,
-              polarOffset, polarRotation)
+              polarOffsetVec, polarRotation)
             const polarTickPosition = vec2.transformMat2d(scratchVec2D,
-              polarOffset, polarTickRotation)
+              polarOffsetVec, polarTickRotation)
 
             vec2.copy(position, polarPosition)
             force.set(polarTickPosition[0], polarTickPosition[1], 0)

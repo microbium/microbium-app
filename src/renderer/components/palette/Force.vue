@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0" max="1500" step="25" v-model="model.polarOffset" />
+        <input-range min="0" max="40" step="0.5" v-model="model.polarOffset" />
         <div class="palette-item__label">
           <b>{{ polarOffsetName }}</b> polar offset
         </div>
@@ -123,12 +123,12 @@ export default {
 
     polarOffsetName () {
       const { polarOffset } = this.model
-      return `${roundToPlaces(polarOffset, 0)}px`
+      return `${roundToPlaces(polarOffset * polarOffset, 0)}pt`
     },
 
     radiusName () {
       const { radius } = this.model
-      return `${roundToPlaces(radius * radius, 0)}px`
+      return `${roundToPlaces(radius * radius, 0)}pt`
     },
 
     intensityName () {
