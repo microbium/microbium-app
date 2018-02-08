@@ -26,6 +26,20 @@
         </b> position mapping
       </div>
     </div>
+    <div v-if="isStaticPosition">
+      <div class="palette-item">
+        <input-range min="-180" max="180" step="0.5" v-model="model.polarAngle" />
+        <div class="palette-item__label">
+          <b>{{ polarAngleName }}</b> polar angle
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1500" step="25" v-model="model.polarOffset" />
+        <div class="palette-item__label">
+          <b>{{ polarOffsetName }}</b> polar offset
+        </div>
+      </div>
+    </div>
     <hr />
 
     <!-- Radius -->
@@ -111,6 +125,20 @@ export default {
       const { intensityTypeIndex } = this.model
       const intensityType = this.forceIntensityTypes[intensityTypeIndex]
       return intensityType.name
+    },
+
+    isStaticPosition () {
+      return this.model.positionTypeIndex === 0
+    },
+
+    polarAngleName () {
+      const { polarAngle } = this.model
+      return `${roundToPlaces(polarAngle, 1)}°`
+    },
+
+    polarOffsetName () {
+      const { polarOffset } = this.model
+      return `${roundToPlaces(polarOffset, 0)}px`
     },
 
     radiusName () {

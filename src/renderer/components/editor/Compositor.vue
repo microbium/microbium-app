@@ -346,7 +346,7 @@ function mountCompositor ($el, $refs, $electron) {
       })
       uiMain.lines.reset()
 
-      drawSimulatorForceUI(state, sceneContexts[0].ctx, 0, 1)
+      drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 1)
       drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
       drawSimulatorOriginUI(state, uiMain.ctx)
 

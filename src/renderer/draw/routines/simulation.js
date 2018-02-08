@@ -50,6 +50,7 @@ export function drawSimulatorOriginUI (state, ctx) {
   // ctx.restore()
 }
 
+// TODO: Redesign configurable forces UI
 export function drawSimulatorForceUI (state, ctx, baseRadius, alpha) {
   if (!state.simulation.isRunning) return
   const { points } = state.simulationForces

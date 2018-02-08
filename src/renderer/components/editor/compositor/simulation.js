@@ -16,7 +16,12 @@ import { RotatorForce } from '@/physics/forces/RotatorForce'
 
 export function createSimulationController (tasks, state, renderer) {
   const scratchVec2A = vec2.create()
+  const scratchVec2B = vec2.create()
+  const scratchVec2C = vec2.create()
+  const scratchVec2D = vec2.create()
   const scratchMat2dA = mat2d.create()
+  const scratchMat2dB = mat2d.create()
+  const scratchMat2dC = mat2d.create()
 
   const simulation = {
     toggle () {
@@ -261,18 +266,35 @@ export function createSimulationController (tasks, state, renderer) {
       const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
       const pointerPosition = vec2.transformMat2d(scratchVec2A, move, rotation)
 
-      points.forEach(({position, force}, i) => {
+      points.forEach((item, i) => {
+        const config = forces[i]
         const {
           positionTypeIndex, intensityTypeIndex,
-          radius, radiusScaleIndex, intensity
-        } = forces[i]
+          radius, radiusScaleIndex
+        } = config
+        const { position, force } = item
+        const intensity = positionTypeIndex === 1
+          ? config.intensity * 10
+          : config.intensity * 3
 
         force.setRadius(radius * forceScales[radiusScaleIndex].value)
 
         switch (positionTypeIndex) {
           case 0:
             // Static
-            // FEAT: Enable force polar positioning
+            const polarOffset = vec2.set(scratchVec2B, config.polarOffset, 0)
+            const polarAngle = Math.PI * config.polarAngle / 180
+            const polarRotation = mat2d.fromRotation(scratchMat2dB, polarAngle)
+            const polarTickRotation = mat2d.fromRotation(scratchMat2dC,
+              angleStep * angleIndex * polarAngle)
+
+            const polarPosition = vec2.transformMat2d(scratchVec2C,
+              polarOffset, polarRotation)
+            const polarTickPosition = vec2.transformMat2d(scratchVec2D,
+              polarOffset, polarTickRotation)
+
+            vec2.copy(position, polarPosition)
+            force.set(polarTickPosition[0], polarTickPosition[1], 0)
             break
           case 1:
             // Pointer
@@ -288,8 +310,7 @@ export function createSimulationController (tasks, state, renderer) {
             break
           case 1:
             // Pointer Velocity
-            // FIXME: Too intense for statically positioned force
-            force.intensity = Math.min(velocity, 3) * intensity * 10 + 2
+            force.intensity = Math.min(velocity, 3) * intensity + 2
             break
           case 2:
             // Ebb and Flow
