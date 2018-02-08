@@ -24,6 +24,7 @@ export function createSimulationController (tasks, state, renderer) {
   const scratchMat2dC = mat2d.create()
 
   const simulation = {
+    // TODO: Prevent running simulation while still editing segment
     toggle () {
       const { isRunning } = state.simulation
       state.simulation.isRunning = !isRunning
@@ -132,7 +133,8 @@ export function createSimulationController (tasks, state, renderer) {
 
     createDynamicSegment (system, segment, config, group) {
       const { slipTolerance } = config
-      const { lineLengths } = segment
+      const { lineLengths, isComplete } = segment
+      if (!isComplete) return
       const lines = simulation.expandIndicesToLines(segment.indices)
       const constraints = []
 
