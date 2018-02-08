@@ -6,11 +6,11 @@
         <!--
         <palette-modes
           :activeMode="controls.activeMode"
-          :modeTypes="controls.modeTypes" />
+          :modeTypes="params.modeTypes" />
         -->
         <palette-modes
           :activeMode="controls.activePalettes"
-          :modeTypes="controls.paletteTypes" />
+          :modeTypes="params.paletteTypes" />
       </div>
     </div>
 
@@ -21,8 +21,8 @@
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
           :constraints="controls.constraintGroups"
-          :inputModTypes="controls.inputModTypes"
-          :physicsTypes="controls.physicsTypes" />
+          :inputModTypes="params.inputModTypes"
+          :physicsTypes="params.physicsTypes" />
       </palette-group>
 
       <palette-group open
@@ -47,9 +47,9 @@
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
         <palette-force-list
           :list="controls.forces"
-          :forceTypes="controls.forceTypes"
-          :forcePositionTypes="controls.forcePositionTypes"
-          :forceIntensityTypes="controls.forceIntensityTypes"
+          :forceTypes="params.forceTypes"
+          :forcePositionTypes="params.forcePositionTypes"
+          :forceIntensityTypes="params.forceIntensityTypes"
           :forceScales="controls.forceScales" />
         </palette-group>
       </palette-group>
@@ -59,7 +59,7 @@
         <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
         <palette-constraint-list
           :list="controls.constraintGroups"
-          :constraintTypes="controls.constraintTypes"
+          :constraintTypes="params.constraintTypes"
           :willRemoveListItem="willRemoveConstraint" />
       </palette-group>
 
@@ -179,7 +179,10 @@ $base-color: rgba(#000, 0.15);
 </style>
 
 <script>
-import { createControlsState } from '@/store/modules/Palette'
+import {
+  createControlsState,
+  createControlsStaticParams
+} from '@/store/modules/Palette'
 
 import Icon from '@/components/display/Icon'
 import InputText from '@/components/input/Text'
@@ -212,7 +215,8 @@ export default {
 
   data () {
     return {
-      controls: createControlsState()
+      controls: createControlsState(),
+      params: createControlsStaticParams()
     }
   },
 
@@ -268,7 +272,7 @@ export default {
 
   computed: {
     paletteTypesMap () {
-      const { paletteTypes } = this.controls
+      const { paletteTypes } = this.params
       return paletteTypes.reduce((map, type) => {
         map[type.id] = type
         return map

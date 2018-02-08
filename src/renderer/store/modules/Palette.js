@@ -18,59 +18,6 @@ export function createControlsState () {
       styleIndex: 0
     },
 
-    modeTypes: [
-      {
-        id: 'draw',
-        name: 'Draw'
-      },
-      {
-        id: 'select',
-        name: 'Select'
-      }
-    ],
-
-    paletteTypes: [
-      {
-        id: 'tool',
-        name: 'Line Tool'
-      },
-      {
-        id: 'geometry',
-        name: 'Geometry Modifiers'
-      },
-      {
-        id: 'styles',
-        name: 'Style Layers'
-      },
-      {
-        id: 'constraints',
-        name: 'Constraint Types'
-      },
-      {
-        id: 'forces',
-        name: 'Simulation Forces'
-      },
-      {
-        id: 'effects',
-        name: 'Visual Effects'
-      }
-    ],
-
-    inputModTypes: [
-      {
-        index: 0,
-        name: 'No'
-      },
-      {
-        index: 1,
-        name: 'Velocity'
-      },
-      {
-        index: 2,
-        name: 'Pen Pressure'
-      }
-    ],
-
     styles: [
       {
         index: 0,
@@ -209,43 +156,6 @@ export function createControlsState () {
       }
     ],
 
-    forceTypes: [
-      {
-        index: 0,
-        name: 'Attractor / Repulsor'
-      },
-      {
-        index: 1,
-        name: 'Rotator'
-      }
-    ],
-
-    forcePositionTypes: [
-      {
-        index: 0,
-        name: 'Static'
-      },
-      {
-        index: 1,
-        name: 'Pointer'
-      }
-    ],
-
-    forceIntensityTypes: [
-      {
-        index: 0,
-        name: 'Static'
-      },
-      {
-        index: 1,
-        name: 'Pointer Velocity'
-      },
-      {
-        index: 2,
-        name: 'Ebb and Flow'
-      }
-    ],
-
     forceScales: [
       {
         index: 0,
@@ -291,21 +201,6 @@ export function createControlsState () {
       }
     ],
 
-    constraintTypes: [
-      {
-        index: 0,
-        name: 'Pin'
-      },
-      {
-        index: 1,
-        name: 'Stick'
-      },
-      {
-        index: 2,
-        name: 'Engine'
-      }
-    ],
-
     modifiers: {
       polarIterations: 3,
       curve: {
@@ -330,6 +225,115 @@ export function createControlsState () {
       },
       colorShift: [0, 0, 0]
     }
+  }
+}
+
+export function createControlsStaticParams () {
+  return {
+    modeTypes: [
+      {
+        id: 'draw',
+        name: 'Draw'
+      },
+      {
+        id: 'select',
+        name: 'Select'
+      }
+    ],
+
+    paletteTypes: [
+      {
+        id: 'tool',
+        name: 'Line Tool'
+      },
+      {
+        id: 'geometry',
+        name: 'Geometry Modifiers'
+      },
+      {
+        id: 'styles',
+        name: 'Style Layers'
+      },
+      {
+        id: 'constraints',
+        name: 'Constraint Types'
+      },
+      {
+        id: 'forces',
+        name: 'Simulation Forces'
+      },
+      {
+        id: 'effects',
+        name: 'Visual Effects'
+      }
+    ],
+
+    inputModTypes: [
+      {
+        index: 0,
+        name: 'No'
+      },
+      {
+        index: 1,
+        name: 'Velocity'
+      },
+      {
+        index: 2,
+        name: 'Pen Pressure'
+      }
+    ],
+
+    forceTypes: [
+      {
+        index: 0,
+        name: 'Attractor / Repulsor'
+      },
+      {
+        index: 1,
+        name: 'Rotator'
+      }
+    ],
+
+    forcePositionTypes: [
+      {
+        index: 0,
+        name: 'Static'
+      },
+      {
+        index: 1,
+        name: 'Pointer'
+      }
+    ],
+
+    forceIntensityTypes: [
+      {
+        index: 0,
+        name: 'Static'
+      },
+      {
+        index: 1,
+        name: 'Pointer Velocity'
+      },
+      {
+        index: 2,
+        name: 'Ebb and Flow'
+      }
+    ],
+
+    constraintTypes: [
+      {
+        index: 0,
+        name: 'Pin'
+      },
+      {
+        index: 1,
+        name: 'Stick'
+      },
+      {
+        index: 2,
+        name: 'Engine'
+      }
+    ]
   }
 }
 
