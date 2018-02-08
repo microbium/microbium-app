@@ -108,6 +108,7 @@ function computeCurvePrecision (
 }
 
 // OPTIM: Minimize state stack changes
+// TODO: Make focus elements size zoom independent
 export function drawFocus (state, ctx, index) {
   const { vertices } = state.geometry
   const point = vertices[index]
