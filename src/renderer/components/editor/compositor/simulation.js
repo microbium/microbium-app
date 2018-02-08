@@ -151,6 +151,7 @@ export function createSimulationController (tasks, state, renderer) {
       })
 
       group.push({
+        localTime: 0,
         segment,
         constraints
       })
@@ -238,16 +239,19 @@ export function createSimulationController (tasks, state, renderer) {
     // TODO: Enable extending beyond base segment size
     updateEngines () {
       const { constraintGroups } = state.controls
-      const { tick } = state.simulation
       const { engines } = state.simulationConstraintGroups
 
-      engines.forEach(({segment, constraints}) => {
+      engines.forEach((engine) => {
+        const { segment, constraints, localTime } = engine
         const config = constraintGroups[segment.constraintIndex]
         const { slipTolerance, engineCadence, engineFlex } = config
-        const distanceScale = Math.sin(tick * engineCadence) *
+
+        const nextLocalTime = localTime + engineCadence
+        const distanceScale = Math.sin(nextLocalTime) *
           mapLinear(0, 1, 0, 0.5, engineFlex) +
           mapLinear(0, 1, 1, 0.5, engineFlex)
 
+        engine.localTime = nextLocalTime
         constraints.forEach(({distance, constraint}) => {
           const nextDistance = distance * distanceScale
           constraint.setDistance(nextDistance * (1 - slipTolerance), nextDistance)
