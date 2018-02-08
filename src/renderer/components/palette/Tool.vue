@@ -23,7 +23,7 @@
 
       <!-- Stroke width -->
       <div class="palette-item">
-        <input-range min="0.25" max="18" step="0.25" v-model="model.strokeWidth" />
+        <input-range min="0.1" max="5" step="0.01" v-model="model.strokeWidth" />
         <div class="palette-item__label">
           <b>{{ strokeWidthName }}</b> base width
         </div>
@@ -126,7 +126,7 @@ export default {
 
     strokeWidthName () {
       const { strokeWidth } = this.model
-      return `${roundToPlaces(strokeWidth, 2)}pt`
+      return `${roundToPlaces(strokeWidth * strokeWidth, 2)}pt`
     },
 
     inputModTypeName () {

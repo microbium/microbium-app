@@ -9,7 +9,7 @@ export function createControlsState () {
     },
 
     lineTool: {
-      strokeWidth: 2,
+      strokeWidth: 1,
       strokeColor: '#222222',
       strokeAlpha: 1,
       strokeWidthMod: 0,
@@ -127,7 +127,6 @@ export function createControlsState () {
         polarAngle: 0,
         polarOffset: 0,
         radius: 8,
-        radiusScaleIndex: 0,
         intensity: 0.1
       },
       {
@@ -138,8 +137,7 @@ export function createControlsState () {
         intensityTypeIndex: 2,
         polarAngle: 30,
         polarOffset: 200,
-        radius: 8,
-        radiusScaleIndex: 1,
+        radius: 20,
         intensity: 0.1
       },
       {
@@ -150,27 +148,8 @@ export function createControlsState () {
         intensityTypeIndex: 2,
         polarAngle: 20,
         polarOffset: 300,
-        radius: 8,
-        radiusScaleIndex: 1,
+        radius: 22,
         intensity: 0.1
-      }
-    ],
-
-    forceScales: [
-      {
-        index: 0,
-        name: '10x',
-        value: 10
-      },
-      {
-        index: 1,
-        name: '100x',
-        value: 100
-      },
-      {
-        index: 2,
-        name: '1000x',
-        value: 1000
       }
     ],
 

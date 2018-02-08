@@ -42,27 +42,7 @@
     </div>
     <hr />
 
-    <!-- Radius -->
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ radiusScaleName }}
-          <input-select v-model="model.radiusScaleIndex">
-            <option v-for="item in forceScales" :value="item.index">
-              {{ item.name }}
-            </option>
-          </input-select>
-        </b> radius scale factor
-      </div>
-    </div>
-    <div class="palette-item">
-      <input-range min="0" max="10" step="0.01" v-model="model.radius" />
-      <div class="palette-item__label">
-        <b>{{ radiusName }}</b> radius
-      </div>
-    </div>
-    <hr />
-
-    <!-- Intensity -->
+    <!-- Intensity / Radius -->
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ intensityTypeName }}
@@ -78,6 +58,12 @@
       <input-range min="-2" max="2" step="0.01" v-model="model.intensity" />
       <div class="palette-item__label">
         <b>{{ intensityName }}</b> intensity
+      </div>
+    </div>
+    <div class="palette-item">
+      <input-range min="2" max="60" step="0.5" v-model="model.radius" />
+      <div class="palette-item__label">
+        <b>{{ radiusName }}</b> radius
       </div>
     </div>
     <hr />
@@ -104,8 +90,7 @@ export default {
     model: Object,
     forceTypes: Array,
     forcePositionTypes: Array,
-    forceIntensityTypes: Array,
-    forceScales: Array
+    forceIntensityTypes: Array
   },
 
   computed: {
@@ -142,14 +127,8 @@ export default {
     },
 
     radiusName () {
-      const { radius, radiusScaleIndex } = this.model
-      const radiusScale = this.forceScales[radiusScaleIndex]
-      return `${roundToPlaces(radius * radiusScale.value, 0)}px`
-    },
-
-    radiusScaleName () {
-      const forceScale = this.forceScales[this.model.radiusScaleIndex]
-      return forceScale.name
+      const { radius } = this.model
+      return `${roundToPlaces(radius * radius, 0)}px`
     },
 
     intensityName () {

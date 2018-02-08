@@ -346,9 +346,12 @@ function mountCompositor ($el, $refs, $electron) {
       })
       uiMain.lines.reset()
 
-      drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 1)
-      drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
-      drawSimulatorOriginUI(state, uiMain.ctx)
+      // TODO: Enable drawing force positions while editing
+      if (isRunning) {
+        drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 1)
+        drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
+        drawSimulatorOriginUI(state, uiMain.ctx)
+      }
 
       if (isRunning) {
         drawOriginTick(state, uiMain.ctx)

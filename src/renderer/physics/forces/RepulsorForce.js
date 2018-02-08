@@ -15,6 +15,7 @@ function RepulsorForce (position, opts) {
 inherit(RepulsorForce, Force)
 
 RepulsorForce.prototype.setRadius = function (r) {
+  this.radius = r
   this.radiusSq = r * r
 }
 

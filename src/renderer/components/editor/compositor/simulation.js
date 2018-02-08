@@ -255,10 +255,14 @@ export function createSimulationController (tasks, state, renderer) {
       })
     },
 
+    computeForceRadius (baseRadius) {
+      return baseRadius * baseRadius
+    },
+
     updateForces () {
       const { points } = state.simulationForces
       const { tick } = state.simulation
-      const { forces, forceScales } = state.controls
+      const { forces } = state.controls
       const { move, velocity } = state.seek
       const { polarIterations } = state.controls.modifiers
 
@@ -271,15 +275,15 @@ export function createSimulationController (tasks, state, renderer) {
       points.forEach((item, i) => {
         const config = forces[i]
         const {
-          positionTypeIndex, intensityTypeIndex,
-          radius, radiusScaleIndex
+          positionTypeIndex, intensityTypeIndex, radius
         } = config
         const { position, force } = item
         const intensity = positionTypeIndex === 1
           ? config.intensity * 10
           : config.intensity * 3
 
-        force.setRadius(radius * forceScales[radiusScaleIndex].value)
+        force.setRadius(
+          simulation.computeForceRadius(radius))
 
         switch (positionTypeIndex) {
           case 0:

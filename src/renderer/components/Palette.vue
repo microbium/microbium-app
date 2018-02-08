@@ -49,8 +49,7 @@
           :list="controls.forces"
           :forceTypes="params.forceTypes"
           :forcePositionTypes="params.forcePositionTypes"
-          :forceIntensityTypes="params.forceIntensityTypes"
-          :forceScales="controls.forceScales" />
+          :forceIntensityTypes="params.forceIntensityTypes" />
         </palette-group>
       </palette-group>
 

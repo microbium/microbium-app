@@ -23,8 +23,7 @@
       <palette-force :model="force"
         :forceTypes="forceTypes"
         :forcePositionTypes="forcePositionTypes"
-        :forceIntensityTypes="forceIntensityTypes"
-        :forceScales="forceScales" />
+        :forceIntensityTypes="forceIntensityTypes" />
     </palette-group>
   </div>
 </template>
@@ -56,8 +55,7 @@ export default {
     list: Array,
     forceTypes: Array,
     forcePositionTypes: Array,
-    forceIntensityTypes: Array,
-    forceScales: Array
+    forceIntensityTypes: Array
   },
 
   mixins: [EditableListMixin],

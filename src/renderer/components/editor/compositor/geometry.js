@@ -3,6 +3,10 @@ import { clamp, mapLinear } from '@/utils/math'
 
 export function createGeometryController (tasks, state) {
   const geometry = {
+    computeStrokeWidth (baseWidth) {
+      return baseWidth * baseWidth
+    },
+
     computeLinkSizeAvg: function (vertices, indices) {
       let segmentLength = 0
       for (let i = 0; i < indices.length - 1; i++) {
@@ -95,7 +99,7 @@ export function createGeometryController (tasks, state) {
         connectedIndices,
         linkSizeAvg: 0,
         strokeWidthModulations: [modStrokeWidth],
-        strokeWidth,
+        strokeWidth: geometry.computeStrokeWidth(strokeWidth),
         strokeColor,
         strokeAlpha,
         constraintIndex,
