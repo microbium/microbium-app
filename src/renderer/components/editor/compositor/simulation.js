@@ -237,12 +237,12 @@ export function createSimulationController (tasks, state, renderer) {
 
     // TODO: Enable extending beyond base segment size
     updateEngines () {
-      const { constraints: constraintConfigs } = state.controls
+      const { constraintGroups } = state.controls
       const { tick } = state.simulation
       const { engines } = state.simulationConstraintGroups
 
       engines.forEach(({segment, constraints}) => {
-        const config = constraintConfigs[segment.constraintIndex]
+        const config = constraintGroups[segment.constraintIndex]
         const { slipTolerance, engineCadence, engineFlex } = config
         const distanceScale = Math.sin(tick * engineCadence) *
           mapLinear(0, 1, 0, 0.5, engineFlex) +
