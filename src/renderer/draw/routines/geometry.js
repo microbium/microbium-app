@@ -108,21 +108,22 @@ function computeCurvePrecision (
 }
 
 // OPTIM: Minimize state stack changes
-// TODO: Make focus elements size zoom independent
 export function drawFocus (state, ctx, index) {
   const { vertices } = state.geometry
+  const { scale } = state.viewport
   const point = vertices[index]
   if (!point) return
 
+  const scaleInv = 1 / scale
   const count = 4
   const angleStep = PI * 2 / count
   const pointRad = vec2.length(point)
-  const innerRad = 6
+  const innerRad = 6 * scaleInv
 
   ctx.save()
   ctx.translate(point[0], point[1])
   ctx.globalAlpha = 0.9
-  ctx.lineWidth = 1
+  ctx.lineWidth = 1 * scaleInv
   ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
 
   ctx.beginPath()
@@ -137,7 +138,7 @@ export function drawFocus (state, ctx, index) {
   ctx.translate(-point[0], -point[1])
   ctx.rotate(Math.atan2(point[1], point[0]))
   ctx.globalAlpha = 0.5
-  ctx.lineWidth = 0.5
+  ctx.lineWidth = 0.5 * scaleInv
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
   ctx.beginPath()
