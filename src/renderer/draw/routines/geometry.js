@@ -2,8 +2,9 @@ import { vec2 } from 'gl-matrix'
 import { UI_PALETTE } from '@/constants/color-palettes'
 import { map, flatten2 } from '@/utils/array'
 import { clamp, mapLinear } from '@/utils/math'
+import { arc } from './primitive'
 
-const { PI, max } = Math
+const { max } = Math
 
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
   drawSegments(state, contexts, segmentStart, segmentCount)
@@ -115,29 +116,24 @@ export function drawFocus (state, ctx, index) {
   if (!point) return
 
   const scaleInv = 1 / scale
-  const count = 4
-  const angleStep = PI * 2 / count
   const pointRad = vec2.length(point)
   const innerRad = 6 * scaleInv
 
   ctx.save()
-  ctx.translate(point[0], point[1])
   ctx.globalAlpha = 0.9
   ctx.lineWidth = 1 * scaleInv
   ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
 
   ctx.beginPath()
-  for (let i = 0; i < count; i++) {
-    if (i === 0) ctx.moveTo(innerRad, 0)
-    else ctx.lineTo(innerRad, 0)
-    ctx.rotate(angleStep)
-  }
+  arc(ctx,
+    point[0], point[1], innerRad,
+    0, Math.PI * 2,
+    false, Math.PI * 0.3)
   ctx.closePath()
   ctx.stroke()
 
-  ctx.translate(-point[0], -point[1])
   ctx.rotate(Math.atan2(point[1], point[0]))
-  ctx.globalAlpha = 0.5
+  ctx.globalAlpha = 0.25
   ctx.lineWidth = 0.5 * scaleInv
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
@@ -152,4 +148,33 @@ export function drawFocus (state, ctx, index) {
   ctx.stroke()
 
   ctx.restore()
+}
+
+// OPTIM: Maybe use GL points to render proximate points
+export function drawFocusProximate (state, ctx, indices, ignoreIndex) {
+  const { vertices } = state.geometry
+  const { scale } = state.viewport
+  // TODO: Maybe sort by distance factor
+  const count = Math.min(20, indices.length)
+
+  for (let i = 0; i < count; i++) {
+    const { index, factor } = indices[i]
+    const point = vertices[index]
+    if (index === ignoreIndex || !point) continue
+
+    const scaleInv = 1 / scale
+    const innerRad = (3 * (1 - factor) + 3) * scaleInv
+
+    ctx.globalAlpha = 0.4 * (1 - factor) + 0.1
+    ctx.lineWidth = 0.75 * scaleInv
+    ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
+
+    ctx.beginPath()
+    arc(ctx,
+      point[0], point[1], innerRad,
+      0, Math.PI * 2,
+      false, Math.PI * 0.45)
+    ctx.closePath()
+    ctx.stroke()
+  }
 }

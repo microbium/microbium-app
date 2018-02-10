@@ -109,7 +109,8 @@ import {
 } from '@/draw/routines/origin'
 import {
   drawGeometry,
-  drawFocus
+  drawFocus,
+  drawFocusProximate
 } from '@/draw/routines/geometry'
 
 const TICK_MSG_INTERVAL = 20
@@ -362,6 +363,10 @@ function mountCompositor ($el, $refs, $electron) {
       drawGeometry(state, sceneContexts, 0)
       if (!isRunning && state.seek.index != null) {
         drawFocus(state, uiMain.ctx, state.seek.index)
+      }
+      if (!isRunning && state.seek.proximateIndices.length) {
+        drawFocusProximate(state, uiMain.ctx,
+          state.seek.proximateIndices, state.seek.index)
       }
 
       let didResizeBuffer = false

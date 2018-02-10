@@ -43,10 +43,15 @@ export function createGeometryController (tasks, state) {
     },
 
     // OPTIM: Maybe optimize with spacial index (kd-tree)
-    findClosestPoint (target, maxDist = 10, lastOffset = 0, ignoreIndex = -1) {
+    // TODO: Cleanup proximate index finding
+    findClosestPoint (
+      target, maxDist = 10, lastOffset = 0, ignoreIndex = -1,
+      proximateIndices = null, proximateDistance = 0
+    ) {
       const { vertices } = state.geometry
       const maxDistSq = maxDist * maxDist
       const count = vertices.length - lastOffset
+      const proximateDistanceSq = proximateDistance * proximateDistance
 
       let closestPointIndex = null
       let closestDistSq = Infinity
@@ -59,6 +64,12 @@ export function createGeometryController (tasks, state) {
         if (distSq < maxDistSq && distSq < closestDistSq) {
           closestPointIndex = i
           closestDistSq = distSq
+        }
+        if (proximateIndices && distSq < proximateDistanceSq) {
+          proximateIndices.push({
+            index: i,
+            factor: distSq / proximateDistanceSq
+          })
         }
       }
 

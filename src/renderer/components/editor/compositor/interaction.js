@@ -10,7 +10,10 @@ export function createSeekController (tasks, state) {
       const { activeSegment } = state.geometry
       const { shouldNavigate, isDrawing } = state.drag
       const { scale } = state.viewport
-      const { move, movePrev } = stateSeek
+      const {
+        move, movePrev,
+        proximateIndices, proximateDistance
+      } = stateSeek
 
       vec2.copy(movePrev, move)
       vec2.set(move, event.clientX, event.clientY)
@@ -23,8 +26,10 @@ export function createSeekController (tasks, state) {
 
       stateSeek.velocity = velocity
       stateSeek.timePrev = time
+      proximateIndices.length = 0
 
-      if (shouldNavigate || velocity > 0.2) {
+      // if (shouldNavigate || velocity > 0.2) {
+      if (shouldNavigate) {
         stateSeek.index = null
         return
       }
@@ -34,7 +39,8 @@ export function createSeekController (tasks, state) {
         ? activeSegment.indices[activeSegment.indices.length - 2]
         : -1
       const close = requestSync('geometry.findClosestPoint',
-        move, stateSeek.maxDistance / scale, lastOffset, ignoreIndex)
+        move, stateSeek.maxDistance / scale, lastOffset, ignoreIndex,
+        proximateIndices, proximateDistance)
       stateSeek.index = close ? close.index : null
     }
   }
