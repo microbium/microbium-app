@@ -8,7 +8,7 @@ export function createSeekController (tasks, state) {
     pointerMove (event) {
       const stateSeek = state.seek
       const { activeSegment } = state.geometry
-      const { shouldNavigate, isDrawing } = state.drag
+      const { shouldNavigate, isDown, isDrawing } = state.drag
       const { scale } = state.viewport
       const {
         move, movePrev,
@@ -28,8 +28,7 @@ export function createSeekController (tasks, state) {
       stateSeek.timePrev = time
       proximateIndices.length = 0
 
-      // if (shouldNavigate || velocity > 0.2) {
-      if (shouldNavigate) {
+      if (shouldNavigate || isDown) {
         stateSeek.index = null
         return
       }
