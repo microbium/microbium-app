@@ -1,6 +1,7 @@
 import { vec3, mat4 } from 'gl-matrix'
 
-const ENABLE_PERSPECTIVE_VIEW = true
+// TODO: Improve transition between ortho / perspective projection
+const ENABLE_PERSPECTIVE_VIEW = false
 
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
