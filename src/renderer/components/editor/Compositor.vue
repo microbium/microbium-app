@@ -396,7 +396,8 @@ function mountCompositor ($el, $refs, $electron) {
       const viewScale = scale + zoomOffset
 
       const { bloom, noise, colorShift } = postEffects
-      const shouldRenderBloom = bloom.blurPasses > 0 && bloom.intensityFactor > 0
+      const shouldRenderBloom = isRunning &&
+        bloom.blurPasses > 0 && bloom.intensityFactor > 0
 
       postBuffers.resize(resolution)
       postBuffers.get('A').use(() => {
@@ -425,20 +426,23 @@ function mountCompositor ($el, $refs, $electron) {
       })
 
       setupDrawScreen(() => {
-        view.renderSceneBlurPasses(viewResolution,
-          bloom.blurStep, bloom.blurPasses)
+        const bloomIntensity = !shouldRenderBloom ? 0
+          : (0.4 * bloom.intensityFactor)
+        const noiseIntensity = !isRunning ? 0.0
+          : (0.06 * noise.intensityFactor)
+
+        if (shouldRenderBloom) {
+          view.renderSceneBlurPasses(viewResolution,
+            bloom.blurStep, bloom.blurPasses)
+        }
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        // FIXME: Noise renders strangely when dev tools panel is open
         drawScreen({
           color: postBuffers.get('A'),
-          bloom: postBuffers.get('C'),
-          bloomIntensity: !shouldRenderBloom ? 0
-            : (!isRunning ? 0.4
-              : (0.4 * bloom.intensityFactor)),
-          noiseIntensity: (!isRunning ? 0.0
-            : (0.06 * noise.intensityFactor)),
+          bloom: postBuffers.get(shouldRenderBloom ? 'C' : 'blank'),
+          bloomIntensity,
+          noiseIntensity,
           colorShift: colorShift,
           tick,
           viewOffset,

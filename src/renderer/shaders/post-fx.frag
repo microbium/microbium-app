@@ -46,11 +46,9 @@ void main() {
   }
 
   // Bloom
-  vec4 fBloom = vec4(0.0);
+  vec4 fBloom = fColor * 0.4;
   if (bloomIntensity > 0.0) {
     fBloom = texture2D(bloom, uv) * bloomIntensity;
-  } else {
-    fBloom = fColor * 0.4;
   }
 
   // Origin Concentric Grid

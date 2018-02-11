@@ -4,7 +4,9 @@ export function createPostBuffers (regl, ...names) {
     depth: false
   })
 
-  const buffers = {}
+  const buffers = {
+    blank: createBuffer()
+  }
   names.forEach((name) => {
     buffers[name] = createBuffer()
   })
