@@ -4,7 +4,6 @@ export function createSeekController (tasks, state) {
   const { requestSync } = tasks
 
   const seek = {
-    // TODO: Disable seek while panning
     pointerMove (event) {
       const stateSeek = state.seek
       const { activeSegment } = state.geometry

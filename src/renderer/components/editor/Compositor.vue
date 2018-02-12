@@ -280,6 +280,7 @@ function mountCompositor ($el, $refs, $electron) {
       state.simulation.wasRunning = isRunning
     },
 
+    // TODO: Smooth out strokeWidthMod changes
     syncStrokeWidthMod () {
       const value = geometry.computeModulatedStrokeWidth()
       this.updatePaletteState('lineTool', 'strokeWidthMod', value)
