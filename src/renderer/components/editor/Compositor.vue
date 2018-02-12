@@ -287,7 +287,7 @@ function mountCompositor ($el, $refs, $electron) {
 
     updatePaletteState (group, key, value) {
       $electron.ipcRenderer.send('palette-message', {
-        type: 'UPDATE_STATE',
+        type: 'UPDATE_CONTROLS',
         group,
         key,
         value

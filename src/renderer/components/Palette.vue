@@ -227,7 +227,8 @@ export default {
     handleMessage (event, data) {
       const { controls } = this
       switch (data.type) {
-        case 'UPDATE_STATE':
+        case 'UPDATE_CONTROLS':
+          this.mainDidUpdateControls()
           if (data.key) controls[data.group][data.key] = data.value
           else if (data.group) Object.assign(controls[data.group], data.value)
           else Object.assign(controls, data.value)
@@ -235,8 +236,16 @@ export default {
       }
     },
 
+    mainDidUpdateControls () {
+      this._mainDidUpdateControls = true
+      setTimeout(() => {
+        this._mainDidUpdateControls = false
+      }, 0)
+    },
+
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
+      if (this._mainDidUpdateControls) return
       this.$electron.ipcRenderer.send('main-message', {
         type: 'UPDATE_CONTROLS',
         group,
