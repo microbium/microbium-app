@@ -6,7 +6,7 @@ import linesEntitiesFrag from '@/shaders/lines-entities.frag'
 import linesUIFrag from '@/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
-  const { regl, textures } = renderer
+  const { regl } = renderer
 
   const blend = {
     enable: true,
@@ -23,12 +23,12 @@ export function createScene (tasks, state, renderer) {
     color: [0, 0, 0, 0]
   }
 
-  const alphaMapOpts = {
-    min: 'nearest',
-    mag: 'nearest',
-    wrap: ['clamp', 'repeat'],
-    format: 'rgb'
-  }
+  // const alphaMapOpts = {
+  //   min: 'nearest',
+  //   mag: 'nearest',
+  //   wrap: ['clamp', 'repeat'],
+  //   format: 'rgb'
+  // }
 
   const uniforms = {
     angle: regl.prop('angle'),
@@ -36,14 +36,14 @@ export function createScene (tasks, state, renderer) {
 
     tick: regl.prop('tick'),
     dashFunction: regl.prop('dashFunction'),
-    tint: regl.prop('tint'),
+    tint: regl.prop('tint')
 
     // FEAT: Add multiple screen space tinting functions
-    useScreenTintFunc: regl.prop('useScreenTintFunc'),
-    diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),
-    useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
-    alphaMap: (params, { alphaMap }) => textures.get(alphaMap, alphaMapOpts),
-    useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
+    // useScreenTintFunc: regl.prop('useScreenTintFunc'),
+    // diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),
+    // useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
+    // alphaMap: (params, { alphaMap }) => textures.get(alphaMap, alphaMapOpts),
+    // useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
   }
 
   // OPTIM: Investigate huge perf issues in Chrome when using instancing

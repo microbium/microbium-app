@@ -505,7 +505,7 @@ function mountCompositor ($el, $refs, $electron) {
       const { contexts } = scene
       const { isRunning, tick } = state.simulation
       const { polarIterations } = state.controls.modifiers
-      const { styles, textures, alphaTextures, alphaFunctions } = state.controls
+      const { styles, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
@@ -517,10 +517,7 @@ function mountCompositor ($el, $refs, $electron) {
         if (lines.state.cursor.vertex === 0) continue
 
         const style = styles[index]
-        const {
-          textureIndex, alphaTextureIndex, alphaFuncIndex,
-          tintHex, tintAlpha, useScreenTintFunc
-        } = style
+        const { alphaFuncIndex, tintHex, tintAlpha } = style
 
         // OPTIM: Cache unchanged computed rgba array
         const tint = Colr.fromHex(tintHex)
@@ -528,8 +525,6 @@ function mountCompositor ($el, $refs, $electron) {
           .map((v) => v / 255)
         tint.push(tintAlpha)
 
-        const diffuseMap = textures[textureIndex || 0]
-        const alphaMap = alphaTextures[alphaTextureIndex || 0]
         const alphaFunc = alphaFunctions[alphaFuncIndex || 0]
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
@@ -540,11 +535,8 @@ function mountCompositor ($el, $refs, $electron) {
             angleAlpha: index === 0 ? 1 : polarAlpha,
             tick,
             model,
-            diffuseMap: diffuseMap.path,
-            alphaMap: alphaMap.path,
             dashFunction: alphaFunc.dashFunction,
             tint,
-            useScreenTintFunc,
             thickness,
             miterLimit,
             adjustProjectedThickness

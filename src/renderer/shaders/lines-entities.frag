@@ -8,12 +8,12 @@ uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
 uniform float tick;
 
-uniform sampler2D diffuseMap;
-uniform sampler2D alphaMap;
+// uniform sampler2D diffuseMap;
+// uniform sampler2D alphaMap;
 uniform int dashFunction;
-uniform int useDiffuseMap;
-uniform int useAlphaMap;
-uniform int useScreenTintFunc;
+// uniform int useDiffuseMap;
+// uniform int useAlphaMap;
+// uniform int useScreenTintFunc;
 
 varying vec4 vColor;
 varying vec3 vUDO;
@@ -40,17 +40,17 @@ void main() {
   vec3 outColor = vColor.rgb;
   float outAlpha = vColor.a * lineAntialiasAlpha(udo.x);
 
-  if (useDiffuseMap == 1) {
-    outColor *= texture2D(diffuseMap, coord).rgb;
-  }
+  // if (useDiffuseMap == 1) {
+  //   outColor *= texture2D(diffuseMap, coord).rgb;
+  // }
 
-  if (useScreenTintFunc == 1) {
-    outColor *= vec3(coord.x, 0.6 - distance(coord, vec2(0.5)), coord.y);
-  }
+  // if (useScreenTintFunc == 1) {
+  //   outColor *= vec3(coord.x, 0.6 - distance(coord, vec2(0.5)), coord.y);
+  // }
 
-  if (useAlphaMap == 1) {
-    outAlpha *= sampleAlphaMap(udo, alphaMap);
-  }
+  // if (useAlphaMap == 1) {
+  //   outAlpha *= sampleAlphaMap(udo, alphaMap);
+  // }
 
   if (dashFunction == 1) {
     outAlpha *= radialDash(position, 800.0, 0.1, 10.0);
