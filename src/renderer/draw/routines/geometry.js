@@ -165,7 +165,7 @@ export function drawFocusProximate (state, ctx, indices, ignoreIndex) {
     const scaleInv = 1 / scale
     const innerRad = (3 * (1 - factor) + 3) * scaleInv
 
-    ctx.globalAlpha = 0.4 * (1 - factor) + 0.1
+    ctx.globalAlpha = 0.6 * (1 - factor) + 0.2
     ctx.lineWidth = 0.75 * scaleInv
     ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
