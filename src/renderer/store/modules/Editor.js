@@ -100,6 +100,7 @@ export function createCompositorState () {
 export function hashRenderState (state) {
   return [
     state.seek.index,
+    proximateIndicesStr(state.seek.proximateIndices),
     boolStr(state.drag.isDown),
     vec2Str(state.drag.move),
     vec2Str(state.drag.panOffset),
@@ -119,6 +120,11 @@ function boolStr (bool) {
 }
 function vec2Str (v) {
   return v[0] + ',' + v[1]
+}
+function proximateIndicesStr (proximateIndices) {
+  if (!proximateIndices.length) return ''
+  const { index, factor } = proximateIndices[0]
+  return index + ',' + factor
 }
 
 // TODO: Maybe implement some compositor state in observable store
