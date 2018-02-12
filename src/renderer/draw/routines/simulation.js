@@ -53,15 +53,15 @@ export function drawSimulatorOriginUI (state, ctx) {
 // TODO: Redesign configurable forces UI
 export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
   const { points } = state.simulationForces
-
-  ctx.save()
+  const { scale } = state.viewport
+  const scaleInv = 1 / scale
 
   points.forEach(({position, force}) => {
     const { intensity, radius } = force
 
     ctx.globalAlpha = 0.8 * alpha
     ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
-    ctx.lineWidth = 1
+    ctx.lineWidth = 1 * scaleInv
     ctx.beginPath()
     ctx.arc(position[0], position[1],
       intensityRadius + intensity * 1.5,
@@ -69,14 +69,12 @@ export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
     ctx.stroke()
 
     ctx.globalAlpha = 0.1 * alpha
-    ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
-    ctx.lineWidth = 0.5
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 0.6 * scaleInv
     ctx.beginPath()
     ctx.arc(position[0], position[1],
       radius,
       0, PI * 2)
     ctx.stroke()
   })
-
-  ctx.restore()
 }
