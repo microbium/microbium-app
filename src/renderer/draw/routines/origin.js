@@ -49,13 +49,11 @@ export function drawPolarGrid (state, ctx) {
 
     for (let j = 0; j < polarSteps; j++) {
       const isEven = j % 2 === 0
-      const length = isEven ? tickSize : tickSize * 2
+      const length = isEven ? tickSize : tickSize * 3
 
-      ctx.globalAlpha = 0.5
+      ctx.globalAlpha = isEven ? 0.5 : 0.25
       ctx.lineWidth = 0.5
-      ctx.strokeStyle = isEven
-        ? UI_PALETTE.BACK_SECONDARY
-        : UI_PALETTE.BACK_TERTIARY
+      ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
       ctx.beginPath()
       ctx.moveTo(0, radius - length)
