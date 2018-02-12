@@ -80,7 +80,9 @@ export function createCompositorState () {
     updateOverlapTick: 0,
     drawCalls: 0,
     fullScreenPasses: 0,
-    lineQuads: 0
+    lineQuads: 0,
+    verticesCount: 0,
+    segmentsCount: 0
   }
 
   const controls = createControlsState()

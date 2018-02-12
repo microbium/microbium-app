@@ -10,8 +10,10 @@
       <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
       <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
       <hr />
-      <div>line quads: {{ renderer.lineQuads }}</div>
+      <div>vertices: {{ renderer.verticesCount }}</div>
+      <div>line segments: {{ renderer.segmentsCount }}</div>
       <hr />
+      <div>line quads: {{ renderer.lineQuads }}</div>
       <div>draw calls: {{ renderer.drawCalls }}</div>
       <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
     </div>
@@ -55,7 +57,7 @@
 
     > hr {
       border: none;
-      border-top: 2px solid rgba(#92D9E7, 0.8);
+      border-top: 2px solid rgba(#fff, 0.2);
       margin: 6px 0;
       width: 20px;
     }
@@ -315,12 +317,15 @@ function mountCompositor ($el, $refs, $electron) {
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
+      const stateGeometry = state.geometry
       const stateRenderer = state.renderer
       const nextRenderHash = hashRenderState(state)
 
       stateRenderer.drawCalls = 0
       stateRenderer.fullScreenPasses = 0
       stateRenderer.lineQuads = 0
+      stateRenderer.verticesCount = stateGeometry.vertices.length
+      stateRenderer.segmentsCount = stateGeometry.segments.length
       regl.poll()
 
       const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash ||
