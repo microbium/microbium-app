@@ -3,19 +3,27 @@
     <div class="editor-compositor__scene" :class="sceneClassNames" ref="scene"></div>
     <!-- OPTIM: Investigate perf issues with stats rendering -->
     <div class="editor-compositor__stats" v-if="viewport && viewport.showStats">
-      <div>resolution: {{ viewport.resolution[0] }}w
-        {{ viewport.resolution[1] }}h
-        ({{ viewport.pixelRatio }}x)</div>
-      <hr />
-      <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
-      <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
-      <hr />
-      <div>vertices: {{ renderer.verticesCount }}</div>
-      <div>line segments: {{ renderer.segmentsCount }}</div>
-      <hr />
-      <div>line quads: {{ renderer.lineQuads }}</div>
-      <div>draw calls: {{ renderer.drawCalls }}</div>
-      <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
+      <div class="editor-compositor__stats__group">
+        <div>resolution: {{ viewport.resolution[0] }}w
+          {{ viewport.resolution[1] }}h
+          ({{ viewport.pixelRatio }}x)</div>
+      </div>
+      <div class="editor-compositor__stats__group">
+        <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
+        <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
+      </div>
+      <div class="editor-compositor__stats__group">
+        <div>vertices: {{ renderer.verticesCount }}</div>
+        <div>line segments: {{ renderer.segmentsCount }}</div>
+      </div>
+      <div class="editor-compositor__stats__group">
+        <div>line quads: {{ renderer.lineQuads }}</div>
+        <div>draw calls: {{ renderer.drawCalls }}</div>
+        <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
+      </div>
+      <div class="editor-compositor__stats__group" v-if="DEBUG_RENDER_HASH">
+        <div>hash: {{ renderer.lastRenderHash }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -55,11 +63,16 @@
     font: 10px/1.2 Monaco, monospace;
     pointer-events: none;
 
-    > hr {
-      border: none;
-      border-top: 2px solid rgba(#fff, 0.2);
-      margin: 6px 0;
-      width: 20px;
+    &__group {
+      &:after {
+        content: "";
+        position: relative;
+        display: block;
+        border: none;
+        border-top: 2px solid rgba(#fff, 0.2);
+        margin: 6px 0;
+        width: 20px;
+      }
     }
   }
 }
@@ -119,6 +132,7 @@ import {
 const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
+const DEBUG_RENDER_HASH = false
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
@@ -597,6 +611,7 @@ export default {
 
   data () {
     return {
+      DEBUG_RENDER_HASH,
       drag: null,
       renderer: null,
       simulation: null,
