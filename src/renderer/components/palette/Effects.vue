@@ -42,6 +42,12 @@
           <b>{{ bloomBlurStepName }}</b> blur radius interval
         </div>
       </div>
+      <div class="palette-item">
+        <input-range min="0.05" max="1" step="0.05" v-model="model.bloom.blurScale" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurScaleName }}</b> blur resolution
+        </div>
+      </div>
       <hr />
     </palette-group>
 
@@ -129,6 +135,11 @@ export default {
     bloomBlurStepName () {
       const { bloom } = this.model
       return `${bloom.blurStep}px`
+    },
+
+    bloomBlurScaleName () {
+      const { bloom } = this.model
+      return `${roundToPlaces(bloom.blurScale, 2)}x`
     },
 
     colorShiftHueName () {

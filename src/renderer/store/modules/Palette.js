@@ -9,7 +9,7 @@ export function createControlsState () {
     },
 
     lineTool: {
-      strokeWidth: 1,
+      strokeWidth: 1.5,
       strokeColor: '#222222',
       strokeAlpha: 1,
       strokeWidthMod: 0,
@@ -200,7 +200,8 @@ export function createControlsState () {
       bloom: {
         intensityFactor: 1,
         blurPasses: 1,
-        blurStep: 1
+        blurStep: 4,
+        blurScale: 0.25
       },
       colorShift: [0, 0, 0]
     }

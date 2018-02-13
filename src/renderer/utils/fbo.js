@@ -1,6 +1,10 @@
 export function createPostBuffers (regl, ...names) {
   const createBuffer = () => regl.framebuffer({
-    color: regl.texture({wrap: 'clamp'}),
+    color: regl.texture({
+      mag: 'linear',
+      min: 'linear',
+      wrap: 'clamp'
+    }),
     depth: false
   })
 
@@ -25,10 +29,10 @@ export function createPostBuffers (regl, ...names) {
       buffers[nameB] = bufferA
     },
 
-    resize (size) {
-      names.forEach((name) => {
-        buffers[name].resize(size[0], size[1])
-      })
+    resize (name, size, factor = 1) {
+      buffers[name].resize(
+        Math.round(size[0] * factor),
+        Math.round(size[1] * factor))
     }
   }
 }

@@ -83,6 +83,7 @@ import { logger } from '@/utils/logger'
 import { createTextureManager } from '@/utils/texture'
 import {
   createDrawRect,
+  createDrawTexture,
   createSetupDrawScreen,
   createDrawGaussBlur,
   createDrawScreen
@@ -170,7 +171,8 @@ function mountCompositor ($el, $refs, $electron) {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawScreen: createDrawScreen(regl),
       drawGaussBlur: createDrawGaussBlur(regl),
-      drawRect: createDrawRect(regl)
+      drawRect: createDrawRect(regl),
+      drawTexture: createDrawTexture(regl)
     }
 
     tasks.defer((containers) => {
@@ -390,7 +392,7 @@ function mountCompositor ($el, $refs, $electron) {
 
     renderScene (tick) {
       const { postBuffers } = renderer
-      const { setupDrawScreen, drawRect, drawScreen } = renderer.commands
+      const { setupDrawScreen, drawRect, drawScreen, drawTexture } = renderer.commands
       const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -405,7 +407,10 @@ function mountCompositor ($el, $refs, $electron) {
       const shouldRenderBloom = isRunning &&
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
 
-      postBuffers.resize(resolution)
+      postBuffers.resize('A', resolution)
+      postBuffers.resize('B', resolution, bloom.blurScale)
+      postBuffers.resize('C', resolution, bloom.blurScale)
+
       postBuffers.get('A').use(() => {
         // TODO: Tween between clear states
         const clearColor = Colr.fromHex(postEffects.clear.colorHex)
@@ -454,9 +459,15 @@ function mountCompositor ($el, $refs, $electron) {
           viewOffset,
           viewResolution
         })
-      })
 
-      if (isRunning && shouldRenderBloom) postBuffers.swap('A', 'C')
+        if (isRunning && shouldRenderBloom) {
+          postBuffers.get('A').use(() => {
+            drawTexture({
+              color: postBuffers.get('C')
+            })
+          })
+        }
+      })
     },
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
