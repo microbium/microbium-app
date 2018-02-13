@@ -179,8 +179,8 @@ export function createGeometryController (tasks, state) {
       const { indices, connectedIndices, strokeWidthModulations } = activeSegment
       const firstIndex = indices[0]
       const isConnected = index != null && index !== -1
-      const isClosed = isConnected && firstIndex === index
       const isConnectedDup = isConnected && indices[indices.length - 1] === index
+      let isClosed = isConnected && firstIndex === index
 
       if (isConnected && !isConnectedDup) {
         indices[indices.length - 1] = index
@@ -191,6 +191,7 @@ export function createGeometryController (tasks, state) {
         indices.pop()
         strokeWidthModulations.pop()
         vertices.pop()
+        isClosed = firstIndex === indices[indices.length - 1]
       }
 
       const nextIndices = new Uint16Array(indices)
@@ -209,9 +210,7 @@ export function createGeometryController (tasks, state) {
       stateGeom.activeSegment = null
     },
 
-    // TODO: Improve name ...
-    // FIXME: Closed segments not flagged with this method
-    completeActiveSegmentPopCursor () {
+    completeActiveSegmentDiscardCursor () {
       geometry.completeActiveSegment(-1)
     },
 
@@ -277,7 +276,7 @@ export function createGeometryController (tasks, state) {
     'createSegment',
     'updateActiveSegment',
     'completeActiveSegment',
-    'completeActiveSegmentPopCursor',
+    'completeActiveSegmentDiscardCursor',
     'deleteLastVertex',
     'deleteLastSegment',
     'mergeSegmentProp'

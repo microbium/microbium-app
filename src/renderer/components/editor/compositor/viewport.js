@@ -81,7 +81,7 @@ export function createViewportController (tasks, state) {
           requestSync('geometry.deleteLastVertex')
           break
         case 'C':
-          requestSync('geometry.completeActiveSegmentPopCursor')
+          requestSync('geometry.completeActiveSegmentDiscardCursor')
           requestSync('drag.cancelDraw')
           break
         case 'Cmd+Backspace':
