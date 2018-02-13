@@ -7,7 +7,7 @@ export function createSeekController (tasks, state) {
     pointerMove (event) {
       const stateSeek = state.seek
       const { activeSegment } = state.geometry
-      const { shouldNavigate, isDown, isDrawing } = state.drag
+      const { shouldNavigate, isDragging, isDrawing } = state.drag
       const { scale } = state.viewport
       const { isRunning } = state.simulation
       const {
@@ -28,7 +28,7 @@ export function createSeekController (tasks, state) {
       stateSeek.timePrev = time
       proximateIndices.length = 0
 
-      if (isRunning || shouldNavigate || isDown) {
+      if (isRunning || shouldNavigate || isDragging) {
         stateSeek.index = null
         return
       }
@@ -85,7 +85,6 @@ export function createDragController (tasks, state) {
     },
 
     // TODO: Manage different interactions / commands separately
-    // TODO: Investigate laggy feel to panning and drawing
     pointerMove (event) {
       const stateDrag = state.drag
       const { velocity } = state.seek
@@ -98,7 +97,10 @@ export function createDragController (tasks, state) {
       vec2.set(move, event.clientX, event.clientY)
       requestSync('viewport.projectScreen', move)
 
-      if (isDown) drag.updatePressure(event)
+      if (isDown) {
+        stateDrag.isDragging = true
+        drag.updatePressure(event)
+      }
 
       if (isDrawing) drag.moveDraw(move, velocity)
       else if (isPanning) drag.movePan(move, velocity)
@@ -121,7 +123,9 @@ export function createDragController (tasks, state) {
       vec2.copy(upPrev, up)
       vec2.set(up, event.clientX, event.clientY)
       requestSync('viewport.projectScreen', up)
+
       stateDrag.isDown = false
+      stateDrag.isDragging = false
 
       if (isDrawing && timeDiff > 200) {
         stateGeom.shouldAppendOnce = true

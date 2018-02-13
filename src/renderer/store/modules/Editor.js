@@ -18,6 +18,7 @@ export function createCompositorState () {
     shouldZoom: false,
 
     isDown: false,
+    isDragging: false,
     isDrawing: false,
     isPanning: false,
     isZooming: false,
@@ -104,6 +105,7 @@ export function hashRenderState (state) {
     state.seek.index,
     proximateIndicesStr(state.seek.proximateIndices),
     boolStr(state.drag.isDown),
+    boolStr(state.drag.isDragging),
     vec2Str(state.drag.move),
     vec2Str(state.drag.panOffset),
     state.drag.zoomOffset,
