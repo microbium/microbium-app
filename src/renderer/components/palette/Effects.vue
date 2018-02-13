@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.05" max="1" step="0.05" v-model="model.bloom.blurScale" />
+        <input-range min="0.1" max="1" step="0.05" v-model="model.bloom.blurScale" />
         <div class="palette-item__label">
           <b>{{ bloomBlurScaleName }}</b> blur resolution
         </div>
