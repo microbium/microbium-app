@@ -217,8 +217,6 @@ function createMainWindow () {
   if (appWindows.main !== null) return
   const displaySize = getDisplaySize()
 
-  const createSceneMenuItem = appMenus.main.getMenuItemById('create-scene')
-  const revertSceneMenuItem = appMenus.main.getMenuItemById('revert-scene')
   const transform = fitRect(displaySize, {
     padding: 60,
     aspect: displaySize.width / displaySize.height,
@@ -245,8 +243,8 @@ function createMainWindow () {
     sendWindowMessage('main', 'message', data)
   }
 
-  createSceneMenuItem.enabled = false
-  revertSceneMenuItem.enabled = true
+  setMenuState('create-scene', 'enabled', false)
+  setMenuState('revert-scene', 'enabled', true)
   main.loadURL(mainURL)
   onWindowFocus()
 
@@ -256,8 +254,8 @@ function createMainWindow () {
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
-    createSceneMenuItem.enabled = true
-    revertSceneMenuItem.enabled = false
+    setMenuState('create-scene', 'enabled', true)
+    setMenuState('revert-scene', 'enabled', false)
     appWindows.main = null
   })
 }
@@ -408,9 +406,11 @@ function requestWindowResponse (name, messageKey, messageData) {
 // -----------------
 
 function openSceneFile (path) {
+  createMainWindow()
   readFile(path, null)
     .then((buf) => inflateSync(buf))
     .then((data) => {
+      setMenuState('revert-scene', 'enabled', true)
       setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
       sendWindowMessage('main', 'deserialize-scene', data)
