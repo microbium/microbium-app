@@ -268,6 +268,7 @@ function mountCompositor ($el, $refs, $electron) {
         Object.assign(state[key], scene[key])
       })
       state.simulation.isRunning = false
+      state.renderer.needsUpdate = true
       view.updatePaletteState(null, null, state.controls)
     },
 
