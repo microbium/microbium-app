@@ -223,7 +223,6 @@ function mountCompositor ($el, $refs, $electron) {
     inject () {
       tasks.flush('inject', containers).then(() => {
         viewport.resize()
-        view.initGeometry()
         view.bindEvents()
         view.start()
         view.didStart()
@@ -250,14 +249,6 @@ function mountCompositor ($el, $refs, $electron) {
       $electron.ipcRenderer.on('key-command', viewport.keyCommand)
       $electron.ipcRenderer.on('serialize-scene', view.serializeScene)
       $electron.ipcRenderer.on('deserialize-scene', view.deserializeScene)
-    },
-
-    // OPTIM: Improve initial load of scene geometry from file
-    initGeometry () {
-      const initialState = null
-      if (initialState && initialState.segments.length) {
-        geometry.createBaseFromState(initialState)
-      }
     },
 
     serializeScene () {

@@ -83,14 +83,6 @@ export function createGeometryController (tasks, state) {
       return null
     },
 
-    createBaseFromState (initialState) {
-      const { segments, vertices } = initialState
-      Object.assign(state.geometry, {
-        segments,
-        vertices
-      })
-    },
-
     createSegment (point, index) {
       const stateGeom = state.geometry
       const { segments, vertices } = stateGeom
