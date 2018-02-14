@@ -126,6 +126,29 @@ function createMenu () {
         saveSceneFile(fileName)
       })
     },
+    revertScene () {
+      const fileName = store.get('openScenePath')
+      if (!fileName) return
+      if (store.get('dontAskRevertScene')) {
+        openSceneFile(fileName)
+        return
+      }
+      dialog.showMessageBox(appWindows.main, {
+        type: 'question',
+        buttons: ['OK', 'Cancel'],
+        defaultId: 1,
+        message: 'Revert to saved version of scene?',
+        detail: 'This will revert your current changes and cannot be undone.',
+        checkboxLabel: "Don't ask me again",
+        checkboxChecked: false
+      }, (id, checkboxChecked) => {
+        console.log(id, checkboxChecked)
+        if (id === 0) {
+          openSceneFile(fileName)
+          if (checkboxChecked) store.set('dontAskRevertScene', true)
+        }
+      })
+    },
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'key-command', {code: 'Space'})
@@ -195,6 +218,7 @@ function createMainWindow () {
   const displaySize = getDisplaySize()
 
   const createSceneMenuItem = appMenus.main.getMenuItemById('create-scene')
+  const revertSceneMenuItem = appMenus.main.getMenuItemById('revert-scene')
   const transform = fitRect(displaySize, {
     padding: 60,
     aspect: displaySize.width / displaySize.height,
@@ -222,6 +246,7 @@ function createMainWindow () {
   }
 
   createSceneMenuItem.enabled = false
+  revertSceneMenuItem.enabled = true
   main.loadURL(mainURL)
   onWindowFocus()
 
@@ -232,6 +257,7 @@ function createMainWindow () {
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
     createSceneMenuItem.enabled = true
+    revertSceneMenuItem.enabled = false
     appWindows.main = null
   })
 }

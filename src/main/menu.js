@@ -34,6 +34,14 @@ export function createMenuTemplate (app, actions) {
             actions.saveScene(false)
           }
         },
+        {
+          id: 'revert-scene',
+          label: 'Revert',
+          accelerator: 'Cmd+Shift+R',
+          click () {
+            actions.revertScene()
+          }
+        },
         {type: 'separator'},
         {
           id: 'start-screen-recording',
