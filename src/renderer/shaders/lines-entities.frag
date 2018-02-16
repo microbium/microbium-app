@@ -16,7 +16,7 @@ uniform int dashFunction;
 // uniform int useScreenTintFunc;
 
 varying vec4 vColor;
-varying vec3 vUDO;
+varying vec3 vUDO; // [u, distance, offset]
 
 #pragma glslify: lineAntialiasAlpha = require(./line-antialias-alpha, fwidth=fwidth)
 #pragma glslify: radialDash = require(./alpha/radial-dash, fwidth=fwidth, PI=PI)

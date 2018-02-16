@@ -460,7 +460,7 @@ function mountCompositor ($el, $refs, $electron) {
           bloom: postBuffers.get(shouldRenderBloom ? 'C' : 'blank'),
           bloomIntensity,
           noiseIntensity,
-          colorShift: colorShift,
+          colorShift,
           tick,
           viewOffset,
           viewResolution
