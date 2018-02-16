@@ -183,9 +183,9 @@ export function createControlsState () {
     modifiers: {
       polarIterations: 3,
       curve: {
-        segMinLength: 12,
-        segMaxLength: 12, // x10
-        subDivisions: 6
+        segMinLength: 10,
+        segMaxLength: 8, // x10
+        subDivisions: 4
       }
     },
 

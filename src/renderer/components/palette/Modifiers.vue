@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="10" max="30" step="1" v-model="model.curve.segMaxLength" />
+        <input-range min="2" max="16" step="1" v-model="model.curve.segMaxLength" />
         <div class="palette-item__label">
           <b>{{ curveSegMaxLengthName }}</b> max length
         </div>
