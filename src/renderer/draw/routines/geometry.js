@@ -22,7 +22,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const segment = segments[s]
     const {
       indices, isClosed, styleIndex,
-      strokeWidthModulations, strokeColor, strokeAlpha,
+      strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha,
       linkSizeAvg
     } = segment
 
@@ -32,7 +32,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
     const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
-    const strokeWidth = curvePrecision <= 1 ? segment.strokeWidth : 0.25
+    if (curvePrecision > 1) continue
 
     ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
     ctx.strokeStyle = strokeColor
