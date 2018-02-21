@@ -121,12 +121,15 @@ export function createGeometryController (tasks, state) {
     updateActiveSegment (point, index) {
       const stateGeom = state.geometry
       const {
-        shouldAppend, shouldAppendOnce, linkSizeMin,
+        shouldAppend, shouldAppendOnce, linkSizeMin, linkSizeMinStrokeFactor,
         activeSegment, prevPoint, vertices
       } = stateGeom
       if (!activeSegment) return
 
-      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
+      const {
+        indices, connectedIndices,
+        strokeWidth, strokeWidthModulations
+      } = activeSegment
       const hasCandidate = !!stateGeom.candidatePoint
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
 
@@ -135,6 +138,7 @@ export function createGeometryController (tasks, state) {
 
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const linkSizeAvg = geometry.computeLinkSizeAvg(vertices, indices)
+      const adjLinkSizeMin = linkSizeMin + strokeWidth * linkSizeMinStrokeFactor
 
       activeSegment.linkSizeAvg = linkSizeAvg
 
@@ -147,7 +151,7 @@ export function createGeometryController (tasks, state) {
         strokeWidthModulations[strokeWidthModulations.length - 1] = modStrokeWidth
       }
 
-      if ((shouldAppend || shouldAppendOnce) && dist >= linkSizeMin) {
+      if ((shouldAppend || shouldAppendOnce) && dist >= adjLinkSizeMin) {
         const isConnected = index != null
 
         if (isConnected) {

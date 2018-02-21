@@ -61,6 +61,7 @@ export function createCompositorState () {
     prevPoint: null,
     candidatePoint: null,
     linkSizeMin: 12,
+    linkSizeMinStrokeFactor: 2,
     shouldAppend: false,
     shouldAppendOnce: false,
     segments: [],
