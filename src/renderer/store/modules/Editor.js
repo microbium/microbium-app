@@ -5,6 +5,7 @@ export function createCompositorState () {
   const seek = {
     timePrev: 0,
     velocity: 0,
+    velocitySmoothed: 0,
     move: vec2.create(),
     movePrev: vec2.create(),
     index: null,

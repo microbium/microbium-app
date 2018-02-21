@@ -25,6 +25,7 @@ export function createSeekController (tasks, state) {
       const velocity = timeDiff > 0 ? (dist / timeDiff) : stateSeek.velocity
 
       stateSeek.velocity = velocity
+      stateSeek.velocitySmoothed += (velocity - stateSeek.velocitySmoothed) * 0.05
       stateSeek.timePrev = time
       proximateIndices.length = 0
 
