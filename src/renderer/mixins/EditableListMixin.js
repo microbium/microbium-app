@@ -36,7 +36,7 @@ export default {
     duplicateListItem (item) {
       const { list } = this
       const index = list.length
-      const duplicate = this.createDuplicateItem(item)
+      const duplicate = this.createDuplicateItem(item, index)
 
       this.willDuplicateListItem(duplicate, index)
       list.push(duplicate)
