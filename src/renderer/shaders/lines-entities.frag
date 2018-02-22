@@ -19,9 +19,11 @@ varying vec4 vColor;
 varying vec3 vUDO; // [u, distance, offset]
 
 #pragma glslify: lineAntialiasAlpha = require(./line-antialias-alpha, fwidth=fwidth)
+#pragma glslify: basicDash = require(./alpha/basic-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: radialDash = require(./alpha/radial-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: bulgingDash = require(./alpha/bulging-dash, fwidth=fwidth, PI=PI)
+#pragma glslify: wavyDash = require(./alpha/wavy-dash, fwidth=fwidth, PI=PI)
 
 float sampleAlphaMap (vec3 udo, sampler2D map) {
   vec2 coords = vec2(
@@ -57,7 +59,11 @@ void main() {
   } else if (dashFunction == 2) {
     outAlpha *= concentricDash(position, 0.1, 3.0);
   } else if (dashFunction == 3) {
+    outAlpha *= basicDash(udo, 0.1, 3.0);
+  } else if (dashFunction == 4) {
     outAlpha *= bulgingDash(udo, 1.5, -tick * 0.5, 0.35, 0.9);
+  } else if (dashFunction == 5) {
+    outAlpha *= wavyDash(udo, 2.0, -tick * 0.5, 0.05, 0.95);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);

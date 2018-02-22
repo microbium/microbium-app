@@ -168,7 +168,11 @@ export default {
         case 2:
           return '3, 2'
         case 3:
+          return '2, 2'
+        case 4:
           return '2, 3, 2, 1'
+        case 5:
+          return '3, 2, 2, 3'
       }
     }
   }

@@ -112,8 +112,18 @@ export function createControlsState () {
       },
       {
         index: 3,
-        name: 'Bulging Dash',
+        name: 'Basic Dash',
         dashFunction: 3
+      },
+      {
+        index: 4,
+        name: 'Bulging Dash',
+        dashFunction: 4
+      },
+      {
+        index: 5,
+        name: 'Wavy Dash',
+        dashFunction: 5
       }
     ],
 
