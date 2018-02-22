@@ -270,6 +270,10 @@ export function createControlsStaticParams () {
       {
         index: 2,
         name: 'Pen Pressure'
+      },
+      {
+        index: 3,
+        name: 'Scroll Wheel'
       }
     ],
 

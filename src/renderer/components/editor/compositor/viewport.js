@@ -1,4 +1,5 @@
 import { vec2 } from 'gl-matrix'
+import { clamp } from '@/utils/math'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
@@ -28,6 +29,14 @@ export function createViewportController (tasks, state) {
         Math.round(stateViewport.size[1] * stateViewport.pixelRatio))
       stateViewport.didResize = true
       tasks.run('resize', event)
+    },
+
+    wheel (event) {
+      const { deltaY } = event
+      const stateSeek = state.seek
+
+      stateSeek.wheelOffset = clamp(-1, 1,
+        stateSeek.wheelOffset + deltaY * 0.001)
     },
 
     keyDown (event) {

@@ -30,7 +30,7 @@
       </div>
       <div class="palette-item">
         <input-range class="range-slider--knob-hidden"
-          min="-1" max="1" step="0.025" v-model="model.strokeWidthMod" />
+          min="-1" max="1" step="0.001" v-model="model.strokeWidthMod" />
         <div class="palette-item__label">
           <b>{{ inputModTypeName }}
             <input-select v-model="model.inputModTypeIndex">

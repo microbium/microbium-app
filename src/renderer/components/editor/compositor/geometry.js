@@ -27,6 +27,9 @@ export function createGeometryController (tasks, state) {
         // Pen Pressure
         case 2:
           return state.drag.pressure * 2 - 1
+        // Mousewheel / scroll
+        case 3:
+          return state.seek.wheelOffset
       }
       return 0
     },
@@ -170,6 +173,14 @@ export function createGeometryController (tasks, state) {
       stateGeom.shouldAppendOnce = false
     },
 
+    updateActiveSegmentStrokeWidthMod (value) {
+      const { activeSegment, candidatePoint } = state.geometry
+      if (!(activeSegment && candidatePoint)) return
+
+      const { strokeWidthModulations } = activeSegment
+      strokeWidthModulations[strokeWidthModulations.length - 1] = value
+    },
+
     completeActiveSegment (index) {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
@@ -231,10 +242,14 @@ export function createGeometryController (tasks, state) {
       const stateGeom = state.geometry
       const { activeSegment, vertices } = stateGeom
       if (!activeSegment) return
-      const { indices, connectedIndices } = activeSegment
-      if (indices.length <= 1) return
-      const lastConnectedIndex = connectedIndices[connectedIndices.length - 1]
 
+      const {
+        indices, connectedIndices,
+        strokeWidthModulations
+      } = activeSegment
+      if (indices.length <= 1) return
+
+      const lastConnectedIndex = connectedIndices[connectedIndices.length - 1]
       if (lastConnectedIndex === indices.length - 2) {
         connectedIndices.pop()
       } else {
@@ -243,10 +258,12 @@ export function createGeometryController (tasks, state) {
 
       indices.splice(-2, 1)
       indices[indices.length - 1] = vertices.length - 1
+      strokeWidthModulations.pop()
 
       const prevPointOffset = indices.length > 1 ? 2 : 3
       stateGeom.prevPoint = vertices.length >= 2
-        ? vertices[vertices.length - prevPointOffset] : vec2.create()
+        ? vertices[vertices.length - prevPointOffset]
+        : vec2.create()
     },
 
     // Delete last completed segment

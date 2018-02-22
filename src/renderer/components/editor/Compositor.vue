@@ -243,6 +243,7 @@ function mountCompositor ($el, $refs, $electron) {
       containers.scene.addEventListener('pointermove', seek.pointerMove, false)
       containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
       window.addEventListener('resize', debounce(120, viewport.resize), false)
+      window.addEventListener('wheel', viewport.wheel, false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
       $electron.ipcRenderer.on('message', viewport.message)
@@ -290,9 +291,9 @@ function mountCompositor ($el, $refs, $electron) {
       state.simulation.wasRunning = isRunning
     },
 
-    // TODO: Smooth out strokeWidthMod changes
     syncStrokeWidthMod () {
       const value = geometry.computeModulatedStrokeWidth()
+      geometry.updateActiveSegmentStrokeWidthMod(value)
       this.updatePaletteState('lineTool', 'strokeWidthMod', value)
     },
 

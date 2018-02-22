@@ -8,10 +8,11 @@ export function createCompositorState () {
     velocitySmoothed: 0,
     move: vec2.create(),
     movePrev: vec2.create(),
+    wheelOffset: 0,
     index: null,
     maxDistance: 14,
-    proximateIndices: [],
-    proximateDistance: 60
+    proximateDistance: 60,
+    proximateIndices: []
   }
 
   const drag = {
@@ -105,6 +106,7 @@ export function createCompositorState () {
 export function hashRenderState (state) {
   return [
     state.seek.index,
+    state.seek.wheelOffset.toFixed(6),
     proximateIndicesStr(state.seek.proximateIndices),
     boolStr(state.drag.isDown),
     boolStr(state.drag.isDragging),
