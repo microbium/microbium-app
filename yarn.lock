@@ -82,10 +82,6 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@jpweeks/electron-recorder/-/electron-recorder-1.1.0.tgz#7cac6a3c993324915ffb7c2d2777e4410d7c8bbb"
 
-"@jpweeks/rstats@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@jpweeks/rstats/-/rstats-1.2.0.tgz#9e686c1e473bcdf743edb5bccef3acfdc89f46e6"
-
 "@types/node@^8.0.24":
   version "8.9.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.9.3.tgz#47d00392c5834dd5a095346d72df7ff8995f7365"

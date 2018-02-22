@@ -60,7 +60,6 @@
   },
   "dependencies": {
     "@jpweeks/electron-recorder": "^1.1.0",
-    "@jpweeks/rstats": "^1.2.0",
     "cardinal-spline": "^0.0.1",
     "colr": "^1.2.2",
     "electron-log": "^2.2.14",
