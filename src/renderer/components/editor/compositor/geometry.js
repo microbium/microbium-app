@@ -23,7 +23,7 @@ export function createGeometryController (tasks, state) {
         // Velocity
         case 1:
           return clamp(-0.9, 1,
-            mapLinear(0, 2, 1, -1, state.seek.velocitySmoothed))
+            mapLinear(0, 1.5, 1, -1, state.seek.velocitySmoothed))
         // Pen Pressure
         case 2:
           return state.drag.pressure * 2 - 1
