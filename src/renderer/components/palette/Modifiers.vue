@@ -20,7 +20,7 @@
       <div class="palette-item">
         <input-range min="1" max="12" v-model="model.curve.subDivisions" />
         <div class="palette-item__label">
-          <b>{{ curveSubDivisionsName }}</b> segment subdivisions
+          <b>{{ curveSubDivisionsName }}</b> {{ curveSubDivisionsLabel }}
         </div>
       </div>
       <hr />
@@ -32,7 +32,7 @@
       <div class="palette-item">
         <input-range min="1" max="32" v-model="model.polarIterations" />
         <div class="palette-item__label">
-          <b>{{ polarIterationsName }}</b> iterations
+          <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
         </div>
       </div>
       <hr />
@@ -44,7 +44,12 @@
 </style>
 
 <script>
-import { numberToWords, roundToPlaces } from '@/utils/number'
+import {
+  numberToWords,
+  roundToPlaces
+} from '@/utils/number'
+import { pluralize } from '@/utils/word'
+
 import InputRange from '@/components/input/Range'
 import PaletteGroup from '@/components/palette/Group'
 
@@ -76,9 +81,19 @@ export default {
       return numberToWords(subDivisions)
     },
 
+    curveSubDivisionsLabel () {
+      const { subDivisions } = this.model.curve
+      return `segment ${pluralize(subDivisions, 'subdivision', 'subdivisions')}`
+    },
+
     polarIterationsName () {
       const { polarIterations } = this.model
       return numberToWords(polarIterations)
+    },
+
+    polarIterationsLabel () {
+      const { polarIterations } = this.model
+      return pluralize(polarIterations, 'iteration', 'iterations')
     }
   }
 }

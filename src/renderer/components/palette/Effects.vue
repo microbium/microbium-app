@@ -33,7 +33,7 @@
       <div class="palette-item">
         <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
         <div class="palette-item__label">
-          <b>{{ bloomBlurPassesName }}</b> blur passes
+          <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
         </div>
       </div>
       <div class="palette-item">
@@ -93,7 +93,12 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@/utils/number'
+import {
+  roundToPlaces,
+  numberToWords
+} from '@/utils/number'
+import { pluralize } from '@/utils/word'
+
 import InputColor from '@/components/input/Color'
 import InputRange from '@/components/input/Range'
 import PaletteGroup from '@/components/palette/Group'
@@ -129,7 +134,12 @@ export default {
 
     bloomBlurPassesName () {
       const { bloom } = this.model
-      return bloom.blurPasses
+      return numberToWords(bloom.blurPasses)
+    },
+
+    bloomBlurPassesLabel () {
+      const { bloom } = this.model
+      return `blur ${pluralize(bloom.blurPasses, 'pass', 'passes')}`
     },
 
     bloomBlurStepName () {
