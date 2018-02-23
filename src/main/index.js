@@ -293,7 +293,7 @@ function createPaletteWindow () {
     fullscreenable: false,
     hasShadow: true,
     vibrancy: 'dark',
-    transparent: true,
+    transparent: false, // FIXME: High Sierra vibrancy / transparency
     show: false,
     alwaysOnTop: true,
     webPreferences: {
