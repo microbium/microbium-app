@@ -47,7 +47,7 @@
     }
 
     &.mode--simulate { cursor: none; }
-    &.mode--edit { cursor: crosshair; }
+    &.mode--edit { cursor: none; }
     &.navigate--will-pan { cursor: -webkit-grab; }
     &.navigate--pan { cursor: -webkit-grabbing; }
     &.navigate--will-zoom { cursor: -webkit-zoom-in; }
@@ -138,8 +138,9 @@ const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
 const scratchMat4A = mat4.create()
 
-// TODO: Better integrate with vue component
-function mountCompositor ($el, $refs, $electron) {
+// TODO: Refactor to remove $electron from Compositor
+// Move state / syncing to Editor
+function mountCompositor ($el, $refs, $electron, actions) {
   const containers = {
     scene: $refs.scene
   }
@@ -277,6 +278,10 @@ function mountCompositor ($el, $refs, $electron) {
       const { isRunning, wasRunning } = state.simulation
       if (!isRunning) {
         this.syncStrokeWidthMod()
+        this.syncCursor(true)
+      }
+      if (isRunning && !wasRunning) {
+        this.syncCursor(false)
       }
       if (isRunning) {
         state.simulation.tick++
@@ -295,6 +300,12 @@ function mountCompositor ($el, $refs, $electron) {
       const value = geometry.computeModulatedStrokeWidth()
       geometry.updateActiveSegmentStrokeWidthMod(value)
       this.updatePaletteState('lineTool', 'strokeWidthMod', value)
+    },
+
+    syncCursor (shouldShow) {
+      const { shouldNavigate } = state.drag
+      const { screen } = state.seek
+      actions.updateCursor(shouldShow && !shouldNavigate, screen)
     },
 
     updatePaletteState (group, key, value) {
@@ -602,9 +613,16 @@ function mountCompositor ($el, $refs, $electron) {
 export default {
   name: 'editor-compositor',
 
+  props: {
+    updateCursor: Function
+  },
+
+  components: {},
+
   data () {
     return {
       DEBUG_RENDER_HASH,
+      seek: null,
       drag: null,
       renderer: null,
       simulation: null,
@@ -614,14 +632,14 @@ export default {
 
   mounted () {
     const { $el, $refs, $electron } = this
-    const { state } = mountCompositor($el, $refs, $electron)
+    const actions = { updateCursor: this.updateCursor }
+    const { state } = mountCompositor($el, $refs, $electron, actions)
+    this.seek = state.seek
     this.drag = state.drag
     this.renderer = state.renderer
     this.simulation = state.simulation
     this.viewport = state.viewport
   },
-
-  components: {},
 
   computed: {
     sceneClassNames () {

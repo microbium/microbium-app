@@ -6,6 +6,7 @@ export function createCompositorState () {
     timePrev: 0,
     velocity: 0,
     velocitySmoothed: 0,
+    screen: vec2.create(),
     move: vec2.create(),
     movePrev: vec2.create(),
     wheelOffset: 0,

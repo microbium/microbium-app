@@ -16,7 +16,10 @@
         -->
       </div>
     </div>
-    <editor-compositor />
+    <editor-compositor
+      :updateCursor="updateCursor" />
+    <editor-cursor v-if="cursor.shouldShow"
+      :position="cursor.position" />
   </div>
 </template>
 
@@ -72,20 +75,26 @@ import { isFullscreen } from '@/utils/screen'
 
 import InputSelect from './input/Select'
 import EditorCompositor from './editor/Compositor'
+import EditorCursor from './editor/Cursor'
 
 export default {
   name: 'editor',
 
   components: {
     InputSelect,
-    EditorCompositor
+    EditorCompositor,
+    EditorCursor
   },
 
   data () {
     return {
       fileName: null,
       fileFullPath: null,
-      isFullscreen: false
+      isFullscreen: false,
+      cursor: {
+        shouldShow: true,
+        position: {x: 0, y: 0}
+      }
     }
   },
 
@@ -121,6 +130,17 @@ export default {
 
     resize (event) {
       this.isFullscreen = isFullscreen()
+    },
+
+    // TODO: Hide cursor on mouseleave
+    updateCursor (shouldShow, position, type) {
+      const { cursor } = this
+
+      cursor.shouldShow = shouldShow
+      if (!shouldShow) return
+
+      cursor.position.x = position[0]
+      cursor.position.y = position[1]
     }
   },
 

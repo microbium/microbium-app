@@ -11,12 +11,13 @@ export function createSeekController (tasks, state) {
       const { scale } = state.viewport
       const { isRunning } = state.simulation
       const {
-        move, movePrev,
+        screen, move, movePrev,
         proximateIndices, proximateDistance
       } = stateSeek
 
+      vec2.set(screen, event.clientX, event.clientY)
       vec2.copy(movePrev, move)
-      vec2.set(move, event.clientX, event.clientY)
+      vec2.copy(move, screen)
       requestSync('viewport.projectScreen', move)
 
       const dist = vec2.distance(movePrev, move)
