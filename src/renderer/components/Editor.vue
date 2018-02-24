@@ -91,7 +91,7 @@ import InputSelect from './input/Select'
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'
 
-const DEBUG_DISABLE_FOCUS = false
+const DEBUG_DISABLE_FOCUS = true
 
 export default {
   name: 'editor',
