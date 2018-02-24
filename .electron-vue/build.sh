@@ -2,7 +2,7 @@ run_build () {
   export BUILD_NUMBER="$(git rev-parse --short HEAD)"
   node ./.electron-vue/build-runner.js
   electron-builder
-  terminal-notifier -title 'Bacterium' -message 'Build Complete'
+  terminal-notifier -title 'Microbium' -message 'Build Complete'
 }
 
 if [[ -n $(git status --porcelain) ]]

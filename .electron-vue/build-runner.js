@@ -115,7 +115,7 @@ function greeting () {
   const cols = process.stdout.columns
   let text = ''
 
-  if (cols > 60) text = 'bacterium'
+  if (cols > 60) text = 'Microbium'
   else text = false
 
   if (text && !isCI) {
@@ -124,7 +124,7 @@ function greeting () {
       font: 'simple',
       space: false
     })
-  } else console.log(chalk.yellow.bold('\n  bacterium'))
+  } else console.log(chalk.yellow.bold('\n  Microbium'))
   console.log('\n' + chalk.blue('  v' + pkg.version) + '\n')
   console.log()
 }

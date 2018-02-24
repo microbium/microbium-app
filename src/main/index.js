@@ -84,8 +84,8 @@ function createMenu () {
 
   const fileTypeFilters = [
     {
-      name: 'Bacterium Scene',
-      extensions: ['bctm']
+      name: 'Microbium Scene',
+      extensions: ['mcrbm']
     }
   ]
   const videoTypeFilters = [

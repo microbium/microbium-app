@@ -1,4 +1,4 @@
-# Bacterium
+# Microbium
 
 Organic creature drawing and simulating toy for macOS.
 

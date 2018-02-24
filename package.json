@@ -1,8 +1,8 @@
 {
-  "name": "Bacterium",
+  "name": "Microbium",
   "version": "0.8.0",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
-  "description": "Bacterium Drawing Tool",
+  "description": "Microbiome drawing and simulating toy.",
   "private": true,
   "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
@@ -22,13 +22,13 @@
     "unit": "karma start test/unit/karma.conf.js"
   },
   "build": {
-    "productName": "Bacterium",
+    "productName": "Microbium",
     "copyright": "Copyright © 2017-2018 Jay Weeks",
-    "appId": "com.jayweeks.bacterium",
+    "appId": "com.jayweeks.microbium",
     "fileAssociations": [
       {
-        "ext": "bctm",
-        "name": "Bacterium Scene",
+        "ext": "mcrbm",
+        "name": "Microbium Scene",
         "role": "Editor",
         "isPackage": false
       }
@@ -55,7 +55,7 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/bacterium.icns"
+      "icon": "build/icons/microbium.icns"
     }
   },
   "dependencies": {
