@@ -149,6 +149,7 @@ export default {
 
     // NOTE: Hacky way to fix hidden cursor on mouse-enter from palette
     // Maybe there's a better way to do this ... ?
+    // FIXME: Should prevent capturing focus from other apps
     mouseEnterMain () {
       if (DEBUG_DISABLE_FOCUS) return
       this.$electron.remote.getCurrentWindow().focus()
