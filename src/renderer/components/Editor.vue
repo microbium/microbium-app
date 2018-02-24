@@ -1,5 +1,6 @@
 <template>
-  <div class="editor">
+  <div class="editor"
+    v-on:mouseenter="mouseEnterMain">
     <div class="editor-toolbar">
       <div class="editor-toolbar__draggable"></div>
       <div class="editor-toolbar__title" v-if="fileName && !isFullscreen">
@@ -16,10 +17,15 @@
         -->
       </div>
     </div>
-    <editor-compositor
-      :updateCursor="updateCursor" />
-    <editor-cursor v-if="cursor.shouldShow"
-      :position="cursor.position" />
+    <div class="editor__scene"
+      v-on:mouseenter="mouseEnterScene"
+      v-on:mouseleave="mouseLeaveScene">
+      <editor-compositor
+        :updateCursor="updateCursor" />
+      <editor-cursor v-if="cursorIsActive"
+        :visible="hasMouse"
+        :model="cursorData" />
+    </div>
   </div>
 </template>
 
@@ -31,6 +37,14 @@
   background-color: #53B5C9;
   color: #444;
   animation: fadein 300ms;
+
+  &__scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .editor-toolbar {
@@ -77,6 +91,8 @@ import InputSelect from './input/Select'
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'
 
+const DEBUG_DISABLE_FOCUS = false
+
 export default {
   name: 'editor',
 
@@ -91,10 +107,9 @@ export default {
       fileName: null,
       fileFullPath: null,
       isFullscreen: false,
-      cursor: {
-        shouldShow: true,
-        position: {x: 0, y: 0}
-      }
+      hasMouse: false,
+      cursorIsActive: false,
+      cursorData: null
     }
   },
 
@@ -132,15 +147,25 @@ export default {
       this.isFullscreen = isFullscreen()
     },
 
+    // NOTE: Hacky way to fix hidden cursor on mouse-enter from palette
+    // Maybe there's a better way to do this ... ?
+    mouseEnterMain () {
+      if (DEBUG_DISABLE_FOCUS) return
+      this.$electron.remote.getCurrentWindow().focus()
+    },
+
+    mouseEnterScene () {
+      this.hasMouse = true
+    },
+
+    mouseLeaveScene () {
+      this.hasMouse = false
+    },
+
     // TODO: Hide cursor on mouseleave
-    updateCursor (shouldShow, position, type) {
-      const { cursor } = this
-
-      cursor.shouldShow = shouldShow
-      if (!shouldShow) return
-
-      cursor.position.x = position[0]
-      cursor.position.y = position[1]
+    updateCursor (isActive, data) {
+      this.cursorIsActive = isActive
+      this.cursorData = data
     }
   },
 

@@ -1,5 +1,6 @@
 <template>
-  <div class="palette">
+  <div class="palette"
+    v-on:mouseenter="mouseEnter">
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
       <div class="palette__toolbar__modes">
@@ -195,6 +196,8 @@ import PaletteStyleList from '@/components/palette/StyleList'
 import PaletteModifiers from '@/components/palette/Modifiers'
 import PaletteEffects from '@/components/palette/Effects'
 
+const DEBUG_DISABLE_FOCUS = false
+
 export default {
   name: 'palette',
 
@@ -269,6 +272,14 @@ export default {
         indexFrom: index,
         indexTo: index - 1
       })
+    },
+
+    // NOTE: Hacky way to fix hidden cursor on mouse-enter from editor
+    // Maybe there's a better way to do this ... ?
+    // FIXME: Still an issue with regaining focus after using <select> inputs
+    mouseEnter () {
+      if (DEBUG_DISABLE_FOCUS) return
+      this.$electron.remote.getCurrentWindow().focus()
     },
 
     close () {

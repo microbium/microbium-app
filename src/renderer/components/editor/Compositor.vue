@@ -297,15 +297,31 @@ function mountCompositor ($el, $refs, $electron, actions) {
     },
 
     syncStrokeWidthMod () {
+      const stateControls = state.controls
       const value = geometry.computeModulatedStrokeWidth()
+
       geometry.updateActiveSegmentStrokeWidthMod(value)
+      stateControls.lineTool.strokeWidthMod = value
       this.updatePaletteState('lineTool', 'strokeWidthMod', value)
     },
 
     syncCursor (shouldShow) {
       const { shouldNavigate } = state.drag
-      const { screen } = state.seek
-      actions.updateCursor(shouldShow && !shouldNavigate, screen)
+      const isActive = shouldShow && !shouldNavigate
+      if (!isActive) return actions.updateCursor(false)
+
+      const { screen, index } = state.seek
+      const { lineTool, constraintGroups } = state.controls
+      const { strokeWidth, strokeWidthMod, constraintIndex } = lineTool
+      const constraintType = constraintGroups[constraintIndex].typeIndex
+
+      actions.updateCursor(shouldShow && !shouldNavigate, {
+        seekPosition: screen,
+        seekIndex: index,
+        strokeWidth,
+        strokeWidthMod,
+        constraintType
+      })
     },
 
     updatePaletteState (group, key, value) {
