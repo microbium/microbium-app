@@ -11,6 +11,7 @@
       <div class="editor-compositor__stats__group">
         <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
         <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
+        <div>forces: {{ simulation.forcesCount || '-' }}</div>
       </div>
       <div class="editor-compositor__stats__group">
         <div>vertices: {{ renderer.verticesCount }}</div>
