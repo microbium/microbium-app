@@ -28,6 +28,7 @@ import {
   inflateSync
 } from 'zlib'
 
+import { isHighSierra } from './utils/platform'
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
 import { fitRect } from './window'
@@ -293,7 +294,7 @@ function createPaletteWindow () {
     fullscreenable: false,
     hasShadow: true,
     vibrancy: 'dark',
-    transparent: false, // FIXME: High Sierra vibrancy / transparency
+    transparent: isHighSierra(),
     show: false,
     alwaysOnTop: true,
     webPreferences: {
