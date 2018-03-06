@@ -30,41 +30,41 @@ void main() {
   vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
 
   // Base Color (shifted / banded in pre-pass)
-  vec4 fColor = texture2D(color, uv);
-  vec3 hColor = rgb2hsv(fColor.rgb);
+  vec4 baseColor = texture2D(color, uv);
+  vec3 baseColorHSV = rgb2hsv(baseColor.rgb);
 
   // Noise
-  vec4 fNoise = vec4(0.0);
+  vec4 noiseColor = vec4(0.0);
   if (noiseIntensity > 0.0) {
-    float nx = random(fract(uv + tick * 0.001));
-    fNoise = vec4(clamp(0.1 + nx, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
+    float noiseSample = random(fract(uv + tick * 0.001));
+    noiseColor = vec4(clamp(0.1 + noiseSample, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
   }
 
-  float nEdges = edgeDetect(color, uv, viewResolution.xy);
-  vec4 fColorBandEdge = vec4(
-    hsv2rgb(vec3(hColor.r, hColor.g, nEdges)),
+  float edgesSample = edgeDetect(color, uv, viewResolution.xy);
+  vec4 edgesColor = vec4(
+    hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, edgesSample)),
     1.0);
-  fColorBandEdge.rgb = blendOverlay(fColor.rgb, fColorBandEdge.rgb, 0.85);
-  vec3 hColorBandEdge = rgb2hsv(fColorBandEdge.rgb);
+  edgesColor.rgb = blendOverlay(baseColor.rgb, edgesColor.rgb, 0.85);
+
+  vec3 edgesColorHSV = rgb2hsv(edgesColor.rgb);
+  // float
 
   // Origin Concentric Grid
-  vec4 fDash = vec4(0.0);
-  // vec4 fDash = 0.05 * vec4(
-  //   vec3(concentricDash(fragPosition, 0.15, 1.0)),
-  //   1.0);
+  vec4 dashColor = 0.05 * vec4(
+    vec3(concentricDash(fragPosition, 0.15, 1.0)),
+    1.0);
 
   // Vignette
-  vec4 fVignette = vec4(1.0);
-  // vec4 fVignette = vec4(
-  //   vec3(vignette(uv, 0.7, 0.4)),
-  //   0.0);
+  vec4 vignetteColor = vec4(
+    vec3(vignette(uv, 0.7, 0.4)),
+    0.0);
 
   // gl_FragColor = vec4(blendColorBurn(
   //   (fColor + (fColor * fNoise) + fDash + fBloom).rgb,
   //   (fVignette).rgb), 1.0);
 
-  // gl_FragColor = fColorBandEdge;
-  gl_FragColor = vec4(vec3(smoothstep(0.8, 1.0, hColorBandEdge.r)), 1.0);
+  gl_FragColor = edgesColor;
+  // gl_FragColor = vec4(vec3(smoothstep(0.88, 1.0, hColorBandEdge.r)), 1.0);
 
   // gl_FragColor = vec4(vec3(smoothstep(0.55, 1.0, hColorBandEdge.r)), 1.0);
   // gl_FragColor = vec4(vec3(smoothstep(0.285, 0.575, hColorBandEdge.g)), 1.0);

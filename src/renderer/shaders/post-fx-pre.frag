@@ -20,31 +20,29 @@ float bandGrad(float value, float step) {
 }
 
 void main() {
-  // Base Color
-  vec4 sColor = texture2D(color, uv);
-
-  // Color Shift
-  vec3 hColor = rgb2hsv(sColor.rgb);
-  vec4 fColor = vec4(hsv2rgb(
-    vec3(fract(hColor.r + colorShift.r),
-      clamp(hColor.g + colorShift.g, 0.0, 1.5),
-      clamp(hColor.b + colorShift.b, 0.0, 1.0))),
-      1.0);
+  // Base Color / Shift
+  vec4 baseColor = texture2D(color, uv);
+  vec3 baseColorHSV = rgb2hsv(baseColor.rgb);
+  baseColor.rgb = hsv2rgb(
+    vec3(fract(baseColorHSV.r + colorShift.r),
+      clamp(baseColorHSV.g + colorShift.g, 0.0, 1.5),
+      clamp(baseColorHSV.b + colorShift.b, 0.0, 1.0)));
 
   // Bloom
-  vec4 fBloom = fColor * 0.4;
+  vec4 bloomColor = baseColor * 0.4;
   if (bloomIntensity > 0.0) {
-    fBloom = texture2D(bloom, uv) * bloomIntensity;
+    bloomColor = texture2D(bloom, uv) * bloomIntensity;
   }
-  fColor += fBloom;
-  hColor = rgb2hsv(fColor.rgb);
+  baseColor += bloomColor;
+  baseColorHSV = rgb2hsv(baseColor.rgb);
 
   // Banded Gradients
-  vec4 fColorBand = vec4(
-    hsv2rgb(vec3(hColor.r, hColor.g, bandGrad(hColor.b, colorBandStep))),
+  float bandingSample = bandGrad(baseColorHSV.b, colorBandStep);
+  vec4 bandingColor = vec4(
+    hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, bandingSample)),
     1.0);
 
   gl_FragColor = vec4(
-    mix(fColor.rgb, fColorBand.rgb, 0.6),
+    mix(baseColor.rgb, bandingColor.rgb, 0.6),
     1.0);
 }
