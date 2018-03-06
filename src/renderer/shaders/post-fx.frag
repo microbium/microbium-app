@@ -23,26 +23,53 @@ varying vec2 uv;
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
 
+// Create gradient banding
+float bandGrad(float value, float step) {
+  float scaled = value * step;
+  return (scaled - mod(scaled, 1.0)) / step;
+}
+
+// OPTIM: Maybe use separate pass to create banded color texture
+// Banded edge detection
+const float colorBandStep = 32.0;
+vec3 transformEdgeSample(vec4 color) {
+  vec3 hColor = rgb2hsv(color.rgb);
+  return hsv2rgb(vec3(
+    hColor.r,
+    hColor.g,
+    bandGrad(hColor.b, colorBandStep)));
+}
+#pragma glslify: bandedEdgeDetect = require(./edge-frei-chen, transformSample=transformEdgeSample)
+
 void main() {
   // OPTIM: Improve viewResolution density mapping ..
   vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
   vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
   vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
 
-  vec4 fColor = texture2D(color, uv);
-
-  // Color Shift
-  vec3 hColor = rgb2hsv(fColor.rgb);
-  fColor.rgb = hsv2rgb(
+  // Base Color / Shift
+  vec4 sColor = texture2D(color, uv);
+  vec3 hColor = rgb2hsv(sColor.rgb);
+  vec4 fColor = vec4(hsv2rgb(
     vec3(fract(hColor.r + colorShift.r),
       clamp(hColor.g + colorShift.g, 0.0, 1.5),
-      clamp(hColor.b + colorShift.b, 0.0, 1.0)));
+      clamp(hColor.b + colorShift.b, 0.0, 1.0))),
+      1.0);
+
+  // Banded Gradients
+  vec4 fColorBand = vec4(
+    hsv2rgb(vec3(hColor.r, hColor.g, bandGrad(hColor.b, colorBandStep))),
+    1.0);
+
+  vec4 fColorBandEdge = vec4(hsv2rgb(
+    vec3(hColor.r, hColor.g,
+      bandedEdgeDetect(color, uv, viewResolution.xy))), 1.0);
 
   // Noise
-  float fNoise = 0.0;
+  vec4 fNoise = vec4(0.0);
   if (noiseIntensity > 0.0) {
     float nx = random(fract(uv + tick * 0.001));
-    fNoise = (clamp(0.1 + nx, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
+    fNoise = vec4(clamp(0.1 + nx, 0.0, 1.0) * 2.0 - 1.0) * noiseIntensity;
   }
 
   // Bloom
@@ -52,16 +79,21 @@ void main() {
   }
 
   // Origin Concentric Grid
-  vec4 fDash = 0.05 * vec4(
-    vec3(concentricDash(fragPosition, 0.15, 1.0)),
-    1.0);
+  vec4 fDash = vec4(0.0);
+  // vec4 fDash = 0.05 * vec4(
+  //   vec3(concentricDash(fragPosition, 0.15, 1.0)),
+  //   1.0);
 
   // Vignette
-  vec4 fVignette = vec4(
-    vec3(vignette(uv, 0.7, 0.4)),
-    0.0);
+  vec4 fVignette = vec4(1.0);
+  // vec4 fVignette = vec4(
+  //   vec3(vignette(uv, 0.7, 0.4)),
+  //   0.0);
 
-  gl_FragColor = vec4(blendColorBurn(
-    (fColor + (fColor * fNoise) + fDash + fBloom).rgb,
-    (fVignette).rgb), 1.0);
+  // gl_FragColor = vec4(blendColorBurn(
+  //   (fColor + (fColor * fNoise) + fDash + fBloom).rgb,
+  //   (fVignette).rgb), 1.0);
+
+  // gl_FragColor = mix(fColor, fColorBand, 0.1);
+  gl_FragColor = mix(fColor, fColorBandEdge + 0.5, 0.6);
 }
