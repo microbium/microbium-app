@@ -10,8 +10,9 @@ uniform float tick;
 varying vec2 uv;
 
 #pragma glslify: blendOverlay = require(glsl-blend/overlay)
-#pragma glslify: rgb2hsv = require('./color/rgb2hsv')
-#pragma glslify: hsv2rgb = require('./color/hsv2rgb')
+#pragma glslify: bandGradient = require(./band-gradient)
+#pragma glslify: rgb2hsv = require(./color/rgb2hsv)
+#pragma glslify: hsv2rgb = require(./color/hsv2rgb)
 
 // Create gradient banding
 float bandGrad(float value, float step) {
@@ -37,7 +38,7 @@ void main() {
   baseColorHSV = rgb2hsv(baseColor.rgb);
 
   // Banded Gradients
-  float bandingSample = bandGrad(baseColorHSV.b, colorBandStep);
+  float bandingSample = bandGradient(baseColorHSV.b, colorBandStep);
   vec4 bandingColor = vec4(
     hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, bandingSample)),
     1.0);
