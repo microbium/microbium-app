@@ -22,6 +22,14 @@
         <div>draw calls: {{ renderer.drawCalls }}</div>
         <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
       </div>
+      <div class="editor-compositor__stats__group" v-if="DEBUG_PERF">
+        <div>update physics: {{ timer.get('updatePhysics', 6) }} ms</div>
+        <div>update lines: {{ timer.get('updateLines', 6) }} ms</div>
+        <div>render lines: {{ timer.get('renderLines', 6) }} ms</div>
+        <div>render bloom: {{ timer.get('renderBloom', 6) }} ms</div>
+        <div>render pre-fx: {{ timer.get('renderPreFX', 6) }} ms</div>
+        <div>render post-fx: {{ timer.get('renderPostFX', 6) }} ms</div>
+      </div>
       <div class="editor-compositor__stats__group" v-if="DEBUG_RENDER_HASH">
         <div>hash: {{ renderer.lastRenderHash }}</div>
       </div>
@@ -93,6 +101,7 @@ import { debounce } from '@/utils/function'
 import { range } from '@/utils/array'
 import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
+import { timer } from '@/utils/timer'
 
 import { createTextureManager } from '@/utils/texture'
 import {
@@ -135,6 +144,7 @@ const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
 const DEBUG_RENDER_HASH = false
+const DEBUG_PERF = true
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
@@ -279,6 +289,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
     update (tick) {
       const { isRunning, wasRunning } = state.simulation
+      timer.reset()
       if (!isRunning) {
         this.syncStrokeWidthMod()
         this.syncCursor(true)
@@ -287,8 +298,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
         this.syncCursor(false)
       }
       if (isRunning) {
+        timer.begin('updatePhysics')
         state.simulation.tick++
         simulation.update(tick)
+        timer.end('updatePhysics')
       }
       if (isRunning && !wasRunning) {
         this.sendGeometryState()
@@ -367,10 +380,12 @@ function mountCompositor ($el, $refs, $electron, actions) {
       stateRenderer.segmentsCount = stateGeometry.segments.length
       regl.poll()
 
+      timer.begin('updateLines')
       const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash ||
         stateRenderer.needsUpdate
       const shouldRender = (shouldUpdate || stateRenderer.updateOverlapTick-- > 0) &&
         view.updateRenderableGeometry(tick)
+      timer.end('updateLines')
 
       if (shouldRender) view.renderScene(tick)
       if (shouldUpdate) stateRenderer.updateOverlapTick = 20
@@ -448,10 +463,11 @@ function mountCompositor ($el, $refs, $electron, actions) {
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
 
       postBuffers.resize('fullA', resolution)
-      postBuffers.resize('fullB', resolution)
+      postBuffers.resize('fullB', resolution, 0.5)
       postBuffers.resize('blurA', resolution, bloom.blurScale)
       postBuffers.resize('blurB', resolution, bloom.blurScale)
 
+      timer.begin('renderLines')
       postBuffers.get('fullA').use(() => {
         // TODO: Tween between clear states
         const clearColor = Colr.fromHex(postEffects.clear.colorHex)
@@ -473,9 +489,11 @@ function mountCompositor ($el, $refs, $electron, actions) {
           viewScale
         }, () => {
           view.renderLines()
+          // TODO: Move UI rendering out of FBO
           view.renderUI()
         })
       })
+      timer.end('renderLines')
 
       setupDrawScreen(() => {
         const bloomIntensity = !shouldRenderBloom ? 0
@@ -485,10 +503,13 @@ function mountCompositor ($el, $refs, $electron, actions) {
         const colorBandStep = 32
 
         if (shouldRenderBloom) {
+          timer.begin('renderBloom')
           view.renderSceneBlurPasses(viewResolution,
             bloom.blurStep, bloom.blurPasses)
+          timer.end('renderBloom')
         }
 
+        timer.begin('renderPreFX')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         postBuffers.get('fullB').use(() => {
@@ -501,7 +522,9 @@ function mountCompositor ($el, $refs, $electron, actions) {
             tick
           })
         })
+        timer.end('renderPreFX')
 
+        timer.begin('renderPostFX')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         drawScreen({
@@ -511,9 +534,9 @@ function mountCompositor ($el, $refs, $electron, actions) {
           viewOffset,
           viewResolution
         })
+        timer.end('renderPostFX')
 
         if (isRunning && shouldRenderBloom) {
-          // postBuffers.swap('fullA', 'fullB')
           postBuffers.get('fullA').use(() => {
             drawTexture({
               color: postBuffers.get('blurB')
@@ -657,6 +680,8 @@ export default {
   data () {
     return {
       DEBUG_RENDER_HASH,
+      DEBUG_PERF,
+      timer,
       seek: null,
       drag: null,
       renderer: null,
