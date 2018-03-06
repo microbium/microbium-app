@@ -100,6 +100,7 @@ import {
   createDrawTexture,
   createSetupDrawScreen,
   createDrawGaussBlur,
+  createDrawPreScreen,
   createDrawScreen
 } from '@/draw/commands/screen-space'
 import {
@@ -182,9 +183,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
     })
 
     const textures = createTextureManager(regl, TEXTURES)
-    const postBuffers = createPostBuffers(regl, 'A', 'B', 'C')
+    const postBuffers = createPostBuffers(regl, 'fullA', 'fullB', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
+      drawPreScreen: createDrawPreScreen(regl),
       drawScreen: createDrawScreen(regl),
       drawGaussBlur: createDrawGaussBlur(regl),
       drawRect: createDrawRect(regl),
@@ -427,7 +429,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
     renderScene (tick) {
       const { postBuffers } = renderer
-      const { setupDrawScreen, drawRect, drawScreen, drawTexture } = renderer.commands
+      const {
+        setupDrawScreen, drawRect, drawTexture,
+        drawPreScreen, drawScreen
+      } = renderer.commands
       const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
@@ -442,11 +447,12 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const shouldRenderBloom = isRunning &&
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
 
-      postBuffers.resize('A', resolution)
-      postBuffers.resize('B', resolution, bloom.blurScale)
-      postBuffers.resize('C', resolution, bloom.blurScale)
+      postBuffers.resize('fullA', resolution)
+      postBuffers.resize('fullB', resolution)
+      postBuffers.resize('blurA', resolution, bloom.blurScale)
+      postBuffers.resize('blurB', resolution, bloom.blurScale)
 
-      postBuffers.get('A').use(() => {
+      postBuffers.get('fullA').use(() => {
         // TODO: Tween between clear states
         const clearColor = Colr.fromHex(postEffects.clear.colorHex)
           .toRgbArray()
@@ -476,6 +482,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           : (0.4 * bloom.intensityFactor)
         const noiseIntensity = !isRunning ? 0.0
           : (0.06 * noise.intensityFactor)
+        const colorBandStep = 32
 
         if (shouldRenderBloom) {
           view.renderSceneBlurPasses(viewResolution,
@@ -484,21 +491,32 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
+        postBuffers.get('fullB').use(() => {
+          drawPreScreen({
+            color: postBuffers.get('fullA'),
+            bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
+            bloomIntensity,
+            colorShift,
+            colorBandStep,
+            tick
+          })
+        })
+
+        state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
         drawScreen({
-          color: postBuffers.get('A'),
-          bloom: postBuffers.get(shouldRenderBloom ? 'C' : 'blank'),
-          bloomIntensity,
+          color: postBuffers.get('fullB'),
           noiseIntensity,
-          colorShift,
           tick,
           viewOffset,
           viewResolution
         })
 
         if (isRunning && shouldRenderBloom) {
-          postBuffers.get('A').use(() => {
+          // postBuffers.swap('fullA', 'fullB')
+          postBuffers.get('fullA').use(() => {
             drawTexture({
-              color: postBuffers.get('C')
+              color: postBuffers.get('blurB')
             })
           })
         }
@@ -510,8 +528,8 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const { drawGaussBlur } = renderer.commands
 
       for (let i = 0; i < count * 2; i++) {
-        postBuffers.swap('C', 'B')
-        postBuffers.get('C').use(() => {
+        postBuffers.swap('blurB', 'blurA')
+        postBuffers.get('blurB').use(() => {
           const radius = (1 + Math.floor(i / 2)) * radiusStep
           const blurDirection = (i % 2 === 0)
             ? [radius, 0]
@@ -520,7 +538,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
           drawGaussBlur({
-            color: postBuffers.get(i === 0 ? 'A' : 'B'),
+            color: postBuffers.get(i === 0 ? 'fullA' : 'blurA'),
             blurDirection,
             viewResolution
           })

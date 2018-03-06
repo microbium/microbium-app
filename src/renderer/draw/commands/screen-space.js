@@ -2,6 +2,7 @@ import injectDefines from 'glsl-inject-defines'
 
 import basicFrag from '@/shaders/basic.frag'
 import postFXVert from '@/shaders/post-fx.vert'
+import postFXPreFrag from '@/shaders/post-fx-pre.frag'
 import postFXFrag from '@/shaders/post-fx.frag'
 import postFXCopy from '@/shaders/post-fx-copy.frag'
 import postFXBoxBlurFrag from '@/shaders/post-fx-box-blur.frag'
@@ -87,15 +88,26 @@ export function createDrawHashBlur (regl) {
   })
 }
 
+export function createDrawPreScreen (regl) {
+  return regl({
+    frag: postFXPreFrag,
+    uniforms: {
+      color: regl.prop('color'),
+      bloom: regl.prop('bloom'),
+      bloomIntensity: regl.prop('bloomIntensity'),
+      colorShift: regl.prop('colorShift'),
+      colorBandStep: regl.prop('colorBandStep'),
+      tick: regl.prop('tick')
+    }
+  })
+}
+
 export function createDrawScreen (regl) {
   return regl({
     frag: postFXFrag,
     uniforms: {
       color: regl.prop('color'),
-      bloom: regl.prop('bloom'),
-      bloomIntensity: regl.prop('bloomIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
-      colorShift: regl.prop('colorShift'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset')

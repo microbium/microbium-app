@@ -19,7 +19,6 @@ const mat3 g6 = mat3(gN1, -gN2, gN1, -gN2, gN3, -gN2, gN1, -gN2, gN1);
 const mat3 g7 = mat3(-gN2, gN1, -gN2, gN1, gN3, gN1, -gN2, gN1, -gN2);
 const mat3 g8 = mat3(gN2, gN2, gN2, gN2, gN2, gN2, gN2, gN2, gN2);
 
-// vec3 transformSample () {}
 float edge(sampler2D color, vec2 uv, vec2 resolution) {
   G[0] = g0,
   G[1] = g1,
@@ -39,7 +38,7 @@ float edge(sampler2D color, vec2 uv, vec2 resolution) {
   // Fetch the 3x3 neighbourhood and use the RGB vector's length as intensity value
   for (float i = 0.0; i < 3.0; i++) {
     for (float j = 0.0; j < 3.0; j++) {
-      sample = transformSample(texture2D(color, uv + texel * vec2(i-1.0,j-1.0)));
+      sample = (texture2D(color, uv + texel * vec2(i-1.0,j-1.0))).rgb;
       I[int(i)][int(j)] = length(sample);
     }
   }
