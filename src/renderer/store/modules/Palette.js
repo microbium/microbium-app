@@ -207,6 +207,9 @@ export function createControlsState () {
       noise: {
         intensityFactor: 1
       },
+      banding: {
+        bufferScale: 0.5
+      },
       bloom: {
         intensityFactor: 1,
         blurPasses: 1,

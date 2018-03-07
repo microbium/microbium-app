@@ -2,12 +2,13 @@ import injectDefines from 'glsl-inject-defines'
 
 import basicFrag from '@/shaders/basic.frag'
 import postFXVert from '@/shaders/post-fx.vert'
-import postFXPreFrag from '@/shaders/post-fx-pre.frag'
 import postFXFrag from '@/shaders/post-fx.frag'
 import postFXCopy from '@/shaders/post-fx-copy.frag'
 import postFXBoxBlurFrag from '@/shaders/post-fx-box-blur.frag'
 import postFXGaussBlurFrag from '@/shaders/post-fx-gaussian-blur.frag'
 import postFXHashBlurFrag from '@/shaders/post-fx-hash-blur.frag'
+import postFXBanding from '@/shaders/post-fx-banding.frag'
+import postFXEdges from '@/shaders/post-fx-edges.frag'
 
 export function createDrawRect (regl) {
   return regl({
@@ -88,13 +89,24 @@ export function createDrawHashBlur (regl) {
   })
 }
 
-export function createDrawPreScreen (regl) {
+export function createDrawBanding (regl) {
   return regl({
-    frag: postFXPreFrag,
+    frag: postFXBanding,
     uniforms: {
       color: regl.prop('color'),
       colorBandStep: regl.prop('colorBandStep'),
       tick: regl.prop('tick')
+    }
+  })
+}
+
+export function createDrawEdges (regl) {
+  return regl({
+    frag: postFXEdges,
+    uniforms: {
+      color: regl.prop('color'),
+      tick: regl.prop('tick'),
+      viewResolution: regl.prop('viewResolution')
     }
   })
 }

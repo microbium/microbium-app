@@ -105,12 +105,13 @@ import { timer } from '@/utils/timer'
 
 import { createTextureManager } from '@/utils/texture'
 import {
-  createDrawRect,
-  createDrawTexture,
-  createSetupDrawScreen,
+  createDrawBanding,
+  createDrawEdges,
   createDrawGaussBlur,
-  createDrawPreScreen,
-  createDrawScreen
+  createDrawRect,
+  createDrawScreen,
+  createDrawTexture,
+  createSetupDrawScreen
 } from '@/draw/commands/screen-space'
 import {
   createCompositorState,
@@ -193,10 +194,12 @@ function mountCompositor ($el, $refs, $electron, actions) {
     })
 
     const textures = createTextureManager(regl, TEXTURES)
-    const postBuffers = createPostBuffers(regl, 'fullA', 'fullB', 'blurA', 'blurB')
+    const postBuffers = createPostBuffers(regl,
+      'fullA', 'edgeA', 'edgeB', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
-      drawPreScreen: createDrawPreScreen(regl),
+      drawBanding: createDrawBanding(regl),
+      drawEdges: createDrawEdges(regl),
       drawScreen: createDrawScreen(regl),
       drawGaussBlur: createDrawGaussBlur(regl),
       drawRect: createDrawRect(regl),
@@ -446,7 +449,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const { postBuffers } = renderer
       const {
         setupDrawScreen, drawRect, drawTexture,
-        drawPreScreen, drawScreen
+        drawBanding, drawEdges, drawScreen
       } = renderer.commands
       const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
       const { panOffset, zoomOffset } = state.drag
@@ -458,13 +461,14 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
       const viewScale = scale + zoomOffset
 
-      const { bloom, noise, colorShift } = postEffects
+      const { banding, bloom, noise, colorShift } = postEffects
       const shouldRenderBloom = isRunning &&
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
       const shouldRenderBanding = isRunning
 
       postBuffers.resize('fullA', resolution)
-      postBuffers.resize('fullB', resolution, 0.5)
+      postBuffers.resize('edgeA', resolution, banding.bufferScale)
+      postBuffers.resize('edgeB', resolution, banding.bufferScale)
       postBuffers.resize('blurA', resolution, bloom.blurScale)
       postBuffers.resize('blurB', resolution, bloom.blurScale)
 
@@ -497,8 +501,6 @@ function mountCompositor ($el, $refs, $electron, actions) {
       timer.end('renderLines')
 
       setupDrawScreen(() => {
-        const bloomBufferName = shouldRenderBloom ? 'blurB' : 'blank'
-        const bandingBufferName = shouldRenderBanding ? 'fullB' : 'blank'
         const bloomIntensity = !shouldRenderBloom ? 0
           : (0.4 * bloom.intensityFactor)
         const noiseIntensity = !isRunning ? 0.0
@@ -515,13 +517,24 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
         if (shouldRenderBanding) {
           timer.begin('renderPreFX')
+
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
-          postBuffers.get('fullB').use(() => {
-            drawPreScreen({
+          postBuffers.get('edgeA').use(() => {
+            drawBanding({
               color: postBuffers.get('fullA'),
               colorBandStep,
               tick
+            })
+          })
+
+          state.renderer.drawCalls++
+          state.renderer.fullScreenPasses++
+          postBuffers.get('edgeB').use(() => {
+            drawEdges({
+              color: postBuffers.get('edgeA'),
+              tick,
+              viewResolution
             })
           })
           timer.end('renderPreFX')
@@ -533,9 +546,9 @@ function mountCompositor ($el, $refs, $electron, actions) {
         drawScreen({
           color: postBuffers.get('fullA'),
           colorShift,
-          bloom: postBuffers.get(bloomBufferName),
+          bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
           bloomIntensity,
-          banding: postBuffers.get(bandingBufferName),
+          banding: postBuffers.get(shouldRenderBanding ? 'edgeB' : 'blank'),
           bandingIntensity,
           noiseIntensity,
           tick,

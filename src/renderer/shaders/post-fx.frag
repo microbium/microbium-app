@@ -28,7 +28,6 @@ varying vec2 uv;
 #pragma glslify: random = require(glsl-random)
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
-#pragma glslify: edgeDetect = require(./edge-frei-chen)
 #pragma glslify: bandGradient = require(./band-gradient)
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
@@ -71,10 +70,9 @@ void main() {
   vec3 outColor = baseColor;
 
   if (bandingIntensity > 0.0) {
-    // Edge Detection
-    float edgesSample = edgeDetect(banding, uv, viewResolution.xy);
-    vec3 edgesColor = hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, edgesSample));
-    edgesColor = blendOverlay(baseColor, edgesColor, 0.85);
+    // Edges Color
+    // TODO: Improve brightness
+    vec3 edgesColor = texture2D(banding, uv).rgb;
 
     // Edge Channel Mapping
     vec3 edgesColorHSV = rgb2hsv(edgesColor);
