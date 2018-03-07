@@ -157,6 +157,12 @@ export function createMenuTemplate (app, actions) {
       role: 'help',
       submenu: [
         {
+          label: 'Report an Issue',
+          click () {
+            actions.reportIssue()
+          }
+        },
+        {
           label: 'Send Feedback',
           click () {
             actions.sendFeedback()

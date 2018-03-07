@@ -183,6 +183,9 @@ function createMenu () {
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
+    reportIssue () {
+      shell.openExternal('https://github.com/microbium/microbium-app-issues')
+    },
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
     },
