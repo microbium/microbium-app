@@ -412,8 +412,8 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
       // TODO: Enable drawing force positions while editing
       if (isRunning) {
-        drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 1)
-        drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
+        drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 0.4)
+        drawSimulatorForceUI(state, uiMain.ctx, 8, 0.4)
         drawSimulatorOriginUI(state, uiMain.ctx)
       }
 
@@ -494,7 +494,6 @@ function mountCompositor ($el, $refs, $electron, actions) {
           viewScale
         }, () => {
           view.renderLines()
-          // TODO: Move UI rendering out of FBO
           view.renderUI()
         })
       })
