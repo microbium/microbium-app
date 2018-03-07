@@ -1,5 +1,7 @@
+import { merge } from 'lodash'
 import { map, flatten2, expand2 } from '@/utils/array'
 import { roundToPlaces } from '@/utils/number'
+import { createControlsState } from '@/store/modules/Palette'
 
 const ABBRV_KEY = {
   'sw': 'strokeWidth',
@@ -64,6 +66,7 @@ export function createIOController (tasks, state) {
       const mapKeys = io.mapKeys.bind(null, ABBRV_KEY)
       const { geometry, controls } = mapKeys(json)
       const { segments, vertices } = mapKeys(geometry)
+      const defaultControls = createControlsState()
 
       const segmentsOut = segments
         .map((seg) => mapKeys(seg))
@@ -85,7 +88,7 @@ export function createIOController (tasks, state) {
           segments: segmentsOut,
           vertices: verticesOut
         },
-        controls: Object.assign({}, controls)
+        controls: merge(defaultControls, controls)
       }
     },
 
