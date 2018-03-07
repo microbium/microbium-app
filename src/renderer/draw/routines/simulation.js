@@ -70,7 +70,7 @@ export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
 
     ctx.globalAlpha = 0.1 * alpha
     ctx.strokeStyle = '#ffffff'
-    ctx.lineWidth = 0.6 * scaleInv
+    ctx.lineWidth = 0.8 * scaleInv
     ctx.beginPath()
     ctx.arc(position[0], position[1],
       radius,

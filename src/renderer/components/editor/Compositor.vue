@@ -413,7 +413,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
       // TODO: Enable drawing force positions while editing
       if (isRunning) {
         drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 0.4)
-        drawSimulatorForceUI(state, uiMain.ctx, 8, 0.4)
+        drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
         drawSimulatorOriginUI(state, uiMain.ctx)
       }
 
@@ -482,7 +482,6 @@ function mountCompositor ($el, $refs, $electron, actions) {
           : (!isRunning ? 0.6
             : (0.025 * postEffects.clear.alphaFactor)))
 
-        // state.renderer.fullScreenPasses++
         state.renderer.drawCalls++
         drawRect({
           color: clearColor
@@ -494,7 +493,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           viewScale
         }, () => {
           view.renderLines()
-          view.renderUI()
+          // view.renderUI()
         })
       })
       timer.end('renderLines')
@@ -507,6 +506,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         const bandingIntensity = !shouldRenderBanding ? 0 : 0.4
         const colorBandStep = 32
 
+        // Bloom
         if (shouldRenderBloom) {
           timer.begin('renderBloom')
           view.renderSceneBlurPasses(viewResolution,
@@ -514,6 +514,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           timer.end('renderBloom')
         }
 
+        // Banding / Edges
         if (shouldRenderBanding) {
           timer.begin('renderPreFX')
 
@@ -539,6 +540,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           timer.end('renderPreFX')
         }
 
+        // Post FX Composite
         timer.begin('renderPostFX')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
@@ -556,6 +558,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         })
         timer.end('renderPostFX')
 
+        // Bloom Feedback
         if (isRunning && shouldRenderBloom) {
           postBuffers.get('fullA').use(() => {
             drawTexture({
@@ -563,6 +566,15 @@ function mountCompositor ($el, $refs, $electron, actions) {
             })
           })
         }
+      })
+
+      // UI Overlay
+      cameras.scene.setup({
+        viewResolution,
+        viewOffset,
+        viewScale
+      }, () => {
+        view.renderUI()
       })
     },
 

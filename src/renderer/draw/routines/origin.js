@@ -51,7 +51,7 @@ export function drawPolarGrid (state, ctx) {
       const isEven = j % 2 === 0
       const length = isEven ? tickSize : tickSize * 3
 
-      ctx.globalAlpha = isEven ? 0.5 : 0.25
+      ctx.globalAlpha = isEven ? 1 : 0.5
       ctx.lineWidth = 0.5
       ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
