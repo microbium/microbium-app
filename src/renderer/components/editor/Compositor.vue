@@ -461,6 +461,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const { bloom, noise, colorShift } = postEffects
       const shouldRenderBloom = isRunning &&
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
+      const shouldRenderBanding = isRunning
 
       postBuffers.resize('fullA', resolution)
       postBuffers.resize('fullB', resolution, 0.5)
@@ -496,10 +497,13 @@ function mountCompositor ($el, $refs, $electron, actions) {
       timer.end('renderLines')
 
       setupDrawScreen(() => {
+        const bloomBufferName = shouldRenderBloom ? 'blurB' : 'blank'
+        const bandingBufferName = shouldRenderBanding ? 'fullB' : 'blank'
         const bloomIntensity = !shouldRenderBloom ? 0
           : (0.4 * bloom.intensityFactor)
         const noiseIntensity = !isRunning ? 0.0
           : (0.06 * noise.intensityFactor)
+        const bandingIntensity = !shouldRenderBanding ? 0 : 0.4
         const colorBandStep = 32
 
         if (shouldRenderBloom) {
@@ -509,26 +513,30 @@ function mountCompositor ($el, $refs, $electron, actions) {
           timer.end('renderBloom')
         }
 
-        timer.begin('renderPreFX')
-        state.renderer.drawCalls++
-        state.renderer.fullScreenPasses++
-        postBuffers.get('fullB').use(() => {
-          drawPreScreen({
-            color: postBuffers.get('fullA'),
-            bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
-            bloomIntensity,
-            colorShift,
-            colorBandStep,
-            tick
+        if (shouldRenderBanding) {
+          timer.begin('renderPreFX')
+          state.renderer.drawCalls++
+          state.renderer.fullScreenPasses++
+          postBuffers.get('fullB').use(() => {
+            drawPreScreen({
+              color: postBuffers.get('fullA'),
+              colorBandStep,
+              tick
+            })
           })
-        })
-        timer.end('renderPreFX')
+          timer.end('renderPreFX')
+        }
 
         timer.begin('renderPostFX')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         drawScreen({
-          color: postBuffers.get('fullB'),
+          color: postBuffers.get('fullA'),
+          colorShift,
+          bloom: postBuffers.get(bloomBufferName),
+          bloomIntensity,
+          banding: postBuffers.get(bandingBufferName),
+          bandingIntensity,
           noiseIntensity,
           tick,
           viewOffset,

@@ -93,9 +93,6 @@ export function createDrawPreScreen (regl) {
     frag: postFXPreFrag,
     uniforms: {
       color: regl.prop('color'),
-      bloom: regl.prop('bloom'),
-      bloomIntensity: regl.prop('bloomIntensity'),
-      colorShift: regl.prop('colorShift'),
       colorBandStep: regl.prop('colorBandStep'),
       tick: regl.prop('tick')
     }
@@ -107,6 +104,11 @@ export function createDrawScreen (regl) {
     frag: postFXFrag,
     uniforms: {
       color: regl.prop('color'),
+      colorShift: regl.prop('colorShift'),
+      bloom: regl.prop('bloom'),
+      bloomIntensity: regl.prop('bloomIntensity'),
+      banding: regl.prop('banding'),
+      bandingIntensity: regl.prop('bandingIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
