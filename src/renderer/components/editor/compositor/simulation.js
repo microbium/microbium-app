@@ -271,6 +271,7 @@ export function createSimulationController (tasks, state, renderer) {
       const { points } = state.simulationForces
       const { tick } = state.simulation
       const { forces } = state.controls
+      const { isDragging, down } = state.drag
       const { move, velocity } = state.seek
       const { polarIterations } = state.controls.modifiers
 
@@ -278,7 +279,8 @@ export function createSimulationController (tasks, state, renderer) {
       const angleStep = Math.PI * 2 / polarIterations
       const angleIndex = tick % polarIterations
       const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
-      const pointerPosition = vec2.transformMat2d(scratchVec2A, move, rotation)
+      const pointerPosition = isDragging ? down : move
+      const pointerForcePosition = vec2.transformMat2d(scratchVec2A, pointerPosition, rotation)
 
       points.forEach((item, i) => {
         const config = forces[i]
@@ -314,8 +316,8 @@ export function createSimulationController (tasks, state, renderer) {
             break
           case 1:
             // Pointer
-            vec2.copy(position, move)
-            force.set(pointerPosition[0], pointerPosition[1], 0)
+            vec2.copy(position, pointerPosition)
+            force.set(pointerForcePosition[0], pointerForcePosition[1], 0)
             break
         }
 
