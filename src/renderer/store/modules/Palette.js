@@ -210,13 +210,22 @@ export function createControlsState () {
         intensityFactor: 1
       },
       banding: {
+        intensityFactor: 1,
+        // blendMode: MIX,
+        bandStep: 32,
+        bufferScale: 1 / pixelRatio()
+      },
+      edges: {
+        intensityFactor: 1,
+        // blendMode: OVERLAY,
         bufferScale: 1 / pixelRatio()
       },
       bloom: {
         intensityFactor: 1,
+        // blendMode: MULTIPLY,
         blurPasses: 1,
         blurStep: 4,
-        blurScale: 1 / (pixelRatio() * 2)
+        bufferScale: 1 / (pixelRatio() * 2)
       },
       colorShift: [0, 0, 0]
     }

@@ -195,7 +195,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
     const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
-      'fullA', 'edgeA', 'edgeB', 'blurA', 'blurB')
+      'full', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawBanding: createDrawBanding(regl),
@@ -461,19 +461,20 @@ function mountCompositor ($el, $refs, $electron, actions) {
       const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
       const viewScale = scale + zoomOffset
 
-      const { banding, bloom, noise, colorShift } = postEffects
+      const { banding, edges, bloom, noise, colorShift } = postEffects
       const shouldRenderBloom = isRunning &&
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
-      const shouldRenderBanding = isRunning
+      const shouldRenderBanding = isRunning &&
+        banding.intensityFactor > 0
 
-      postBuffers.resize('fullA', resolution)
-      postBuffers.resize('edgeA', resolution, banding.bufferScale)
-      postBuffers.resize('edgeB', resolution, banding.bufferScale)
-      postBuffers.resize('blurA', resolution, bloom.blurScale)
-      postBuffers.resize('blurB', resolution, bloom.blurScale)
+      postBuffers.resize('full', resolution)
+      postBuffers.resize('banding', resolution, banding.bufferScale)
+      postBuffers.resize('edges', resolution, edges.bufferScale)
+      postBuffers.resize('blurA', resolution, bloom.bufferScale)
+      postBuffers.resize('blurB', resolution, bloom.bufferScale)
 
       timer.begin('renderLines')
-      postBuffers.get('fullA').use(() => {
+      postBuffers.get('full').use(() => {
         // TODO: Tween between clear states
         const clearColor = Colr.fromHex(postEffects.clear.colorHex)
           .toRgbArray()
@@ -503,8 +504,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
           : (0.4 * bloom.intensityFactor)
         const noiseIntensity = !isRunning ? 0.0
           : (0.06 * noise.intensityFactor)
-        const bandingIntensity = !shouldRenderBanding ? 0 : 0.4
-        const colorBandStep = 32
+        const bandingIntensity = !shouldRenderBanding ? 0
+          : (0.6 * banding.intensityFactor)
+        const edgesIntensity = !shouldRenderBanding ? 0
+          : (0.85 * edges.intensityFactor)
 
         // Bloom
         if (shouldRenderBloom) {
@@ -520,19 +523,20 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
-          postBuffers.get('edgeA').use(() => {
+          postBuffers.get('banding').use(() => {
             drawBanding({
-              color: postBuffers.get('fullA'),
-              colorBandStep,
+              color: postBuffers.get('full'),
+              bandingStep: banding.bandStep,
               tick
             })
           })
 
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
-          postBuffers.get('edgeB').use(() => {
+          postBuffers.get('edges').use(() => {
             drawEdges({
-              color: postBuffers.get('edgeA'),
+              color: postBuffers.get('banding'),
+              edgesIntensity,
               tick,
               viewResolution
             })
@@ -545,11 +549,11 @@ function mountCompositor ($el, $refs, $electron, actions) {
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         drawScreen({
-          color: postBuffers.get('fullA'),
+          color: postBuffers.get('full'),
           colorShift,
           bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
           bloomIntensity,
-          banding: postBuffers.get(shouldRenderBanding ? 'edgeB' : 'blank'),
+          banding: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
           bandingIntensity,
           noiseIntensity,
           tick,
@@ -560,7 +564,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
         // Bloom Feedback
         if (isRunning && shouldRenderBloom) {
-          postBuffers.get('fullA').use(() => {
+          postBuffers.get('full').use(() => {
             drawTexture({
               color: postBuffers.get('blurB')
             })
@@ -593,7 +597,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
           drawGaussBlur({
-            color: postBuffers.get(i === 0 ? 'fullA' : 'blurA'),
+            color: postBuffers.get(i === 0 ? 'full' : 'blurA'),
             blurDirection,
             viewResolution
           })

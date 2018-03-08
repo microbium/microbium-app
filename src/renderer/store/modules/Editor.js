@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { pixelRatio } from '@/utils/screen'
+import { pixelRatioClamped } from '@/utils/screen'
 import { createControlsState } from './Palette'
 
 export function createCompositorState () {
@@ -45,7 +45,7 @@ export function createCompositorState () {
   const viewport = {
     showStats: false,
     didResize: false,
-    pixelRatio: pixelRatio(),
+    pixelRatio: pixelRatioClamped(),
     size: vec2.create(),
     resolution: vec2.create(),
     center: vec2.create(),

@@ -4,5 +4,9 @@ export function isFullscreen () {
 }
 
 export function pixelRatio () {
-  return Math.min(1.5, window.devicePixelRatio || 1)
+  return window.devicePixelRatio || 1
+}
+
+export function pixelRatioClamped () {
+  return Math.min(1.5, pixelRatio())
 }

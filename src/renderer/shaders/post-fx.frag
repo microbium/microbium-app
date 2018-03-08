@@ -33,7 +33,7 @@ varying vec2 uv;
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
 
 void main() {
-  // OPTIM: Improve viewResolution density mapping ..
+  // TODO: Improve viewResolution density mapping ..
   vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
   vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
   vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
@@ -52,7 +52,7 @@ void main() {
   vec3 bandingColor = baseColor;
   if (bandingIntensity > 0.0) {
     bandingColor = texture2D(banding, uv).rgb;
-    baseColor = mix(baseColor, bandingColor, 0.6);
+    baseColor = mix(baseColor, bandingColor, bandingIntensity);
     baseColorHSV = rgb2hsv(baseColor);
   }
 

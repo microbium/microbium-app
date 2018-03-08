@@ -43,9 +43,55 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1" step="0.05" v-model="model.bloom.blurScale" />
+        <input-range min="0.1" max="1.5" step="0.05" v-model="model.bloom.bufferScale" />
         <div class="palette-item__label">
-          <b>{{ bloomBlurScaleName }}</b> blur resolution
+          <b>{{ bloomBufferScaleName }}</b> blur resolution
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group nested>
+      <h2 slot="title">Banding</h2>
+
+      <div class="palette-item">
+        <input-range min="0" max="2" step="0.05" v-model="model.banding.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ bandingFactorName }}</b> intensity
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="1" max="20" step="1" v-model="model.banding.bandStep" />
+        <div class="palette-item__label">
+          <b>{{ bandingStepName }}</b> banding interval
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0.1" max="1.5" step="0.05" v-model="model.banding.bufferScale" />
+        <div class="palette-item__label">
+          <b>{{ bandingBufferScaleName }}</b> banding resolution
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group nested>
+      <h2 slot="title">Edges</h2>
+
+      <div class="palette-item">
+        <input-range min="0" max="2" step="0.05" v-model="model.edges.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ edgesFactorName }}</b> intensity
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="0.1" max="1.5" step="0.05" v-model="model.edges.bufferScale" />
+        <div class="palette-item__label">
+          <b>{{ edgesBufferScaleName }}</b> edges resolution
         </div>
       </div>
       <hr />
@@ -122,10 +168,14 @@ export default {
       return `${roundToPlaces(clear.alphaFactor, 2)}x`
     },
 
+    // Noise
+
     noiseFactorName () {
       const { noise } = this.model
       return `${roundToPlaces(noise.intensityFactor, 2)}x`
     },
+
+    // Bloom
 
     bloomFactorName () {
       const { bloom } = this.model
@@ -147,10 +197,41 @@ export default {
       return `${bloom.blurStep}px`
     },
 
-    bloomBlurScaleName () {
+    bloomBufferScaleName () {
       const { bloom } = this.model
-      return `${roundToPlaces(bloom.blurScale, 2)}x`
+      return `${roundToPlaces(bloom.bufferScale, 2)}x`
     },
+
+    // Banding
+
+    bandingFactorName () {
+      const { banding } = this.model
+      return `${roundToPlaces(banding.intensityFactor, 2)}x`
+    },
+
+    bandingStepName () {
+      const { banding } = this.model
+      return `${banding.bandStep}n`
+    },
+
+    bandingBufferScaleName () {
+      const { banding } = this.model
+      return `${roundToPlaces(banding.bufferScale, 2)}x`
+    },
+
+    // Edges
+
+    edgesFactorName () {
+      const { edges } = this.model
+      return `${roundToPlaces(edges.intensityFactor, 2)}x`
+    },
+
+    edgesBufferScaleName () {
+      const { edges } = this.model
+      return `${roundToPlaces(edges.bufferScale, 2)}x`
+    },
+
+    // Color Shift
 
     colorShiftHueName () {
       const { colorShift } = this.model

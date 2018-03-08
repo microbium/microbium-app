@@ -94,7 +94,7 @@ export function createDrawBanding (regl) {
     frag: postFXBanding,
     uniforms: {
       color: regl.prop('color'),
-      colorBandStep: regl.prop('colorBandStep'),
+      bandingStep: regl.prop('bandingStep'),
       tick: regl.prop('tick')
     }
   })
@@ -105,6 +105,7 @@ export function createDrawEdges (regl) {
     frag: postFXEdges,
     uniforms: {
       color: regl.prop('color'),
+      edgesIntensity: regl.prop('edgesIntensity'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution')
     }

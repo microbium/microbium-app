@@ -1,6 +1,7 @@
 precision highp float;
 
 uniform sampler2D color;
+uniform float edgesIntensity;
 uniform float tick;
 uniform vec3 viewResolution; // [x, y, pxRatio]
 
@@ -13,14 +14,14 @@ varying vec2 uv;
 
 void main() {
   // Base Color / Shift
-  vec3 baseColor = texture2D(color, uv).rgb * 1.4;
+  vec3 baseColor = texture2D(color, uv).rgb;// * 1.4;
   vec3 baseColorHSV = rgb2hsv(baseColor);
 
   // Edge Detection
   // TODO: Maybe move blending to main post-fx pass ..
   float edgesSample = edgeDetect(color, uv, viewResolution.xy);
   vec3 edgesColor = hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, edgesSample));
-  edgesColor = blendOverlay(baseColor, edgesColor, 0.85);
+  edgesColor = blendOverlay(baseColor, edgesColor, edgesIntensity);
 
   gl_FragColor = vec4(edgesColor, 1.0);
 }
