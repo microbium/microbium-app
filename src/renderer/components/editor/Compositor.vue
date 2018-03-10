@@ -27,8 +27,9 @@
         <div>update lines: {{ timer.get('updateLines', 6) }} ms</div>
         <div>render lines: {{ timer.get('renderLines', 6) }} ms</div>
         <div>render bloom: {{ timer.get('renderBloom', 6) }} ms</div>
-        <div>render pre-fx: {{ timer.get('renderPreFX', 6) }} ms</div>
-        <div>render post-fx: {{ timer.get('renderPostFX', 6) }} ms</div>
+        <div>render banding: {{ timer.get('renderBanding', 6) }} ms</div>
+        <div>render edges: {{ timer.get('renderEdges', 6) }} ms</div>
+        <div>render composite: {{ timer.get('renderComposite', 6) }} ms</div>
       </div>
       <div class="editor-compositor__stats__group" v-if="DEBUG_RENDER_HASH">
         <div>hash: {{ renderer.lastRenderHash }}</div>
@@ -520,7 +521,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         timer.end('renderBloom')
 
         // Banding / Edges
-        timer.begin('renderPreFX')
+        timer.begin('renderBanding')
         if (shouldRenderBanding) {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
@@ -532,7 +533,9 @@ function mountCompositor ($el, $refs, $electron, actions) {
             })
           })
         }
+        timer.end('renderBanding')
 
+        timer.begin('renderEdges')
         if (shouldRenderEdges) {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
@@ -544,10 +547,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
             })
           })
         }
-        timer.end('renderPreFX')
+        timer.end('renderEdges')
 
         // Post FX Composite
-        timer.begin('renderPostFX')
+        timer.begin('renderComposite')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
         drawScreen({
@@ -564,7 +567,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           viewOffset,
           viewResolution
         })
-        timer.end('renderPostFX')
+        timer.end('renderComposite')
 
         // Bloom Feedback
         if (isRunning && shouldRenderBloom) {
