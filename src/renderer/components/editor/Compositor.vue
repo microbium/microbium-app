@@ -146,7 +146,7 @@ const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
 const DEBUG_RENDER_HASH = false
-const DEBUG_PERF = true
+const DEBUG_PERF = false
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
@@ -737,6 +737,9 @@ export default {
     const { $el, $refs, $electron } = this
     const actions = { updateCursor: this.updateCursor }
     const { state } = mountCompositor($el, $refs, $electron, actions)
+
+    timer.enable(DEBUG_PERF)
+
     this.seek = state.seek
     this.drag = state.drag
     this.renderer = state.renderer
