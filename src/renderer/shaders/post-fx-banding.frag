@@ -13,10 +13,9 @@ varying vec2 uv;
 #pragma glslify: hsv2rgb = require(./color/hsv2rgb)
 
 void main() {
-  // TODO: Maybe multiply with bloom
   // Base Color
   vec3 baseColor = brightnessContrast(
-    texture2D(color, uv).rgb * 1.4,
+    texture2D(color, uv).rgb,
     0.0, 1.0);
   vec3 baseColorHSV = rgb2hsv(baseColor);
 
