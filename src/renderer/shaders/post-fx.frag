@@ -78,6 +78,7 @@ void main() {
 
   // Edges
   // TODO: Parameterize individual edge channels
+  // FIXME: Investigate glitchy artifacts with S0 channel + hue shifting
   if (edgesIntensity > 0.0) {
     vec4 edgesColorSample = texture2D(edges, uv);
     vec3 edgesColor = blendOverlay(bandingColor, edgesColorSample.rgb, 0.85);
