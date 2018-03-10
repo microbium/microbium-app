@@ -1,3 +1,4 @@
+<!-- TODO: Add per-group checkbox to allow quickly toggling enabled state -->
 <template>
   <div class="palette-effects">
     <palette-group nested open>
@@ -52,7 +53,7 @@
     </palette-group>
 
     <palette-group nested>
-      <h2 slot="title">Banding</h2>
+      <h2 slot="title">Gradient Banding</h2>
 
       <div class="palette-item">
         <input-range min="0" max="2" step="0.05" v-model="model.banding.intensityFactor" />
@@ -78,7 +79,7 @@
     </palette-group>
 
     <palette-group nested>
-      <h2 slot="title">Edges</h2>
+      <h2 slot="title">Shape Outlines</h2>
 
       <div class="palette-item">
         <input-range min="0" max="2" step="0.05" v-model="model.edges.intensityFactor" />
