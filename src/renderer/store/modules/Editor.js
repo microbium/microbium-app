@@ -106,23 +106,22 @@ export function createCompositorState () {
 }
 
 export function hashRenderState (state) {
-  return [
-    state.seek.index,
-    state.seek.wheelOffset.toFixed(6),
-    proximateIndicesStr(state.seek.proximateIndices),
-    boolStr(state.drag.isDown),
-    boolStr(state.drag.isDragging),
-    vec2Str(state.drag.move),
-    vec2Str(state.drag.panOffset),
-    state.drag.zoomOffset,
-    vec2Str(state.viewport.size),
-    vec2Str(state.viewport.offset),
-    state.viewport.scale,
-    state.geometry.segments.length,
-    state.geometry.vertices.length,
-    boolStr(state.simulation.isRunning),
+  return '' +
+    state.seek.index +
+    state.seek.wheelOffset.toFixed(6) +
+    proximateIndicesStr(state.seek.proximateIndices) +
+    boolStr(state.drag.isDown) +
+    boolStr(state.drag.isDragging) +
+    vec2Str(state.drag.move) +
+    vec2Str(state.drag.panOffset) +
+    state.drag.zoomOffset +
+    vec2Str(state.viewport.size) +
+    vec2Str(state.viewport.offset) +
+    state.viewport.scale +
+    state.geometry.segments.length +
+    state.geometry.vertices.length +
+    boolStr(state.simulation.isRunning) +
     state.simulation.tick
-  ].join('-')
 }
 
 function boolStr (bool) {
