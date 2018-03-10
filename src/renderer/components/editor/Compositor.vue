@@ -725,7 +725,6 @@ export default {
       DEBUG_RENDER_HASH,
       DEBUG_PERF,
       timer,
-      seek: null,
       drag: null,
       renderer: null,
       simulation: null,
@@ -740,7 +739,6 @@ export default {
 
     timer.enable(DEBUG_PERF)
 
-    this.seek = state.seek
     this.drag = state.drag
     this.renderer = state.renderer
     this.simulation = state.simulation
