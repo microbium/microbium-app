@@ -1,22 +1,18 @@
 precision highp float;
 
 uniform sampler2D color;
-// uniform float bandingBrightness;
 uniform float bandingStep;
 uniform float tick;
 
 varying vec2 uv;
 
 #pragma glslify: bandGradient = require(./band-gradient)
-#pragma glslify: brightnessContrast = require(./color/brightness-contrast)
 #pragma glslify: rgb2hsv = require(./color/rgb2hsv)
 #pragma glslify: hsv2rgb = require(./color/hsv2rgb)
 
 void main() {
   // Base Color
-  vec3 baseColor = brightnessContrast(
-    texture2D(color, uv).rgb,
-    0.0, 1.0);
+  vec3 baseColor = texture2D(color, uv).rgb;
   vec3 baseColorHSV = rgb2hsv(baseColor);
 
   // Banded Gradients
