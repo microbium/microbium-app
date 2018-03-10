@@ -45,7 +45,7 @@
       <div class="palette-item">
         <input-range min="0.1" max="1.5" step="0.05" v-model="model.bloom.bufferScale" />
         <div class="palette-item__label">
-          <b>{{ bloomBufferScaleName }}</b> blur resolution
+          <b>{{ bloomBufferScaleName }}</b> buffer resolution
         </div>
       </div>
       <hr />
@@ -63,7 +63,7 @@
       <hr />
 
       <div class="palette-item">
-        <input-range min="1" max="20" step="1" v-model="model.banding.bandStep" />
+        <input-range min="4" max="64" step="2" v-model="model.banding.bandStep" />
         <div class="palette-item__label">
           <b>{{ bandingStepName }}</b> banding interval
         </div>
@@ -71,7 +71,7 @@
       <div class="palette-item">
         <input-range min="0.1" max="1.5" step="0.05" v-model="model.banding.bufferScale" />
         <div class="palette-item__label">
-          <b>{{ bandingBufferScaleName }}</b> banding resolution
+          <b>{{ bandingBufferScaleName }}</b> buffer resolution
         </div>
       </div>
       <hr />
@@ -91,7 +91,7 @@
       <div class="palette-item">
         <input-range min="0.1" max="1.5" step="0.05" v-model="model.edges.bufferScale" />
         <div class="palette-item__label">
-          <b>{{ edgesBufferScaleName }}</b> edges resolution
+          <b>{{ edgesBufferScaleName }}</b> buffer resolution
         </div>
       </div>
       <hr />

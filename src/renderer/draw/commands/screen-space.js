@@ -105,7 +105,6 @@ export function createDrawEdges (regl) {
     frag: postFXEdges,
     uniforms: {
       color: regl.prop('color'),
-      edgesIntensity: regl.prop('edgesIntensity'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution')
     }
@@ -122,6 +121,8 @@ export function createDrawScreen (regl) {
       bloomIntensity: regl.prop('bloomIntensity'),
       banding: regl.prop('banding'),
       bandingIntensity: regl.prop('bandingIntensity'),
+      edges: regl.prop('edges'),
+      edgesIntensity: regl.prop('edgesIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),

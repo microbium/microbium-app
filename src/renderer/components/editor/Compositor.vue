@@ -445,6 +445,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
       return !didResizeBuffer
     },
 
+    // TODO: Break up post-processing passes
     renderScene (tick) {
       const { postBuffers } = renderer
       const {
@@ -466,6 +467,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         bloom.blurPasses > 0 && bloom.intensityFactor > 0
       const shouldRenderBanding = isRunning &&
         banding.intensityFactor > 0
+      const shouldRenderEdges = isRunning
 
       postBuffers.resize('full', resolution)
       postBuffers.resize('banding', resolution, banding.bufferScale)
@@ -506,21 +508,20 @@ function mountCompositor ($el, $refs, $electron, actions) {
           : (0.06 * noise.intensityFactor)
         const bandingIntensity = !shouldRenderBanding ? 0
           : (0.6 * banding.intensityFactor)
-        const edgesIntensity = !shouldRenderBanding ? 0
+        const edgesIntensity = !shouldRenderEdges ? 0
           : (0.85 * edges.intensityFactor)
 
         // Bloom
+        timer.begin('renderBloom')
         if (shouldRenderBloom) {
-          timer.begin('renderBloom')
           view.renderSceneBlurPasses(viewResolution,
             bloom.blurStep, bloom.blurPasses)
-          timer.end('renderBloom')
         }
+        timer.end('renderBloom')
 
         // Banding / Edges
+        timer.begin('renderPreFX')
         if (shouldRenderBanding) {
-          timer.begin('renderPreFX')
-
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
           postBuffers.get('banding').use(() => {
@@ -530,19 +531,20 @@ function mountCompositor ($el, $refs, $electron, actions) {
               tick
             })
           })
+        }
 
+        if (shouldRenderEdges) {
           state.renderer.drawCalls++
           state.renderer.fullScreenPasses++
           postBuffers.get('edges').use(() => {
             drawEdges({
-              color: postBuffers.get('banding'),
-              edgesIntensity,
+              color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
               tick,
               viewResolution
             })
           })
-          timer.end('renderPreFX')
         }
+        timer.end('renderPreFX')
 
         // Post FX Composite
         timer.begin('renderPostFX')
@@ -553,8 +555,10 @@ function mountCompositor ($el, $refs, $electron, actions) {
           colorShift,
           bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
           bloomIntensity,
-          banding: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
+          banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
           bandingIntensity,
+          edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
+          edgesIntensity,
           noiseIntensity,
           tick,
           viewOffset,

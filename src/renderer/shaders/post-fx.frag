@@ -7,9 +7,11 @@ precision highp float;
 uniform sampler2D color;
 uniform sampler2D bloom;
 uniform sampler2D banding;
+uniform sampler2D edges;
 
 uniform float bloomIntensity;
 uniform float bandingIntensity;
+uniform float edgesIntensity;
 uniform float noiseIntensity;
 uniform vec3 colorShift; // [hue, saturation, value]
 
@@ -29,6 +31,7 @@ varying vec2 uv;
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
 #pragma glslify: bandGradient = require(./band-gradient)
+#pragma glslify: brightnessContrast = require(./color/brightness-contrast)
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
 
@@ -40,55 +43,65 @@ void main() {
 
   // ..................................................
 
-  // Base Color
+  // Base Color / Shift
   vec3 baseColor = texture2D(color, uv).rgb;
   vec3 baseColorHSV = rgb2hsv(baseColor);
-  baseColor = hsv2rgb(
-  vec3(fract(baseColorHSV.r + colorShift.r),
+  baseColorHSV = vec3(
+    fract(baseColorHSV.r + colorShift.r),
     clamp(baseColorHSV.g + colorShift.g, 0.0, 1.5),
-    clamp(baseColorHSV.b + colorShift.b, 0.0, 1.0)));
-
-  // Banding
-  vec3 bandingColor = baseColor;
-  if (bandingIntensity > 0.0) {
-    bandingColor = texture2D(banding, uv).rgb;
-    baseColor = mix(baseColor, bandingColor, bandingIntensity);
-    baseColorHSV = rgb2hsv(baseColor);
-  }
-
-  // Bloom
-  vec3 bloomColor = baseColor * 0.4;
-  if (bloomIntensity > 0.0) {
-    bloomColor = texture2D(bloom, uv).rgb * bloomIntensity;
-  }
-  baseColor += bloomColor;
-  baseColorHSV = rgb2hsv(baseColor);
+    clamp(baseColorHSV.b + colorShift.b, 0.0, 1.0));
+  baseColor = hsv2rgb(baseColorHSV);
 
   // ..................................................
 
-  // Composite
-  vec3 outColor = baseColor;
+  vec3 bandingColor = baseColor;
+  vec3 bloomColor = baseColor * 0.4;
 
+  // Banding
   if (bandingIntensity > 0.0) {
-    // Edges Color
-    // TODO: Improve brightness
-    vec3 edgesColor = texture2D(banding, uv).rgb;
+    float bandingSample = texture2D(banding, uv).a;
+    bandingColor = hsv2rgb(vec3(
+      baseColorHSV.r,
+      baseColorHSV.g,
+      bandingSample));
+  }
+
+  // Bloom
+  if (bloomIntensity > 0.0) {
+    bloomColor = texture2D(bloom, uv).rgb * bloomIntensity;
+  }
+
+  // ..................................................
+
+  // Composite Base + Banding + Bloom
+  vec3 outColor = mix(baseColor, bandingColor, 0.5) + bloomColor;
+
+  // Edges
+  // TODO: Parameterize individual edge channels
+  if (edgesIntensity > 0.0) {
+    vec4 edgesColorSample = texture2D(edges, uv);
+    vec3 edgesColor = blendOverlay(bandingColor, edgesColorSample.rgb, 0.85);
+    float edgesSample = edgesColorSample.a;
 
     // Edge Channel Mapping
     vec3 edgesColorHSV = rgb2hsv(edgesColor);
-    float edgesH0 = smoothstep(0.925, 1.0, edgesColorHSV.r);
-    float edgesS0 = smoothstep(0.285, 0.5, edgesColorHSV.g);
-    float edgesV0 = smoothstep(0.0, 0.125, edgesColorHSV.b);
-    float edgesV1 = smoothstep(0.0, 0.125, edgesColorHSV.b + 0.025);
+    vec3 edgesH0 = brightnessContrast(
+      vec3(smoothstep(0.6, 1.5, edgesColorHSV.r * 1.25)),
+      0.6, 1.6);
+    vec3 edgesS0 = brightnessContrast(
+      vec3(smoothstep(0.285, 0.5, edgesColorHSV.g * 2.0)),
+      0.0, 0.75);
+    vec3 edgesV0 = brightnessContrast(
+      vec3(smoothstep(0.0, 0.25, edgesSample * 10.0)),
+      0.0, 1.1);
+    vec3 edgesV1 = brightnessContrast(
+      vec3(smoothstep(0.0, 0.125, edgesColorHSV.b + 0.025)),
+      0.0, 1.2);
 
-    // Banding Samples
-    float bandS = bandGradient(baseColorHSV.g, 24.0);
-    float bandS0 = smoothstep(0.0, 0.4, 0.3 - bandS);
-
-    outColor = blendSoftLight(outColor, vec3(edgesH0 + 0.4), 0.9);
-    outColor = blendColorDodge(outColor, vec3(bandS0) - 0.4, 0.4);
-    outColor = blendOverlay(outColor, vec3(edgesV0 - 0.4), 0.4);
-    outColor = blendSubtract(outColor, vec3(edgesV1), 0.4);
+    outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
+    outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
+    outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.1);
+    outColor = blendSubtract(outColor, vec3(edgesV1), edgesIntensity * 0.35);
   }
 
   // ..................................................
