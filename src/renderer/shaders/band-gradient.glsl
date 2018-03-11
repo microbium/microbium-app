@@ -1,7 +1,8 @@
 // TODO: Smooth out band aliasing
 float bandGradient(float value, float step) {
   float scaled = value * step;
-  return (scaled - mod(scaled, 1.0)) / step;
+  float diff = fract(scaled);
+  return (scaled - diff) / step;
 }
 
 #pragma glslify: export(bandGradient)
