@@ -30,7 +30,6 @@ varying vec2 uv;
 #pragma glslify: random = require(glsl-random)
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
-#pragma glslify: bandGradient = require(./band-gradient)
 #pragma glslify: brightnessContrast = require(./color/brightness-contrast)
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
@@ -74,7 +73,7 @@ void main() {
   // ..................................................
 
   // Composite Base + Banding + Bloom
-  vec3 outColor = mix(baseColor, bandingColor, 0.5) + bloomColor;
+  vec3 outColor = mix(baseColor, bandingColor, bandingIntensity) + bloomColor;
 
   // Edges
   // TODO: Parameterize individual edge channels

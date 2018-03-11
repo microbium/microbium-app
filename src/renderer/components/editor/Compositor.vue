@@ -510,7 +510,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         const bandingIntensity = !shouldRenderBanding ? 0
           : (0.6 * banding.intensityFactor)
         const edgesIntensity = !shouldRenderEdges ? 0
-          : (0.85 * edges.intensityFactor)
+          : (0.25 * edges.intensityFactor)
 
         // Bloom
         timer.begin('renderBloom')
