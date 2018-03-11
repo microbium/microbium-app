@@ -121,7 +121,7 @@ export function drawFocus (state, ctx, index) {
 
   ctx.save()
   ctx.globalAlpha = 0.9
-  ctx.lineWidth = 1 * scaleInv
+  ctx.lineWidth = 1.2 * scaleInv
   ctx.strokeStyle = UI_PALETTE.HI_PRIMARY
 
   ctx.beginPath()
@@ -133,8 +133,8 @@ export function drawFocus (state, ctx, index) {
   ctx.stroke()
 
   ctx.rotate(Math.atan2(point[1], point[0]))
-  ctx.globalAlpha = 0.25
-  ctx.lineWidth = 0.5 * scaleInv
+  ctx.globalAlpha = 0.35
+  ctx.lineWidth = 1 * scaleInv
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
   ctx.beginPath()
