@@ -85,12 +85,12 @@ void main() {
 
     // Edge Channel Mapping
     vec3 edgesColorHSV = rgb2hsv(edgesColor);
-    vec3 edgesH0 = brightnessContrast(
-      vec3(smoothstep(0.6, 1.5, edgesColorHSV.r * 1.25)),
-      0.6, 1.6);
-    vec3 edgesS0 = brightnessContrast(
-      vec3(smoothstep(0.285, 0.5, edgesColorHSV.g * 2.0)),
-      0.0, 0.75);
+    // vec3 edgesH0 = brightnessContrast(
+    //   vec3(smoothstep(0.6, 1.5, edgesColorHSV.r * 1.25)),
+    //   0.6, 1.6);
+    // vec3 edgesS0 = brightnessContrast(
+    //   vec3(smoothstep(0.285, 0.5, edgesColorHSV.g * 2.0)),
+    //   0.0, 0.75);
     vec3 edgesV0 = brightnessContrast(
       vec3(smoothstep(0.0, 0.25, edgesSample * 10.0)),
       0.0, 1.1);
@@ -98,8 +98,8 @@ void main() {
       vec3(smoothstep(0.0, 0.125, edgesColorHSV.b + 0.025)),
       0.0, 1.2);
 
-    outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
-    outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
+    // outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
+    // outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
     outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.1);
     outColor = blendSubtract(outColor, vec3(edgesV1), edgesIntensity * 0.35);
   }
