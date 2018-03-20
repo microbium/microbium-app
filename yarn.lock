@@ -4535,10 +4535,6 @@ glsl-fast-gaussian-blur@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/glsl-fast-gaussian-blur/-/glsl-fast-gaussian-blur-1.0.2.tgz#95bc77f644a22f06e5ed58e128697f8b17290b08"
 
-glsl-fxaa@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/glsl-fxaa/-/glsl-fxaa-3.0.0.tgz#f432228fba9d2a8a7240943c593d20c3176f3b93"
-
 glsl-hash-blur@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/glsl-hash-blur/-/glsl-hash-blur-1.0.3.tgz#85ce037f744de15e6fda9e38dbcd93504b7647c4"
