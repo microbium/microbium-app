@@ -520,7 +520,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         }
         timer.end('renderBloom')
 
-        // Banding / Edges
+        // Banding
         timer.begin('renderBanding')
         if (shouldRenderBanding) {
           state.renderer.drawCalls++
@@ -535,6 +535,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
         }
         timer.end('renderBanding')
 
+        // Edges
         timer.begin('renderEdges')
         if (shouldRenderEdges) {
           state.renderer.drawCalls++
@@ -542,6 +543,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
           postBuffers.get('edges').use(() => {
             drawEdges({
               color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
+              thickness: edges.thickness,
               tick,
               viewResolution
             })

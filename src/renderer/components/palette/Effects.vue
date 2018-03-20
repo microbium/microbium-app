@@ -90,6 +90,12 @@
       <hr />
 
       <div class="palette-item">
+        <input-range min="0.1" max="5.0" step="0.1" v-model="model.edges.thickness" />
+        <div class="palette-item__label">
+          <b>{{ edgesThicknessName }}</b> thickness
+        </div>
+      </div>
+      <div class="palette-item">
         <input-range min="0.1" max="1.5" step="0.05" v-model="model.edges.bufferScale" />
         <div class="palette-item__label">
           <b>{{ edgesBufferScaleName }}</b> buffer resolution
@@ -225,6 +231,11 @@ export default {
     edgesFactorName () {
       const { edges } = this.model
       return `${roundToPlaces(edges.intensityFactor, 2)}x`
+    },
+
+    edgesThicknessName () {
+      const { edges } = this.model
+      return `${roundToPlaces(edges.thickness, 2)}px`
     },
 
     edgesBufferScaleName () {

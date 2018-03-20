@@ -1,6 +1,7 @@
 precision highp float;
 
 uniform sampler2D color;
+uniform float thickness;
 uniform float tick;
 uniform vec3 viewResolution; // [x, y, pxRatio]
 
@@ -16,7 +17,7 @@ void main() {
   vec3 baseColorHSV = rgb2hsv(baseColor);
 
   // Edge Detection
-  float edgesSample = edgeDetect(color, uv, viewResolution.xy);
+  float edgesSample = edgeDetect(color, uv, viewResolution.xy, thickness);
   vec3 edgesColor = hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, edgesSample));
 
   gl_FragColor = vec4(edgesColor, edgesSample);

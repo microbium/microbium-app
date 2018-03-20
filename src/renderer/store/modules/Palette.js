@@ -218,6 +218,7 @@ export function createControlsState () {
       edges: {
         intensityFactor: 1,
         // blendMode: OVERLAY,
+        thickness: 0.5,
         bufferScale: 1 / pixelRatio()
       },
       bloom: {

@@ -105,6 +105,7 @@ export function createDrawEdges (regl) {
     frag: postFXEdges,
     uniforms: {
       color: regl.prop('color'),
+      thickness: regl.prop('thickness'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution')
     }

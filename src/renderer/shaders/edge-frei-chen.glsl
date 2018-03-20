@@ -19,7 +19,7 @@ const mat3 g6 = mat3(gN1, -gN2, gN1, -gN2, gN3, -gN2, gN1, -gN2, gN1);
 const mat3 g7 = mat3(-gN2, gN1, -gN2, gN1, gN3, gN1, -gN2, gN1, -gN2);
 const mat3 g8 = mat3(gN2, gN2, gN2, gN2, gN2, gN2, gN2, gN2, gN2);
 
-float edge(sampler2D color, vec2 uv, vec2 resolution) {
+float edge(sampler2D color, vec2 uv, vec2 resolution, float scale) {
   G[0] = g0,
   G[1] = g1,
   G[2] = g2,
@@ -30,7 +30,7 @@ float edge(sampler2D color, vec2 uv, vec2 resolution) {
   G[7] = g7,
   G[8] = g8;
 
-  vec2 texel = vec2(1.0 / resolution.x, 1.0 / resolution.y);
+  vec2 texel = vec2(scale / resolution.x, scale / resolution.y);
   mat3 I;
   float cnv[9];
   vec3 sample;
@@ -38,7 +38,7 @@ float edge(sampler2D color, vec2 uv, vec2 resolution) {
   // Fetch the 3x3 neighbourhood and use the RGB vector's length as intensity value
   for (float i = 0.0; i < 3.0; i++) {
     for (float j = 0.0; j < 3.0; j++) {
-      sample = (texture2D(color, uv + texel * vec2(i-1.0,j-1.0))).rgb;
+      sample = (texture2D(color, uv + texel * vec2(i - 1.0, j - 1.0))).rgb;
       I[int(i)][int(j)] = length(sample);
     }
   }
@@ -52,7 +52,7 @@ float edge(sampler2D color, vec2 uv, vec2 resolution) {
   float M = (cnv[0] + cnv[1]) + (cnv[2] + cnv[3]);
   float S = (cnv[4] + cnv[5]) + (cnv[6] + cnv[7]) + (cnv[8] + M);
 
-  return sqrt(M/S);
+  return sqrt(M / S);
 }
 
 #pragma glslify: export(edge)
