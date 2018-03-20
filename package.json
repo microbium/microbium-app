@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "start": "node .electron-vue/dev-runner.js",
+    "dev": "node .electron-vue/dev-runner.js",
     "build": "sh ./.electron-vue/build.sh",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
