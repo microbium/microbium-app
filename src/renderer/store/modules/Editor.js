@@ -74,6 +74,7 @@ export function createCompositorState () {
   const simulation = {
     wasRunning: false,
     isRunning: false,
+    isPaused: false,
     tick: 0,
     forcesCount: null,
     pinConstraintCount: null,

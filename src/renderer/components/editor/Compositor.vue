@@ -292,7 +292,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
     },
 
     update (tick) {
-      const { isRunning, wasRunning } = state.simulation
+      const { isRunning, wasRunning, isPaused } = state.simulation
       timer.reset()
       if (!isRunning) {
         this.syncStrokeWidthMod()
@@ -301,7 +301,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
       if (isRunning && !wasRunning) {
         this.syncCursor(false)
       }
-      if (isRunning) {
+      if (isRunning && !isPaused) {
         timer.begin('updatePhysics')
         state.simulation.tick++
         simulation.update(tick)
@@ -754,7 +754,7 @@ export default {
 
       return {
         'mode--edit': !simulation.isRunning,
-        'mode--simulate': simulation.isRunning,
+        'mode--simulate': simulation.isRunning && !simulation.isPaused,
         'navigate--will-pan': drag.shouldNavigate && !drag.shouldZoom,
         'navigate--pan': drag.isPanning,
         'navigate--will-zoom': drag.shouldNavigate && drag.shouldZoom && !drag.isPanning,

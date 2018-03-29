@@ -157,6 +157,9 @@ function createMenu () {
         // toggleMenuItem('simulation')
       }
     },
+    toggleSimulationPause () {
+      sendWindowMessage('main', 'key-command', {code: 'Alt+Space'})
+    },
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'key-command', {code: 'Cmd+/'})

@@ -107,6 +107,16 @@ export function createMenuTemplate (app, actions) {
           }
         },
         {
+          id: 'simulation-toggle-pause',
+          label: 'Pause Simulation',
+          type: 'checkbox',
+          checked: false,
+          accelerator: 'Alt+Space',
+          click () {
+            actions.toggleSimulationPause()
+          }
+        },
+        {
           id: 'palette-on',
           label: 'Show Palette',
           accelerator: 'Cmd+1',

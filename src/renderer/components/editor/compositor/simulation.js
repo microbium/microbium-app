@@ -37,6 +37,11 @@ export function createSimulationController (tasks, state, renderer) {
       }
     },
 
+    togglePause () {
+      const { isPaused } = state.simulation
+      state.simulation.isPaused = !isPaused
+    },
+
     // Create
 
     createFromGeometry () {
@@ -368,6 +373,7 @@ export function createSimulationController (tasks, state, renderer) {
 
   tasks.registerResponders([
     'toggle',
+    'togglePause',
     'computeParticleVelocities'
   ], simulation, 'simulation')
 
