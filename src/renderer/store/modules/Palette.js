@@ -126,6 +126,11 @@ export function createControlsState () {
         index: 5,
         name: 'Wavy Dash',
         dashFunction: 5
+      },
+      {
+        index: 6,
+        name: 'Lateral Dash',
+        dashFunction: 6
       }
     ],
 

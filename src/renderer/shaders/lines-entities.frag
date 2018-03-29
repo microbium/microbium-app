@@ -23,6 +23,7 @@ varying vec3 vUDO; // [u, distance, offset]
 #pragma glslify: radialDash = require(./alpha/radial-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: bulgingDash = require(./alpha/bulging-dash, fwidth=fwidth, PI=PI)
+#pragma glslify: lateralDash = require(./alpha/lateral-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: wavyDash = require(./alpha/wavy-dash, fwidth=fwidth, PI=PI)
 
 float sampleAlphaMap (vec3 udo, sampler2D map) {
@@ -64,6 +65,8 @@ void main() {
     outAlpha *= bulgingDash(udo, 1.5, -tick * 0.5, 0.35, 0.9);
   } else if (dashFunction == 5) {
     outAlpha *= wavyDash(udo, 2.0, -tick * 0.5, 0.05, 0.95);
+  } else if (dashFunction == 6) {
+    outAlpha *= lateralDash(udo, 1.0, 2.0);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);
