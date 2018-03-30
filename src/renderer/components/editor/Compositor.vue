@@ -154,7 +154,7 @@ const scratchMat4A = mat4.create()
 
 // TODO: Refactor to remove $electron from Compositor
 // Move state / syncing to Editor
-function mountCompositor ($el, $refs, $electron, actions) {
+function mountCompositor ($el, $refs, messenger, actions) {
   const containers = {
     scene: $refs.scene
   }
@@ -254,7 +254,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
     },
 
     didStart () {
-      $electron.ipcRenderer.send('main-started')
+      messenger.send('main-started')
     },
 
     bindEvents () {
@@ -264,17 +264,17 @@ function mountCompositor ($el, $refs, $electron, actions) {
       window.addEventListener('wheel', viewport.wheel, false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
-      $electron.ipcRenderer.on('message', viewport.message)
-      $electron.ipcRenderer.on('key-command', viewport.keyCommand)
-      $electron.ipcRenderer.on('serialize-scene', view.serializeScene)
-      $electron.ipcRenderer.on('deserialize-scene', view.deserializeScene)
+      messenger.on('message', viewport.message)
+      messenger.on('key-command', viewport.keyCommand)
+      messenger.on('serialize-scene', view.serializeScene)
+      messenger.on('deserialize-scene', view.deserializeScene)
     },
 
     serializeScene () {
       logger.time('serialize scene')
       const data = io.serializeScene()
       logger.timeEnd('serialize scene')
-      $electron.ipcRenderer.send('serialize-scene--response', data)
+      messenger.send('serialize-scene--response', data)
     },
 
     deserializeScene (event, data) {
@@ -345,7 +345,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
     },
 
     updatePaletteState (group, key, value) {
-      $electron.ipcRenderer.send('palette-message', {
+      messenger.send('palette-message', {
         type: 'UPDATE_CONTROLS',
         group,
         key,
@@ -355,7 +355,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
 
     sendGeometryState () {
       const data = io.serializeMinimalGeometry()
-      $electron.ipcRenderer.send('external-message', {
+      messenger.send('external-message', {
         type: 'SCENE',
         data
       })
@@ -364,7 +364,7 @@ function mountCompositor ($el, $refs, $electron, actions) {
     sendFrameState () {
       if (DISABLE_FRAME_SYNC) return
       const data = io.serializeFrame()
-      $electron.ipcRenderer.send('external-message', {
+      messenger.send('external-message', {
         type: 'FRAME',
         data
       })
@@ -717,6 +717,7 @@ export default {
   name: 'editor-compositor',
 
   props: {
+    messenger: Object,
     updateCursor: Function
   },
 
@@ -735,9 +736,9 @@ export default {
   },
 
   mounted () {
-    const { $el, $refs, $electron } = this
+    const { $el, $refs, messenger } = this
     const actions = { updateCursor: this.updateCursor }
-    const { state } = mountCompositor($el, $refs, $electron, actions)
+    const { state } = mountCompositor($el, $refs, messenger, actions)
 
     timer.enable(DEBUG_PERF)
 

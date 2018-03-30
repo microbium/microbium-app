@@ -7,20 +7,13 @@
         <span @click.meta="openFileLocation">
           {{ fileName }}
         </span>
-        <!-- TODO: Nice to have file path dropdown like native title bar -->
-        <!--
-        <input-select>
-          <option v-for="item in fileFullPathParts" :value="item.index">
-            {{ item.name }}
-          </option>
-        </input-select>
-        -->
       </div>
     </div>
     <div class="editor__scene"
       v-on:mouseenter="mouseEnterScene"
       v-on:mouseleave="mouseLeaveScene">
       <editor-compositor
+        :messenger="messenger"
         :updateCursor="updateCursor" />
       <editor-cursor v-if="cursorIsActive"
         :visible="hasMouse"
@@ -76,10 +69,6 @@
     text-align: center;
     cursor: default;
   }
-
-  .input-select > select {
-    font-size: 14px;
-  }
 }
 </style>
 
@@ -87,7 +76,6 @@
 import { debounce } from '@/utils/function'
 import { isFullscreen } from '@/utils/screen'
 
-import InputSelect from './input/Select'
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'
 
@@ -97,7 +85,6 @@ export default {
   name: 'editor',
 
   components: {
-    InputSelect,
     EditorCompositor,
     EditorCursor
   },
@@ -171,17 +158,8 @@ export default {
   },
 
   computed: {
-    fileFullPathParts () {
-      return (this.fileFullPath || '')
-        .split('/')
-        .filter((v) => !!v)
-        .reverse()
-        .map((name, index) => {
-          return {
-            index,
-            name
-          }
-        })
+    messenger () {
+      return this.$electron.ipcRenderer
     }
   }
 }
