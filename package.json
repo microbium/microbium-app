@@ -1,5 +1,5 @@
 {
-  "name": "Microbium",
+  "name": "microbium-app",
   "version": "0.9.0",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
   "description": "Microbiome drawing and simulating toy.",
@@ -10,8 +10,8 @@
     "dev": "node .electron-vue/dev-runner.js",
     "build": "sh ./.electron-vue/build.sh",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
-    "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
-    "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
+    "build:clean": "cross-env BUILD_TARGET=clean sh ./.electron-vue/build.sh",
+    "build:web": "cross-env BUILD_TARGET=web sh ./.electron-vue/build.sh",
     "e2e": "npm run pack && mocha test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",
