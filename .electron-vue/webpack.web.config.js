@@ -77,6 +77,14 @@ let webConfig = {
             name: 'fonts/[name].[ext]'
           }
         }
+      },
+      {
+        test: /\.(glsl|frag|vert)$/,
+        use: 'raw-loader'
+      },
+      {
+        test: /\.(glsl|frag|vert)$/,
+        use: 'glslify-loader'
       }
     ]
   },
