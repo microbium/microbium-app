@@ -25,6 +25,7 @@ const rendererConfig = {
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js')
   },
+  // TODO: Investigate why this is necessary ...
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
   ],

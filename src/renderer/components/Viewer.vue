@@ -75,6 +75,7 @@ export default {
     }
   }
 
+  // TODO: Enable observing upstream data changes
   // watch: {
   //   rawSceneData (value) {
   //     this.initializeScene(value)
