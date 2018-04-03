@@ -3,6 +3,9 @@ import MicrobiumEmbed from './MicrobiumEmbed'
 
 Vue.config.productionTip = false
 
+// OPTIM: Would be nice to not depend on Vue for embed
+// It's not really needed and is ~20% of bundle size
+// Might not be worth redesigning the component structure though ...
 let viewer = null
 export function mountViewer (rawSceneData, el_) {
   if (viewer) {
