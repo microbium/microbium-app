@@ -17,6 +17,17 @@ let electronProcess = null
 let manualRestart = false
 let hotMiddleware
 
+;(function init () {
+  switch (process.env.BUILD_TARGET) {
+    case 'embed':
+      initEmbed()
+      break
+    default:
+      initApp()
+      break
+  }
+})()
+
 function logStats (proc, data) {
   let log = ''
 
@@ -223,7 +234,3 @@ function initEmbed () {
       console.error(err)
     })
 }
-
-const devEmbed = process.argv.indexOf('--embed') !== -1
-if (devEmbed) initEmbed()
-else initApp()

@@ -94,16 +94,6 @@ const webConfig = {
   },
   plugins: [
     new ExtractTextPlugin('styles.css'),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: path.resolve(__dirname, '../src/embed.ejs'),
-      minify: {
-        collapseWhitespace: true,
-        removeAttributeQuotes: true,
-        removeComments: true
-      },
-      sceneData: fs.readFileSync(path.resolve(__dirname, '../test/fixtures/test-01.json'))
-    }),
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'
     }),
@@ -126,9 +116,22 @@ const webConfig = {
   target: 'web'
 }
 
-/**
- * Adjust webConfig for production settings
- */
+// Development
+if (process.env.NODE_ENV !== 'production') {
+  webConfig.plugins.push(
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: path.resolve(__dirname, '../src/embed.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      sceneData: fs.readFileSync(path.resolve(__dirname, '../test/fixtures/test-01.json'))
+    }))
+}
+
+// Production
 if (process.env.NODE_ENV === 'production') {
   webConfig.devtool = ''
 
