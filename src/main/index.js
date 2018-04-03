@@ -152,33 +152,39 @@ function createMenu () {
     },
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Space'})
+        sendWindowMessage('main', 'command',
+          {action: 'SIMULATION_TOGGLE'})
         // FIXME: Inconsistent key input capturing after toggling menu item state
         // toggleMenuItem('simulation')
       }
     },
     toggleSimulationPause () {
-      sendWindowMessage('main', 'key-command', {code: 'Alt+Space'})
+      sendWindowMessage('main', 'command',
+        {action: 'SIMULATION_PAUSE'})
     },
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Cmd+/'})
+        sendWindowMessage('main', 'command',
+          {action: 'VIEWPORT_TOGGLE_STATS'})
         toggleMenuItem('status')
       }
     },
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_DELETE_LAST_SEGMENT'})
       }
     },
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'X'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_DELETE_LAST_VERTEX'})
       }
     },
     completeSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'C'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
     togglePalette () {
