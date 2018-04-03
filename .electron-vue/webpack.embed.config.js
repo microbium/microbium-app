@@ -158,7 +158,9 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
-      generateStatsFile: true
+      generateStatsFile: true,
+      reportFilename: 'stats-report.html',
+      statsFilename: 'stats.json'
     })
   )
 }
