@@ -7,15 +7,17 @@ const path = require('path')
 const webpack = require('webpack')
 
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const { version } = require('../package.json')
 const whiteListedModules = ['vue', 'events']
 
-const webConfig = {
+const embedConfig = {
   devtool: '#cheap-module-eval-source-map',
+  stats: 'verbose',
   entry: {
     embed: path.join(__dirname, '../src/renderer/embed.js')
   },
@@ -118,7 +120,7 @@ const webConfig = {
 
 // Development
 if (process.env.NODE_ENV !== 'production') {
-  webConfig.plugins.push(
+  embedConfig.plugins.push(
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/embed.ejs'),
@@ -133,24 +135,32 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Production
 if (process.env.NODE_ENV === 'production') {
-  webConfig.devtool = ''
+  embedConfig.devtool = ''
 
-  webConfig.plugins.push(
+  embedConfig.plugins.push(
     new BabiliWebpackPlugin(),
-    new CopyWebpackPlugin([
-      {
-        from: path.join(__dirname, '../static'),
-        to: path.join(__dirname, '../dist/web/static'),
-        ignore: ['.*']
+    new UglifyJsPlugin({
+      sourceMap: false,
+      parallel: true,
+      extractComments: true,
+      uglifyOptions: {
+        ecma: 5,
+        mangle: {
+          safari10: true
+        }
       }
-    ]),
+    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      generateStatsFile: true
     })
   )
 }
 
-module.exports = webConfig
+module.exports = embedConfig

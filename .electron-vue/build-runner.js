@@ -117,7 +117,8 @@ function embed () {
       colors: true
     }))
 
-    process.exit()
+    // TODO: Investigate why this was needed; was blocking analyzer plugin from working
+    // process.exit()
   })
 }
 
