@@ -1,4 +1,4 @@
-import { merge } from 'lodash-es'
+import merge from 'lodash.merge'
 import { map, flatten2, expand2 } from '@/utils/array'
 import { roundToPlaces } from '@/utils/number'
 import { createControlsState } from '@/store/modules/Palette'
