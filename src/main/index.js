@@ -89,6 +89,12 @@ function createMenu () {
       extensions: ['mcrbm']
     }
   ]
+  const jsonTypeFilters = [
+    {
+      name: 'JSON',
+      extensions: ['json']
+    }
+  ]
   const videoTypeFilters = [
     {
       name: 'Videos',
@@ -148,6 +154,14 @@ function createMenu () {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
         }
+      })
+    },
+    exportJSON () {
+      dialog.showSaveDialog(null, {
+        filters: jsonTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        exportSceneFile(fileName)
       })
     },
     toggleSimulation () {
@@ -441,6 +455,18 @@ function saveSceneFile (path) {
     .then(() => {
       setWindowFilePath('main', path)
       console.log(`Saved scene to ${path}.`)
+    })
+    .catch((err) => {
+      log.error(err)
+    })
+}
+
+function exportSceneFile (path) {
+  requestWindowResponse('main', 'serialize-scene', null)
+    .then((data) => JSON.stringify(data))
+    .then((buf) => writeFile(path, buf))
+    .then(() => {
+      console.log(`Exported scene to ${path}.`)
     })
     .catch((err) => {
       log.error(err)
