@@ -93,7 +93,7 @@ import { vec2, vec3, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
-import { TEXTURES } from '@/constants/line-styles'
+// import { TEXTURES } from '@/constants/line-styles'
 
 import { createTaskManager } from '@/utils/task'
 import { createLoop } from '@/utils/loop'
@@ -104,7 +104,7 @@ import { lerp } from '@/utils/math'
 import { logger } from '@/utils/logger'
 import { timer } from '@/utils/timer'
 
-import { createTextureManager } from '@/utils/texture'
+// import { createTextureManager } from '@/utils/texture'
 import {
   createDrawBanding,
   createDrawEdges,
@@ -193,7 +193,7 @@ function mountCompositor ($el, $refs, actions) {
       }
     })
 
-    const textures = createTextureManager(regl, TEXTURES)
+    // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
       'full', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
@@ -220,7 +220,7 @@ function mountCompositor ($el, $refs, actions) {
     return {
       regl,
       canvas,
-      textures,
+      // textures,
       postBuffers,
       commands
     }
