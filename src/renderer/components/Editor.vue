@@ -13,7 +13,8 @@
       v-on:mouseenter="mouseEnterScene"
       v-on:mouseleave="mouseLeaveScene">
       <editor-compositor
-        :messenger="messenger"
+        :observeMessage="observeMessage"
+        :sendMessage="sendMessage"
         :updateCursor="updateCursor" />
       <editor-cursor v-if="cursorIsActive"
         :visible="hasMouse"
@@ -158,8 +159,14 @@ export default {
   },
 
   computed: {
-    messenger () {
-      return this.$electron.ipcRenderer
+    observeMessage () {
+      const { ipcRenderer } = this.$electron
+      return ipcRenderer.on.bind(ipcRenderer)
+    },
+
+    sendMessage () {
+      const { ipcRenderer } = this.$electron
+      return ipcRenderer.send.bind(ipcRenderer)
     }
   }
 }

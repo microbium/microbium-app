@@ -1,6 +1,6 @@
 'use strict'
 
-process.env.BABEL_ENV = 'web'
+process.env.BABEL_ENV = 'embed'
 
 const path = require('path')
 const webpack = require('webpack')
@@ -10,24 +10,27 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-let webConfig = {
+const { version } = require('../package.json')
+const whiteListedModules = ['vue', 'events']
+
+const webConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    web: path.join(__dirname, '../src/renderer/main.js')
+    embed: path.join(__dirname, '../src/renderer/embed.js')
   },
   module: {
     rules: [
-      {
-        test: /\.(js|vue)$/,
-        enforce: 'pre',
-        exclude: /node_modules/,
-        use: {
-          loader: 'eslint-loader',
-          options: {
-            formatter: require('eslint-friendly-formatter')
-          }
-        }
-      },
+      // {
+      //   test: /\.(js|vue)$/,
+      //   enforce: 'pre',
+      //   exclude: /node_modules/,
+      //   use: {
+      //     loader: 'eslint-loader',
+      //     options: {
+      //       formatter: require('eslint-friendly-formatter')
+      //     }
+      //   }
+      // },
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
@@ -92,7 +95,7 @@ let webConfig = {
     new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: path.resolve(__dirname, '../src/index.ejs'),
+      template: path.resolve(__dirname, '../src/embed.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
@@ -107,8 +110,10 @@ let webConfig = {
     new webpack.NoEmitOnErrorsPlugin()
   ],
   output: {
-    filename: '[name].js',
-    path: path.join(__dirname, '../dist/web')
+    filename: `[name]-${version}.js`,
+    path: path.join(__dirname, '../dist/embed'),
+    library: 'MicrobiumEmbed',
+    libraryTarget: 'var'
   },
   resolve: {
     alias: {

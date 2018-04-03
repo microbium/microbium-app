@@ -79,33 +79,30 @@ export function createViewportController (tasks, state) {
       }
     },
 
-    keyCommand (event, data) {
-      const { code } = data
-
-      switch (code) {
-        case 'Space':
+    command (data) {
+      switch (data.action) {
+        case 'SIMULATION_TOGGLE':
           requestSync('simulation.toggle')
           break
-        case 'Alt+Space':
+        case 'SIMULATION_PAUSE':
           requestSync('simulation.togglePause')
           break
-        case 'X':
+        case 'GEOMETRY_DELETE_LAST_VERTEX':
           requestSync('geometry.deleteLastVertex')
           break
-        case 'C':
+        case 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT':
           requestSync('geometry.completeActiveSegmentDiscardCursor')
           requestSync('drag.cancelDraw')
           break
-        case 'Cmd+Backspace':
+        case 'GEOMETRY_DELETE_LAST_SEGMENT':
           requestSync('geometry.deleteLastSegment')
           break
-        case 'Cmd+/':
-          viewport.toggleStats()
+        case 'VIEWPORT_TOGGLE_STATS': viewport.toggleStats()
           break
       }
     },
 
-    message (event, data) {
+    message (data) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value

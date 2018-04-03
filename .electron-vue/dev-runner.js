@@ -11,6 +11,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
+const embedConfig = require('./webpack.embed.config')
 
 let electronProcess = null
 let manualRestart = false
@@ -36,6 +37,46 @@ function logStats (proc, data) {
   log += '\n' + chalk.yellow.bold(`┗ ${new Array(28 + 1).join('-')}`) + '\n'
 
   console.log(log)
+}
+
+function startEmbed () {
+  return new Promise((resolve, reject) => {
+    embedConfig.entry.embed = [path.join(__dirname, 'dev-client')].concat(embedConfig.entry.embed)
+
+    const compiler = webpack(embedConfig)
+    hotMiddleware = webpackHotMiddleware(compiler, {
+      log: false,
+      heartbeat: 2500
+    })
+
+    compiler.plugin('compilation', compilation => {
+      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
+        hotMiddleware.publish({ action: 'reload' })
+        cb()
+      })
+    })
+
+    compiler.plugin('done', stats => {
+      logStats('Embed', stats)
+    })
+
+    const server = new WebpackDevServer(
+      compiler,
+      {
+        contentBase: path.join(__dirname, '../'),
+        quiet: true,
+        open: true,
+        before (app, ctx) {
+          app.use(hotMiddleware)
+          ctx.middleware.waitUntilValid(() => {
+            resolve()
+          })
+        }
+      }
+    )
+
+    server.listen(3000)
+  })
 }
 
 function startRenderer () {
@@ -162,7 +203,7 @@ function greeting () {
   console.log('\n' + chalk.blue('  getting ready...') + '\n')
 }
 
-function init () {
+function initApp () {
   greeting()
 
   Promise.all([startRenderer(), startMain()])
@@ -174,4 +215,15 @@ function init () {
     })
 }
 
-init()
+function initEmbed () {
+  greeting()
+
+  Promise.all([startEmbed()])
+    .catch(err => {
+      console.error(err)
+    })
+}
+
+const devEmbed = process.argv.indexOf('--embed') !== -1
+if (devEmbed) initEmbed()
+else initApp()
