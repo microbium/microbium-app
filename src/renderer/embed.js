@@ -4,7 +4,6 @@ import MicrobiumEmbed from './MicrobiumEmbed'
 Vue.config.productionTip = false
 
 let viewer = null
-
 export function mountViewer (rawSceneData, el_) {
   if (viewer) {
     viewer.updateSceneData(rawSceneData)
@@ -41,3 +40,9 @@ export function mountViewer (rawSceneData, el_) {
     }
   }
 }
+
+;(function init () {
+  if (window.microbiumAsyncInit) {
+    setTimeout(window.microbiumAsyncInit, 1)
+  }
+})()

@@ -2,6 +2,7 @@
 
 process.env.BABEL_ENV = 'embed'
 
+const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
 
@@ -20,17 +21,17 @@ const webConfig = {
   },
   module: {
     rules: [
-      // {
-      //   test: /\.(js|vue)$/,
-      //   enforce: 'pre',
-      //   exclude: /node_modules/,
-      //   use: {
-      //     loader: 'eslint-loader',
-      //     options: {
-      //       formatter: require('eslint-friendly-formatter')
-      //     }
-      //   }
-      // },
+      {
+        test: /\.(js|vue)$/,
+        enforce: 'pre',
+        exclude: /node_modules|Libraries/, // Hacky fix for linked libs
+        use: {
+          loader: 'eslint-loader',
+          options: {
+            formatter: require('eslint-friendly-formatter')
+          }
+        }
+      },
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
@@ -101,7 +102,7 @@ const webConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules: false
+      sceneData: fs.readFileSync(path.resolve(__dirname, '../test/fixtures/test-01.json'))
     }),
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'

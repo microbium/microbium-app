@@ -53,8 +53,10 @@ export default {
       const { messenger } = this
       if (!sceneData) return
 
-      messenger.emit('deserialize-scene', null, sceneData)
-      messenger.emit('command', 'SIMULATION_TOGGLE')
+      messenger.once('main-started', () => {
+        messenger.emit('deserialize-scene', null, sceneData)
+        messenger.emit('command', null, {action: 'SIMULATION_TOGGLE'})
+      })
     },
 
     updateCursor () {
