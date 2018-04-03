@@ -51,10 +51,10 @@ export function createViewportController (tasks, state) {
           break
         case 'ControlLeft':
           stateInput.control = true
-          stateDrag.shouldZoom = true
           break
         case 'ShiftLeft':
           stateInput.shift = true
+          stateDrag.shouldZoom = true
           break
       }
     },
@@ -71,10 +71,10 @@ export function createViewportController (tasks, state) {
           break
         case 'ControlLeft':
           stateInput.control = false
-          stateDrag.shouldZoom = false
           break
         case 'ShiftLeft':
           stateInput.shift = false
+          stateDrag.shouldZoom = false
           break
       }
     },
