@@ -120,6 +120,8 @@ const embedConfig = {
 
 // Development
 if (process.env.NODE_ENV !== 'production') {
+  const fixtureName = process.env.SCENE_FIXTURE
+
   embedConfig.plugins.push(
     new HtmlWebpackPlugin({
       filename: 'index.html',
@@ -129,7 +131,8 @@ if (process.env.NODE_ENV !== 'production') {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      sceneData: fs.readFileSync(path.resolve(__dirname, '../test/fixtures/test-01.json'))
+      sceneData: fs.readFileSync(path.resolve(__dirname,
+        `../test/fixtures/scene-${fixtureName}.json`))
     }))
 }
 

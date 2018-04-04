@@ -8,7 +8,7 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "dev": "node .electron-vue/dev-runner.js",
-    "dev:embed": "cross-env BUILD_TARGET=embed node .electron-vue/dev-runner.js",
+    "dev:embed": "cross-env BUILD_TARGET=embed SCENE_FIXTURE=002 node .electron-vue/dev-runner.js",
     "build": "sh ./.electron-vue/build.sh",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node ./.electron-vue/build-runner.js",
