@@ -76,7 +76,6 @@ function startEmbed () {
       {
         contentBase: path.join(__dirname, '../'),
         quiet: true,
-        open: true,
         before (app, ctx) {
           app.use(hotMiddleware)
           ctx.middleware.waitUntilValid(() => {
@@ -86,7 +85,9 @@ function startEmbed () {
       }
     )
 
-    server.listen(3000)
+    server.listen(8080, '0.0.0.0', () => {
+      logStats('Embed', 'Starting server on http://localhost:8080')
+    })
   })
 }
 
