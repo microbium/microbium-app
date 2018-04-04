@@ -59,6 +59,7 @@ export function createControlsState () {
       }
     ],
 
+    /*
     textures: [
       {
         index: 0,
@@ -76,7 +77,9 @@ export function createControlsState () {
         path: 'ground-mud'
       }
     ],
+    */
 
+    /*
     alphaTextures: [
       {
         index: 0,
@@ -94,6 +97,7 @@ export function createControlsState () {
         path: 'alpha-hatchy'
       }
     ],
+    */
 
     // FEAT: Design alpha functions / params
     alphaFunctions: [
