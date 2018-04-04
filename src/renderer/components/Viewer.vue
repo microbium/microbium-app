@@ -6,6 +6,11 @@
         :sendMessage="sendMessage"
         :updateCursor="updateCursor" />
     </div>
+    <div class="viewer__info">
+      <a class="viewer__app-icon" href="https://MicrobiumApp.com" target="_blank">
+        <span class="visuallyhidden">MicrobiumApp.com</span>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -24,6 +29,33 @@
     left: 0;
     width: 100%;
     height: 100%;
+  }
+
+  &__info {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 8px 14px;
+  }
+
+  &__app-icon {
+    position: relative;
+    display: block;
+    width: 40px;
+    height: 40px;
+
+    background: url(../assets/icons/app-mono.png);
+    background-size: contain;
+    background-position: center;
+    opacity: 0.6;
+
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 200ms;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 </style>
