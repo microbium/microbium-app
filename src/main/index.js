@@ -474,7 +474,7 @@ function exportSceneFile (path) {
 }
 
 function restoreLastSession () {
-  ipcMain.on('main-started', () => {
+  ipcMain.on('main-will-start', () => {
     const openScenePath = store.get('openScenePath')
     if (!openScenePath) return
     openSceneFile(openScenePath)

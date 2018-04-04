@@ -241,19 +241,24 @@ function mountCompositor ($el, $refs, actions) {
       tasks.flush('inject', containers).then(() => {
         viewport.resize()
         view.bindEvents()
+        view.willStart()
         view.start()
         view.didStart()
       })
     },
 
+    willStart () {
+      actions.sendMessage('main-will-start')
+    },
+
     start () {
-      tasks.run('syncState')
+      // tasks.run('syncState')
       view.renderOnce()
       loop.start()
     },
 
     didStart () {
-      actions.sendMessage('main-started')
+      actions.sendMessage('main-did-start')
     },
 
     bindEvents () {

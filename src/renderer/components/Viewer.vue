@@ -94,7 +94,7 @@ export default {
       const { messenger } = this
       if (!sceneData) return
 
-      messenger.once('main-started', () => {
+      messenger.once('main-will-start', () => {
         messenger.emit('deserialize-scene', null, sceneData)
         messenger.emit('command', null, {action: 'SIMULATION_TOGGLE'})
         if (DEBUG_INIT_PAUSE) this.togglePause()
