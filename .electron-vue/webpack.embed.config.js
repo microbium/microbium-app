@@ -118,8 +118,9 @@ const embedConfig = {
   target: 'web'
 }
 
-// Development
-if (process.env.NODE_ENV !== 'production') {
+// Development (embed)
+if (process.env.NODE_ENV !== 'production' &&
+  process.env.BUILD_TARGET === 'embed') {
   const fixtureName = process.env.SCENE_FIXTURE
 
   embedConfig.plugins.push(
