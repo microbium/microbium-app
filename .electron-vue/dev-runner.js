@@ -54,7 +54,10 @@ function startEmbed () {
   return new Promise((resolve, reject) => {
     embedConfig.entry.embed = [path.join(__dirname, 'dev-client')].concat(embedConfig.entry.embed)
 
+    const HOST = '0.0.0.0'
+    const PORT = 8080
     const compiler = webpack(embedConfig)
+
     hotMiddleware = webpackHotMiddleware(compiler, {
       log: false,
       heartbeat: 2500
@@ -85,8 +88,10 @@ function startEmbed () {
       }
     )
 
-    server.listen(8080, '0.0.0.0', () => {
-      logStats('Embed', 'Starting server on http://localhost:8080')
+    server.listen(PORT, HOST, () => {
+      logStats('Embed',
+        'Starting server on ' +
+        chalk.white.bold(`http://${HOST}:${PORT}`))
     })
   })
 }
