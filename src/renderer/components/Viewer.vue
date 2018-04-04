@@ -16,12 +16,14 @@
 
 <style lang="scss">
 .viewer {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background-color: #666;
-  color: #444;
-  animation: fadein 300ms;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  background-color: #222;
+  width: 100%;
+  height: 100%;
+  color: #fff;
 
   &__scene {
     position: absolute;
