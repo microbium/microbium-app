@@ -64,6 +64,8 @@
 import EventEmitter from 'events'
 import EditorCompositor from './editor/Compositor'
 
+const DEBUG_INIT_PAUSE = false
+
 export default {
   name: 'viewer',
 
@@ -75,9 +77,16 @@ export default {
     rawSceneData: String
   },
 
+  data () {
+    return {
+      isPaused: false
+    }
+  },
+
   created () {
     this.messenger = new EventEmitter()
     this.initializeScene(this.rawSceneData)
+    this.bindEvents()
   },
 
   methods: {
@@ -88,7 +97,25 @@ export default {
       messenger.once('main-started', () => {
         messenger.emit('deserialize-scene', null, sceneData)
         messenger.emit('command', null, {action: 'SIMULATION_TOGGLE'})
+        if (DEBUG_INIT_PAUSE) this.togglePause()
       })
+    },
+
+    bindEvents () {
+      document.addEventListener('keyup', this.keyUp, false)
+    },
+
+    keyUp (event) {
+      switch (event.code) {
+        case 'Space':
+          this.togglePause()
+          break
+      }
+    },
+
+    togglePause () {
+      this.isPaused = !this.isPaused
+      this.messenger.emit('command', null, {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
 
     updateCursor () {

@@ -174,7 +174,7 @@ function createMenu () {
     },
     toggleSimulationPause () {
       sendWindowMessage('main', 'command',
-        {action: 'SIMULATION_PAUSE'})
+        {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {

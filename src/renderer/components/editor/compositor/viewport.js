@@ -84,7 +84,7 @@ export function createViewportController (tasks, state) {
         case 'SIMULATION_TOGGLE':
           requestSync('simulation.toggle')
           break
-        case 'SIMULATION_PAUSE':
+        case 'SIMULATION_TOGGLE_PAUSE':
           requestSync('simulation.togglePause')
           break
         case 'GEOMETRY_DELETE_LAST_VERTEX':
