@@ -50,6 +50,12 @@ export function createMenuTemplate (app, actions) {
               click () {
                 actions.exportJSON()
               }
+            },
+            {
+              label: 'HTML',
+              click () {
+                actions.exportHTML()
+              }
             }
           ]
         },

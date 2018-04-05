@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Microbium – <%= subTitle %></title>
+    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: <%= backgroundColor %>;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.microbiumAsyncInit = function () {
+        var rawSceneData = '<%= rawSceneData %>'
+        MicrobiumEmbed.mountViewer(rawSceneData)
+      }
+    </script>
+    <script src="https://embed.microbiumapp.com/embed-0.9.0.js"></script>
+  </body>
+</html>

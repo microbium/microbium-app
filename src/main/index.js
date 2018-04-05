@@ -32,6 +32,7 @@ import { isHighSierra } from './utils/platform'
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
 import { fitRect } from './window'
+import { exportSceneHTML } from './exporters/html'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
@@ -83,6 +84,7 @@ let appShouldQuit = false
 function createMenu () {
   if (appMenus.main !== null) return
 
+  // TODO: Cleanup file filters
   const fileTypeFilters = [
     {
       name: 'Microbium Scene',
@@ -95,6 +97,12 @@ function createMenu () {
       extensions: ['json']
     }
   ]
+  const htmlTypeFilters = [
+    {
+      name: 'HTML',
+      extensions: ['html']
+    }
+  ]
   const videoTypeFilters = [
     {
       name: 'Videos',
@@ -102,6 +110,7 @@ function createMenu () {
     }
   ]
 
+  // TODO: Cleanup actions
   const template = createMenuTemplate(app, {
     createNewScene () {
       store.set('openScenePath', null)
@@ -162,6 +171,15 @@ function createMenu () {
       }, (fileName) => {
         if (!fileName) return
         exportSceneFile(fileName)
+      })
+    },
+    exportHTML () {
+      dialog.showSaveDialog(null, {
+        filters: htmlTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        requestWindowResponse('main', 'serialize-scene', null)
+          .then((data) => exportSceneHTML(fileName, data))
       })
     },
     toggleSimulation () {
