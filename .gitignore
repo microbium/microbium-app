@@ -1,6 +1,6 @@
 .DS_Store
 dist/electron/*
-dist/web/*
+dist/embed/*
 build/*
 !build/icons
 build/icons/.DS_Store

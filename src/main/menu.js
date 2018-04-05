@@ -42,6 +42,23 @@ export function createMenuTemplate (app, actions) {
             actions.revertScene()
           }
         },
+        {
+          label: 'Export',
+          submenu: [
+            {
+              label: 'JSON',
+              click () {
+                actions.exportJSON()
+              }
+            },
+            {
+              label: 'HTML',
+              click () {
+                actions.exportHTML()
+              }
+            }
+          ]
+        },
         {type: 'separator'},
         {
           id: 'start-screen-recording',

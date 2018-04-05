@@ -1,5 +1,5 @@
 import cardinalSplineCurve from 'cardinal-spline'
-import { lerp } from '@/utils/math'
+import { lerp } from '@src/utils/math'
 
 export function curve (points,
   strokeWidth, strokeWidthMod, strokeWidths,

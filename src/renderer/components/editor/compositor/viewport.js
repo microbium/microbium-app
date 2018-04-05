@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { clamp } from '@/utils/math'
+import { clamp } from '@src/utils/math'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
@@ -51,10 +51,10 @@ export function createViewportController (tasks, state) {
           break
         case 'ControlLeft':
           stateInput.control = true
-          stateDrag.shouldZoom = true
           break
         case 'ShiftLeft':
           stateInput.shift = true
+          stateDrag.shouldZoom = true
           break
       }
     },
@@ -71,41 +71,38 @@ export function createViewportController (tasks, state) {
           break
         case 'ControlLeft':
           stateInput.control = false
-          stateDrag.shouldZoom = false
           break
         case 'ShiftLeft':
           stateInput.shift = false
+          stateDrag.shouldZoom = false
           break
       }
     },
 
-    keyCommand (event, data) {
-      const { code } = data
-
-      switch (code) {
-        case 'Space':
+    command (data) {
+      switch (data.action) {
+        case 'SIMULATION_TOGGLE':
           requestSync('simulation.toggle')
           break
-        case 'Alt+Space':
+        case 'SIMULATION_TOGGLE_PAUSE':
           requestSync('simulation.togglePause')
           break
-        case 'X':
+        case 'GEOMETRY_DELETE_LAST_VERTEX':
           requestSync('geometry.deleteLastVertex')
           break
-        case 'C':
+        case 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT':
           requestSync('geometry.completeActiveSegmentDiscardCursor')
           requestSync('drag.cancelDraw')
           break
-        case 'Cmd+Backspace':
+        case 'GEOMETRY_DELETE_LAST_SEGMENT':
           requestSync('geometry.deleteLastSegment')
           break
-        case 'Cmd+/':
-          viewport.toggleStats()
+        case 'VIEWPORT_TOGGLE_STATS': viewport.toggleStats()
           break
       }
     },
 
-    message (event, data) {
+    message (data) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value

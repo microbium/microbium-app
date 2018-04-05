@@ -47,11 +47,11 @@
 import {
   numberToWords,
   roundToPlaces
-} from '@/utils/number'
-import { pluralize } from '@/utils/word'
+} from '@src/utils/number'
+import { pluralize } from '@src/utils/word'
 
-import InputRange from '@/components/input/Range'
-import PaletteGroup from '@/components/palette/Group'
+import InputRange from '@src/components/input/Range'
+import PaletteGroup from '@src/components/palette/Group'
 
 export default {
   name: 'palette-modifiers',

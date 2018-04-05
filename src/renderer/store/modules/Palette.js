@@ -1,4 +1,4 @@
-import { pixelRatio } from '@/utils/screen'
+import { pixelRatio } from '@src/utils/screen'
 
 export function createControlsState () {
   return {
@@ -59,6 +59,7 @@ export function createControlsState () {
       }
     ],
 
+    /*
     textures: [
       {
         index: 0,
@@ -76,7 +77,9 @@ export function createControlsState () {
         path: 'ground-mud'
       }
     ],
+    */
 
+    /*
     alphaTextures: [
       {
         index: 0,
@@ -94,6 +97,7 @@ export function createControlsState () {
         path: 'alpha-hatchy'
       }
     ],
+    */
 
     // FEAT: Design alpha functions / params
     alphaFunctions: [
@@ -214,6 +218,8 @@ export function createControlsState () {
       noise: {
         intensityFactor: 1
       },
+      // TODO: Scale by pixelRatio in renderer
+      // Will fix resolution discrepancy when sharing / exporting
       banding: {
         intensityFactor: 1,
         // blendMode: MIX,

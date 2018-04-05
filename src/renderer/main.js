@@ -1,16 +1,17 @@
 import Vue from 'vue'
+import VueElectron from 'vue-electron'
 
-import App from './App'
-import router from './router'
+import MicrobiumApp from './MicrobiumApp'
+import router from './router/main'
 import store from './store'
 
-if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
+Vue.use(VueElectron)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
-  components: { App },
+  components: { MicrobiumApp },
   router,
   store,
-  template: '<App/>'
+  template: '<MicrobiumApp/>'
 }).$mount('#app')

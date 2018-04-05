@@ -4,12 +4,6 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'microbium'
-}
-</script>
-
 <style>
 * {
   box-sizing: border-box;
@@ -42,3 +36,9 @@ body {
   }
 }
 </style>
+
+<script>
+export default {
+  name: 'microbium-app'
+}
+</script>

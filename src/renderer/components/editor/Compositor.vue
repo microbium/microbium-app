@@ -93,18 +93,18 @@ import { vec2, vec3, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
-import { TEXTURES } from '@/constants/line-styles'
+// import { TEXTURES } from '@src/constants/line-styles'
 
-import { createTaskManager } from '@/utils/task'
-import { createLoop } from '@/utils/loop'
-import { createPostBuffers } from '@/utils/fbo'
-import { debounce } from '@/utils/function'
-import { range } from '@/utils/array'
-import { lerp } from '@/utils/math'
-import { logger } from '@/utils/logger'
-import { timer } from '@/utils/timer'
+import { createTaskManager } from '@src/utils/task'
+import { createLoop } from '@src/utils/loop'
+import { createPostBuffers } from '@src/utils/fbo'
+import { debounce } from '@src/utils/function'
+import { range } from '@src/utils/array'
+import { lerp } from '@src/utils/math'
+import { logger } from '@src/utils/logger'
+import { timer } from '@src/utils/timer'
 
-import { createTextureManager } from '@/utils/texture'
+// import { createTextureManager } from '@src/utils/texture'
 import {
   createDrawBanding,
   createDrawEdges,
@@ -113,11 +113,11 @@ import {
   createDrawScreen,
   createDrawTexture,
   createSetupDrawScreen
-} from '@/draw/commands/screen-space'
+} from '@src/draw/commands/screen-space'
 import {
   createCompositorState,
   hashRenderState
-} from '@/store/modules/Editor'
+} from '@src/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
@@ -130,17 +130,17 @@ import { createIOController } from './compositor/io'
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
-} from '@/draw/routines/simulation'
+} from '@src/draw/routines/simulation'
 import {
   drawOrigin,
   drawOriginTick,
   drawPolarGrid
-} from '@/draw/routines/origin'
+} from '@src/draw/routines/origin'
 import {
   drawGeometry,
   drawFocus,
   drawFocusProximate
-} from '@/draw/routines/geometry'
+} from '@src/draw/routines/geometry'
 
 const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true
@@ -152,9 +152,8 @@ const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
 const scratchMat4A = mat4.create()
 
-// TODO: Refactor to remove $electron from Compositor
 // Move state / syncing to Editor
-function mountCompositor ($el, $refs, messenger, actions) {
+function mountCompositor ($el, $refs, actions) {
   const containers = {
     scene: $refs.scene
   }
@@ -194,7 +193,7 @@ function mountCompositor ($el, $refs, messenger, actions) {
       }
     })
 
-    const textures = createTextureManager(regl, TEXTURES)
+    // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
       'full', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
@@ -221,7 +220,7 @@ function mountCompositor ($el, $refs, messenger, actions) {
     return {
       regl,
       canvas,
-      textures,
+      // textures,
       postBuffers,
       commands
     }
@@ -242,53 +241,69 @@ function mountCompositor ($el, $refs, messenger, actions) {
       tasks.flush('inject', containers).then(() => {
         viewport.resize()
         view.bindEvents()
+        view.willStart()
         view.start()
         view.didStart()
       })
     },
 
+    willStart () {
+      actions.sendMessage('main-will-start')
+    },
+
     start () {
-      tasks.run('syncState')
+      // tasks.run('syncState')
       view.renderOnce()
       loop.start()
     },
 
     didStart () {
-      messenger.send('main-started')
+      actions.sendMessage('main-did-start')
     },
 
     bindEvents () {
       containers.scene.addEventListener('pointermove', seek.pointerMove, false)
       containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
+
       window.addEventListener('resize', debounce(120, viewport.resize), false)
       window.addEventListener('wheel', viewport.wheel, false)
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
-      messenger.on('message', viewport.message)
-      messenger.on('key-command', viewport.keyCommand)
-      messenger.on('serialize-scene', view.serializeScene)
-      messenger.on('deserialize-scene', view.deserializeScene)
+
+      actions.observeMessage('message', (event, data) => viewport.message(data))
+      actions.observeMessage('command', (event, data) => viewport.command(data))
+      actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
+      actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
     },
 
     serializeScene () {
       logger.time('serialize scene')
       const data = io.serializeScene()
       logger.timeEnd('serialize scene')
-      messenger.send('serialize-scene--response', data)
+      actions.sendMessage('serialize-scene--response', data)
     },
 
-    deserializeScene (event, data) {
+    deserializeScene (data) {
+      const wasRunning = state.simulation.isRunning
+
       logger.time('deserialize scene')
       const json = JSON.parse(data)
       const scene = io.deserializeScene(json)
       logger.timeEnd('deserialize scene')
       logger.log('scene', scene)
+
+      // Pause & destroy simulation state
+      if (wasRunning) simulation.toggle()
+
       Object.keys(scene).forEach((key) => {
         Object.assign(state[key], scene[key])
       })
-      state.simulation.isRunning = false
+
       state.renderer.needsUpdate = true
       view.updatePaletteState(null, null, state.controls)
+
+      // Restart simulation
+      if (wasRunning) simulation.toggle()
     },
 
     update (tick) {
@@ -345,7 +360,7 @@ function mountCompositor ($el, $refs, messenger, actions) {
     },
 
     updatePaletteState (group, key, value) {
-      messenger.send('palette-message', {
+      actions.sendMessage('palette-message', {
         type: 'UPDATE_CONTROLS',
         group,
         key,
@@ -355,7 +370,7 @@ function mountCompositor ($el, $refs, messenger, actions) {
 
     sendGeometryState () {
       const data = io.serializeMinimalGeometry()
-      messenger.send('external-message', {
+      actions.sendMessage('external-message', {
         type: 'SCENE',
         data
       })
@@ -364,7 +379,7 @@ function mountCompositor ($el, $refs, messenger, actions) {
     sendFrameState () {
       if (DISABLE_FRAME_SYNC) return
       const data = io.serializeFrame()
-      messenger.send('external-message', {
+      actions.sendMessage('external-message', {
         type: 'FRAME',
         data
       })
@@ -717,7 +732,8 @@ export default {
   name: 'editor-compositor',
 
   props: {
-    messenger: Object,
+    observeMessage: Function,
+    sendMessage: Function,
     updateCursor: Function
   },
 
@@ -736,9 +752,13 @@ export default {
   },
 
   mounted () {
-    const { $el, $refs, messenger } = this
-    const actions = { updateCursor: this.updateCursor }
-    const { state } = mountCompositor($el, $refs, messenger, actions)
+    const { $el, $refs } = this
+    const actions = {
+      observeMessage: this.observeMessage,
+      sendMessage: this.sendMessage,
+      updateCursor: this.updateCursor
+    }
+    const { state } = mountCompositor($el, $refs, actions)
 
     timer.enable(DEBUG_PERF)
 

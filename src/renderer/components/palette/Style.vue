@@ -82,11 +82,11 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@/utils/number'
+import { roundToPlaces } from '@src/utils/number'
 
-import InputColor from '@/components/input/Color'
-import InputRange from '@/components/input/Range'
-import InputSelect from '@/components/input/Select'
+import InputColor from '@src/components/input/Color'
+import InputRange from '@src/components/input/Range'
+import InputSelect from '@src/components/input/Select'
 
 export default {
   name: 'palette-style',

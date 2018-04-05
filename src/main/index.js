@@ -32,6 +32,7 @@ import { isHighSierra } from './utils/platform'
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './menu'
 import { fitRect } from './window'
+import { exportSceneHTML } from './exporters/html'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
@@ -83,10 +84,23 @@ let appShouldQuit = false
 function createMenu () {
   if (appMenus.main !== null) return
 
+  // TODO: Cleanup file filters
   const fileTypeFilters = [
     {
       name: 'Microbium Scene',
       extensions: ['mcrbm']
+    }
+  ]
+  const jsonTypeFilters = [
+    {
+      name: 'JSON',
+      extensions: ['json']
+    }
+  ]
+  const htmlTypeFilters = [
+    {
+      name: 'HTML',
+      extensions: ['html']
     }
   ]
   const videoTypeFilters = [
@@ -96,6 +110,7 @@ function createMenu () {
     }
   ]
 
+  // TODO: Cleanup actions
   const template = createMenuTemplate(app, {
     createNewScene () {
       store.set('openScenePath', null)
@@ -150,35 +165,58 @@ function createMenu () {
         }
       })
     },
+    exportJSON () {
+      dialog.showSaveDialog(null, {
+        filters: jsonTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        exportSceneFile(fileName)
+      })
+    },
+    exportHTML () {
+      dialog.showSaveDialog(null, {
+        filters: htmlTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        requestWindowResponse('main', 'serialize-scene', null)
+          .then((data) => exportSceneHTML(fileName, data))
+      })
+    },
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Space'})
+        sendWindowMessage('main', 'command',
+          {action: 'SIMULATION_TOGGLE'})
         // FIXME: Inconsistent key input capturing after toggling menu item state
         // toggleMenuItem('simulation')
       }
     },
     toggleSimulationPause () {
-      sendWindowMessage('main', 'key-command', {code: 'Alt+Space'})
+      sendWindowMessage('main', 'command',
+        {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Cmd+/'})
+        sendWindowMessage('main', 'command',
+          {action: 'VIEWPORT_TOGGLE_STATS'})
         toggleMenuItem('status')
       }
     },
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'Cmd+Backspace'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_DELETE_LAST_SEGMENT'})
       }
     },
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'X'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_DELETE_LAST_VERTEX'})
       }
     },
     completeSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
-        sendWindowMessage('main', 'key-command', {code: 'C'})
+        sendWindowMessage('main', 'command',
+          {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
     togglePalette () {
@@ -441,8 +479,20 @@ function saveSceneFile (path) {
     })
 }
 
+function exportSceneFile (path) {
+  requestWindowResponse('main', 'serialize-scene', null)
+    .then((data) => JSON.stringify(data))
+    .then((buf) => writeFile(path, buf))
+    .then(() => {
+      console.log(`Exported scene to ${path}.`)
+    })
+    .catch((err) => {
+      log.error(err)
+    })
+}
+
 function restoreLastSession () {
-  ipcMain.on('main-started', () => {
+  ipcMain.on('main-will-start', () => {
     const openScenePath = store.get('openScenePath')
     if (!openScenePath) return
     openSceneFile(openScenePath)

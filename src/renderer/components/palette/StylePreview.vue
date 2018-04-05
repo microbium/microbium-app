@@ -57,11 +57,11 @@
 import {
   clamp,
   mapLinear
-} from '@/utils/math'
+} from '@src/utils/math'
 import {
   pointsAttr,
   pointsCircle
-} from '@/utils/svg'
+} from '@src/utils/svg'
 
 export default {
   name: 'palette-style-preview',

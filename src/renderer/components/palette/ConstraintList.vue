@@ -40,13 +40,13 @@
 </style>
 
 <script>
-import Icon from '@/components/display/Icon'
-import InputButton from '@/components/input/Button'
-import InputText from '@/components/input/Text'
-import PaletteGroup from '@/components/palette/Group'
-import PaletteConstraint from '@/components/palette/Constraint'
-import PaletteConstraintPreview from '@/components/palette/ConstraintPreview'
-import EditableListMixin from '@/mixins/EditableListMixin'
+import Icon from '@src/components/display/Icon'
+import InputButton from '@src/components/input/Button'
+import InputText from '@src/components/input/Text'
+import PaletteGroup from '@src/components/palette/Group'
+import PaletteConstraint from '@src/components/palette/Constraint'
+import PaletteConstraintPreview from '@src/components/palette/ConstraintPreview'
+import EditableListMixin from '@src/mixins/EditableListMixin'
 
 export default {
   name: 'palette-constraint-list',

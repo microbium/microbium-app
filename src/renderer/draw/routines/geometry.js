@@ -1,7 +1,7 @@
 import { vec2 } from 'gl-matrix'
-import { UI_PALETTE } from '@/constants/color-palettes'
-import { map, flatten2 } from '@/utils/array'
-import { clamp, mapLinear } from '@/utils/math'
+import { UI_PALETTE } from '@src/constants/color-palettes'
+import { map, flatten2 } from '@src/utils/array'
+import { clamp, mapLinear } from '@src/utils/math'
 import { arc } from './primitive'
 
 const { max } = Math

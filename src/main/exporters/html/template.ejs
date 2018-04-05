@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Microbium – <%= subTitle %></title>
+    <script src="https://code.jquery.com/pep/<%= PEP_VERSION %>/pep.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: <%= backgroundColor %>;
+      }
+      body:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center,
+          transparent 50%,
+          rgba(0,0,0,0.6) 100%);
+      }
+      body.loaded:before {
+        content: none;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.microbiumAsyncInit = function () {
+        var rawSceneData = '<%= rawSceneData %>'
+        MicrobiumEmbed.mountViewer(rawSceneData)
+        document.body.className += 'loaded'
+      }
+    </script>
+    <script async src="https://embed.microbiumapp.com/embed-<%= API_VERSION %>.js"></script>
+  </body>
+</html>
