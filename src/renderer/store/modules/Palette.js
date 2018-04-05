@@ -218,6 +218,8 @@ export function createControlsState () {
       noise: {
         intensityFactor: 1
       },
+      // TODO: Scale by pixelRatio in renderer
+      // Will fix resolution discrepancy when sharing / exporting
       banding: {
         intensityFactor: 1,
         // blendMode: MIX,
