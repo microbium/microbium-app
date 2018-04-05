@@ -110,7 +110,8 @@ const embedConfig = {
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, '../src/renderer'),
+      '@root': path.join(__dirname, '../'),
+      '@src': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css']

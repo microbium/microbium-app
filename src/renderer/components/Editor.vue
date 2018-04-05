@@ -74,8 +74,8 @@
 </style>
 
 <script>
-import { debounce } from '@/utils/function'
-import { isFullscreen } from '@/utils/screen'
+import { debounce } from '@src/utils/function'
+import { isFullscreen } from '@src/utils/screen'
 
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'

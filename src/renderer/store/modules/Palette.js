@@ -1,4 +1,4 @@
-import { pixelRatio } from '@/utils/screen'
+import { pixelRatio } from '@src/utils/screen'
 
 export function createControlsState () {
   return {

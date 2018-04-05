@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { clamp } from '@/utils/math'
+import { clamp } from '@src/utils/math'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks

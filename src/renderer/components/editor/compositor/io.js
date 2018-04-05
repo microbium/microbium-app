@@ -1,7 +1,7 @@
 import merge from 'lodash.merge'
-import { map, flatten2, expand2 } from '@/utils/array'
-import { roundToPlaces } from '@/utils/number'
-import { createControlsState } from '@/store/modules/Palette'
+import { map, flatten2, expand2 } from '@src/utils/array'
+import { roundToPlaces } from '@src/utils/number'
+import { createControlsState } from '@src/store/modules/Palette'
 
 const ABBRV_KEY = {
   'sw': 'strokeWidth',

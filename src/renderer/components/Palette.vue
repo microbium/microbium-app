@@ -182,19 +182,19 @@ $base-color: rgba(#000, 0.15);
 import {
   createControlsState,
   createControlsStaticParams
-} from '@/store/modules/Palette'
+} from '@src/store/modules/Palette'
 
-import Icon from '@/components/display/Icon'
-import InputText from '@/components/input/Text'
-import InputButton from '@/components/input/Button'
-import PaletteModes from '@/components/palette/Modes'
-import PaletteGroup from '@/components/palette/Group'
-import PaletteTool from '@/components/palette/Tool'
-import PaletteForceList from '@/components/palette/ForceList'
-import PaletteConstraintList from '@/components/palette/ConstraintList'
-import PaletteStyleList from '@/components/palette/StyleList'
-import PaletteModifiers from '@/components/palette/Modifiers'
-import PaletteEffects from '@/components/palette/Effects'
+import Icon from '@src/components/display/Icon'
+import InputText from '@src/components/input/Text'
+import InputButton from '@src/components/input/Button'
+import PaletteModes from '@src/components/palette/Modes'
+import PaletteGroup from '@src/components/palette/Group'
+import PaletteTool from '@src/components/palette/Tool'
+import PaletteForceList from '@src/components/palette/ForceList'
+import PaletteConstraintList from '@src/components/palette/ConstraintList'
+import PaletteStyleList from '@src/components/palette/StyleList'
+import PaletteModifiers from '@src/components/palette/Modifiers'
+import PaletteEffects from '@src/components/palette/Effects'
 
 const DEBUG_DISABLE_FOCUS = false
 

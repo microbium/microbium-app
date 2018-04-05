@@ -1,4 +1,4 @@
-import { UI_PALETTE } from '@/constants/color-palettes'
+import { UI_PALETTE } from '@src/constants/color-palettes'
 
 const { PI } = Math
 

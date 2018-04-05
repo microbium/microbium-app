@@ -8,7 +8,7 @@
     </div>
     <div class="viewer__info">
       <a class="viewer__app-icon" href="https://MicrobiumApp.com" target="_blank">
-        <span class="visuallyhidden">MicrobiumApp.com</span>
+        <span class="visuallyhidden">Microbium App</span>
       </a>
     </div>
   </div>

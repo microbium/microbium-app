@@ -93,18 +93,18 @@ import { vec2, vec3, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
-// import { TEXTURES } from '@/constants/line-styles'
+// import { TEXTURES } from '@src/constants/line-styles'
 
-import { createTaskManager } from '@/utils/task'
-import { createLoop } from '@/utils/loop'
-import { createPostBuffers } from '@/utils/fbo'
-import { debounce } from '@/utils/function'
-import { range } from '@/utils/array'
-import { lerp } from '@/utils/math'
-import { logger } from '@/utils/logger'
-import { timer } from '@/utils/timer'
+import { createTaskManager } from '@src/utils/task'
+import { createLoop } from '@src/utils/loop'
+import { createPostBuffers } from '@src/utils/fbo'
+import { debounce } from '@src/utils/function'
+import { range } from '@src/utils/array'
+import { lerp } from '@src/utils/math'
+import { logger } from '@src/utils/logger'
+import { timer } from '@src/utils/timer'
 
-// import { createTextureManager } from '@/utils/texture'
+// import { createTextureManager } from '@src/utils/texture'
 import {
   createDrawBanding,
   createDrawEdges,
@@ -113,11 +113,11 @@ import {
   createDrawScreen,
   createDrawTexture,
   createSetupDrawScreen
-} from '@/draw/commands/screen-space'
+} from '@src/draw/commands/screen-space'
 import {
   createCompositorState,
   hashRenderState
-} from '@/store/modules/Editor'
+} from '@src/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
@@ -130,17 +130,17 @@ import { createIOController } from './compositor/io'
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
-} from '@/draw/routines/simulation'
+} from '@src/draw/routines/simulation'
 import {
   drawOrigin,
   drawOriginTick,
   drawPolarGrid
-} from '@/draw/routines/origin'
+} from '@src/draw/routines/origin'
 import {
   drawGeometry,
   drawFocus,
   drawFocusProximate
-} from '@/draw/routines/geometry'
+} from '@src/draw/routines/geometry'
 
 const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true

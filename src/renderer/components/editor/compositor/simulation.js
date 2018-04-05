@@ -1,6 +1,6 @@
 import { vec2, mat2d } from 'gl-matrix'
-import { distance2 } from '@/utils/array'
-import { mapLinear } from '@/utils/math'
+import { distance2 } from '@src/utils/array'
+import { mapLinear } from '@src/utils/math'
 
 import {
   BoundingPlaneConstraint,
@@ -9,10 +9,10 @@ import {
   ParticleSystem
 } from 'particulate'
 
-import { logger } from '@/utils/logger'
+import { logger } from '@src/utils/logger'
 
-import { RepulsorForce } from '@/physics/forces/RepulsorForce'
-import { RotatorForce } from '@/physics/forces/RotatorForce'
+import { RepulsorForce } from '@src/physics/forces/RepulsorForce'
+import { RotatorForce } from '@src/physics/forces/RotatorForce'
 
 export function createSimulationController (tasks, state, renderer) {
   const scratchVec2A = vec2.create()

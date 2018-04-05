@@ -47,9 +47,9 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@/utils/number'
-import InputRange from '@/components/input/Range'
-import InputSelect from '@/components/input/Select'
+import { roundToPlaces } from '@src/utils/number'
+import InputRange from '@src/components/input/Range'
+import InputSelect from '@src/components/input/Select'
 
 export default {
   name: 'palette-constraint',

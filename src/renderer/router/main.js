@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import Editor from '@/components/Editor'
-import Palette from '@/components/Palette'
+import Editor from '@src/components/Editor'
+import Palette from '@src/components/Palette'
 
 Vue.use(Router)
 

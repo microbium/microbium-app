@@ -47,8 +47,8 @@
 </style>
 
 <script>
-import { mapLinear } from '@/utils/math'
-import { pointsArc, pointsCircle } from '@/utils/svg'
+import { mapLinear } from '@src/utils/math'
+import { pointsArc, pointsCircle } from '@src/utils/svg'
 
 export default {
   name: 'editor-cursor',
