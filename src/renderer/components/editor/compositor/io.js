@@ -3,7 +3,7 @@ import { map, flatten2, expand2 } from '@src/utils/array'
 import { roundToPlaces } from '@src/utils/number'
 import { createControlsState } from '@src/store/modules/Palette'
 
-const ABBRV_KEY = {
+const ABBRV_KEY_MAP = {
   'sw': 'strokeWidth',
   'sc': 'strokeColor',
   'sa': 'strokeAlpha',
@@ -25,9 +25,9 @@ const ABBRV_KEY = {
   'sg': 'segments',
   'vt': 'vertices'
 }
-const KEY_ABBRV = Object.keys(ABBRV_KEY)
+const KEY_ABBRV_MAP = Object.keys(ABBRV_KEY_MAP)
   .reduce((map, key) => {
-    map[ABBRV_KEY[key]] = key
+    map[ABBRV_KEY_MAP[key]] = key
     return map
   }, {})
 
@@ -38,8 +38,8 @@ export function createIOController (tasks, state) {
 
   const io = {
     serializeScene () {
-      const mapKeys = io.mapKeys.bind(null, KEY_ABBRV)
-      const { geometry, controls } = state
+      const mapKeys = io.mapKeys.bind(null, KEY_ABBRV_MAP)
+      const { geometry, controls, viewport } = state
       const { segments, vertices } = geometry
 
       const segmentsOut = segments
@@ -54,6 +54,10 @@ export function createIOController (tasks, state) {
       const verticesOut = io.serializeArray(flatten2(vertices), 4)
 
       return mapKeys({
+        viewport: {
+          offset: io.serializeArray(viewport.offset, 4),
+          scale: roundToPlaces(viewport.scale, 4)
+        },
         geometry: mapKeys({
           segments: segmentsOut,
           vertices: verticesOut
@@ -63,13 +67,13 @@ export function createIOController (tasks, state) {
     },
 
     deserializeScene (json) {
-      const mapKeys = io.mapKeys.bind(null, ABBRV_KEY)
-      const { geometry, controls } = mapKeys(json)
-      const { segments, vertices } = mapKeys(geometry)
+      const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
+      const { geometry, controls, viewport } = unmapKeys(json)
+      const { segments, vertices } = unmapKeys(geometry)
       const defaultControls = createControlsState()
 
       const segmentsOut = segments
-        .map((seg) => mapKeys(seg))
+        .map((seg) => unmapKeys(seg))
         .map((seg) => {
           return Object.assign({}, seg, {
             indices: new Uint16Array(
@@ -84,6 +88,10 @@ export function createIOController (tasks, state) {
         io.deserializeFloatArray(vertices), Float32Array)
 
       return {
+        viewport: {
+          offset: io.deserializeFloatArray(viewport.offset),
+          scale: viewport.scale
+        },
         geometry: {
           segments: segmentsOut,
           vertices: verticesOut
