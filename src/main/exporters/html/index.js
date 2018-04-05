@@ -7,6 +7,10 @@ import {
   join as pathJoin
 } from 'path'
 import compileTemplate from 'lodash.template'
+import { version } from '@root/package.json'
+
+const API_VERSION = version
+const PEP_VERSION = '0.4.3'
 
 const cachedTemplates = {}
 function getTemplate (srcPath) {
@@ -30,9 +34,10 @@ export function exportSceneHTML (destPath, sceneData) {
         basename(destPath, '.html').replace(/[-_]+/g, ' '))
       const rawSceneData = JSON.stringify(sceneData)
       const backgroundColor = sceneData.cn.postEffects.clear.colorHex
-      console.log(backgroundColor)
 
       return template({
+        API_VERSION,
+        PEP_VERSION,
         subTitle,
         backgroundColor,
         rawSceneData
