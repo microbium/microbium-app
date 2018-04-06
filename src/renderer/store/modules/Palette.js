@@ -1,5 +1,3 @@
-import { pixelRatio } from '@src/utils/screen'
-
 export function createControlsState () {
   return {
     activeMode: {
@@ -224,20 +222,20 @@ export function createControlsState () {
         intensityFactor: 1,
         // blendMode: MIX,
         bandStep: 32,
-        bufferScale: 1 / pixelRatio()
+        bufferScale: 1
       },
       edges: {
         intensityFactor: 1,
         // blendMode: OVERLAY,
         thickness: 0.5,
-        bufferScale: 1 / pixelRatio()
+        bufferScale: 1
       },
       bloom: {
         intensityFactor: 1,
         // blendMode: MULTIPLY,
         blurPasses: 1,
         blurStep: 4,
-        bufferScale: 1 / (pixelRatio() * 2)
+        bufferScale: 1
       },
       colorShift: [0, 0, 0]
     }

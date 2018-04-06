@@ -468,7 +468,10 @@ function mountCompositor ($el, $refs, actions) {
         setupDrawScreen, drawRect, drawTexture,
         drawBanding, drawEdges, drawScreen
       } = renderer.commands
-      const { offset, scale, resolution, pixelRatio, didResize } = state.viewport
+      const {
+        offset, scale, resolution,
+        pixelRatio, pixelRatioNative, didResize
+      } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
@@ -486,10 +489,10 @@ function mountCompositor ($el, $refs, actions) {
       const shouldRenderEdges = isRunning
 
       postBuffers.resize('full', resolution)
-      postBuffers.resize('banding', resolution, banding.bufferScale)
-      postBuffers.resize('edges', resolution, edges.bufferScale)
-      postBuffers.resize('blurA', resolution, bloom.bufferScale)
-      postBuffers.resize('blurB', resolution, bloom.bufferScale)
+      postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
+      postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
+      postBuffers.resize('blurA', resolution, bloom.bufferScale / (pixelRatioNative * 2))
+      postBuffers.resize('blurB', resolution, bloom.bufferScale / (pixelRatioNative * 2))
 
       timer.begin('renderLines')
       postBuffers.get('full').use(() => {
