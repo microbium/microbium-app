@@ -6,9 +6,12 @@ import {
   basename,
   join as pathJoin
 } from 'path'
+import log from 'electron-log'
 import compileTemplate from 'lodash.template'
+
 import { version } from '@root/package.json'
 
+const TEMPLATE_SRC = pathJoin(__static, 'exporter-templates/html.ejs')
 const API_VERSION = version
 const PEP_VERSION = '0.4.3'
 
@@ -16,8 +19,7 @@ const cachedTemplates = {}
 function getTemplate (srcPath) {
   if (cachedTemplates[srcPath]) return cachedTemplates[srcPath]
 
-  const srcFullPath = pathJoin(__dirname, srcPath)
-  return (cachedTemplates[srcPath] = readFile(srcFullPath)
+  return (cachedTemplates[srcPath] = readFile(srcPath)
     .then((str) => compileTemplate(str)))
 }
 
@@ -27,7 +29,7 @@ function toTitleCase (str) {
 }
 
 export function exportSceneHTML (destPath, sceneData) {
-  return getTemplate('./template.ejs')
+  return getTemplate(TEMPLATE_SRC)
     .then((template) => {
       const subTitle = toTitleCase(
         basename(destPath, '.html').replace(/[-_]+/g, ' '))
@@ -43,4 +45,7 @@ export function exportSceneHTML (destPath, sceneData) {
       })
     })
     .then((htmlOut) => writeFile(destPath, htmlOut))
+    .catch((err) => {
+      log.error(err)
+    })
 }
