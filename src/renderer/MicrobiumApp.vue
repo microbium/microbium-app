@@ -12,6 +12,7 @@
 }
 
 body {
+  background: #222;
   font: 13px/1 Helvetica Neue, sans-serif;
 }
 
