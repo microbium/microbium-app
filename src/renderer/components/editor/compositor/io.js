@@ -2,14 +2,9 @@ import merge from 'lodash.merge'
 import { map, flatten2, expand2 } from '@src/utils/array'
 import { roundToPlaces } from '@src/utils/number'
 import { createControlsState } from '@src/store/modules/Palette'
-import { SERIALIZE_KEYS } from '@src/constants/scene-format'
+import { SERIALIZE_KEYS_MAP } from '@src/constants/scene-format'
 
-const ABBRV_KEY_MAP = SERIALIZE_KEYS
-  .reduce((map, key, index) => {
-    map[index + ''] = key
-    return map
-  }, {})
-
+const ABBRV_KEY_MAP = SERIALIZE_KEYS_MAP
 const KEY_ABBRV_MAP = Object.keys(ABBRV_KEY_MAP)
   .reduce((map, key) => {
     map[ABBRV_KEY_MAP[key]] = key
@@ -29,20 +24,26 @@ export function createIOController (tasks, state) {
       const { segments, vertices } = geometry
 
       const segmentsOut = segments
-        .map((seg) => {
-          return Object.assign({}, seg, {
-            indices: io.serializeArray(seg.indices, 0),
-            lineLengths: io.serializeArray(seg.lineLengths, 4),
-            strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 4)
-          })
-        })
+        .map((seg) => ({
+          connectedIndices: io.serializeArray(seg.connectedIndices, 0),
+          constraintIndex: seg.constraintIndex,
+          indices: io.serializeArray(seg.indices, 0),
+          isClosed: io.serializeBool(seg.isClosed),
+          lineLengths: io.serializeArray(seg.lineLengths, 2),
+          linkSizeAvg: roundToPlaces(seg.linkSizeAvg, 3),
+          strokeAlpha: roundToPlaces(seg.strokeAlpha, 3),
+          strokeColor: seg.strokeColor,
+          strokeWidth: roundToPlaces(seg.strokeWidth, 3),
+          strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 3),
+          styleIndex: seg.styleIndex
+        }))
         .map((seg) => mapKeys(seg))
-      const verticesOut = io.serializeArray(flatten2(vertices), 4)
+      const verticesOut = io.serializeArray(flatten2(vertices), 2)
 
       return mapKeys({
         viewport: mapKeys({
-          offset: io.serializeArray(viewport.offset, 4),
-          scale: roundToPlaces(viewport.scale, 4)
+          offset: io.serializeArray(viewport.offset, 2),
+          scale: roundToPlaces(viewport.scale, 3)
         }),
         geometry: mapKeys({
           segments: segmentsOut,
@@ -64,16 +65,24 @@ export function createIOController (tasks, state) {
 
       const segmentsOut = segments
         .map((seg) => unmapKeys(seg))
-        .map((seg) => {
-          return Object.assign({}, seg, {
-            indices: new Uint16Array(
-              io.deserializeIntArray(seg.indices)),
-            lineLengths: new Float32Array(
-              io.deserializeFloatArray(seg.lineLengths)),
-            strokeWidthModulations: new Float32Array(
-              io.deserializeFloatArray(seg.strokeWidthModulations))
-          })
-        })
+        .map((seg) => ({
+          connectedIndices: new Uint16Array(
+            io.deserializeIntArray(seg.connectedIndices)),
+          constraintIndex: seg.constraintIndex,
+          indices: new Uint16Array(
+            io.deserializeIntArray(seg.indices)),
+          isClosed: io.deserializeBool(seg.isClosed),
+          isComplete: true,
+          lineLengths: new Float32Array(
+            io.deserializeFloatArray(seg.lineLengths)),
+          linkSizeAvg: seg.linkSizeAvg,
+          strokeAlpha: seg.strokeAlpha,
+          strokeColor: seg.strokeColor,
+          strokeWidth: seg.strokeWidth,
+          strokeWidthModulations: new Float32Array(
+            io.deserializeFloatArray(seg.strokeWidthModulations)),
+          styleIndex: seg.styleIndex
+        }))
       const verticesOut = expand2(
         io.deserializeFloatArray(vertices), Float32Array)
 
@@ -148,6 +157,14 @@ export function createIOController (tasks, state) {
         simIsRunning,
         velocities
       }
+    },
+
+    serializeBool (val) {
+      return val ? 1 : 0
+    },
+
+    deserializeBool (val) {
+      return !!val
     },
 
     serializeArray (arr, precision) {
