@@ -12,7 +12,7 @@
 }
 
 body {
-  background: #222;
+  background: transparent;
   font: 13px/1 Helvetica Neue, sans-serif;
 }
 

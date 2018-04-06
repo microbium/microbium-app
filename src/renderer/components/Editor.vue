@@ -28,7 +28,7 @@
   position: relative;
   width: 100vw;
   height: 100vh;
-  background-color: #53B5C9;
+  background: #222;
   color: #444;
   animation: fadein 300ms;
 
