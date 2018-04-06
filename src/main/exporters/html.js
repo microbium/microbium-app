@@ -11,7 +11,7 @@ import compileTemplate from 'lodash.template'
 
 import { version } from '@root/package.json'
 
-const TEMPLATE_SRC = pathJoin(__static, 'exporter-templates/html.ejs')
+const TEMPLATE_SRC = 'exporter-templates/html.ejs'
 const API_VERSION = version
 const PEP_VERSION = '0.4.3'
 
@@ -19,7 +19,8 @@ const cachedTemplates = {}
 function getTemplate (srcPath) {
   if (cachedTemplates[srcPath]) return cachedTemplates[srcPath]
 
-  return (cachedTemplates[srcPath] = readFile(srcPath)
+  const fullPath = pathJoin(global.__static, srcPath)
+  return (cachedTemplates[srcPath] = readFile(fullPath)
     .then((str) => compileTemplate(str)))
 }
 

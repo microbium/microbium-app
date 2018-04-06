@@ -45,7 +45,9 @@ const DEBUG_PALETTE = false
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (!IS_DEV) {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+  global.__static = pathJoin(__dirname, '/static').replace(/\\/g, '\\\\')
+} else {
+  global.__static = __static
 }
 
 log.transports.file.level = LOG_LEVEL_FILE
