@@ -205,6 +205,7 @@ export function createGeometryController (tasks, state) {
       }
 
       const nextIndices = new Uint16Array(indices)
+      const nextConnectedIndices = new Uint16Array(connectedIndices)
       const nextStrokeWidthModulations = new Float32Array(strokeWidthModulations)
       const lineLengths = this.computeLineLengths(vertices, indices)
 
@@ -212,6 +213,7 @@ export function createGeometryController (tasks, state) {
         isClosed,
         isComplete: true,
         indices: nextIndices,
+        connectedIndices: nextConnectedIndices,
         lineLengths,
         strokeWidthModulations: nextStrokeWidthModulations
       })
