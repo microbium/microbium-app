@@ -108,7 +108,6 @@ import { timer } from '@src/utils/timer'
 import {
   createDrawBanding,
   createDrawEdges,
-  createDrawMirror,
   createDrawGaussBlur,
   createDrawRect,
   createDrawScreen,
@@ -182,7 +181,7 @@ function mountCompositor ($el, $refs, actions) {
     const regl = createREGL({
       canvas,
       extensions: [
-        // 'angle_instanced_arrays',
+        'ANGLE_instanced_arrays',
         'OES_standard_derivatives',
         'OES_element_index_uint'
       ],
@@ -196,12 +195,11 @@ function mountCompositor ($el, $refs, actions) {
 
     // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
-      'full', 'fullB', 'banding', 'edges', 'blurA', 'blurB')
+      'full', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawBanding: createDrawBanding(regl),
       drawEdges: createDrawEdges(regl),
-      drawMirror: createDrawMirror(regl),
       drawScreen: createDrawScreen(regl),
       drawGaussBlur: createDrawGaussBlur(regl),
       drawRect: createDrawRect(regl),
@@ -468,7 +466,7 @@ function mountCompositor ($el, $refs, actions) {
       const { postBuffers } = renderer
       const {
         setupDrawScreen, drawRect, drawTexture,
-        drawBanding, drawEdges, drawMirror, drawScreen
+        drawBanding, drawEdges, drawScreen
       } = renderer.commands
       const {
         offset, scale, resolution,
@@ -491,7 +489,6 @@ function mountCompositor ($el, $refs, actions) {
       const shouldRenderEdges = isRunning
 
       postBuffers.resize('full', resolution)
-      postBuffers.resize('fullB', resolution)
       postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
       postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
       postBuffers.resize('blurA', resolution, bloom.bufferScale / (pixelRatioNative * 2))
@@ -532,17 +529,6 @@ function mountCompositor ($el, $refs, actions) {
           : (0.6 * banding.intensityFactor)
         const edgesIntensity = !shouldRenderEdges ? 0
           : (0.25 * edges.intensityFactor)
-
-        // Mirror
-        timer.begin('renderMirror')
-        postBuffers.get('fullB').use(() => {
-          drawMirror({
-            color: postBuffers.get('full'),
-            viewResolution
-          })
-        })
-        postBuffers.swap('full', 'fullB')
-        timer.end('renderMirror')
 
         // Bloom
         timer.begin('renderBloom')
@@ -694,22 +680,32 @@ function mountCompositor ($el, $refs, actions) {
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
-        const instances = range(polarIterations).map((index) => {
-          return {
-            angle: index * polarStep,
-            angleAlpha: index === 0 ? 1 : polarAlpha,
-            tick,
-            model,
-            dashFunction: alphaFunc.dashFunction,
-            tint,
-            thickness,
-            miterLimit,
-            adjustProjectedThickness
-          }
-        })
-        state.renderer.drawCalls += instances.length
+        const angles = range(polarIterations)
+          .map((index) => index * polarStep)
+        const anglesAlpha = range(polarIterations)
+          .map((index) => (index === 0 ? 1 : polarAlpha))
+
+        const params = {
+          mirror: [1, 1, 1],
+          angles,
+          anglesAlpha,
+          tick,
+          model,
+          dashFunction: alphaFunc.dashFunction,
+          tint,
+          thickness,
+          miterLimit,
+          adjustProjectedThickness
+        }
+
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw(instances)
+
+        state.renderer.drawCalls += 1
+        lines.draw(params)
+
+        state.renderer.drawCalls += 1
+        params.mirror = [-1, 1, isRunning ? 0.5 : 0.1]
+        lines.draw(params)
       }
     },
 

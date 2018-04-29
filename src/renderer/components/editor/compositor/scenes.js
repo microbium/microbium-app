@@ -34,12 +34,10 @@ export function createScene (tasks, state, renderer) {
   // }
 
   const uniforms = {
-    angle: regl.prop('angle'),
-    angleAlpha: regl.prop('angleAlpha'),
-
     tick: regl.prop('tick'),
     dashFunction: regl.prop('dashFunction'),
-    tint: regl.prop('tint')
+    tint: regl.prop('tint'),
+    mirror: regl.prop('mirror')
 
     // FEAT: Add multiple screen space tinting functions
     // useScreenTintFunc: regl.prop('useScreenTintFunc'),
@@ -47,6 +45,17 @@ export function createScene (tasks, state, renderer) {
     // useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
     // alphaMap: (params, { alphaMap }) => textures.get(alphaMap, alphaMapOpts),
     // useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
+  }
+
+  const attributes = {
+    angle: {
+      buffer: regl.prop('angles'),
+      divisor: 1
+    },
+    angleAlpha: {
+      buffer: regl.prop('anglesAlpha'),
+      divisor: 1
+    }
   }
 
   // OPTIM: Investigate huge perf issues in Chrome when using instancing
@@ -61,7 +70,9 @@ export function createScene (tasks, state, renderer) {
       drawArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
+        instances: (context, { angles }) => angles.length,
         uniforms,
+        attributes,
         blend,
         depth
       }
@@ -79,7 +90,6 @@ export function createScene (tasks, state, renderer) {
     }
   }
 
-  // TODO: Resove dependent segments
   function removeContext (context, index) {
     context.destroy()
   }
