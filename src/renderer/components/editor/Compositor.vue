@@ -108,6 +108,7 @@ import { timer } from '@src/utils/timer'
 import {
   createDrawBanding,
   createDrawEdges,
+  createDrawMirror,
   createDrawGaussBlur,
   createDrawRect,
   createDrawScreen,
@@ -195,11 +196,12 @@ function mountCompositor ($el, $refs, actions) {
 
     // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
-      'full', 'banding', 'edges', 'blurA', 'blurB')
+      'full', 'fullB', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawBanding: createDrawBanding(regl),
       drawEdges: createDrawEdges(regl),
+      drawMirror: createDrawMirror(regl),
       drawScreen: createDrawScreen(regl),
       drawGaussBlur: createDrawGaussBlur(regl),
       drawRect: createDrawRect(regl),
@@ -466,7 +468,7 @@ function mountCompositor ($el, $refs, actions) {
       const { postBuffers } = renderer
       const {
         setupDrawScreen, drawRect, drawTexture,
-        drawBanding, drawEdges, drawScreen
+        drawBanding, drawEdges, drawMirror, drawScreen
       } = renderer.commands
       const {
         offset, scale, resolution,
@@ -489,6 +491,7 @@ function mountCompositor ($el, $refs, actions) {
       const shouldRenderEdges = isRunning
 
       postBuffers.resize('full', resolution)
+      postBuffers.resize('fullB', resolution)
       postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
       postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
       postBuffers.resize('blurA', resolution, bloom.bufferScale / (pixelRatioNative * 2))
@@ -530,6 +533,17 @@ function mountCompositor ($el, $refs, actions) {
         const edgesIntensity = !shouldRenderEdges ? 0
           : (0.25 * edges.intensityFactor)
 
+        // Mirror
+        timer.begin('renderMirror')
+        postBuffers.get('fullB').use(() => {
+          drawMirror({
+            color: postBuffers.get('full'),
+            viewResolution
+          })
+        })
+        postBuffers.swap('full', 'fullB')
+        timer.end('renderMirror')
+
         // Bloom
         timer.begin('renderBloom')
         if (shouldRenderBloom) {
@@ -554,6 +568,7 @@ function mountCompositor ($el, $refs, actions) {
         timer.end('renderBanding')
 
         // Edges
+        // OPTIM: Research more performant methods for rendering edges
         timer.begin('renderEdges')
         if (shouldRenderEdges) {
           state.renderer.drawCalls++

@@ -9,6 +9,7 @@ import postFXGaussBlurFrag from '@src/shaders/post-fx-gaussian-blur.frag'
 import postFXHashBlurFrag from '@src/shaders/post-fx-hash-blur.frag'
 import postFXBanding from '@src/shaders/post-fx-banding.frag'
 import postFXEdges from '@src/shaders/post-fx-edges.frag'
+import postFXMirror from '@src/shaders/post-fx-mirror.frag'
 
 export function createDrawRect (regl) {
   return regl({
@@ -107,6 +108,16 @@ export function createDrawEdges (regl) {
       color: regl.prop('color'),
       thickness: regl.prop('thickness'),
       tick: regl.prop('tick'),
+      viewResolution: regl.prop('viewResolution')
+    }
+  })
+}
+
+export function createDrawMirror (regl) {
+  return regl({
+    frag: postFXMirror,
+    uniforms: {
+      color: regl.prop('color'),
       viewResolution: regl.prop('viewResolution')
     }
   })
