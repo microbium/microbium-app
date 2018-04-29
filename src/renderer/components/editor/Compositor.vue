@@ -655,12 +655,13 @@ function mountCompositor ($el, $refs, actions) {
     renderLines () {
       const { contexts } = scene
       const { isRunning, tick } = state.simulation
-      const { polarIterations } = state.controls.modifiers
+      const { polarIterations, mirror } = state.controls.modifiers
       const { styles, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
+      const mirrorAlpha = mirror.intensityFactor
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       for (let i = contexts.length - 1; i >= 0; i--) {
@@ -704,7 +705,8 @@ function mountCompositor ($el, $refs, actions) {
         lines.draw(params)
 
         state.renderer.drawCalls += 1
-        params.mirror = [-1, 1, isRunning ? 0.5 : 0.1]
+        params.mirror = [-1, 1,
+          (isRunning ? 1 : 0.1) * mirrorAlpha]
         lines.draw(params)
       }
     },

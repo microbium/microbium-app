@@ -37,6 +37,18 @@
       </div>
       <hr />
     </palette-group>
+
+    <palette-group nested open>
+      <h2 slot="title">Mirror Generator</h2>
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.05" v-model="model.mirror.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ mirrorFactorName }}</b> intensity
+        </div>
+      </div>
+      <hr />
+    </palette-group>
   </div>
 </template>
 
@@ -94,6 +106,11 @@ export default {
     polarIterationsLabel () {
       const { polarIterations } = this.model
       return pluralize(polarIterations, 'iteration', 'iterations')
+    },
+
+    mirrorFactorName () {
+      const { mirror } = this.model
+      return `${roundToPlaces(mirror.intensityFactor, 2)}x`
     }
   }
 }

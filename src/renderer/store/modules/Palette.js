@@ -201,6 +201,9 @@ export function createControlsState () {
 
     modifiers: {
       polarIterations: 3,
+      mirror: {
+        intensityFactor: 0.5
+      },
       curve: {
         segMinLength: 10,
         segMaxLength: 8, // x10
