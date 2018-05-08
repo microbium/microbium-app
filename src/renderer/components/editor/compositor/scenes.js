@@ -22,6 +22,9 @@ export function createScene (tasks, state, renderer) {
     },
     color: [0, 0, 0, 0]
   }
+  const depth = {
+    enable: false
+  }
 
   // const alphaMapOpts = {
   //   min: 'nearest',
@@ -31,12 +34,10 @@ export function createScene (tasks, state, renderer) {
   // }
 
   const uniforms = {
-    angle: regl.prop('angle'),
-    angleAlpha: regl.prop('angleAlpha'),
-
     tick: regl.prop('tick'),
     dashFunction: regl.prop('dashFunction'),
-    tint: regl.prop('tint')
+    tint: regl.prop('tint'),
+    mirror: regl.prop('mirror')
 
     // FEAT: Add multiple screen space tinting functions
     // useScreenTintFunc: regl.prop('useScreenTintFunc'),
@@ -46,6 +47,17 @@ export function createScene (tasks, state, renderer) {
     // useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
   }
 
+  const attributes = {
+    angle: {
+      buffer: regl.prop('angles'),
+      divisor: 1
+    },
+    angleAlpha: {
+      buffer: regl.prop('anglesAlpha'),
+      divisor: 1
+    }
+  }
+
   // OPTIM: Investigate huge perf issues in Chrome when using instancing
   // OPTIM: Optimize shared state between contexts
   const contexts = []
@@ -53,12 +65,16 @@ export function createScene (tasks, state, renderer) {
   function createContext (style, index) {
     const bufferSize = 2 ** 12
     const lines = LineBuilder.create(regl, {
+      dimensions: 2,
       bufferSize,
       drawArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
+        instances: (context, { angles }) => angles.length,
         uniforms,
-        blend
+        attributes,
+        blend,
+        depth
       }
     })
 
@@ -74,7 +90,6 @@ export function createScene (tasks, state, renderer) {
     }
   }
 
-  // TODO: Resove dependent segments
   function removeContext (context, index) {
     context.destroy()
   }
@@ -108,13 +123,19 @@ export function createScene (tasks, state, renderer) {
 export function createUIScene (tasks, state, renderer) {
   const { regl } = renderer
 
+  const depth = {
+    enable: false
+  }
+
   const contexts = ['main', 'grid'].map((name, index) => {
     // TODO: Make bufferSize smallest possible for UI
     const bufferSize = 2 ** 10
     const lines = LineBuilder.create(regl, {
+      dimensions: 2,
       bufferSize,
       drawArgs: {
-        frag: linesUIFrag
+        frag: linesUIFrag,
+        depth
       }
     })
 

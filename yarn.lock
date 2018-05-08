@@ -8116,11 +8116,9 @@ regjsparser@^0.1.4:
   dependencies:
     jsesc "~0.5.0"
 
-regl-line-builder@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.3.0.tgz#b1c2bd8a7f56b3334b70563652b147ff968dd4dc"
-  dependencies:
-    gl-matrix "^2.4.0"
+regl-line-builder@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.4.2.tgz#ab879c582e4d038ab68a3029dc57efcbe0033cfd"
 
 regl@^1.3.1:
   version "1.3.1"

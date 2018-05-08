@@ -181,7 +181,7 @@ function mountCompositor ($el, $refs, actions) {
     const regl = createREGL({
       canvas,
       extensions: [
-        // 'angle_instanced_arrays',
+        'ANGLE_instanced_arrays',
         'OES_standard_derivatives',
         'OES_element_index_uint'
       ],
@@ -554,6 +554,7 @@ function mountCompositor ($el, $refs, actions) {
         timer.end('renderBanding')
 
         // Edges
+        // OPTIM: Research more performant methods for rendering edges
         timer.begin('renderEdges')
         if (shouldRenderEdges) {
           state.renderer.drawCalls++
@@ -654,12 +655,13 @@ function mountCompositor ($el, $refs, actions) {
     renderLines () {
       const { contexts } = scene
       const { isRunning, tick } = state.simulation
-      const { polarIterations } = state.controls.modifiers
+      const { polarIterations, mirror } = state.controls.modifiers
       const { styles, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
+      const mirrorAlpha = mirror.intensityFactor
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       for (let i = contexts.length - 1; i >= 0; i--) {
@@ -679,22 +681,33 @@ function mountCompositor ($el, $refs, actions) {
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
-        const instances = range(polarIterations).map((index) => {
-          return {
-            angle: index * polarStep,
-            angleAlpha: index === 0 ? 1 : polarAlpha,
-            tick,
-            model,
-            dashFunction: alphaFunc.dashFunction,
-            tint,
-            thickness,
-            miterLimit,
-            adjustProjectedThickness
-          }
-        })
-        state.renderer.drawCalls += instances.length
+        const angles = range(polarIterations)
+          .map((index) => index * polarStep)
+        const anglesAlpha = range(polarIterations)
+          .map((index) => (index === 0 ? 1 : polarAlpha))
+
+        const params = {
+          mirror: [1, 1, 1],
+          angles,
+          anglesAlpha,
+          tick,
+          model,
+          dashFunction: alphaFunc.dashFunction,
+          tint,
+          thickness,
+          miterLimit,
+          adjustProjectedThickness
+        }
+
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw(instances)
+
+        state.renderer.drawCalls += 1
+        lines.draw(params)
+
+        state.renderer.drawCalls += 1
+        params.mirror = [-1, 1,
+          (isRunning ? 1 : 0.1) * mirrorAlpha]
+        lines.draw(params)
       }
     },
 
