@@ -45,15 +45,10 @@ export function createSimulationController (tasks, state, renderer) {
     // Create
 
     createFromGeometry () {
-      const { constraintGroups, forces } = state.controls
+      const { constraintGroups, forces, styles } = state.controls
       const { segments, vertices } = state.geometry
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
-
-      // Set particle positions
-      vertices.forEach((vert, i) => {
-        system.setPosition(i, vert[0], vert[1], 0)
-      })
 
       const { stickGroups, engineGroups } = simulation
         .createSegmentConstraints(system, segments, constraintGroups)
@@ -65,6 +60,8 @@ export function createSimulationController (tasks, state, renderer) {
         system, 'pinConstraints')
       const localConstraintCount = simulation.countConstraints(
         system, 'localConstraints')
+
+      simulation.initializeParticles(system, vertices, segments, styles)
 
       // TODO: Cleanup specific name references
       // OPTIM: Minimize / cleanup vue reactive state ...
@@ -81,6 +78,36 @@ export function createSimulationController (tasks, state, renderer) {
         forcesCount,
         pinConstraintCount,
         localConstraintCount
+      })
+    },
+
+    // Set particle positions / weights
+    // NOTE: Weights in system are inverted ...
+    // TODO: Maybe update weights when styles change
+    initializeParticles (system, vertices, segments, styles) {
+      const accumulatedWeights = new Array(vertices.length).fill(0)
+      let maxWeight = 0
+
+      segments.forEach((segment) => {
+        const {
+          indices, styleIndex,
+          strokeWidth, strokeWidthModulations
+        } = segment
+        const { strokeWidthMod } = styles[styleIndex]
+
+        indices.forEach((index, i) => {
+          const weight = strokeWidth +
+            strokeWidth * strokeWidthMod * strokeWidthModulations[i]
+          const accumWeight = accumulatedWeights[index] += weight
+          if (accumWeight > maxWeight) maxWeight = accumWeight
+        })
+      })
+
+      vertices.forEach((vert, i) => {
+        const weight = mapLinear(0, maxWeight, 4, 0.001,
+          accumulatedWeights[i])
+        system.setPosition(i, vert[0], vert[1], 0)
+        system.setWeight(i, weight)
       })
     },
 
