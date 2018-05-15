@@ -4,13 +4,13 @@ import { mapLinear } from '@src/utils/math'
 
 import {
   BoundingPlaneConstraint,
-  DistanceConstraint,
   PointConstraint,
   ParticleSystem
 } from 'particulate'
 
 import { logger } from '@src/utils/logger'
 
+import { ViscousDistanceConstraint } from '@src/physics/constraints/ViscousDistanceConstraint'
 import { RepulsorForce } from '@src/physics/forces/RepulsorForce'
 import { RotatorForce } from '@src/physics/forces/RotatorForce'
 
@@ -173,7 +173,7 @@ export function createSimulationController (tasks, state, renderer) {
 
       lines.forEach((line, i) => {
         const distance = lineLengths[i]
-        const constraint = DistanceConstraint.create(
+        const constraint = ViscousDistanceConstraint.create(
           [distance * (1 - slipTolerance), distance], line)
 
         system.addConstraint(constraint)
