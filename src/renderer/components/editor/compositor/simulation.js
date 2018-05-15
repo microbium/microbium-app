@@ -47,8 +47,11 @@ export function createSimulationController (tasks, state, renderer) {
     createFromGeometry () {
       const { constraintGroups, forces, styles } = state.controls
       const { segments, vertices } = state.geometry
+
+      // Initialize particle system positions and weights
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
+      simulation.initializeParticles(system, vertices, segments, styles)
 
       const { stickGroups, engineGroups } = simulation
         .createSegmentConstraints(system, segments, constraintGroups)
@@ -60,8 +63,6 @@ export function createSimulationController (tasks, state, renderer) {
         system, 'pinConstraints')
       const localConstraintCount = simulation.countConstraints(
         system, 'localConstraints')
-
-      simulation.initializeParticles(system, vertices, segments, styles)
 
       // TODO: Cleanup specific name references
       // OPTIM: Minimize / cleanup vue reactive state ...
