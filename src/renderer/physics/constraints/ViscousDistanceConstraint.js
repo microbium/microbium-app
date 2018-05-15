@@ -45,7 +45,6 @@ inherit(DistanceConstraint, ViscousDistanceConstraint, {
 
       p0[ax] -= dx * aDiff
       p0[ay] -= dy * aDiff
-
       p0[bx] += dx * bDiff
       p0[by] += dy * bDiff
     }
@@ -71,8 +70,10 @@ inherit(DistanceConstraint, ViscousDistanceConstraint, {
     const fricBx = ndx * moveBt
     const fricBy = ndy * moveBt
 
+    // TODO: Adjust friction factor based on segment length
+    // TODO: Investigate effect of variable particle weights on friction
     // Friction factor
-    const factor = 0.06
+    const factor = 0.04
 
     p1[ax] -= fricAx * factor
     p1[ay] -= fricAy * factor

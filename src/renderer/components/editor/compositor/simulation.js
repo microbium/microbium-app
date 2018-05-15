@@ -116,7 +116,7 @@ export function createSimulationController (tasks, state, renderer) {
       const bounds = BoundingPlaneConstraint.create(
         [0, 0, 0], [0, 0, 1], Infinity)
 
-      bounds.friction = 0.01
+      bounds.friction = 0.001
       system.addConstraint(bounds)
 
       return {
