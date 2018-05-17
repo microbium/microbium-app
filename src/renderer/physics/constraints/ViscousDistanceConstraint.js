@@ -1,5 +1,6 @@
 import { DistanceConstraint } from 'particulate'
 import { inherit } from '@src/utils/ctor'
+import { clamp } from '@src/utils/math'
 
 export { ViscousDistanceConstraint }
 
@@ -73,7 +74,7 @@ inherit(DistanceConstraint, ViscousDistanceConstraint, {
     // TODO: Adjust friction factor based on segment length
     // TODO: Investigate effect of variable particle weights on friction
     // Friction factor
-    const factor = 0.04
+    const factor = clamp(0.0, 0.1, 0.0002 * dist)
 
     p1[ax] -= fricAx * factor
     p1[ay] -= fricAy * factor
