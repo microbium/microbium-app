@@ -118,6 +118,8 @@ export function createViewportController (tasks, state) {
     }
   }
 
+  tasks.registerResponder('viewport.resize',
+    viewport, viewport.resize)
   tasks.registerResponder('viewport.projectScreen',
     viewport, viewport.projectScreen)
 

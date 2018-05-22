@@ -6,7 +6,7 @@
       <div class="editor-compositor__stats__group">
         <div>resolution: {{ viewport.resolution[0] }}w
           {{ viewport.resolution[1] }}h
-          ({{ controls.viewport.pixelRatio }}x)</div>
+          ({{ controls.viewport.pixelRatio.toFixed(2) }}x)</div>
       </div>
       <div class="editor-compositor__stats__group">
         <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
@@ -472,12 +472,13 @@ function mountCompositor ($el, $refs, actions) {
         offset, scale, resolution,
         pixelRatioNative, didResize
       } = state.viewport
+      const { pixelRatio } = state.controls.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
 
       const viewResolution = vec3.set(scratchVec3A,
-        resolution[0], resolution[1], pixelRatioNative)
+        resolution[0], resolution[1], pixelRatio)
       const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
       const viewScale = scale + zoomOffset
 
@@ -643,9 +644,10 @@ function mountCompositor ($el, $refs, actions) {
     // TODO: Ensure line thickness is correct on high dpi
     computeLineThickness (baseThickness) {
       const { lineScaleFactor } = cameras.scene
-      const { scale, pixelRatioNative } = state.viewport
+      const { scale } = state.viewport
+      const { pixelRatio } = state.controls.viewport
       const { zoomOffset } = state.drag
-      const pixelRatioAdjust = 0.5 / pixelRatioNative
+      const pixelRatioAdjust = 0.5 / pixelRatio
       return (baseThickness + pixelRatioAdjust) *
         lerp(1, scale + zoomOffset, lineScaleFactor)
     },
@@ -742,6 +744,7 @@ function mountCompositor ($el, $refs, actions) {
   view.inject()
 
   return {
+    tasks,
     state
   }
 }
@@ -762,10 +765,12 @@ export default {
       DEBUG_RENDER_HASH,
       DEBUG_PERF,
       timer,
+      tasks: null,
       drag: null,
       renderer: null,
       simulation: null,
-      viewport: null
+      viewport: null,
+      controls: null
     }
   },
 
@@ -776,15 +781,23 @@ export default {
       sendMessage: this.sendMessage,
       updateCursor: this.updateCursor
     }
-    const { state } = mountCompositor($el, $refs, actions)
+    const { tasks, state } = mountCompositor($el, $refs, actions)
 
     timer.enable(DEBUG_PERF)
 
+    this.tasks = tasks
     this.drag = state.drag
     this.renderer = state.renderer
     this.simulation = state.simulation
     this.viewport = state.viewport
     this.controls = state.controls
+  },
+
+  watch: {
+    // TODO: Improve method for resizing main canvas
+    'controls.viewport.pixelRatio' () {
+      this.tasks.requestSync('viewport.resize')
+    }
   },
 
   computed: {
