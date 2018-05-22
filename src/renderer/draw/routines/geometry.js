@@ -41,6 +41,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     for (let i = 0; i < count; i++) {
       const index = indices[i]
       const point = vertices[index]
+      // TODO: Move final strokeWidth calc to inter-module function
       ctx.lineWidth = max(0,
         strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[i])
       if (i === 0) ctx.moveTo(point[0], point[1])

@@ -4,13 +4,13 @@ import { mapLinear } from '@src/utils/math'
 
 import {
   BoundingPlaneConstraint,
-  DistanceConstraint,
   PointConstraint,
   ParticleSystem
 } from 'particulate'
 
 import { logger } from '@src/utils/logger'
 
+import { ViscousDistanceConstraint } from '@src/physics/constraints/ViscousDistanceConstraint'
 import { RepulsorForce } from '@src/physics/forces/RepulsorForce'
 import { RotatorForce } from '@src/physics/forces/RotatorForce'
 
@@ -45,15 +45,13 @@ export function createSimulationController (tasks, state, renderer) {
     // Create
 
     createFromGeometry () {
-      const { constraintGroups, forces } = state.controls
+      const { constraintGroups, forces, styles } = state.controls
       const { segments, vertices } = state.geometry
+
+      // Initialize particle system positions and weights
       const count = vertices.length
       const system = ParticleSystem.create(count, 2)
-
-      // Set particle positions
-      vertices.forEach((vert, i) => {
-        system.setPosition(i, vert[0], vert[1], 0)
-      })
+      simulation.initializeParticles(system, vertices, segments, styles)
 
       const { stickGroups, engineGroups } = simulation
         .createSegmentConstraints(system, segments, constraintGroups)
@@ -81,6 +79,36 @@ export function createSimulationController (tasks, state, renderer) {
         forcesCount,
         pinConstraintCount,
         localConstraintCount
+      })
+    },
+
+    // Set particle positions / weights
+    // NOTE: Weights in system are inverted ...
+    // TODO: Maybe update weights when styles change
+    initializeParticles (system, vertices, segments, styles) {
+      const accumulatedWeights = new Array(vertices.length).fill(0)
+      let maxWeight = 0
+
+      segments.forEach((segment) => {
+        const {
+          indices, styleIndex,
+          strokeWidth, strokeWidthModulations
+        } = segment
+        const { strokeWidthMod } = styles[styleIndex]
+
+        indices.forEach((index, i) => {
+          const weight = strokeWidth +
+            strokeWidth * strokeWidthMod * strokeWidthModulations[i]
+          const accumWeight = accumulatedWeights[index] += weight
+          if (accumWeight > maxWeight) maxWeight = accumWeight
+        })
+      })
+
+      vertices.forEach((vert, i) => {
+        const weight = mapLinear(0, maxWeight, 4, 0.001,
+          accumulatedWeights[i])
+        system.setPosition(i, vert[0], vert[1], 0)
+        system.setWeight(i, weight)
       })
     },
 
@@ -145,7 +173,7 @@ export function createSimulationController (tasks, state, renderer) {
 
       lines.forEach((line, i) => {
         const distance = lineLengths[i]
-        const constraint = DistanceConstraint.create(
+        const constraint = ViscousDistanceConstraint.create(
           [distance * (1 - slipTolerance), distance], line)
 
         system.addConstraint(constraint)
