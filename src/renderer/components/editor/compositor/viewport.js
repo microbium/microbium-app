@@ -21,12 +21,14 @@ export function createViewportController (tasks, state) {
       const stateViewport = state.viewport
       const width = window.innerWidth
       const height = window.innerHeight
+      const { resolution, size, center } = stateViewport
+      const { pixelRatio } = state.controls.viewport
 
-      vec2.set(stateViewport.size, width, height)
-      vec2.set(stateViewport.center, width / 2, height / 2)
-      vec2.set(stateViewport.resolution,
-        Math.round(stateViewport.size[0] * stateViewport.pixelRatio),
-        Math.round(stateViewport.size[1] * stateViewport.pixelRatio))
+      vec2.set(size, width, height)
+      vec2.set(center, width / 2, height / 2)
+      vec2.set(resolution,
+        Math.round(size[0] * pixelRatio),
+        Math.round(size[1] * pixelRatio))
       stateViewport.didResize = true
       tasks.run('resize', event)
     },

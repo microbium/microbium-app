@@ -66,7 +66,7 @@
       <palette-group open
         :hidden="!showEffectsPanels">
         <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
-        <palette-effects :model="controls.postEffects" />
+        <palette-effects :model="controls.postEffects" :viewport="controls.viewport" />
       </palette-group>
     </div>
   </div>
@@ -315,6 +315,7 @@ export default {
     'controls.forces': createStateSyncer('forces'),
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),
+    'controls.viewport': createStateSyncer('viewport'),
     'controls.postEffects': createStateSyncer('postEffects')
   }
 }

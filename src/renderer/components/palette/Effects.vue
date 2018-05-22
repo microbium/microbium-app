@@ -2,6 +2,19 @@
 <template>
   <div class="palette-effects">
     <palette-group nested open>
+      <h2 slot="title">Resolution</h2>
+
+      <div class="palette-item">
+        <!-- TODO: Move viewport / background controls to separate section -->
+        <input-range min="0.25" max="3" step="0.05" v-model="viewport.pixelRatio" />
+        <div class="palette-item__label">
+          <b>{{ pixelRatioName }}</b> pixel density
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group nested open>
       <h2 slot="title">Background</h2>
 
       <div class="palette-item">
@@ -166,10 +179,19 @@ export default {
   },
 
   props: {
-    model: Object
+    model: Object,
+    viewport: Object
   },
 
   computed: {
+    // Resolution
+    pixelRatioName () {
+      const { pixelRatio } = this.viewport
+      return `${roundToPlaces(pixelRatio, 2)}x`
+    },
+
+    // Background
+
     clearAlphaName () {
       const { clear } = this.model
       return `${roundToPlaces(clear.alphaFactor, 2)}x`

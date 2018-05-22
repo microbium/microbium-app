@@ -1,3 +1,5 @@
+import { pixelRatioClamped } from '@src/utils/screen'
+
 export function createControlsState () {
   return {
     activeMode: {
@@ -209,6 +211,10 @@ export function createControlsState () {
         segMaxLength: 8, // x10
         subDivisions: 4
       }
+    },
+
+    viewport: {
+      pixelRatio: pixelRatioClamped()
     },
 
     postEffects: {

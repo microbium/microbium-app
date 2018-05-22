@@ -6,7 +6,7 @@
       <div class="editor-compositor__stats__group">
         <div>resolution: {{ viewport.resolution[0] }}w
           {{ viewport.resolution[1] }}h
-          ({{ viewport.pixelRatio }}x)</div>
+          ({{ controls.viewport.pixelRatio }}x)</div>
       </div>
       <div class="editor-compositor__stats__group">
         <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
@@ -470,14 +470,14 @@ function mountCompositor ($el, $refs, actions) {
       } = renderer.commands
       const {
         offset, scale, resolution,
-        pixelRatio, pixelRatioNative, didResize
+        pixelRatioNative, didResize
       } = state.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
 
       const viewResolution = vec3.set(scratchVec3A,
-        resolution[0], resolution[1], pixelRatio)
+        resolution[0], resolution[1], pixelRatioNative)
       const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
       const viewScale = scale + zoomOffset
 
@@ -488,6 +488,7 @@ function mountCompositor ($el, $refs, actions) {
         banding.intensityFactor > 0
       const shouldRenderEdges = isRunning
 
+      // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
       postBuffers.resize('full', resolution)
       postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
       postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
@@ -639,11 +640,12 @@ function mountCompositor ($el, $refs, actions) {
       drawPolarGrid(state, uiGrid.ctx)
     },
 
+    // TODO: Ensure line thickness is correct on high dpi
     computeLineThickness (baseThickness) {
       const { lineScaleFactor } = cameras.scene
-      const { scale, pixelRatio } = state.viewport
+      const { scale, pixelRatioNative } = state.viewport
       const { zoomOffset } = state.drag
-      const pixelRatioAdjust = 0.5 / pixelRatio
+      const pixelRatioAdjust = 0.5 / pixelRatioNative
       return (baseThickness + pixelRatioAdjust) *
         lerp(1, scale + zoomOffset, lineScaleFactor)
     },
@@ -782,6 +784,7 @@ export default {
     this.renderer = state.renderer
     this.simulation = state.simulation
     this.viewport = state.viewport
+    this.controls = state.controls
   },
 
   computed: {
