@@ -6,6 +6,7 @@ import {
   dialog,
   screen,
   shell,
+  nativeImage,
   BrowserWindow,
   Menu
 } from 'electron'
@@ -87,30 +88,26 @@ function createMenu () {
   if (appMenus.main !== null) return
 
   // TODO: Cleanup file filters
-  const fileTypeFilters = [
-    {
-      name: 'Microbium Scene',
-      extensions: ['mcrbm']
-    }
-  ]
-  const jsonTypeFilters = [
-    {
-      name: 'JSON',
-      extensions: ['json']
-    }
-  ]
-  const htmlTypeFilters = [
-    {
-      name: 'HTML',
-      extensions: ['html']
-    }
-  ]
-  const videoTypeFilters = [
-    {
-      name: 'Videos',
-      extensions: ['mov']
-    }
-  ]
+  const fileTypeFilters = [{
+    name: 'Microbium Scene',
+    extensions: ['mcrbm']
+  }]
+  const imageTypeFilters = [{
+    name: 'Image',
+    extensions: 'png'
+  }]
+  const jsonTypeFilters = [{
+    name: 'JSON',
+    extensions: ['json']
+  }]
+  const htmlTypeFilters = [{
+    name: 'HTML',
+    extensions: ['html']
+  }]
+  const videoTypeFilters = [{
+    name: 'Videos',
+    extensions: ['mov']
+  }]
 
   // TODO: Cleanup actions
   const template = createMenuTemplate(app, {
@@ -165,6 +162,14 @@ function createMenu () {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
         }
+      })
+    },
+    saveFrameImage () {
+      dialog.showSaveDialog(null, {
+        filters: imageTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        saveFrameImageFromCanvas(fileName)
       })
     },
     exportJSON () {
@@ -553,6 +558,27 @@ function stopWindowScreenRecording (name) {
 
 function saveScreenRecording (recording, fileName) {
   renameFile(recording.output, fileName)
+}
+
+// ------------------------------------------------------------
+// Canvas Image Exporting
+// ----------------------
+
+function saveFrameImageFromCanvas (path) {
+  requestWindowResponse('main', 'save-frame', null)
+    .then((data) => nativeImageFromDataURL(data))
+    .then((buf) => writeFile(path, buf))
+    .then(() => {
+      console.log(`Saved frame to ${path}.`)
+    })
+    .catch((err) => {
+      log.error(err)
+    })
+}
+
+function nativeImageFromDataURL (data) {
+  const img = nativeImage.createFromDataURL(data)
+  return img.toPng()
 }
 
 // ------------------------------------------------------------

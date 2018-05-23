@@ -274,6 +274,7 @@ function mountCompositor ($el, $refs, actions) {
       actions.observeMessage('command', (event, data) => viewport.command(data))
       actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
       actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
+      actions.observeMessage('save-frame', (event, data) => view.saveFrame())
     },
 
     serializeScene () {
@@ -304,6 +305,15 @@ function mountCompositor ($el, $refs, actions) {
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
+    },
+
+    // FIXME: Need to get image data from canvas with preserved drawing buffer
+    saveFrame () {
+      const { canvas } = renderer
+      logger.time('save frame')
+      const imageData = canvas.toDataURL('image/png')
+      logger.timeEnd('save frame')
+      actions.sendMessage('save-frame--response', imageData)
     },
 
     update (tick) {

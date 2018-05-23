@@ -61,6 +61,12 @@ export function createMenuTemplate (app, actions) {
         },
         {type: 'separator'},
         {
+          label: 'Save Frame Image',
+          click () {
+            actions.saveFrameImage()
+          }
+        },
+        {
           id: 'start-screen-recording',
           label: 'Start Screen Recording',
           enabled: true,
