@@ -93,8 +93,8 @@ function createMenu () {
     extensions: ['mcrbm']
   }]
   const imageTypeFilters = [{
-    name: 'Image',
-    extensions: 'png'
+    name: 'Images',
+    extensions: ['png']
   }]
   const jsonTypeFilters = [{
     name: 'JSON',
