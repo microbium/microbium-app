@@ -36,7 +36,7 @@ varying vec2 uv;
 
 void main() {
   // TODO: Improve viewResolution density mapping ..
-  vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
+  vec2 fragCoord = uv * viewResolution.xy / viewResolution.z;
   vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
   vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
 
