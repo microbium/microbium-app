@@ -176,6 +176,8 @@ function mountCompositor ($el, $refs, actions) {
   const viewport = createViewportController(tasks, state)
   const io = createIOController(tasks, state)
 
+  // OPTIM: Investigate preserveDrawingBuffer effect on perf
+  // It's currently needed to enable full dpi canvas export
   function createRenderer () {
     const canvas = document.createElement('canvas')
     const regl = createREGL({
@@ -187,7 +189,7 @@ function mountCompositor ($el, $refs, actions) {
       ],
       attributes: {
         antialias: false,
-        preserveDrawingBuffer: false,
+        preserveDrawingBuffer: true,
         premultipliedAlpha: false,
         alpha: false
       }
@@ -307,7 +309,6 @@ function mountCompositor ($el, $refs, actions) {
       if (wasRunning) simulation.toggle()
     },
 
-    // FIXME: Need to get image data from canvas with preserved drawing buffer
     saveFrame () {
       const { canvas } = renderer
       logger.time('save frame')
