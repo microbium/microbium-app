@@ -45,8 +45,10 @@ export function createCompositorState () {
     showStats: false,
     didResize: false,
     pixelRatioNative: pixelRatio(),
+    pixelRatioClamped: 0,
     size: vec2.create(),
     resolution: vec2.create(),
+    resolutionMax: vec2.create(),
     center: vec2.create(),
     offset: vec2.create(),
     scale: 1

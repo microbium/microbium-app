@@ -1,5 +1,6 @@
 import { vec2 } from 'gl-matrix'
 import { clamp } from '@src/utils/math'
+import { clampPixelRatio } from '@src/utils/screen'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
@@ -19,17 +20,23 @@ export function createViewportController (tasks, state) {
 
     resize (event) {
       const stateViewport = state.viewport
-      const width = window.innerWidth
-      const height = window.innerHeight
-      const { resolution, size, center } = stateViewport
+      const { resolution, resolutionMax, size, center } = stateViewport
       const { pixelRatio } = state.controls.viewport
 
+      const width = window.innerWidth
+      const height = window.innerHeight
       vec2.set(size, width, height)
       vec2.set(center, width / 2, height / 2)
-      vec2.set(resolution,
-        Math.round(size[0] * pixelRatio),
-        Math.round(size[1] * pixelRatio))
+
+      const pixelRatioClamped = clampPixelRatio(
+        size, pixelRatio, resolutionMax[0])
+      const resWidth = Math.round(width * pixelRatioClamped)
+      const resHeight = Math.round(height * pixelRatioClamped)
+      vec2.set(resolution, resWidth, resHeight)
+
+      stateViewport.pixelRatioClamped = pixelRatioClamped
       stateViewport.didResize = true
+
       tasks.run('resize', event)
     },
 

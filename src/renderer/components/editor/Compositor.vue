@@ -4,9 +4,17 @@
     <!-- OPTIM: Investigate perf issues with stats rendering -->
     <div class="editor-compositor__stats" v-if="viewport && viewport.showStats">
       <div class="editor-compositor__stats__group">
-        <div>resolution: {{ viewport.resolution[0] }}w
+        <div>
+          resolution: {{ viewport.resolution[0] }}w
           {{ viewport.resolution[1] }}h
-          ({{ controls.viewport.pixelRatio.toFixed(2) }}x)</div>
+          ({{ controls.viewport.pixelRatio.toFixed(2) }}x)
+          <span v-if="(viewport.pixelRatioClamped != controls.viewport.pixelRatio)">
+            [{{ viewport.pixelRatioClamped.toFixed(2) }}x]
+          </span>
+        </div>
+        <div>
+          resolution max: {{ viewport.resolutionMax[0] }}px
+        </div>
       </div>
       <div class="editor-compositor__stats__group">
         <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
@@ -101,6 +109,7 @@ import { createPostBuffers } from '@src/utils/fbo'
 import { debounce } from '@src/utils/function'
 import { range } from '@src/utils/array'
 import { lerp } from '@src/utils/math'
+import { clampPixelRatio } from '@src/utils/screen'
 import { logger } from '@src/utils/logger'
 import { timer } from '@src/utils/timer'
 
@@ -194,6 +203,11 @@ function mountCompositor ($el, $refs, actions) {
         alpha: false
       }
     })
+
+    const { resolutionMax } = state.viewport
+    const { maxRenderbufferSize } = regl.limits
+    vec2.set(resolutionMax,
+      maxRenderbufferSize, maxRenderbufferSize)
 
     // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
@@ -480,7 +494,7 @@ function mountCompositor ($el, $refs, actions) {
         drawBanding, drawEdges, drawScreen
       } = renderer.commands
       const {
-        offset, scale, resolution,
+        offset, scale, resolution, resolutionMax,
         pixelRatioNative, didResize
       } = state.viewport
       const { pixelRatio } = state.controls.viewport
@@ -501,11 +515,23 @@ function mountCompositor ($el, $refs, actions) {
       const shouldRenderEdges = isRunning
 
       // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
+      const maxDimension = resolutionMax[0]
+      let bufPixelRatio = 1
       postBuffers.resize('full', resolution)
-      postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
-      postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
-      postBuffers.resize('blurA', resolution, bloom.bufferScale / (pixelRatioNative * 2))
-      postBuffers.resize('blurB', resolution, bloom.bufferScale / (pixelRatioNative * 2))
+
+      bufPixelRatio = banding.bufferScale / pixelRatioNative
+      postBuffers.resize('banding', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+
+      bufPixelRatio = edges.bufferScale / pixelRatioNative
+      postBuffers.resize('edges', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+
+      bufPixelRatio = bloom.bufferScale / (pixelRatioNative * 2)
+      postBuffers.resize('blurA', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+      postBuffers.resize('blurB', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
       timer.begin('renderLines')
       postBuffers.get('full').use(() => {
