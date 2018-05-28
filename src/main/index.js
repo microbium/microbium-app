@@ -12,12 +12,10 @@ import {
 import Store from 'electron-store'
 import log from 'electron-log'
 import createVideoRecorder from '@jpweeks/electron-recorder'
-import { PNG } from 'pngjs'
 
 import {
   readFile,
   writeFile,
-  createWriteStream,
   rename as renameFile
 } from 'fs-extra'
 import {
@@ -39,7 +37,7 @@ import { exportSceneHTML } from './exporters/html'
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
-const DEBUG_MAIN = false
+const DEBUG_MAIN = true
 const DEBUG_PALETTE = false
 
 /**
@@ -566,20 +564,7 @@ function saveScreenRecording (recording, fileName) {
 // ----------------------
 
 function saveFrameImageFromCanvas (path) {
-  requestWindowResponse('main', 'save-frame', null)
-    .then(({ buffer, width, height }) => {
-      return new Promise((resolve, reject) => {
-        const image = new PNG({
-          width,
-          height,
-          inputHasAlpha: true
-        })
-        image.data = buffer
-        image.pack()
-          .pipe(createWriteStream(path))
-          .on('finish', () => resolve(image))
-      })
-    })
+  requestWindowResponse('main', 'save-frame', { path })
     .then(() => {
       console.log(`Saved frame image to ${path}.`)
     })

@@ -211,7 +211,7 @@ function mountCompositor ($el, $refs, actions) {
 
     // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
-      'full', 'banding', 'edges', 'blurA', 'blurB')
+      'full', 'fullExport', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawBanding: createDrawBanding(regl),
@@ -290,7 +290,7 @@ function mountCompositor ($el, $refs, actions) {
       actions.observeMessage('command', (event, data) => viewport.command(data))
       actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
       actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
-      actions.observeMessage('save-frame', (event, data) => view.saveFrame())
+      actions.observeMessage('save-frame', (event, data) => view.saveFrameData(data))
     },
 
     serializeScene () {
@@ -323,28 +323,34 @@ function mountCompositor ($el, $refs, actions) {
       if (wasRunning) simulation.toggle()
     },
 
-    saveFrame () {
-      logger.time('save frame')
-      const { regl } = renderer
+    saveFrameData ({ path }) {
+      logger.time('save frame data')
+      const { regl, postBuffers } = renderer
       const { resolution } = state.viewport
       const width = resolution[0]
       const height = resolution[1]
 
+      postBuffers.resize('fullExport', resolution)
+      this.renderScene(0, postBuffers.get('fullExport'))
+
       const buffer = new Uint8Array(width * height * 4)
-      regl.read({
-        x: 0,
-        y: 0,
-        width,
-        height,
-        data: buffer
+      postBuffers.get('fullExport').use(() => {
+        regl.read({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          data: buffer
+        })
       })
 
       actions.sendMessage('save-frame--response', {
+        path,
         buffer,
         width,
         height
       })
-      logger.timeEnd('save frame')
+      logger.timeEnd('save frame data')
     },
 
     update (tick) {
@@ -503,7 +509,7 @@ function mountCompositor ($el, $refs, actions) {
     },
 
     // TODO: Break up post-processing passes
-    renderScene (tick) {
+    renderScene (tick, fbo = null) {
       const { postBuffers } = renderer
       const {
         setupDrawScreen, drawRect, drawTexture,
@@ -629,7 +635,7 @@ function mountCompositor ($el, $refs, actions) {
         timer.begin('renderComposite')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        drawScreen({
+        const compositeParams = {
           color: postBuffers.get('full'),
           colorShift,
           bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
@@ -642,7 +648,9 @@ function mountCompositor ($el, $refs, actions) {
           tick,
           viewOffset,
           viewResolution
-        })
+        }
+        if (fbo) fbo.use(() => drawScreen(compositeParams))
+        else drawScreen(compositeParams)
         timer.end('renderComposite')
 
         // Bloom Feedback
