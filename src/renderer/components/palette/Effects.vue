@@ -6,7 +6,7 @@
 
       <div class="palette-item">
         <!-- TODO: Move viewport / background controls to separate section -->
-        <input-range min="0.25" max="10" step="0.25" v-model="viewport.pixelRatio" />
+        <input-range min="0.25" max="3" step="0.25" v-model="viewport.pixelRatio" />
         <div class="palette-item__label">
           <b>{{ pixelRatioName }}</b> pixel density
         </div>

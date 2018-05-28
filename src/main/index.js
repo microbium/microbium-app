@@ -6,17 +6,18 @@ import {
   dialog,
   screen,
   shell,
-  nativeImage,
   BrowserWindow,
   Menu
 } from 'electron'
 import Store from 'electron-store'
 import log from 'electron-log'
 import createVideoRecorder from '@jpweeks/electron-recorder'
+import { PNG } from 'pngjs'
 
 import {
   readFile,
   writeFile,
+  createWriteStream,
   rename as renameFile
 } from 'fs-extra'
 import {
@@ -566,19 +567,25 @@ function saveScreenRecording (recording, fileName) {
 
 function saveFrameImageFromCanvas (path) {
   requestWindowResponse('main', 'save-frame', null)
-    .then((data) => nativeImageFromDataURL(data))
-    .then((buf) => writeFile(path, buf))
+    .then(({ buffer, width, height }) => {
+      return new Promise((resolve, reject) => {
+        const image = new PNG({
+          width,
+          height,
+          inputHasAlpha: true
+        })
+        image.data = buffer
+        image.pack()
+          .pipe(createWriteStream(path))
+          .on('finish', () => resolve(image))
+      })
+    })
     .then(() => {
-      console.log(`Saved frame to ${path}.`)
+      console.log(`Saved frame image to ${path}.`)
     })
     .catch((err) => {
       log.error(err)
     })
-}
-
-function nativeImageFromDataURL (data) {
-  const img = nativeImage.createFromDataURL(data)
-  return img.toPng()
 }
 
 // ------------------------------------------------------------

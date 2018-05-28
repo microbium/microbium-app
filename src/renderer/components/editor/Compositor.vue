@@ -324,11 +324,27 @@ function mountCompositor ($el, $refs, actions) {
     },
 
     saveFrame () {
-      const { canvas } = renderer
       logger.time('save frame')
-      const imageData = canvas.toDataURL('image/png')
+      const { regl } = renderer
+      const { resolution } = state.viewport
+      const width = resolution[0]
+      const height = resolution[1]
+
+      const buffer = new Uint8Array(width * height * 4)
+      regl.read({
+        x: 0,
+        y: 0,
+        width,
+        height,
+        data: buffer
+      })
+
+      actions.sendMessage('save-frame--response', {
+        buffer,
+        width,
+        height
+      })
       logger.timeEnd('save frame')
-      actions.sendMessage('save-frame--response', imageData)
     },
 
     update (tick) {
