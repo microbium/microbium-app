@@ -519,7 +519,7 @@ function mountCompositor ($el, $refs, actions) {
         offset, scale, resolution, resolutionMax,
         pixelRatioNative, didResize
       } = state.viewport
-      const { pixelRatio } = state.controls.viewport
+      const { pixelRatio, background } = state.controls.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
@@ -558,12 +558,12 @@ function mountCompositor ($el, $refs, actions) {
       timer.begin('renderLines')
       postBuffers.get('full').use(() => {
         // TODO: Tween between clear states
-        const clearColor = Colr.fromHex(postEffects.clear.colorHex)
+        const clearColor = Colr.fromHex(background.colorHex)
           .toRgbArray()
           .map((v) => v / 255)
         clearColor.push(didResize ? 1
           : (!isRunning ? 0.6
-            : (0.025 * postEffects.clear.alphaFactor)))
+            : (0.025 * background.alphaFactor)))
 
         state.renderer.drawCalls++
         drawRect({

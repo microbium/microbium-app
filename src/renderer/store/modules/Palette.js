@@ -214,14 +214,14 @@ export function createControlsState () {
     },
 
     viewport: {
-      pixelRatio: pixelRatioClamped()
+      pixelRatio: pixelRatioClamped(),
+      background: {
+        colorHex: '#7399A1',
+        alphaFactor: 1
+      }
     },
 
     postEffects: {
-      clear: {
-        colorHex: '#7399A1',
-        alphaFactor: 1
-      },
       noise: {
         intensityFactor: 1
       },
@@ -284,6 +284,10 @@ export function createControlsStaticParams () {
       {
         id: 'forces',
         name: 'Simulation Forces'
+      },
+      {
+        id: 'viewport',
+        name: 'Viewport'
       },
       {
         id: 'effects',

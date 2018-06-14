@@ -64,9 +64,15 @@
       </palette-group>
 
       <palette-group open
+        :hidden="!showViewportPanel">
+        <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
+        <palette-viewport :model="controls.viewport" />
+      </palette-group>
+
+      <palette-group open
         :hidden="!showEffectsPanels">
         <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
-        <palette-effects :model="controls.postEffects" :viewport="controls.viewport" />
+        <palette-effects :model="controls.postEffects" />
       </palette-group>
     </div>
   </div>
@@ -194,6 +200,7 @@ import PaletteForceList from '@src/components/palette/ForceList'
 import PaletteConstraintList from '@src/components/palette/ConstraintList'
 import PaletteStyleList from '@src/components/palette/StyleList'
 import PaletteModifiers from '@src/components/palette/Modifiers'
+import PaletteViewport from '@src/components/palette/Viewport'
 import PaletteEffects from '@src/components/palette/Effects'
 
 const DEBUG_DISABLE_FOCUS = false
@@ -212,7 +219,8 @@ export default {
     PaletteModes,
     PaletteModifiers,
     PaletteStyleList,
-    PaletteTool
+    PaletteTool,
+    PaletteViewport
   },
 
   data () {
@@ -306,6 +314,7 @@ export default {
     showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
+    showViewportPanel: createModeCondition('activePalettes', 'viewport'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
 

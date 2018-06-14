@@ -2,39 +2,6 @@
 <template>
   <div class="palette-effects">
     <palette-group nested open>
-      <h2 slot="title">Resolution</h2>
-
-      <div class="palette-item">
-        <!-- TODO: Move viewport / background controls to separate section -->
-        <!-- TODO: Add separate export resolution / pixel ratio setting -->
-        <input-range min="0.25" max="5" step="0.25" v-model="viewport.pixelRatio" />
-        <div class="palette-item__label">
-          <b>{{ pixelRatioName }}</b> pixel density
-        </div>
-      </div>
-      <hr />
-    </palette-group>
-
-    <palette-group nested open>
-      <h2 slot="title">Background</h2>
-
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ model.clear.colorHex.toUpperCase() }}
-            <input-color v-model="model.clear.colorHex" />
-          </b> color
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="0" max="2" step="0.05" v-model="model.clear.alphaFactor" />
-        <div class="palette-item__label">
-          <b>{{ clearAlphaName }}</b> fade out
-        </div>
-      </div>
-      <hr />
-    </palette-group>
-
-    <palette-group nested open>
       <h2 slot="title">Bloom</h2>
 
       <div class="palette-item">
@@ -66,7 +33,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested>
+    <palette-group nested open>
       <h2 slot="title">Gradient Banding</h2>
 
       <div class="palette-item">
@@ -166,7 +133,6 @@ import {
 } from '@src/utils/number'
 import { pluralize } from '@src/utils/word'
 
-import InputColor from '@src/components/input/Color'
 import InputRange from '@src/components/input/Range'
 import PaletteGroup from '@src/components/palette/Group'
 
@@ -174,30 +140,15 @@ export default {
   name: 'palette-effects',
 
   components: {
-    InputColor,
     InputRange,
     PaletteGroup
   },
 
   props: {
-    model: Object,
-    viewport: Object
+    model: Object
   },
 
   computed: {
-    // Resolution
-    pixelRatioName () {
-      const { pixelRatio } = this.viewport
-      return `${roundToPlaces(pixelRatio, 2)}x`
-    },
-
-    // Background
-
-    clearAlphaName () {
-      const { clear } = this.model
-      return `${roundToPlaces(clear.alphaFactor, 2)}x`
-    },
-
     // Noise
 
     noiseFactorName () {
