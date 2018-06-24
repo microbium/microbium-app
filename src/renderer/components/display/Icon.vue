@@ -20,8 +20,7 @@ import plusIcon from '@src/assets/icons/plus.svg'
 import selectIcon from '@src/assets/icons/select.svg'
 import stylesIcon from '@src/assets/icons/styles.svg'
 import toolIcon from '@src/assets/icons/tool.svg'
-// TODO: Add viewport icon
-// import viewportIcon from '@src/assets/icons/effects.svg'
+import viewportIcon from '@src/assets/icons/viewport.svg'
 
 export default {
   name: 'icon',
@@ -42,7 +41,7 @@ export default {
     selectIcon,
     stylesIcon,
     toolIcon,
-    viewportIcon: effectsIcon
+    viewportIcon
   },
 
   computed: {
