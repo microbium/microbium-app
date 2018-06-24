@@ -26,7 +26,7 @@
 
       <div class="palette-item">
         <!-- TODO: Add separate export resolution / pixel ratio setting -->
-        <input-range min="0.25" max="5" step="0.25" v-model="model.pixelRatio" />
+        <input-range min="0.25" max="10" step="0.25" v-model="model.pixelRatio" />
         <div class="palette-item__label">
           <b>{{ pixelRatioName }}</b> pixel density
         </div>
