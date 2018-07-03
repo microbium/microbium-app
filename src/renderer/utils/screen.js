@@ -10,3 +10,8 @@ export function pixelRatio () {
 export function pixelRatioClamped () {
   return Math.min(1.5, pixelRatio())
 }
+
+export function clampPixelRatio (size, pixelRatio, maxDimension) {
+  const biggestDim = Math.max(size[0], size[1]) * pixelRatio
+  return pixelRatio / Math.max(1, biggestDim / maxDimension)
+}

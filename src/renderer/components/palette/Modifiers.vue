@@ -30,7 +30,7 @@
       <h2 slot="title">Polar Generator</h2>
 
       <div class="palette-item">
-        <input-range min="1" max="32" v-model="model.polarIterations" />
+        <input-range min="1" max="11" v-model="model.polarIterations" />
         <div class="palette-item__label">
           <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
         </div>

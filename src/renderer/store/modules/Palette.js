@@ -1,3 +1,5 @@
+import { pixelRatioClamped } from '@src/utils/screen'
+
 export function createControlsState () {
   return {
     activeMode: {
@@ -211,11 +213,19 @@ export function createControlsState () {
       }
     },
 
-    postEffects: {
-      clear: {
+    viewport: {
+      pixelRatio: pixelRatioClamped(),
+      background: {
         colorHex: '#7399A1',
         alphaFactor: 1
       },
+      overlay: {
+        colorHighlightHex: '#92D9E7',
+        alphaFactor: 1
+      }
+    },
+
+    postEffects: {
       noise: {
         intensityFactor: 1
       },
@@ -278,6 +288,10 @@ export function createControlsStaticParams () {
       {
         id: 'forces',
         name: 'Simulation Forces'
+      },
+      {
+        id: 'viewport',
+        name: 'Viewport'
       },
       {
         id: 'effects',

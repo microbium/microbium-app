@@ -74,8 +74,12 @@
 </style>
 
 <script>
+import { PNG } from 'pngjs'
+import { createWriteStream } from 'fs-extra'
+
 import { debounce } from '@src/utils/function'
 import { isFullscreen } from '@src/utils/screen'
+import { logger } from '@src/utils/logger'
 
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'
@@ -131,6 +135,25 @@ export default {
       this.$electron.shell.showItemInFolder(this.fileFullPath)
     },
 
+    saveFrameImage ({ path, buffer, width, height }) {
+      return new Promise((resolve, reject) => {
+        logger.time('save frame image')
+        const out = createWriteStream(path)
+        const img = new PNG({
+          width,
+          height,
+          inputHasAlpha: true
+        })
+
+        img.data = buffer
+        img.pack().pipe(out)
+        out.on('finish', () => {
+          resolve(img)
+          logger.timeEnd('save frame image')
+        })
+      })
+    },
+
     resize (event) {
       this.isFullscreen = isFullscreen()
     },
@@ -164,9 +187,23 @@ export default {
       return ipcRenderer.on.bind(ipcRenderer)
     },
 
+    // TODO: Cleanup intercepting message
     sendMessage () {
       const { ipcRenderer } = this.$electron
-      return ipcRenderer.send.bind(ipcRenderer)
+      return (name, data) => {
+        switch (name) {
+          case 'save-frame--response':
+            this.saveFrameImage(data).then(() => {
+              ipcRenderer.send('save-frame--response', {
+                path: data.path
+              })
+            })
+            break
+          default:
+            ipcRenderer.send(name, data)
+            break
+        }
+      }
     }
   }
 }

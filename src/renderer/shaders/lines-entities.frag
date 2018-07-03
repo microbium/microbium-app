@@ -36,7 +36,7 @@ float sampleAlphaMap (vec3 udo, sampler2D map) {
 void main() {
   vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
   vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
-  vec2 position = fragCenter - vec2(viewOffset.x, -viewOffset.y);
+  vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
   vec2 coord = fragCoord / viewResolution.xy;
   vec3 udo = vUDO;
 
@@ -56,9 +56,9 @@ void main() {
   // }
 
   if (dashFunction == 1) {
-    outAlpha *= radialDash(position, 800.0, 0.1, 10.0);
+    outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);
   } else if (dashFunction == 2) {
-    outAlpha *= concentricDash(position, 0.1, 3.0);
+    outAlpha *= concentricDash(fragPosition, 0.1, 3.0);
   } else if (dashFunction == 3) {
     outAlpha *= basicDash(udo, 0.1, 3.0);
   } else if (dashFunction == 4) {

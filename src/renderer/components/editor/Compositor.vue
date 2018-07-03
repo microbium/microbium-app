@@ -4,9 +4,17 @@
     <!-- OPTIM: Investigate perf issues with stats rendering -->
     <div class="editor-compositor__stats" v-if="viewport && viewport.showStats">
       <div class="editor-compositor__stats__group">
-        <div>resolution: {{ viewport.resolution[0] }}w
+        <div>
+          resolution: {{ viewport.resolution[0] }}w
           {{ viewport.resolution[1] }}h
-          ({{ viewport.pixelRatio }}x)</div>
+          ({{ controls.viewport.pixelRatio.toFixed(2) }}x)
+          <span v-if="(viewport.pixelRatioClamped != controls.viewport.pixelRatio)">
+            [{{ viewport.pixelRatioClamped.toFixed(2) }}x]
+          </span>
+        </div>
+        <div>
+          resolution max: {{ viewport.resolutionMax[0] }}px
+        </div>
       </div>
       <div class="editor-compositor__stats__group">
         <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
@@ -89,7 +97,7 @@
 </style>
 
 <script>
-import { vec2, vec3, mat4 } from 'gl-matrix'
+import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
@@ -101,6 +109,7 @@ import { createPostBuffers } from '@src/utils/fbo'
 import { debounce } from '@src/utils/function'
 import { range } from '@src/utils/array'
 import { lerp } from '@src/utils/math'
+import { clampPixelRatio } from '@src/utils/screen'
 import { logger } from '@src/utils/logger'
 import { timer } from '@src/utils/timer'
 
@@ -150,6 +159,7 @@ const DEBUG_PERF = false
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
+const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
 // Move state / syncing to Editor
@@ -176,6 +186,8 @@ function mountCompositor ($el, $refs, actions) {
   const viewport = createViewportController(tasks, state)
   const io = createIOController(tasks, state)
 
+  // OPTIM: Investigate preserveDrawingBuffer effect on perf
+  // It's currently needed to enable full dpi canvas export
   function createRenderer () {
     const canvas = document.createElement('canvas')
     const regl = createREGL({
@@ -187,15 +199,20 @@ function mountCompositor ($el, $refs, actions) {
       ],
       attributes: {
         antialias: false,
-        preserveDrawingBuffer: false,
+        preserveDrawingBuffer: true,
         premultipliedAlpha: false,
         alpha: false
       }
     })
 
+    const { resolutionMax } = state.viewport
+    const { maxRenderbufferSize } = regl.limits
+    vec2.set(resolutionMax,
+      maxRenderbufferSize, maxRenderbufferSize)
+
     // const textures = createTextureManager(regl, TEXTURES)
     const postBuffers = createPostBuffers(regl,
-      'full', 'banding', 'edges', 'blurA', 'blurB')
+      'full', 'fullExport', 'banding', 'edges', 'blurA', 'blurB')
     const commands = {
       setupDrawScreen: createSetupDrawScreen(regl),
       drawBanding: createDrawBanding(regl),
@@ -274,6 +291,7 @@ function mountCompositor ($el, $refs, actions) {
       actions.observeMessage('command', (event, data) => viewport.command(data))
       actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
       actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
+      actions.observeMessage('save-frame', (event, data) => view.saveFrameData(data))
     },
 
     serializeScene () {
@@ -304,6 +322,36 @@ function mountCompositor ($el, $refs, actions) {
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
+    },
+
+    saveFrameData ({ path }) {
+      logger.time('save frame data')
+      const { regl, postBuffers } = renderer
+      const { resolution } = state.viewport
+      const width = resolution[0]
+      const height = resolution[1]
+
+      postBuffers.resize('fullExport', resolution)
+      this.renderScene(0, postBuffers.get('fullExport'))
+
+      const buffer = new Uint8Array(width * height * 4)
+      postBuffers.get('fullExport').use(() => {
+        regl.read({
+          x: 0,
+          y: 0,
+          width,
+          height,
+          data: buffer
+        })
+      })
+
+      actions.sendMessage('save-frame--response', {
+        path,
+        buffer,
+        width,
+        height
+      })
+      logger.timeEnd('save frame data')
     },
 
     update (tick) {
@@ -462,16 +510,17 @@ function mountCompositor ($el, $refs, actions) {
     },
 
     // TODO: Break up post-processing passes
-    renderScene (tick) {
+    renderScene (tick, fbo = null) {
       const { postBuffers } = renderer
       const {
         setupDrawScreen, drawRect, drawTexture,
         drawBanding, drawEdges, drawScreen
       } = renderer.commands
       const {
-        offset, scale, resolution,
-        pixelRatio, pixelRatioNative, didResize
+        offset, scale, resolution, resolutionMax,
+        pixelRatioNative, didResize
       } = state.viewport
+      const { pixelRatio, background, overlay } = state.controls.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
@@ -488,21 +537,34 @@ function mountCompositor ($el, $refs, actions) {
         banding.intensityFactor > 0
       const shouldRenderEdges = isRunning
 
+      // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
+      const maxDimension = resolutionMax[0]
+      let bufPixelRatio = 1
       postBuffers.resize('full', resolution)
-      postBuffers.resize('banding', resolution, banding.bufferScale / pixelRatioNative)
-      postBuffers.resize('edges', resolution, edges.bufferScale / pixelRatioNative)
-      postBuffers.resize('blurA', resolution, bloom.bufferScale / (pixelRatioNative * 2))
-      postBuffers.resize('blurB', resolution, bloom.bufferScale / (pixelRatioNative * 2))
+
+      bufPixelRatio = banding.bufferScale / pixelRatioNative
+      postBuffers.resize('banding', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+
+      bufPixelRatio = edges.bufferScale / pixelRatioNative
+      postBuffers.resize('edges', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+
+      bufPixelRatio = bloom.bufferScale / (pixelRatioNative * 2)
+      postBuffers.resize('blurA', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
+      postBuffers.resize('blurB', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
       timer.begin('renderLines')
       postBuffers.get('full').use(() => {
         // TODO: Tween between clear states
-        const clearColor = Colr.fromHex(postEffects.clear.colorHex)
+        const clearColor = Colr.fromHex(background.colorHex)
           .toRgbArray()
           .map((v) => v / 255)
         clearColor.push(didResize ? 1
           : (!isRunning ? 0.6
-            : (0.025 * postEffects.clear.alphaFactor)))
+            : (0.025 * background.alphaFactor)))
 
         state.renderer.drawCalls++
         drawRect({
@@ -574,7 +636,7 @@ function mountCompositor ($el, $refs, actions) {
         timer.begin('renderComposite')
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        drawScreen({
+        const compositeParams = {
           color: postBuffers.get('full'),
           colorShift,
           bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
@@ -584,10 +646,13 @@ function mountCompositor ($el, $refs, actions) {
           edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
           edgesIntensity,
           noiseIntensity,
+          overlayAlpha: overlay.alphaFactor,
           tick,
           viewOffset,
           viewResolution
-        })
+        }
+        if (fbo) fbo.use(() => drawScreen(compositeParams))
+        else drawScreen(compositeParams)
         timer.end('renderComposite')
 
         // Bloom Feedback
@@ -639,9 +704,11 @@ function mountCompositor ($el, $refs, actions) {
       drawPolarGrid(state, uiGrid.ctx)
     },
 
+    // TODO: Ensure line thickness is correct on high dpi
     computeLineThickness (baseThickness) {
       const { lineScaleFactor } = cameras.scene
-      const { scale, pixelRatio } = state.viewport
+      const { scale } = state.viewport
+      const { pixelRatio } = state.controls.viewport
       const { zoomOffset } = state.drag
       const pixelRatioAdjust = 0.5 / pixelRatio
       return (baseThickness + pixelRatioAdjust) *
@@ -714,8 +781,10 @@ function mountCompositor ($el, $refs, actions) {
     renderUI () {
       const { isRunning } = state.simulation
       const { contexts } = sceneUI
+      const { overlay } = state.controls.viewport
+
       const model = mat4.identity(scratchMat4A)
-      const tint = [1, 1, 1, 1]
+      const tint = vec4.set(scratchVec4A, 1, 1, 1, overlay.alphaFactor)
       const thickness = this.computeLineThickness(1)
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
@@ -740,6 +809,7 @@ function mountCompositor ($el, $refs, actions) {
   view.inject()
 
   return {
+    tasks,
     state
   }
 }
@@ -760,10 +830,12 @@ export default {
       DEBUG_RENDER_HASH,
       DEBUG_PERF,
       timer,
+      tasks: null,
       drag: null,
       renderer: null,
       simulation: null,
-      viewport: null
+      viewport: null,
+      controls: null
     }
   },
 
@@ -774,14 +846,23 @@ export default {
       sendMessage: this.sendMessage,
       updateCursor: this.updateCursor
     }
-    const { state } = mountCompositor($el, $refs, actions)
+    const { tasks, state } = mountCompositor($el, $refs, actions)
 
     timer.enable(DEBUG_PERF)
 
+    this.tasks = tasks
     this.drag = state.drag
     this.renderer = state.renderer
     this.simulation = state.simulation
     this.viewport = state.viewport
+    this.controls = state.controls
+  },
+
+  watch: {
+    // TODO: Improve method for resizing main canvas
+    'controls.viewport.pixelRatio' () {
+      this.tasks.requestSync('viewport.resize')
+    }
   },
 
   computed: {

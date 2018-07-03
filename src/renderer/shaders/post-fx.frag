@@ -13,6 +13,7 @@ uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
 uniform float noiseIntensity;
+uniform float overlayAlpha;
 uniform vec3 colorShift; // [hue, saturation, value]
 
 uniform float tick;
@@ -36,7 +37,7 @@ varying vec2 uv;
 
 void main() {
   // TODO: Improve viewResolution density mapping ..
-  vec2 fragCoord = gl_FragCoord.xy / viewResolution.z;
+  vec2 fragCoord = uv * viewResolution.xy / viewResolution.z;
   vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
   vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
 
@@ -116,7 +117,7 @@ void main() {
 
   // Origin Concentric Grid
   vec3 originDashColor = vec3(
-    concentricDash(fragPosition, 0.15, 1.0) * 0.035);
+    concentricDash(fragPosition, 0.15, 1.0) * 0.035 * overlayAlpha);
 
   // Vignette
   vec3 vignetteColor = vec3(vignette(uv, 0.7, 0.4));

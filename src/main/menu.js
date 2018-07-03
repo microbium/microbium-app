@@ -61,6 +61,14 @@ export function createMenuTemplate (app, actions) {
         },
         {type: 'separator'},
         {
+          label: 'Export Image',
+          accelerator: 'Cmd+Shift+E',
+          click () {
+            actions.saveFrameImage()
+          }
+        },
+        {type: 'separator'},
+        {
           id: 'start-screen-recording',
           label: 'Start Screen Recording',
           enabled: true,

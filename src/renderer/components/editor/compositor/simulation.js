@@ -40,6 +40,7 @@ export function createSimulationController (tasks, state, renderer) {
     togglePause () {
       const { isPaused } = state.simulation
       state.simulation.isPaused = !isPaused
+      state.renderer.updateOverlapTick = 0
     },
 
     // Create

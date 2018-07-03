@@ -37,7 +37,7 @@ import { exportSceneHTML } from './exporters/html'
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
-const DEBUG_MAIN = false
+const DEBUG_MAIN = true
 const DEBUG_PALETTE = false
 
 /**
@@ -87,30 +87,26 @@ function createMenu () {
   if (appMenus.main !== null) return
 
   // TODO: Cleanup file filters
-  const fileTypeFilters = [
-    {
-      name: 'Microbium Scene',
-      extensions: ['mcrbm']
-    }
-  ]
-  const jsonTypeFilters = [
-    {
-      name: 'JSON',
-      extensions: ['json']
-    }
-  ]
-  const htmlTypeFilters = [
-    {
-      name: 'HTML',
-      extensions: ['html']
-    }
-  ]
-  const videoTypeFilters = [
-    {
-      name: 'Videos',
-      extensions: ['mov']
-    }
-  ]
+  const fileTypeFilters = [{
+    name: 'Microbium Scene',
+    extensions: ['mcrbm']
+  }]
+  const imageTypeFilters = [{
+    name: 'Images',
+    extensions: ['png']
+  }]
+  const jsonTypeFilters = [{
+    name: 'JSON',
+    extensions: ['json']
+  }]
+  const htmlTypeFilters = [{
+    name: 'HTML',
+    extensions: ['html']
+  }]
+  const videoTypeFilters = [{
+    name: 'Videos',
+    extensions: ['mov']
+  }]
 
   // TODO: Cleanup actions
   const template = createMenuTemplate(app, {
@@ -165,6 +161,14 @@ function createMenu () {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
         }
+      })
+    },
+    saveFrameImage () {
+      dialog.showSaveDialog(null, {
+        filters: imageTypeFilters
+      }, (fileName) => {
+        if (!fileName) return
+        saveFrameImageFromCanvas(fileName)
       })
     },
     exportJSON () {
@@ -553,6 +557,20 @@ function stopWindowScreenRecording (name) {
 
 function saveScreenRecording (recording, fileName) {
   renameFile(recording.output, fileName)
+}
+
+// ------------------------------------------------------------
+// Canvas Image Exporting
+// ----------------------
+
+function saveFrameImageFromCanvas (path) {
+  requestWindowResponse('main', 'save-frame', { path })
+    .then(() => {
+      console.log(`Saved frame image to ${path}.`)
+    })
+    .catch((err) => {
+      log.error(err)
+    })
 }
 
 // ------------------------------------------------------------
