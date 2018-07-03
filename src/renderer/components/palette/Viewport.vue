@@ -22,6 +22,25 @@
     </palette-group>
 
     <palette-group nested open>
+      <h2 slot="title">Overlays</h2>
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ model.overlay.colorHighlightHex.toUpperCase() }}
+            <input-color v-model="model.overlay.colorHighlightHex" />
+          </b> highlight color
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.05" v-model="model.overlay.alphaFactor" />
+        <div class="palette-item__label">
+          <b>{{ overlayAlphaName }}</b> opacity
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group nested open>
       <h2 slot="title">Resolution</h2>
 
       <div class="palette-item">
@@ -71,6 +90,13 @@ export default {
     backgroundAlphaName () {
       const { background } = this.model
       return `${roundToPlaces(background.alphaFactor, 2)}x`
+    },
+
+    // Overlay
+
+    overlayAlphaName () {
+      const { overlay } = this.model
+      return `${roundToPlaces(overlay.alphaFactor * 100, 0)}%`
     }
   }
 }

@@ -125,6 +125,7 @@ export function createDrawScreen (regl) {
       edges: regl.prop('edges'),
       edgesIntensity: regl.prop('edgesIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
+      overlayAlpha: regl.prop('overlayAlpha'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset')

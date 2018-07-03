@@ -218,6 +218,10 @@ export function createControlsState () {
       background: {
         colorHex: '#7399A1',
         alphaFactor: 1
+      },
+      overlay: {
+        colorHighlightHex: '#92D9E7',
+        alphaFactor: 1
       }
     },
 

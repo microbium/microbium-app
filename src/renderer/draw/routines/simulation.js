@@ -1,11 +1,10 @@
-import { UI_PALETTE } from '@src/constants/color-palettes'
-
 const { PI } = Math
 
 export function drawSimulatorUI (state, ctx) {
   if (!state.simulation.isRunning) return
   const { tick } = state.simulation
   const { center, size } = state.viewport
+  const { overlay } = state.controls.viewport
 
   const offsetA = 6 + Math.sin(tick * 0.02) * 2
   const offsetB = 10 + Math.sin(tick * 0.02) * 2
@@ -13,8 +12,8 @@ export function drawSimulatorUI (state, ctx) {
   ctx.save()
   ctx.translate(-center[0], -center[1])
 
-  ctx.globalAlpha = 0.8
-  ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
+  ctx.globalAlpha = 0.8 * overlay.alphaFactor
+  ctx.strokeStyle = overlay.colorHighlightHex
 
   ctx.lineWidth = 3
   ctx.strokeRect(offsetA, offsetA,
@@ -54,13 +53,14 @@ export function drawSimulatorOriginUI (state, ctx) {
 export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
   const { points } = state.simulationForces
   const { scale } = state.viewport
+  const { overlay } = state.controls.viewport
   const scaleInv = 1 / scale
 
   points.forEach(({position, force}) => {
     const { intensity, radius } = force
 
-    ctx.globalAlpha = 0.8 * alpha
-    ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
+    ctx.globalAlpha = 0.8 * alpha * overlay.alphaFactor
+    ctx.strokeStyle = overlay.colorHighlightHex
     ctx.lineWidth = 1 * scaleInv
     ctx.beginPath()
     ctx.arc(position[0], position[1],
@@ -68,7 +68,7 @@ export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
       0, PI * 2)
     ctx.stroke()
 
-    ctx.globalAlpha = 0.1 * alpha
+    ctx.globalAlpha = 0.1 * alpha * overlay.alphaFactor
     ctx.strokeStyle = '#ffffff'
     ctx.lineWidth = 0.8 * scaleInv
     ctx.beginPath()

@@ -97,7 +97,7 @@
 </style>
 
 <script>
-import { vec2, vec3, mat4 } from 'gl-matrix'
+import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
@@ -159,6 +159,7 @@ const DEBUG_PERF = false
 
 const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
+const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
 // Move state / syncing to Editor
@@ -519,7 +520,7 @@ function mountCompositor ($el, $refs, actions) {
         offset, scale, resolution, resolutionMax,
         pixelRatioNative, didResize
       } = state.viewport
-      const { pixelRatio, background } = state.controls.viewport
+      const { pixelRatio, background, overlay } = state.controls.viewport
       const { panOffset, zoomOffset } = state.drag
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
@@ -645,6 +646,7 @@ function mountCompositor ($el, $refs, actions) {
           edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
           edgesIntensity,
           noiseIntensity,
+          overlayAlpha: overlay.alphaFactor,
           tick,
           viewOffset,
           viewResolution
@@ -779,8 +781,10 @@ function mountCompositor ($el, $refs, actions) {
     renderUI () {
       const { isRunning } = state.simulation
       const { contexts } = sceneUI
+      const { overlay } = state.controls.viewport
+
       const model = mat4.identity(scratchMat4A)
-      const tint = [1, 1, 1, 1]
+      const tint = vec4.set(scratchVec4A, 1, 1, 1, overlay.alphaFactor)
       const thickness = this.computeLineThickness(1)
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
