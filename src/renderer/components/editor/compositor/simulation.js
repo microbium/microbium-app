@@ -106,7 +106,7 @@ export function createSimulationController (tasks, state, renderer) {
       })
 
       vertices.forEach((vert, i) => {
-        const weight = mapLinear(0, maxWeight, 4, 0.5,
+        const weight = mapLinear(0, maxWeight, 4, 1,
           accumulatedWeights[i])
         system.setPosition(i, vert[0], vert[1], 0)
         system.setWeight(i, weight)
