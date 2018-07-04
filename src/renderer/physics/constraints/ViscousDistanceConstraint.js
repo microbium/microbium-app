@@ -11,7 +11,7 @@ export { ViscousDistanceConstraint }
 
 function ViscousDistanceConstraint (distance, a, b) {
   DistanceConstraint.call(this, distance, a, b)
-  this.fluidFrictionFactor = 1.0 / (10 * 1000)
+  this.fluidFrictionFactor = 1.0 / (50 * 1000)
 }
 
 inherit(DistanceConstraint, ViscousDistanceConstraint, {
