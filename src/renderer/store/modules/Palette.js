@@ -248,7 +248,8 @@ export function createControlsState () {
         // blendMode: MULTIPLY,
         blurPasses: 1,
         blurStep: 4,
-        bufferScale: 1
+        bufferScale: 1,
+        feedbackOffset: 0
       },
       colorShift: [0, 0, 0]
     }

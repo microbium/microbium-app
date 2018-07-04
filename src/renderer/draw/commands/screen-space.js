@@ -3,7 +3,8 @@ import injectDefines from 'glsl-inject-defines'
 import basicFrag from '@src/shaders/basic.frag'
 import postFXVert from '@src/shaders/post-fx.vert'
 import postFXFrag from '@src/shaders/post-fx.frag'
-import postFXCopy from '@src/shaders/post-fx-copy.frag'
+import postFXCopyVert from '@src/shaders/post-fx-copy.vert'
+import postFXCopyFrag from '@src/shaders/post-fx-copy.frag'
 import postFXBoxBlurFrag from '@src/shaders/post-fx-box-blur.frag'
 import postFXGaussBlurFrag from '@src/shaders/post-fx-gaussian-blur.frag'
 import postFXHashBlurFrag from '@src/shaders/post-fx-hash-blur.frag'
@@ -46,9 +47,11 @@ export function createSetupDrawScreen (regl) {
 
 export function createDrawTexture (regl) {
   return regl({
-    frag: postFXCopy,
+    frag: postFXCopyFrag,
+    vert: postFXCopyVert,
     uniforms: {
-      color: regl.prop('color')
+      color: regl.prop('color'),
+      scale: regl.prop('scale')
     }
   })
 }

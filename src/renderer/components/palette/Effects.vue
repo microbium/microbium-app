@@ -13,6 +13,14 @@
       <hr />
 
       <div class="palette-item">
+        <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackOffset" />
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackOffsetName }}</b> feedback offset
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
         <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
         <div class="palette-item__label">
           <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
@@ -161,6 +169,11 @@ export default {
     bloomFactorName () {
       const { bloom } = this.model
       return `${roundToPlaces(bloom.intensityFactor, 2)}x`
+    },
+
+    bloomFeedbackOffsetName () {
+      const { bloom } = this.model
+      return `${roundToPlaces(bloom.feedbackOffset, 2)}x`
     },
 
     bloomBlurPassesName () {

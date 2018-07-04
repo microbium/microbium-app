@@ -659,7 +659,8 @@ function mountCompositor ($el, $refs, actions) {
         if (isRunning && shouldRenderBloom) {
           postBuffers.get('full').use(() => {
             drawTexture({
-              color: postBuffers.get('blurB')
+              color: postBuffers.get('blurB'),
+              scale: 1 - bloom.feedbackOffset * 0.2
             })
           })
         }
