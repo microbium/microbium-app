@@ -53,7 +53,7 @@
       <hr />
 
       <div class="palette-item">
-        <input-range min="4" max="64" step="2" v-model="model.banding.bandStep" />
+        <input-range min="4" max="256" step="2" v-model="model.banding.bandStep" />
         <div class="palette-item__label">
           <b>{{ bandingStepName }}</b> banding interval
         </div>
