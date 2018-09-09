@@ -12,6 +12,7 @@ export function curve (points,
 
   for (let i = 0; i < count; i++) {
     const ix = i * 2
+    const iy = ix + 1
     const iwt = i / segmentsCount
     const iw = Math.floor(iwt)
 
@@ -20,8 +21,8 @@ export function curve (points,
 
     this.lineWidth = max(0, lineWidth)
 
-    if (i === 0) this.moveTo(spline[ix], spline[ix + 1])
-    else this.lineTo(spline[ix], spline[ix + 1])
+    if (i === 0) this.moveTo(spline[ix], spline[iy])
+    else this.lineTo(spline[ix], spline[iy])
   }
 
   return spline
