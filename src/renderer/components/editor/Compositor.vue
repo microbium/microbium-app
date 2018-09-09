@@ -538,6 +538,7 @@ function mountCompositor ($el, $refs, actions) {
       const shouldRenderEdges = isRunning
 
       // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
+      // OPTIM: Investigate resize perf regression after Electron upgrade
       const maxDimension = resolutionMax[0]
       let bufPixelRatio = 1
       postBuffers.resize('full', resolution)
