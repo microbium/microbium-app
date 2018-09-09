@@ -4,11 +4,8 @@ import { map, flatten2 } from '@src/utils/array'
 import { clamp, mapLinear } from '@src/utils/math'
 import { arc } from './primitive'
 
-const { max } = Math
-
 export function drawGeometry (state, contexts, segmentStart, segmentCount) {
   drawSegments(state, contexts, segmentStart, segmentCount)
-  drawSegmentsCurves(state, contexts, segmentStart, segmentCount)
 }
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
@@ -32,65 +29,25 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const { ctx } = contexts[styleIndex]
     const { strokeWidthMod } = styles[styleIndex]
     const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
-    if (curvePrecision > 1) continue
 
-    ctx.globalAlpha = (curvePrecision <= 1 ? 1 : 0.5) * strokeAlpha
-    ctx.strokeStyle = strokeColor
-    ctx.beginPath()
-
-    for (let i = 0; i < count; i++) {
-      const index = indices[i]
-      const point = vertices[index]
-      // TODO: Move final strokeWidth calc to inter-module function
-      ctx.lineWidth = max(0,
-        strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[i])
-      if (i === 0) ctx.moveTo(point[0], point[1])
-      else ctx.lineTo(point[0], point[1])
-    }
-    if (isClosed) {
-      ctx.closePath()
-      // ctx.fill()
-    }
-    ctx.stroke()
-  }
-}
-
-export function drawSegmentsCurves (state, contexts, segmentStart_, segmentCount_) {
-  const { segments, vertices } = state.geometry
-  const { styles, modifiers } = state.controls
-  const segmentStart = segmentStart_ || 0
-  const segmentCount = segmentCount_ || segments.length
-  if (!segments.length) return
-
-  for (let s = segmentStart; s < segmentCount; s++) {
-    const segment = segments[s]
-    const {
-      indices, isClosed, styleIndex,
-      strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha,
-      linkSizeAvg
-    } = segment
-
-    const count = isClosed ? indices.length - 1 : indices.length
-    const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
-    if (count < 2 || curvePrecision <= 1) continue
-
-    // OPTIM: Reduce data transformations needed to draw curves
-    const { ctx } = contexts[styleIndex]
-    const { strokeWidthMod } = styles[styleIndex]
     const points = map(indices, (i) => vertices[i])
     if (isClosed) points.pop()
+
     const pointsFlat = flatten2(points)
 
     ctx.globalAlpha = strokeAlpha
     ctx.strokeStyle = strokeColor
-    ctx.lineWidth = max(0,
-      strokeWidth + strokeWidth * strokeWidthMod * strokeWidthModulations[0])
 
     ctx.beginPath()
-    ctx.moveTo(pointsFlat[0], pointsFlat[1])
-    ctx.curve(pointsFlat,
-      strokeWidth, strokeWidthMod, strokeWidthModulations,
-      0.5, curvePrecision, isClosed)
+    if (curvePrecision <= 1) {
+      ctx.polyline(pointsFlat,
+        strokeWidth, strokeWidthMod, strokeWidthModulations,
+        isClosed)
+    } else {
+      ctx.curve(pointsFlat,
+        strokeWidth, strokeWidthMod, strokeWidthModulations,
+        0.5, curvePrecision, isClosed)
+    }
 
     if (isClosed) {
       ctx.closePath()

@@ -1,6 +1,6 @@
 import { LineBuilder } from 'regl-line-builder'
 
-import { curve } from '@src/utils/draw'
+import { curve, polyline } from '@src/utils/draw'
 import linesEntitiesVert from '@src/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@src/shaders/lines-entities.frag'
 import linesUIFrag from '@src/shaders/lines-ui.frag'
@@ -80,6 +80,7 @@ export function createScene (tasks, state, renderer) {
 
     const ctx = lines.getContext('2d')
     ctx.curve = curve.bind(ctx)
+    ctx.polyline = polyline.bind(ctx)
 
     return {
       bufferSize,
