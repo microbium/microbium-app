@@ -157,8 +157,6 @@ const DISABLE_RENDER = false
 const DEBUG_RENDER_HASH = false
 const DEBUG_PERF = false
 
-const scratchVec2A = vec2.create()
-const scratchVec3A = vec3.create()
 const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
@@ -257,11 +255,27 @@ function mountCompositor ($el, $refs, actions) {
     inject () {
       tasks.flush('inject', containers).then(() => {
         viewport.resize()
+        view.createComputedState()
         view.bindEvents()
         view.willStart()
         view.start()
         view.didStart()
       })
+    },
+
+    createComputedState () {
+      this.computedState = {
+        viewResolution: vec3.create(),
+        viewOffset: vec2.create(),
+        viewScale: 1,
+        shouldRenderBloom: false,
+        shouldRenderBanding: false,
+        shouldRenderEdges: false,
+        bloomIntensity: 0,
+        noiseIntensity: 0,
+        bandingIntensity: 0,
+        edgesIntensity: 0
+      }
     },
 
     willStart () {
@@ -318,7 +332,7 @@ function mountCompositor ($el, $refs, actions) {
       })
 
       state.renderer.needsUpdate = true
-      view.updatePaletteState(null, null, state.controls)
+      this.updatePaletteState(null, null, state.controls)
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
@@ -354,9 +368,16 @@ function mountCompositor ($el, $refs, actions) {
       logger.timeEnd('save frame data')
     },
 
+    // Update
+    // ..................................................
+
     update (tick) {
       const { isRunning, wasRunning, isPaused } = state.simulation
+
       timer.reset()
+      this.updateComputedPosition()
+      this.updateComputedPostState()
+
       if (!isRunning) {
         this.syncStrokeWidthMod()
         this.syncCursor(true)
@@ -376,7 +397,42 @@ function mountCompositor ($el, $refs, actions) {
       if (tick % TICK_MSG_INTERVAL === 0) {
         this.sendFrameState()
       }
+
       state.simulation.wasRunning = isRunning
+    },
+
+    updateComputedPosition () {
+      const { offset, scale, resolution } = state.viewport
+      const { pixelRatio } = state.controls.viewport
+      const { panOffset, zoomOffset } = state.drag
+      const { viewResolution, viewOffset } = this.computedState
+
+      vec3.set(viewResolution,
+        resolution[0], resolution[1], pixelRatio)
+      vec2.add(viewOffset, offset, panOffset)
+      this.computedState.viewScale = scale + zoomOffset
+    },
+
+    updateComputedPostState () {
+      const { computedState } = this
+      const { isRunning } = state.simulation
+      const { postEffects } = state.controls
+      const { banding, bloom, noise, edges } = postEffects
+
+      const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
+        bloom.blurPasses > 0 && bloom.intensityFactor > 0
+      const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
+        banding.intensityFactor > 0
+      const shouldRenderEdges = computedState.shouldRenderEdges = isRunning
+
+      computedState.bloomIntensity = !shouldRenderBloom ? 0
+        : (0.4 * bloom.intensityFactor)
+      computedState.noiseIntensity = !isRunning ? 0.0
+        : (0.06 * noise.intensityFactor)
+      computedState.bandingIntensity = !shouldRenderBanding ? 0
+        : (0.6 * banding.intensityFactor)
+      computedState.edgesIntensity = !shouldRenderEdges ? 0
+        : (0.25 * edges.intensityFactor)
     },
 
     syncStrokeWidthMod () {
@@ -433,6 +489,9 @@ function mountCompositor ($el, $refs, actions) {
       })
     },
 
+    // Render
+    // ..................................................
+
     render (tick) {
       if (DISABLE_RENDER) return
       const { regl } = renderer
@@ -451,15 +510,21 @@ function mountCompositor ($el, $refs, actions) {
       const shouldUpdate = nextRenderHash !== stateRenderer.lastRenderHash ||
         stateRenderer.needsUpdate
       const shouldRender = (shouldUpdate || stateRenderer.updateOverlapTick-- > 0) &&
-        view.updateRenderableGeometry(tick)
+        this.updateRenderableGeometry(tick)
       timer.end('updateLines')
 
-      if (shouldRender) view.renderScene(tick)
+      if (shouldRender) this.renderScene(tick)
       if (shouldUpdate) stateRenderer.updateOverlapTick = 20
 
       stateRenderer.lastRenderHash = nextRenderHash
       stateRenderer.needsUpdate = false
       state.viewport.didResize = false
+    },
+
+    // NOTE: Called once to setup non-dynamic UI
+    renderOnce () {
+      const uiGrid = sceneUI.grid
+      drawPolarGrid(state, uiGrid.ctx)
     },
 
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
@@ -509,36 +574,14 @@ function mountCompositor ($el, $refs, actions) {
       return !didResizeBuffer
     },
 
-    // TODO: Break up post-processing passes
-    renderScene (tick, fbo = null) {
+    // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
+    // OPTIM: Investigate resize perf regression after Electron upgrade
+    resizeRenderBuffers () {
       const { postBuffers } = renderer
-      const {
-        setupDrawScreen, drawRect, drawTexture,
-        drawBanding, drawEdges, drawScreen
-      } = renderer.commands
-      const {
-        offset, scale, resolution, resolutionMax,
-        pixelRatioNative, didResize
-      } = state.viewport
-      const { pixelRatio, background, overlay } = state.controls.viewport
-      const { panOffset, zoomOffset } = state.drag
-      const { isRunning } = state.simulation
+      const { resolution, resolutionMax, pixelRatioNative } = state.viewport
       const { postEffects } = state.controls
+      const { banding, edges, bloom } = postEffects
 
-      const viewResolution = vec3.set(scratchVec3A,
-        resolution[0], resolution[1], pixelRatio)
-      const viewOffset = vec2.add(scratchVec2A, offset, panOffset)
-      const viewScale = scale + zoomOffset
-
-      const { banding, edges, bloom, noise, colorShift } = postEffects
-      const shouldRenderBloom = isRunning &&
-        bloom.blurPasses > 0 && bloom.intensityFactor > 0
-      const shouldRenderBanding = isRunning &&
-        banding.intensityFactor > 0
-      const shouldRenderEdges = isRunning
-
-      // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
-      // OPTIM: Investigate resize perf regression after Electron upgrade
       const maxDimension = resolutionMax[0]
       let bufPixelRatio = 1
       postBuffers.resize('full', resolution)
@@ -556,125 +599,6 @@ function mountCompositor ($el, $refs, actions) {
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
       postBuffers.resize('blurB', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
-
-      timer.begin('renderLines')
-      postBuffers.get('full').use(() => {
-        // TODO: Tween between clear states
-        const clearColor = Colr.fromHex(background.colorHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        clearColor.push(didResize ? 1
-          : (!isRunning ? 0.6
-            : (0.025 * background.alphaFactor)))
-
-        state.renderer.drawCalls++
-        drawRect({
-          color: clearColor
-        })
-
-        cameras.scene.setup({
-          viewResolution,
-          viewOffset,
-          viewScale
-        }, () => {
-          view.renderLines()
-          // view.renderUI()
-        })
-      })
-      timer.end('renderLines')
-
-      setupDrawScreen(() => {
-        const bloomIntensity = !shouldRenderBloom ? 0
-          : (0.4 * bloom.intensityFactor)
-        const noiseIntensity = !isRunning ? 0.0
-          : (0.06 * noise.intensityFactor)
-        const bandingIntensity = !shouldRenderBanding ? 0
-          : (0.6 * banding.intensityFactor)
-        const edgesIntensity = !shouldRenderEdges ? 0
-          : (0.25 * edges.intensityFactor)
-
-        // Bloom
-        timer.begin('renderBloom')
-        if (shouldRenderBloom) {
-          view.renderSceneBlurPasses(viewResolution,
-            bloom.blurStep, bloom.blurPasses)
-        }
-        timer.end('renderBloom')
-
-        // Banding
-        timer.begin('renderBanding')
-        if (shouldRenderBanding) {
-          state.renderer.drawCalls++
-          state.renderer.fullScreenPasses++
-          postBuffers.get('banding').use(() => {
-            drawBanding({
-              color: postBuffers.get('full'),
-              bandingStep: banding.bandStep,
-              tick
-            })
-          })
-        }
-        timer.end('renderBanding')
-
-        // Edges
-        // OPTIM: Research more performant methods for rendering edges
-        timer.begin('renderEdges')
-        if (shouldRenderEdges) {
-          state.renderer.drawCalls++
-          state.renderer.fullScreenPasses++
-          postBuffers.get('edges').use(() => {
-            drawEdges({
-              color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
-              thickness: edges.thickness,
-              tick,
-              viewResolution
-            })
-          })
-        }
-        timer.end('renderEdges')
-
-        // Post FX Composite
-        timer.begin('renderComposite')
-        state.renderer.drawCalls++
-        state.renderer.fullScreenPasses++
-        const compositeParams = {
-          color: postBuffers.get('full'),
-          colorShift,
-          bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
-          bloomIntensity,
-          banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
-          bandingIntensity,
-          edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
-          edgesIntensity,
-          noiseIntensity,
-          overlayAlpha: overlay.alphaFactor,
-          tick,
-          viewOffset,
-          viewResolution
-        }
-        if (fbo) fbo.use(() => drawScreen(compositeParams))
-        else drawScreen(compositeParams)
-        timer.end('renderComposite')
-
-        // Bloom Feedback
-        if (isRunning && shouldRenderBloom) {
-          postBuffers.get('full').use(() => {
-            drawTexture({
-              color: postBuffers.get('blurB'),
-              scale: 1 - bloom.feedbackOffset * 0.2
-            })
-          })
-        }
-      })
-
-      // UI Overlay
-      cameras.scene.setup({
-        viewResolution,
-        viewOffset,
-        viewScale
-      }, () => {
-        view.renderUI()
-      })
     },
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
@@ -698,12 +622,6 @@ function mountCompositor ($el, $refs, actions) {
           })
         })
       }
-    },
-
-    // NOTE: Called once to setup non-dynamic UI
-    renderOnce () {
-      const uiGrid = sceneUI.grid
-      drawPolarGrid(state, uiGrid.ctx)
     },
 
     // TODO: Ensure line thickness is correct on high dpi
@@ -802,6 +720,185 @@ function mountCompositor ($el, $refs, actions) {
           miterLimit,
           adjustProjectedThickness
         })
+      })
+    },
+
+    // Render Scene
+    // ..................................................
+
+    renderScene (tick, fbo = null) {
+      const { setupDrawScreen } = renderer.commands
+
+      this.resizeRenderBuffers()
+      this.renderSceneMain()
+
+      setupDrawScreen(() => {
+        this.renderSceneBloom(tick)
+        this.renderSceneBanding(tick)
+        this.renderSceneEdges(tick)
+        this.renderSceneComposite(tick, fbo)
+        this.renderSceneBloomFeedback(tick)
+      })
+
+      this.renderSceneUI()
+    },
+
+    renderSceneMain () {
+      const { postBuffers } = renderer
+      const { drawRect } = renderer.commands
+      const { isRunning } = state.simulation
+      const { didResize } = state.viewport
+      const { background } = state.controls.viewport
+      const { viewResolution, viewOffset, viewScale } = this.computedState
+
+      timer.begin('renderLines')
+      postBuffers.get('full').use(() => {
+        // TODO: Tween between clear states
+        const clearColor = Colr.fromHex(background.colorHex)
+          .toRgbArray()
+          .map((v) => v / 255)
+        clearColor.push(didResize ? 1
+          : (!isRunning ? 0.6
+            : (0.025 * background.alphaFactor)))
+
+        state.renderer.drawCalls++
+        drawRect({
+          color: clearColor
+        })
+
+        cameras.scene.setup({
+          viewResolution,
+          viewOffset,
+          viewScale
+        }, () => {
+          this.renderLines()
+          // this.renderUI()
+        })
+      })
+      timer.end('renderLines')
+    },
+
+    renderSceneBloom () {
+      const { viewResolution, shouldRenderBloom } = this.computedState
+      const { bloom } = state.controls.postEffects
+
+      timer.begin('renderBloom')
+      if (shouldRenderBloom) {
+        this.renderSceneBlurPasses(viewResolution,
+          bloom.blurStep, bloom.blurPasses)
+      }
+      timer.end('renderBloom')
+    },
+
+    renderSceneBanding (tick) {
+      const { postBuffers } = renderer
+      const { drawBanding } = renderer.commands
+      const { banding } = state.controls.postEffects
+      const { shouldRenderBanding } = this.computedState
+
+      // Banding
+      timer.begin('renderBanding')
+      if (shouldRenderBanding) {
+        state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
+        postBuffers.get('banding').use(() => {
+          drawBanding({
+            color: postBuffers.get('full'),
+            bandingStep: banding.bandStep,
+            tick
+          })
+        })
+      }
+      timer.end('renderBanding')
+    },
+
+    // OPTIM: Research more performant methods for rendering edges
+    renderSceneEdges (tick) {
+      const { postBuffers } = renderer
+      const { drawEdges } = renderer.commands
+      const { edges } = state.controls.postEffects
+      const { shouldRenderBanding, shouldRenderEdges, viewResolution } = this.computedState
+
+      timer.begin('renderEdges')
+      if (shouldRenderEdges) {
+        state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
+        postBuffers.get('edges').use(() => {
+          drawEdges({
+            color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
+            thickness: edges.thickness,
+            tick,
+            viewResolution
+          })
+        })
+      }
+      timer.end('renderEdges')
+    },
+
+    renderSceneComposite (tick, fbo) {
+      const { postBuffers } = renderer
+      const { drawScreen } = renderer.commands
+      const { overlay } = state.controls.viewport
+      const { colorShift } = state.controls.postEffects
+      const {
+        viewResolution, viewOffset,
+        shouldRenderBloom, shouldRenderBanding,
+        bloomIntensity, bandingIntensity, edgesIntensity, noiseIntensity
+      } = this.computedState
+
+      timer.begin('renderComposite')
+
+      state.renderer.drawCalls++
+      state.renderer.fullScreenPasses++
+
+      const compositeParams = {
+        color: postBuffers.get('full'),
+        colorShift,
+        bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
+        bloomIntensity,
+        banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
+        bandingIntensity,
+        edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
+        edgesIntensity,
+        noiseIntensity,
+        overlayAlpha: overlay.alphaFactor,
+        tick,
+        viewOffset,
+        viewResolution
+      }
+
+      if (fbo) fbo.use(() => drawScreen(compositeParams))
+      else drawScreen(compositeParams)
+
+      timer.end('renderComposite')
+    },
+
+    renderSceneBloomFeedback () {
+      const { postBuffers } = renderer
+      const { drawTexture } = renderer.commands
+      const { isRunning } = state.simulation
+      const { bloom } = state.controls.postEffects
+      const { shouldRenderBloom } = this.computedState
+
+      if (isRunning && shouldRenderBloom) {
+        postBuffers.get('full').use(() => {
+          drawTexture({
+            color: postBuffers.get('blurB'),
+            scale: 1 - bloom.feedbackOffset * 0.2
+          })
+        })
+      }
+    },
+
+    renderSceneUI () {
+      const { viewResolution, viewOffset, viewScale } = this.computedState
+
+      cameras.scene.setup({
+        viewResolution,
+        viewOffset,
+        viewScale
+      }, () => {
+        this.renderUI()
       })
     }
   }
