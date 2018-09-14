@@ -51,7 +51,8 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
     if (isClosed) {
       ctx.closePath()
-      // ctx.fill()
+      ctx.fillStyle = strokeColor
+      ctx.fill()
     }
 
     ctx.stroke()
