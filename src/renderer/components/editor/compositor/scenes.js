@@ -3,6 +3,8 @@ import { LineBuilder } from 'regl-line-builder'
 import { curve, polyline } from '@src/utils/draw'
 import linesEntitiesVert from '@src/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@src/shaders/lines-entities.frag'
+import fillsEntitiesVert from '@src/shaders/fills-entities.vert'
+import fillsEntitiesFrag from '@src/shaders/fills-entities.frag'
 import linesUIFrag from '@src/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
@@ -67,7 +69,7 @@ export function createScene (tasks, state, renderer) {
     const lines = LineBuilder.create(regl, {
       dimensions: 2,
       bufferSize,
-      drawArgs: {
+      drawLineArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
         instances: (context, { angles }) => angles.length,
@@ -75,6 +77,19 @@ export function createScene (tasks, state, renderer) {
         attributes,
         blend,
         depth
+      },
+      drawFillArgs: {
+        vert: fillsEntitiesVert,
+        frag: fillsEntitiesFrag,
+        instances: (context, { angles }) => angles.length,
+        uniforms,
+        attributes,
+        blend,
+        depth,
+        cull: {
+          enable: false,
+          face: 'front'
+        }
       }
     })
 
@@ -134,9 +149,12 @@ export function createUIScene (tasks, state, renderer) {
     const lines = LineBuilder.create(regl, {
       dimensions: 2,
       bufferSize,
-      drawArgs: {
+      drawLineArgs: {
         frag: linesUIFrag,
         depth
+      },
+      drawFillArgs: {
+        cull: { enable: false }
       }
     })
 
