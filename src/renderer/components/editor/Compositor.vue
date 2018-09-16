@@ -157,6 +157,7 @@ const DISABLE_RENDER = false
 const DEBUG_RENDER_HASH = false
 const DEBUG_PERF = false
 
+const scratchVec3A = vec3.create()
 const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
@@ -668,13 +669,14 @@ function mountCompositor ($el, $refs, actions) {
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
+        const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const angles = range(polarIterations)
           .map((index) => index * polarStep)
         const anglesAlpha = range(polarIterations)
           .map((index) => (index === 0 ? 1 : polarAlpha))
 
         const params = {
-          mirror: [1, 1, 1],
+          mirror,
           angles,
           anglesAlpha,
           tick,
@@ -692,8 +694,8 @@ function mountCompositor ($el, $refs, actions) {
         lines.draw(params)
 
         state.renderer.drawCalls += 1
-        params.mirror = [-1, 1,
-          (isRunning ? 1 : 0.1) * mirrorAlpha]
+        params.mirror = vec3.set(mirror, -1, 1,
+          (isRunning ? 1 : 0.1) * mirrorAlpha)
         lines.draw(params)
       }
     },
