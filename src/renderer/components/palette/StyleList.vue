@@ -57,7 +57,7 @@ export default {
     list: Array,
     textures: Array,
     alphaTextures: Array,
-    alphaFunctions: Array
+    alphaFunctions: Object
   },
 
   mixins: [EditableListMixin],

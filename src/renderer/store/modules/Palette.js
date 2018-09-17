@@ -26,7 +26,8 @@ export function createControlsState () {
         name: 'Solid',
         textureIndex: 0,
         alphaTextureIndex: 0,
-        alphaFuncIndex: 0,
+        lineAlphaFuncIndex: 0,
+        fillAlphaFuncIndex: 0,
         tintHex: '#FFFFFF',
         tintAlpha: 1,
         useScreenTintFunc: 0,
@@ -38,7 +39,8 @@ export function createControlsState () {
         name: 'Dashed',
         textureIndex: 0,
         alphaTextureIndex: 0,
-        alphaFuncIndex: 1,
+        lineAlphaFuncIndex: 1,
+        fillAlphaFuncIndex: 1,
         tintHex: '#EEEEEE',
         tintAlpha: 1,
         useScreenTintFunc: 0,
@@ -50,7 +52,8 @@ export function createControlsState () {
         name: 'Crawling',
         textureIndex: 0,
         alphaTextureIndex: 0,
-        alphaFuncIndex: 3,
+        lineAlphaFuncIndex: 3,
+        fillAlphaFuncIndex: 0,
         tintHex: '#AAAAAA',
         tintAlpha: 1,
         useScreenTintFunc: 0,
@@ -100,43 +103,47 @@ export function createControlsState () {
     */
 
     // FEAT: Design alpha functions / params
-    alphaFunctions: [
-      {
-        index: 0,
-        name: 'Solid',
-        dashFunction: 0
-      },
-      {
-        index: 1,
-        name: 'Radial Dash',
-        dashFunction: 1
-      },
-      {
-        index: 2,
-        name: 'Concentric Dash',
-        dashFunction: 2
-      },
-      {
-        index: 3,
-        name: 'Basic Dash',
-        dashFunction: 3
-      },
-      {
-        index: 4,
-        name: 'Bulging Dash',
-        dashFunction: 4
-      },
-      {
-        index: 5,
-        name: 'Wavy Dash',
-        dashFunction: 5
-      },
-      {
-        index: 6,
-        name: 'Lateral Dash',
-        dashFunction: 6
-      }
-    ],
+    alphaFunctions: {
+      all: [
+        {
+          index: 0,
+          name: 'Solid',
+          dashFunction: 0
+        },
+        {
+          index: 1,
+          name: 'Radial Dash',
+          dashFunction: 1
+        },
+        {
+          index: 2,
+          name: 'Concentric Dash',
+          dashFunction: 2
+        },
+        {
+          index: 3,
+          name: 'Basic Dash',
+          dashFunction: 3
+        },
+        {
+          index: 4,
+          name: 'Bulging Dash',
+          dashFunction: 4
+        },
+        {
+          index: 5,
+          name: 'Wavy Dash',
+          dashFunction: 5
+        },
+        {
+          index: 6,
+          name: 'Lateral Dash',
+          dashFunction: 6
+        }
+      ],
+      line: [0, 1, 2, 3, 4, 5, 6],
+      fill: [0, 1, 2]
+    },
 
     forces: [
       {

@@ -3,16 +3,15 @@
     <!-- Stroke pattern -->
     <div class="palette-item">
       <div class="palette-item__label">
-        <b>{{ alphaFunctionName }}
-          <input-select v-model="model.alphaFuncIndex">
-            <option v-for="alphaFunc in alphaFunctions" :value="alphaFunc.index">
+        <b>{{ lineAlphaFunctionName }}
+          <input-select v-model="model.lineAlphaFuncIndex">
+            <option v-for="alphaFunc in lineAlphaFunctions" :value="alphaFunc.index">
               {{ alphaFunc.name }}
             </option>
           </input-select>
         </b> stroke pattern
       </div>
     </div>
-    <hr />
 
     <!-- Stroke width -->
     <div class="palette-item">
@@ -28,6 +27,20 @@
       <div class="palette-item__label">
         <b>{{ strokeModName }}</b>
         stroke modulation
+      </div>
+    </div>
+    <hr />
+
+    <!-- Fill pattern -->
+    <div class="palette-item">
+      <div class="palette-item__label">
+        <b>{{ fillAlphaFunctionName }}
+          <input-select v-model="model.fillAlphaFuncIndex">
+            <option v-for="alphaFunc in fillAlphaFunctions" :value="alphaFunc.index">
+              {{ alphaFunc.name }}
+            </option>
+          </input-select>
+        </b> fill pattern
       </div>
     </div>
     <hr />
@@ -101,10 +114,30 @@ export default {
     model: Object,
     textures: Array,
     alphaTextures: Array,
-    alphaFunctions: Array
+    alphaFunctions: Object
   },
 
   computed: {
+    lineAlphaFunctions () {
+      const { alphaFunctions } = this
+      return alphaFunctions.line.map((index) => alphaFunctions.all[index])
+    },
+
+    fillAlphaFunctions () {
+      const { alphaFunctions } = this
+      return alphaFunctions.fill.map((index) => alphaFunctions.all[index])
+    },
+
+    lineAlphaFunctionName () {
+      const alphaFunc = this.lineAlphaFunctions[this.model.lineAlphaFuncIndex]
+      return alphaFunc.name
+    },
+
+    fillAlphaFunctionName () {
+      const alphaFunc = this.lineAlphaFunctions[this.model.fillAlphaFuncIndex]
+      return alphaFunc.name
+    },
+
     thicknessName () {
       const { thickness } = this.model
       return `${roundToPlaces(thickness, 1)}x`
@@ -128,11 +161,6 @@ export default {
     alphaTextureName () {
       const texture = this.alphaTextures[this.model.alphaTextureIndex]
       return texture.name
-    },
-
-    alphaFunctionName () {
-      const alphaFunc = this.alphaFunctions[this.model.alphaFuncIndex]
-      return alphaFunc.name
     }
   }
 }

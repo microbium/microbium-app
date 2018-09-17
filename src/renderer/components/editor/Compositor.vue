@@ -657,7 +657,7 @@ function mountCompositor ($el, $refs, actions) {
         if (lines.state.cursor.vertex === 0) continue
 
         const style = styles[index]
-        const { alphaFuncIndex, tintHex, tintAlpha } = style
+        const { lineAlphaFuncIndex, fillAlphaFuncIndex, tintHex, tintAlpha } = style
 
         // OPTIM: Cache unchanged computed rgba array
         const tint = Colr.fromHex(tintHex)
@@ -665,7 +665,8 @@ function mountCompositor ($el, $refs, actions) {
           .map((v) => v / 255)
         tint.push(tintAlpha)
 
-        const alphaFunc = alphaFunctions[alphaFuncIndex || 0]
+        const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
+        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
@@ -681,7 +682,8 @@ function mountCompositor ($el, $refs, actions) {
           anglesAlpha,
           tick,
           model,
-          dashFunction: alphaFunc.dashFunction,
+          lineDashFunction: lineAlphaFunc.dashFunction,
+          fillDashFunction: fillAlphaFunc.dashFunction,
           tint,
           thickness,
           miterLimit,

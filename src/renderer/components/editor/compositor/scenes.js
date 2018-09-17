@@ -37,7 +37,6 @@ export function createScene (tasks, state, renderer) {
 
   const uniforms = {
     tick: regl.prop('tick'),
-    dashFunction: regl.prop('dashFunction'),
     tint: regl.prop('tint'),
     mirror: regl.prop('mirror')
 
@@ -73,7 +72,10 @@ export function createScene (tasks, state, renderer) {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
         instances: (context, { angles }) => angles.length,
-        uniforms,
+        uniforms: {
+          ...uniforms,
+          dashFunction: regl.prop('lineDashFunction')
+        },
         attributes,
         blend,
         depth
@@ -82,7 +84,10 @@ export function createScene (tasks, state, renderer) {
         vert: fillsEntitiesVert,
         frag: fillsEntitiesFrag,
         instances: (context, { angles }) => angles.length,
-        uniforms,
+        uniforms: {
+          ...uniforms,
+          dashFunction: regl.prop('fillDashFunction')
+        },
         attributes,
         blend,
         depth,

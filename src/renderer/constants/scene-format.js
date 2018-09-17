@@ -2,7 +2,7 @@ export const SERIALIZE_KEYS_MAP = {
   am: 'activeMode',
   ap: 'activePalettes',
   af: 'alphaFactor',
-  ai: 'alphaFuncIndex',
+  ai: 'lineAlphaFuncIndex',
   au: 'alphaFunctions',
   at: 'alphaTextureIndex',
   bn: 'banding',

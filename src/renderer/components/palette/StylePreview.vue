@@ -159,8 +159,8 @@ export default {
     },
 
     strokeDashArray () {
-      const { alphaFuncIndex } = this.model
-      switch (alphaFuncIndex) {
+      const { lineAlphaFuncIndex } = this.model
+      switch (lineAlphaFuncIndex) {
         case 0:
           return ''
         case 1:
