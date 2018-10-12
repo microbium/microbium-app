@@ -15,7 +15,7 @@
         stroke-dasharray="3,2"
         :points="coreSegmentPoints" />
       <polyline
-        stroke="#41EDC1"
+        stroke="var(--highlight-color)"
         stroke-width="3"
         stroke-linecap="round"
         :points="slipSegmentPoints" />

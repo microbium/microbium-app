@@ -33,7 +33,7 @@
 
   &__toggle--active {
     path {
-      stroke: #41EDC1;
+      stroke: var(--highlight-color);
     }
   }
 }

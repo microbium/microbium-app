@@ -1,5 +1,5 @@
 <template>
-  <div class="palette"
+  <div class="palette" :style="themeStyle"
     v-on:mouseenter="mouseEnter">
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
@@ -185,6 +185,8 @@ $base-color: rgba(#000, 0.15);
 </style>
 
 <script>
+import Colr from 'colr'
+
 import {
   createControlsState,
   createControlsStaticParams
@@ -226,7 +228,10 @@ export default {
   data () {
     return {
       controls: createControlsState(),
-      params: createControlsStaticParams()
+      params: createControlsStaticParams(),
+      theme: {
+        highlight: '#41EDC1'
+      }
     }
   },
 
@@ -306,6 +311,13 @@ export default {
       }, {})
     },
 
+    themeStyle () {
+      const { theme } = this
+      return {
+        '--highlight-color': theme.highlight
+      }
+    },
+
     isDrawMode: createModeCondition('activeMode', 'draw'),
     isSelectMode: createModeCondition('activeMode', 'select'),
 
@@ -325,7 +337,14 @@ export default {
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.viewport': createStateSyncer('viewport'),
-    'controls.postEffects': createStateSyncer('postEffects')
+    'controls.postEffects': createStateSyncer('postEffects'),
+    'controls.viewport.background.colorHex': {
+      handler: function (value) {
+        const background = Colr.fromHex(value).toHslObject()
+        const highlight = `hsl(${background.h}, 95%, 65%)`
+        this.theme.highlight = highlight
+      }
+    }
   }
 }
 

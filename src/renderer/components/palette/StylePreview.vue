@@ -33,11 +33,11 @@
     <g
       :transform="`translate(${width / 2}, ${height / 2})`">
       <polygon
-        fill="#41EDC1"
+        fill="var(--highlight-color)"
         stroke="none"
         :points="pathPointsOrigin" />
       <polygon
-        stroke="#41EDC1"
+        stroke="var(--highlight-color)"
         stroke-width="1"
         stroke-dasharray="4,2"
         fill="none"
