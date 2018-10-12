@@ -71,7 +71,7 @@
       <h2 slot="title">Shape Outlines</h2>
 
       <div class="palette-item">
-        <input-range min="0" max="3" step="0.05" v-model="model.edges.intensityFactor" />
+        <input-range min="0" max="5" step="0.05" v-model="model.edges.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ edgesFactorName }}</b> intensity
         </div>

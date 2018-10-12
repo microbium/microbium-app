@@ -696,8 +696,7 @@ function mountCompositor ($el, $refs, actions) {
         lines.draw(params)
 
         state.renderer.drawCalls += 1
-        params.mirror = vec3.set(mirror, -1, 1,
-          (isRunning ? 1 : 0.1) * mirrorAlpha)
+        params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
         lines.draw(params)
       }
     },
