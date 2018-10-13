@@ -43,7 +43,14 @@ export function createMenuTemplate (app, actions) {
           }
         },
         {
-          label: 'Export',
+          label: 'Export Image',
+          accelerator: 'Cmd+Shift+E',
+          click () {
+            actions.saveFrameImage()
+          }
+        },
+        {
+          label: 'Export Scene',
           submenu: [
             {
               label: 'JSON',
@@ -58,15 +65,8 @@ export function createMenuTemplate (app, actions) {
               }
             }
           ]
-        },
-        {type: 'separator'},
-        {
-          label: 'Export Image',
-          accelerator: 'Cmd+Shift+E',
-          click () {
-            actions.saveFrameImage()
-          }
-        },
+        }
+        /*
         {type: 'separator'},
         {
           id: 'start-screen-recording',
@@ -84,6 +84,7 @@ export function createMenuTemplate (app, actions) {
             actions.stopScreenRecording()
           }
         }
+        */
       ]
     },
     {
