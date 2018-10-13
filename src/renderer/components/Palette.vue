@@ -187,6 +187,8 @@ $base-color: rgba(#000, 0.15);
 <script>
 import Colr from 'colr'
 
+import { clamp } from '@src/utils/math'
+
 import {
   createControlsState,
   createControlsStaticParams
@@ -228,10 +230,7 @@ export default {
   data () {
     return {
       controls: createControlsState(),
-      params: createControlsStaticParams(),
-      theme: {
-        highlight: '#41EDC1'
-      }
+      params: createControlsStaticParams()
     }
   },
 
@@ -311,10 +310,22 @@ export default {
       }, {})
     },
 
+    themeHighlight () {
+      const { colorHex } = this.controls.viewport.background
+      const { colorShift } = this.controls.postEffects
+      const backgroundColor = Colr.fromHex(colorHex).toHslArray()
+
+      const hue = (backgroundColor[0] + colorShift[0] * 360) % 360 - 30
+      const saturation = clamp(0, 100, (backgroundColor[1] + colorShift[1] * 100) * 5)
+      const lightness = clamp(0, 100, 70 - (backgroundColor[2] + colorShift[2] * 100) * 0.1)
+
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+    },
+
     themeStyle () {
-      const { theme } = this
+      const { themeHighlight } = this
       return {
-        '--highlight-color': theme.highlight
+        '--highlight-color': themeHighlight
       }
     },
 
@@ -337,14 +348,7 @@ export default {
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.viewport': createStateSyncer('viewport'),
-    'controls.postEffects': createStateSyncer('postEffects'),
-    'controls.viewport.background.colorHex': {
-      handler: function (value) {
-        const background = Colr.fromHex(value).toHslObject()
-        const highlight = `hsl(${background.h}, 95%, 65%)`
-        this.theme.highlight = highlight
-      }
-    }
+    'controls.postEffects': createStateSyncer('postEffects')
   }
 }
 
