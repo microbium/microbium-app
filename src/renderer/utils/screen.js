@@ -1,3 +1,5 @@
+import { clamp } from './math'
+
 export function isFullscreen () {
   return window.innerWidth === window.screen.width &&
     window.innerHeight === window.screen.height
@@ -8,7 +10,7 @@ export function pixelRatio () {
 }
 
 export function pixelRatioClamped () {
-  return Math.min(1.5, pixelRatio())
+  return clamp(1.5, 2, pixelRatio())
 }
 
 export function clampPixelRatio (size, pixelRatio, maxDimension) {
