@@ -37,7 +37,7 @@ import { exportSceneHTML } from './exporters/html'
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
-const DEBUG_MAIN = true
+const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
 
 /**
