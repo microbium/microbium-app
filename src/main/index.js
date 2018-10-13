@@ -230,6 +230,9 @@ function createMenu () {
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
+    setAspectRatio (aspect) {
+      setWindowAspectRatio('main', aspect)
+    },
     reportIssue () {
       shell.openExternal('https://github.com/microbium/microbium-app-issues')
     },
@@ -430,6 +433,24 @@ function setWindowFilePath (name, fullPath) {
   })
   win.setTitle(fileName)
   win.setRepresentedFilename(fullPath)
+}
+
+// TODO: Ensure resized window fits within screen
+function setWindowAspectRatio (name, aspect) {
+  const win = appWindows[name]
+  if (!win) return
+
+  if (aspect === 0) {
+    win.setAspectRatio(aspect)
+    return
+  }
+
+  const size = win.getSize()
+  const targetWidth = Math.round(size[1] * aspect)
+  const targetHeight = size[1]
+
+  win.setSize(targetWidth, targetHeight)
+  win.setAspectRatio(aspect)
 }
 
 function sendWindowMessage (name, messageKey, messageData) {

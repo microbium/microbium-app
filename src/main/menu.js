@@ -179,6 +179,41 @@ export function createMenuTemplate (app, actions) {
           }
         },
         {type: 'separator'},
+        {
+          id: 'aspect-ratio',
+          label: 'Aspect Ratio',
+          submenu: [
+            {
+              label: 'None',
+              type: 'radio',
+              click () {
+                actions.setAspectRatio(0)
+              }
+            },
+            {
+              label: '1:1',
+              type: 'radio',
+              click () {
+                actions.setAspectRatio(1)
+              }
+            },
+            {
+              label: '4:5',
+              type: 'radio',
+              click () {
+                actions.setAspectRatio(4 / 5)
+              }
+            },
+            {
+              label: '16:9',
+              type: 'radio',
+              click () {
+                actions.setAspectRatio(16 / 9)
+              }
+            }
+          ]
+        },
+        {type: 'separator'},
         {role: 'togglefullscreen'}
       ]
     },
