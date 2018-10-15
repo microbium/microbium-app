@@ -309,6 +309,7 @@ function createMainWindow () {
   main.on('focus', onWindowFocus)
   main.on('blur', onWindowBlur)
   ipcMain.on('main-message', onMessage)
+  ipcMain.on('menu-message', onMenuMessage)
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
@@ -601,6 +602,14 @@ function saveFrameImageFromCanvas (path) {
 // ------------------------------------------------------------
 // Menu State
 // ----------
+
+function onMenuMessage (event, data) {
+  switch (data.type) {
+    case 'UPDATE_ACTIVE_PALETTE':
+      setMenuState(`palette-${data.id}`, 'checked', true)
+      break
+  }
+}
 
 function setMenuState (name, key, value) {
   const item = appMenus.main.getMenuItemById(name)

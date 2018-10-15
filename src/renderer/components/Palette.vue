@@ -252,6 +252,11 @@ export default {
       }
     },
 
+    sendMessage (name, data) {
+      const { ipcRenderer } = this.$electron
+      ipcRenderer.send(name, data)
+    },
+
     mainDidUpdateControls () {
       this._mainDidUpdateControls = true
       setTimeout(() => {
@@ -259,10 +264,17 @@ export default {
       }, 0)
     },
 
+    syncActivePaletteMode (id) {
+      this.sendMessage('menu-message', {
+        type: 'UPDATE_ACTIVE_PALETTE',
+        id
+      })
+    },
+
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
       if (this._mainDidUpdateControls) return
-      this.$electron.ipcRenderer.send('main-message', {
+      this.sendMessage('main-message', {
         type: 'UPDATE_CONTROLS',
         group,
         value
@@ -270,7 +282,7 @@ export default {
     },
 
     willRemoveStyle (style, index) {
-      this.$electron.ipcRenderer.send('main-message', {
+      this.sendMessage('main-message', {
         type: 'MERGE_SEGMENT_PROP',
         propName: 'styleIndex',
         indexFrom: index,
@@ -279,7 +291,7 @@ export default {
     },
 
     willRemoveConstraint (constraint, index) {
-      this.$electron.ipcRenderer.send('main-message', {
+      this.sendMessage('main-message', {
         type: 'MERGE_SEGMENT_PROP',
         propName: 'constraintIndex',
         indexFrom: index,
@@ -296,7 +308,7 @@ export default {
     },
 
     close () {
-      this.$electron.ipcRenderer.send('toggle-window', {
+      this.sendMessage('toggle-window', {
         key: 'palette'
       })
     }
@@ -349,7 +361,10 @@ export default {
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),
     'controls.viewport': createStateSyncer('viewport'),
-    'controls.postEffects': createStateSyncer('postEffects')
+    'controls.postEffects': createStateSyncer('postEffects'),
+    'controls.activePalettes.id': function (id) {
+      this.syncActivePaletteMode(id)
+    }
   }
 }
 

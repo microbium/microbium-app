@@ -213,6 +213,7 @@ export function createMenuTemplate (app, actions) {
               name: 'Visual Effects'
             }
           ].map(({ id, name }, index) => ({
+            id: `palette-${id}`,
             label: name,
             type: 'radio',
             accelerator: `Cmd+${index + 1}`,
