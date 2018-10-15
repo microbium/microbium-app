@@ -1,6 +1,6 @@
 <template>
   <div class="palette-tool">
-    <palette-group nested persistent-controls open>
+    <palette-group persistent-controls open>
       <h2 slot="title">Appearance</h2>
 
       <!-- TODO: Reflect stroke width, color, opacity in preview -->
@@ -60,7 +60,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested persistent-controls open>
+    <palette-group persistent-controls open>
       <h2 slot="title">Behavior</h2>
 
       <palette-constraint-preview slot="controls"

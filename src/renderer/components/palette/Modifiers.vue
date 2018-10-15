@@ -1,6 +1,6 @@
 <template>
   <div class="palette-modifiers">
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Curve Generator</h2>
 
       <div class="palette-item">
@@ -26,7 +26,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Polar Generator</h2>
 
       <div class="palette-item">
@@ -38,7 +38,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Mirror Generator</h2>
 
       <div class="palette-item">

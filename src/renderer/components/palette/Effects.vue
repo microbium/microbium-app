@@ -1,7 +1,7 @@
 <!-- TODO: Add per-group checkbox to allow quickly toggling enabled state -->
 <template>
   <div class="palette-effects">
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Bloom</h2>
 
       <div class="palette-item">
@@ -41,7 +41,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Gradient Banding</h2>
 
       <div class="palette-item">
@@ -67,7 +67,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested>
+    <palette-group>
       <h2 slot="title">Shape Outlines</h2>
 
       <div class="palette-item">
@@ -93,7 +93,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested>
+    <palette-group>
       <h2 slot="title">Color Shift</h2>
 
       <div class="palette-item">
@@ -117,7 +117,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested>
+    <palette-group>
       <h2 slot="title">Noise</h2>
 
       <div class="palette-item">

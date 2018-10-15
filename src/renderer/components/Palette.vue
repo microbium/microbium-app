@@ -16,24 +16,21 @@
     </div>
 
     <div class="palette__content">
-      <palette-group open
-        :hidden="!showToolPanels">
+      <palette-section :hidden="!showToolPanels">
         <h2 slot="title">{{ paletteTypesMap.tool.name }}</h2>
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
           :constraints="controls.constraintGroups"
           :inputModTypes="params.inputModTypes"
           :physicsTypes="params.physicsTypes" />
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showGeometryPanels">
+      <palette-section :hidden="!showGeometryPanels">
         <h2 slot="title">{{ paletteTypesMap.geometry.name }}</h2>
         <palette-modifiers :model="controls.modifiers" />
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showStylePanels">
+      <palette-section :hidden="!showStylePanels">
         <h2 slot="title">{{ paletteTypesMap.styles.name }}</h2>
         <palette-style-list
           :list="controls.styles"
@@ -41,39 +38,34 @@
           :alphaTextures="controls.alphaTextures"
           :alphaFunctions="controls.alphaFunctions"
           :willRemoveListItem="willRemoveStyle" />
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showForcesPanels">
+      <palette-section :hidden="!showForcesPanels">
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
         <palette-force-list
           :list="controls.forces"
           :forceTypes="params.forceTypes"
           :forcePositionTypes="params.forcePositionTypes"
           :forceIntensityTypes="params.forceIntensityTypes" />
-        </palette-group>
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showConstraintsPanels">
+      <palette-section :hidden="!showConstraintsPanels">
         <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
         <palette-constraint-list
           :list="controls.constraintGroups"
           :constraintTypes="params.constraintTypes"
           :willRemoveListItem="willRemoveConstraint" />
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showViewportPanel">
+      <palette-section :hidden="!showViewportPanel">
         <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
         <palette-viewport :model="controls.viewport" />
-      </palette-group>
+      </palette-section>
 
-      <palette-group open
-        :hidden="!showEffectsPanels">
+      <palette-section :hidden="!showEffectsPanels">
         <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
         <palette-effects :model="controls.postEffects" />
-      </palette-group>
+      </palette-section>
     </div>
   </div>
 </template>
@@ -198,6 +190,7 @@ import Icon from '@src/components/display/Icon'
 import InputText from '@src/components/input/Text'
 import InputButton from '@src/components/input/Button'
 import PaletteModes from '@src/components/palette/Modes'
+import PaletteSection from '@src/components/palette/Section'
 import PaletteGroup from '@src/components/palette/Group'
 import PaletteTool from '@src/components/palette/Tool'
 import PaletteForceList from '@src/components/palette/ForceList'
@@ -219,6 +212,7 @@ export default {
     PaletteConstraintList,
     PaletteEffects,
     PaletteForceList,
+    PaletteSection,
     PaletteGroup,
     PaletteModes,
     PaletteModifiers,

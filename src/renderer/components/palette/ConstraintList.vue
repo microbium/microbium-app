@@ -1,7 +1,7 @@
 <template>
   <div class="palette-constraint-list">
     <palette-group v-for="(constraint, index) in list"
-      :key="constraint.index" nested persistent-controls :open="index === 0">
+      :key="constraint.index" persistent-controls :open="index === 0">
       <h2 slot="title" :title="constraint.name">
         <input-text v-model="constraint.name" :maxsize="18" />
         <span class="text-ellipsis">

@@ -1,7 +1,7 @@
 <template>
   <div class="palette-style-list">
     <palette-group v-for="(style, index) in list"
-      :key="style.index" nested persistent-controls :open="index === 0">
+      :key="style.index" persistent-controls :open="index === 0">
       <h2 slot="title" :title="style.name">
         <input-text v-model="style.name" :maxsize="18" />
         <span class="text-ellipsis">

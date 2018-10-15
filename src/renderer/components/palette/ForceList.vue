@@ -1,7 +1,7 @@
 <template>
   <div class="palette-force-list">
     <palette-group v-for="(force, index) in list"
-      :key="force.index" nested persistent-controls :open="index === 0">
+      :key="force.index" persistent-controls :open="index === 0">
       <h2 slot="title" :title="force.name">
         <input-text v-model="force.name" :maxsize="18" />
         <span class="text-ellipsis">

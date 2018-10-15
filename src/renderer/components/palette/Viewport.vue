@@ -2,7 +2,7 @@
   <!-- TODO: Add UI to disable or lessen opacity of overlay elements
     (polar grid, concentric lines, force indicators) -->
   <div class="palette-viewport">
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Background</h2>
 
       <div class="palette-item">
@@ -21,7 +21,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Overlays</h2>
 
       <div class="palette-item">
@@ -40,7 +40,7 @@
       <hr />
     </palette-group>
 
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Resolution</h2>
 
       <div class="palette-item">

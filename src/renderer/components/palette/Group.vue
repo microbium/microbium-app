@@ -1,6 +1,6 @@
 <template>
   <section class="palette-group"
-    :class="[openStateClassNames, mainClassNames]">
+    :class="openStateClassNames">
     <div class="palette-group__header"
       :class="openStateClassNames">
       <div class="palette-group__toggle"
@@ -36,18 +36,14 @@ $toggle-duration: 200ms;
 .palette-group {
   position: relative;
 
-  &.hidden {
-    display: none;
-  }
-
   &__header {
     position: relative;
     display: flex;
     align-items: center;
 
     background: $base-color;
-    padding: 0 16px 0 30px;
-    height: 38px;
+    padding: 0 16px 0 24px;
+    height: 40px;
 
     &.nested {
       background: transparent;
@@ -69,7 +65,7 @@ $toggle-duration: 200ms;
       transition: transform $toggle-duration;
 
       &.open {
-        transform: translateX(8px);
+        transform: translateX(10px);
       }
     }
   }
@@ -90,8 +86,8 @@ $toggle-duration: 200ms;
 
       background: #fff;
       width: 2px;
-      height: calc(100% - 12px);
-      transform: translate(-50%, -50%);
+      height: calc(100% - 16px);
+      transform: translate(-10px, -50%);
       transition: transform $toggle-duration;
     }
 
@@ -106,14 +102,14 @@ $toggle-duration: 200ms;
 
     &.open {
       &:after {
-        transform: translate(-50%, -50%) rotate(45deg);
+        transform: translate(-1px, -50%) rotate(45deg);
       }
     }
   }
 
   &__title {
     position: relative;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: lighter;
 
     &.nested {
@@ -170,7 +166,6 @@ export default {
 
   props: {
     open: Boolean,
-    hidden: Boolean,
     nested: Boolean,
     persistentControls: Boolean
   },
@@ -210,12 +205,6 @@ export default {
   },
 
   computed: {
-    mainClassNames () {
-      return {
-        'hidden': this.hidden
-      }
-    },
-
     openStateClassNames () {
       return {
         'open': this.isOpen,

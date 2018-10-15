@@ -1,6 +1,6 @@
 <template>
   <div class="palette-scene">
-    <palette-group nested open>
+    <palette-group open>
       <h2 slot="title">Background</h2>
 
       <div class="palette-item">
