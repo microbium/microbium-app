@@ -276,6 +276,7 @@ export function createControlsStaticParams () {
       }
     ],
 
+    // TODO: Pull from shared constants
     paletteTypes: [
       {
         id: 'tool',

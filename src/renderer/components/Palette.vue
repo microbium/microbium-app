@@ -4,11 +4,6 @@
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
       <div class="palette__toolbar__modes">
-        <!--
-        <palette-modes
-          :activeMode="controls.activeMode"
-          :modeTypes="params.modeTypes" />
-        -->
         <palette-modes
           :activeMode="controls.activePalettes"
           :modeTypes="params.paletteTypes" />
@@ -230,17 +225,29 @@ export default {
 
   created () {
     this.$electron.ipcRenderer.on('message', this.handleMessage.bind(this))
+    this.$electron.ipcRenderer.on('command', this.handleCommand.bind(this))
   },
 
   methods: {
     handleMessage (event, data) {
       const { controls } = this
+
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           this.mainDidUpdateControls()
           if (data.key) controls[data.group][data.key] = data.value
           else if (data.group) Object.assign(controls[data.group], data.value)
           else Object.assign(controls, data.value)
+          break
+      }
+    },
+
+    handleCommand (event, data) {
+      const { controls } = this
+
+      switch (data.action) {
+        case 'SET_ACTIVE_PALETTE':
+          controls.activePalettes.id = data.id
           break
       }
     },

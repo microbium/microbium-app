@@ -142,24 +142,7 @@ export function createMenuTemplate (app, actions) {
             actions.toggleSimulationPause()
           }
         },
-        {
-          id: 'palette-on',
-          label: 'Show Palette',
-          accelerator: 'Cmd+1',
-          enabled: false,
-          visible: false,
-          click () {
-            actions.togglePalette()
-          }
-        },
-        {
-          id: 'palette-off',
-          label: 'Hide Palette',
-          accelerator: 'Cmd+1',
-          click () {
-            actions.togglePalette()
-          }
-        },
+        {type: 'separator'},
         {
           id: 'status-on',
           label: 'Show Status',
@@ -177,6 +160,66 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.toggleStatus()
           }
+        },
+        {
+          id: 'palette-on',
+          label: 'Show Palette',
+          accelerator: 'Cmd+.',
+          enabled: false,
+          visible: false,
+          click () {
+            actions.togglePalette()
+          }
+        },
+        {
+          id: 'palette-off',
+          label: 'Hide Palette',
+          accelerator: 'Cmd+.',
+          click () {
+            actions.togglePalette()
+          }
+        },
+        {
+          id: 'active-palette',
+          label: 'Active Palette',
+          // TODO: Pull from shared constants
+          submenu: [
+            {
+              id: 'tool',
+              name: 'Line Tool'
+            },
+            {
+              id: 'geometry',
+              name: 'Geometry Modifiers'
+            },
+            {
+              id: 'styles',
+              name: 'Style Layers'
+            },
+            {
+              id: 'constraints',
+              name: 'Constraint Groups'
+            },
+            {
+              id: 'forces',
+              name: 'Simulation Forces'
+            },
+            {
+              id: 'viewport',
+              name: 'Viewport'
+            },
+            {
+              id: 'effects',
+              name: 'Visual Effects'
+            }
+          ].map(({ id, name }, index) => ({
+            label: name,
+            type: 'radio',
+            accelerator: `Cmd+${index + 1}`,
+            click () {
+              actions.setActivePalette(id)
+            }
+          }))
         },
         {type: 'separator'},
         {

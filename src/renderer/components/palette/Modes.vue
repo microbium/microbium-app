@@ -55,6 +55,7 @@ export default {
   },
 
   methods: {
+    // TODO: Sync active mode to menu
     setActiveMode (id) {
       this.activeMode.id = id
     }

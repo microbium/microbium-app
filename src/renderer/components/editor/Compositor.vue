@@ -436,13 +436,17 @@ function mountCompositor ($el, $refs, actions) {
         : (0.25 * edges.intensityFactor)
     },
 
+    // OPTIM: Improve syncing
     syncStrokeWidthMod () {
       const stateControls = state.controls
       const value = geometry.computeModulatedStrokeWidth()
 
-      geometry.updateActiveSegmentStrokeWidthMod(value)
-      stateControls.lineTool.strokeWidthMod = value
-      this.updatePaletteState('lineTool', 'strokeWidthMod', value)
+      if (value !== this._computedModulatedStrokeWidth) {
+        geometry.updateActiveSegmentStrokeWidthMod(value)
+        stateControls.lineTool.strokeWidthMod = value
+        this.updatePaletteState('lineTool', 'strokeWidthMod', value)
+        this._computedModulatedStrokeWidth = value
+      }
     },
 
     syncCursor (shouldShow) {

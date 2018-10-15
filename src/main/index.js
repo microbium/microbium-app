@@ -230,6 +230,10 @@ function createMenu () {
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
+    setActivePalette (id) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_ACTIVE_PALETTE', id})
+    },
     setAspectRatio (aspect) {
       setWindowAspectRatio('main', aspect)
     },
