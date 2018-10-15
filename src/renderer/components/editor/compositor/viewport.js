@@ -46,6 +46,8 @@ export function createViewportController (tasks, state) {
 
       stateSeek.wheelOffset = clamp(-1, 1,
         stateSeek.wheelOffset + deltaY * 0.001)
+
+      event.preventDefault()
     },
 
     keyDown (event) {

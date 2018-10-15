@@ -228,7 +228,19 @@ export default {
     this.$electron.ipcRenderer.on('command', this.handleCommand.bind(this))
   },
 
+  mounted () {
+    this.bindEvents()
+  },
+
   methods: {
+    bindEvents () {
+      window.addEventListener('wheel', this.handleWheel.bind(this), false)
+    },
+
+    handleWheel (event) {
+      event.preventDefault()
+    },
+
     handleMessage (event, data) {
       const { controls } = this
 
