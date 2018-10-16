@@ -29,15 +29,16 @@ import {
 } from 'zlib'
 
 import { isHighSierra } from './utils/platform'
+import { fitRect } from './utils/window'
 import { createMessageSocket } from './io/socket'
-import { createMenuTemplate } from './menu'
-import { fitRect } from './window'
+import { createMenuTemplate } from './ui/menu'
+import { createPaletteTouchBar } from './ui/touchbar'
 import { exportSceneHTML } from './exporters/html'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
-const DEBUG_MAIN = false
+const DEBUG_MAIN = true
 const DEBUG_PALETTE = false
 
 /**
@@ -59,6 +60,10 @@ const ipcExternal = ENABLE_IPC_EXTERNAL
 const appMenus = {
   main: null
 }
+const appTouchBars = {
+  main: null,
+  palette: null
+}
 const appWindows = {
   main: null,
   palette: null
@@ -79,13 +84,9 @@ const store = new Store()
 let appIsReady = false
 let appShouldQuit = false
 
-// ------------------------------------------------------------
-// Application Menu
-// ----------------
-
-function createMenu () {
-  if (appMenus.main !== null) return
-
+// TODO: Cleanup actions
+const appActions = createAppActions()
+function createAppActions () {
   // TODO: Cleanup file filters
   const fileTypeFilters = [{
     name: 'Microbium Scene',
@@ -108,8 +109,7 @@ function createMenu () {
     extensions: ['mov']
   }]
 
-  // TODO: Cleanup actions
-  const template = createMenuTemplate(app, {
+  return {
     createNewScene () {
       store.set('openScenePath', null)
       createMainWindow()
@@ -156,7 +156,6 @@ function createMenu () {
         checkboxLabel: "Don't ask me again",
         checkboxChecked: false
       }, (id, checkboxChecked) => {
-        console.log(id, checkboxChecked)
         if (id === 0) {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
@@ -261,10 +260,27 @@ function createMenu () {
           })
         })
     }
-  })
+  }
+}
 
+// ------------------------------------------------------------
+// Application Menu
+// ----------------
+
+function createMenu () {
+  if (appMenus.main !== null) return
+
+  const template = createMenuTemplate(app, appActions)
   const menu = appMenus.main = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+}
+
+// ------------------------------------------------------------
+// Main TouchBar
+// -------------
+
+function createTouchBar () {
+  appTouchBars.palette = createPaletteTouchBar(appActions)
 }
 
 // ------------------------------------------------------------
@@ -362,6 +378,7 @@ function createPaletteWindow () {
     }
   })
 
+  palette.setTouchBar(appTouchBars.palette)
   palette.loadURL(paletteURL)
   palette.on('blur', onWindowBlur)
 
@@ -414,6 +431,7 @@ function getDisplaySize () {
 
 function createStartWindows () {
   createMenu()
+  createTouchBar()
   createMainWindow()
   createPaletteWindow()
   restoreLastSession()
