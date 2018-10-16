@@ -2,46 +2,40 @@
   <div class="editor-compositor">
     <div class="editor-compositor__scene" :class="sceneClassNames" ref="scene"></div>
     <!-- OPTIM: Investigate perf issues with stats rendering -->
-    <div class="editor-compositor__stats" v-if="viewport && viewport.showStats">
-      <div class="editor-compositor__stats__group">
-        <div>
-          resolution: {{ viewport.resolution[0] }}w
+    <div class="editor-compositor__stats" :class="statsClassNames" v-if="viewport">
+      <ul class="editor-compositor__stats__group">
+        <li>
+          {{ viewport.resolution[0] }}w
           {{ viewport.resolution[1] }}h
           ({{ controls.viewport.pixelRatio.toFixed(2) }}x)
           <span v-if="(viewport.pixelRatioClamped != controls.viewport.pixelRatio)">
             [{{ viewport.pixelRatioClamped.toFixed(2) }}x]
           </span>
-        </div>
-        <div>
-          resolution max: {{ viewport.resolutionMax[0] }}px
-        </div>
-      </div>
-      <div class="editor-compositor__stats__group">
-        <div>pin constraints: {{ simulation.pinConstraintCount || '-' }}</div>
-        <div>local constraints: {{ simulation.localConstraintCount || '-' }}</div>
-        <div>forces: {{ simulation.forcesCount || '-' }}</div>
-      </div>
-      <div class="editor-compositor__stats__group">
-        <div>vertices: {{ renderer.verticesCount }}</div>
-        <div>line segments: {{ renderer.segmentsCount }}</div>
-      </div>
-      <div class="editor-compositor__stats__group">
-        <div>line quads: {{ renderer.lineQuads }}</div>
-        <div>draw calls: {{ renderer.drawCalls }}</div>
-        <div>full screen passes: {{ renderer.fullScreenPasses }}</div>
-      </div>
-      <div class="editor-compositor__stats__group" v-if="DEBUG_PERF">
-        <div>update physics: {{ timer.get('updatePhysics', 6) }} ms</div>
-        <div>update lines: {{ timer.get('updateLines', 6) }} ms</div>
-        <div>render lines: {{ timer.get('renderLines', 6) }} ms</div>
-        <div>render bloom: {{ timer.get('renderBloom', 6) }} ms</div>
-        <div>render banding: {{ timer.get('renderBanding', 6) }} ms</div>
-        <div>render edges: {{ timer.get('renderEdges', 6) }} ms</div>
-        <div>render composite: {{ timer.get('renderComposite', 6) }} ms</div>
-      </div>
-      <div class="editor-compositor__stats__group" v-if="DEBUG_RENDER_HASH">
-        <div>hash: {{ renderer.lastRenderHash }}</div>
-      </div>
+        </li>
+      </ul><ul class="editor-compositor__stats__group">
+        <li title="Pin Constraints">{{ simulation.pinConstraintCount || '-' }} pns</li>
+        <li title="Local Constraints">{{ simulation.localConstraintCount || '-' }} lcs</li>
+        <li title="Forces">{{ simulation.forcesCount || '-' }} frcs</li>
+      </ul><ul class="editor-compositor__stats__group">
+        <li title="Vertices">{{ renderer.verticesCount }} vrts</li>
+        <li title="Line Segments">{{ renderer.segmentsCount }} sgs</li>
+      </ul><ul class="editor-compositor__stats__group">
+        <li title="Line Quads">{{ renderer.lineQuads }} qds</li>
+        <li title="Draw Calls">{{ renderer.drawCalls }} drw cls</li>
+        <li title="Full Screen Passes">{{ renderer.fullScreenPasses }} pss</li>
+      </ul>
+      <ul class="editor-compositor__stats__group" v-if="DEBUG_PERF">
+        <li>update physics: {{ timer.get('updatePhysics', 6) }} ms</li>
+        <li>update lines: {{ timer.get('updateLines', 6) }} ms</li>
+        <li>render lines: {{ timer.get('renderLines', 6) }} ms</li>
+        <li>render bloom: {{ timer.get('renderBloom', 6) }} ms</li>
+        <li>render banding: {{ timer.get('renderBanding', 6) }} ms</li>
+        <li>render edges: {{ timer.get('renderEdges', 6) }} ms</li>
+        <li>render composite: {{ timer.get('renderComposite', 6) }} ms</li>
+      </ul>
+      <ul class="editor-compositor__stats__group" v-if="DEBUG_RENDER_HASH">
+        <li>hash: {{ renderer.lastRenderHash }}</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -74,23 +68,53 @@
 
   &__stats {
     position: absolute;
-    bottom: 14px;
-    left: 14px;
+    bottom: 0;
+    left: 0;
 
-    color: #444;
-    font: 10px/1.2 Monaco, monospace;
-    pointer-events: none;
+    border-top: 1px solid #000;
+    background: #1f1f1f;
+    padding: 10px;
+    width: 100%;
+
+    color: #eee;
+    font: 10px/1.6 Fira Code, Fira Mono, Monaco, monospace;
+    text-align: center;
+    cursor: default;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30%);
+    transition: opacity 200ms,
+      visibility 200ms,
+      transform 200ms;
 
     &__group {
-      &:after {
-        content: "";
-        position: relative;
-        display: block;
-        border: none;
-        border-top: 2px solid rgba(#fff, 0.2);
-        margin: 6px 0;
-        width: 20px;
+      display: inline-block;
+      padding: 0;
+      list-style: none;
+
+      > li {
+        display: inline-block;
+
+        &:not(:last-child):after {
+          content: " /";
+        }
       }
+
+      &:not(:last-child):after {
+        content: "•";
+        position: relative;
+        display: inline-block;
+        margin: 0;
+        width: 24px;
+        text-align: center;
+      }
+    }
+
+    &.stats--show {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
     }
   }
 }
@@ -983,6 +1007,15 @@ export default {
         'navigate--pan': drag.isPanning,
         'navigate--will-zoom': drag.shouldNavigate && drag.shouldZoom && !drag.isPanning,
         'navigate--zoom': drag.isZooming
+      }
+    },
+
+    statsClassNames () {
+      const { viewport } = this
+      if (!viewport) return
+
+      return {
+        'stats--show': viewport.showStats
       }
     }
   }
