@@ -1,3 +1,5 @@
+import { PALETTE_TYPES } from '@renderer/constants/types'
+
 export function createMenuTemplate (app, actions) {
   const template = [
     {
@@ -182,37 +184,7 @@ export function createMenuTemplate (app, actions) {
         {
           id: 'active-palette',
           label: 'Active Palette',
-          // TODO: Pull from shared constants
-          submenu: [
-            {
-              id: 'tool',
-              name: 'Line Tool'
-            },
-            {
-              id: 'geometry',
-              name: 'Geometry Modifiers'
-            },
-            {
-              id: 'styles',
-              name: 'Style Layers'
-            },
-            {
-              id: 'constraints',
-              name: 'Constraint Groups'
-            },
-            {
-              id: 'forces',
-              name: 'Simulation Forces'
-            },
-            {
-              id: 'viewport',
-              name: 'Viewport'
-            },
-            {
-              id: 'effects',
-              name: 'Visual Effects'
-            }
-          ].map(({ id, name }, index) => ({
+          submenu: PALETTE_TYPES.map(({ id, name }, index) => ({
             id: `palette-${id}`,
             label: name,
             type: 'radio',

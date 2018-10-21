@@ -72,6 +72,9 @@ const paletteVisibility = {
   isHidden: false,
   isHiddenUser: false
 }
+const paletteState = {
+  activeId: 'tool'
+}
 
 const mainURL = IS_DEV
   ? `http://localhost:9080`
@@ -230,6 +233,7 @@ function createAppActions () {
       toggleMenuItem('palette')
     },
     setActivePalette (id) {
+      syncActivePalette(id)
       sendWindowMessage('palette', 'command',
         {action: 'SET_ACTIVE_PALETTE', id})
     },
@@ -624,9 +628,17 @@ function saveFrameImageFromCanvas (path) {
 function onMenuMessage (event, data) {
   switch (data.type) {
     case 'UPDATE_ACTIVE_PALETTE':
-      setMenuState(`palette-${data.id}`, 'checked', true)
+      syncActivePalette(data.id)
       break
   }
+}
+
+function syncActivePalette (id) {
+  if (paletteState.activeId === id) return
+  paletteState.activeId = id
+
+  setMenuState(`palette-${id}`, 'checked', true)
+  appTouchBars.palette.syncActivePalette(id)
 }
 
 function setMenuState (name, key, value) {

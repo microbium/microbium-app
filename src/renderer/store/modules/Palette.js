@@ -1,3 +1,13 @@
+import {
+  MODE_TYPES,
+  PALETTE_TYPES,
+  INPUT_MOD_TYPES,
+  FORCE_TYPES,
+  FORCE_POSITION_TYPES,
+  FORCE_INTENSITY_TYPES,
+  CONSTRAINT_TYPES
+} from '@src/constants/types'
+
 import { pixelRatioClamped } from '@src/utils/screen'
 
 export function createControlsState () {
@@ -265,119 +275,13 @@ export function createControlsState () {
 
 export function createControlsStaticParams () {
   return {
-    modeTypes: [
-      {
-        id: 'draw',
-        name: 'Draw'
-      },
-      {
-        id: 'select',
-        name: 'Select'
-      }
-    ],
-
-    // TODO: Pull from shared constants
-    paletteTypes: [
-      {
-        id: 'tool',
-        name: 'Line Tool'
-      },
-      {
-        id: 'geometry',
-        name: 'Geometry Modifiers'
-      },
-      {
-        id: 'styles',
-        name: 'Style Layers'
-      },
-      {
-        id: 'constraints',
-        name: 'Constraint Groups'
-      },
-      {
-        id: 'forces',
-        name: 'Simulation Forces'
-      },
-      {
-        id: 'viewport',
-        name: 'Viewport'
-      },
-      {
-        id: 'effects',
-        name: 'Visual Effects'
-      }
-    ],
-
-    inputModTypes: [
-      {
-        index: 0,
-        name: 'No'
-      },
-      {
-        index: 1,
-        name: 'Velocity'
-      },
-      {
-        index: 2,
-        name: 'Pen Pressure'
-      },
-      {
-        index: 3,
-        name: 'Scroll Wheel'
-      }
-    ],
-
-    forceTypes: [
-      {
-        index: 0,
-        name: 'Attractor / Repulsor'
-      },
-      {
-        index: 1,
-        name: 'Rotator'
-      }
-    ],
-
-    forcePositionTypes: [
-      {
-        index: 0,
-        name: 'Static'
-      },
-      {
-        index: 1,
-        name: 'Pointer'
-      }
-    ],
-
-    forceIntensityTypes: [
-      {
-        index: 0,
-        name: 'Static'
-      },
-      {
-        index: 1,
-        name: 'Pointer Velocity'
-      },
-      {
-        index: 2,
-        name: 'Ebb and Flow'
-      }
-    ],
-
-    constraintTypes: [
-      {
-        index: 0,
-        name: 'Pin'
-      },
-      {
-        index: 1,
-        name: 'Stick'
-      },
-      {
-        index: 2,
-        name: 'Engine'
-      }
-    ]
+    modeTypes: MODE_TYPES,
+    paletteTypes: PALETTE_TYPES,
+    inputModTypes: INPUT_MOD_TYPES,
+    forceTypes: FORCE_TYPES,
+    forcePositionTypes: FORCE_POSITION_TYPES,
+    forceIntensityTypes: FORCE_INTENSITY_TYPES,
+    constraintTypes: CONSTRAINT_TYPES
   }
 }
 
