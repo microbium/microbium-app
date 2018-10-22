@@ -229,6 +229,14 @@ function createAppActions () {
           {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
+    selectNextStyleLayer (dir) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_NEXT_STYLE_LAYER', dir})
+    },
+    selectNextConstraintGroup (dir) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_NEXT_CONSTRAINT_GROUP', dir})
+    },
     togglePalette () {
       paletteVisibility.isHiddenUser = !paletteVisibility.isHiddenUser
       toggleWindow('palette')
@@ -643,24 +651,42 @@ function onMenuMessage (event, data) {
 
 function syncMenuControls ({ group, key, value }) {
   if (group === null) {
-    paletteState.stylesCount = value.styles.length
-    paletteState.styleIndex = value.lineTool.styleIndex
-    syncMenuStyles()
+    const { lineTool, styles, constraintGroups } = value
+    Object.assign(paletteState, {
+      stylesCount: styles.length,
+      styleIndex: lineTool.styleIndex,
+      constraintGroupsCount: constraintGroups.length,
+      constraintIndex: lineTool.constraintIndex
+    })
+    syncMenuStyleLayers()
+    syncMenuConstraintGroups()
   }
   if (group === 'lineTool') {
     paletteState.styleIndex = value.styleIndex
-    syncMenuStyles()
+    paletteState.constraintIndex = value.constraintIndex
+    syncMenuStyleLayers()
+    syncMenuConstraintGroups()
   }
   if (group === 'styles') {
     paletteState.stylesCount = value.length
-    syncMenuStyles()
+    syncMenuStyleLayers()
+  }
+  if (group === 'constraintGroups') {
+    paletteState.constraintGroupsCount = value.length
+    syncMenuConstraintGroups()
   }
 }
 
-function syncMenuStyles () {
+function syncMenuStyleLayers () {
   const { stylesCount, styleIndex } = paletteState
-  setMenuState('prev-style', 'enabled', styleIndex > 0)
-  setMenuState('next-style', 'enabled', styleIndex < stylesCount - 1)
+  setMenuState('prev-style-layer', 'enabled', styleIndex > 0)
+  setMenuState('next-style-layer', 'enabled', styleIndex < stylesCount - 1)
+}
+
+function syncMenuConstraintGroups () {
+  const { constraintGroupsCount, constraintIndex } = paletteState
+  setMenuState('prev-constraint-group', 'enabled', constraintIndex > 0)
+  setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroupsCount - 1)
 }
 
 function syncActivePalette (id) {

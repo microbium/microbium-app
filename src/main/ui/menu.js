@@ -93,6 +93,40 @@ export function createMenuTemplate (app, actions) {
       label: 'Edit',
       submenu: [
         {
+          id: 'prev-style-layer',
+          label: 'Previous Style Layer',
+          accelerator: 'Cmd+[',
+          click () {
+            actions.selectNextStyleLayer(-1)
+          }
+        },
+        {
+          id: 'next-style-layer',
+          label: 'Next Style Layer',
+          accelerator: 'Cmd+]',
+          click () {
+            actions.selectNextStyleLayer(1)
+          }
+        },
+        {type: 'separator'},
+        {
+          id: 'prev-constraint-group',
+          label: 'Previous Constraint Group',
+          accelerator: 'Cmd+{',
+          click () {
+            actions.selectNextConstraintGroup(-1)
+          }
+        },
+        {
+          id: 'next-constraint-group',
+          label: 'Next Constraint Group',
+          accelerator: 'Cmd+}',
+          click () {
+            actions.selectNextConstraintGroup(1)
+          }
+        },
+        {type: 'separator'},
+        {
           id: 'delete-last-vertex',
           label: 'Delete Last Vertex',
           accelerator: 'X',
@@ -115,17 +149,6 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.deleteLastSegment()
           }
-        },
-        {type: 'separator'},
-        {
-          id: 'prev-style',
-          label: 'Select Previous Style',
-          accelerator: 'Cmd+['
-        },
-        {
-          id: 'next-style',
-          label: 'Select Next Style',
-          accelerator: 'Cmd+]'
         },
         {type: 'separator'}
         // {role: 'undo'},

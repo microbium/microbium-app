@@ -255,11 +255,17 @@ export default {
     },
 
     handleCommand (event, data) {
-      const { controls } = this
+      const { activePalettes, lineTool } = this.controls
 
       switch (data.action) {
         case 'SET_ACTIVE_PALETTE':
-          controls.activePalettes.id = data.id
+          activePalettes.id = data.id
+          break
+        case 'SELECT_NEXT_STYLE_LAYER':
+          lineTool.styleIndex += data.dir
+          break
+        case 'SELECT_NEXT_CONSTRAINT_GROUP':
+          lineTool.constraintIndex += data.dir
           break
       }
     },
