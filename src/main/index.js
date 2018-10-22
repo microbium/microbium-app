@@ -73,7 +73,9 @@ const paletteVisibility = {
   isHiddenUser: false
 }
 const paletteState = {
-  activeId: 'tool'
+  activeId: 'tool',
+  stylesCount: 0,
+  styleIndex: 0
 }
 
 const mainURL = IS_DEV
@@ -329,7 +331,9 @@ function createMainWindow () {
   main.on('focus', onWindowFocus)
   main.on('blur', onWindowBlur)
   ipcMain.on('main-message', onMessage)
+  ipcMain.on('main+menu-message', onMessage)
   ipcMain.on('menu-message', onMenuMessage)
+  ipcMain.on('main+menu-message', onMenuMessage)
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
@@ -391,6 +395,7 @@ function createPaletteWindow () {
       palette.webContents.openDevTools({mode: 'detach'})
     }
     palette.showInactive()
+    ipcMain.on('palette+menu-message', onMenuMessage)
     ipcMain.on('palette-message', (event, data) => {
       sendWindowMessage('palette', 'message', data)
     })
@@ -627,10 +632,35 @@ function saveFrameImageFromCanvas (path) {
 
 function onMenuMessage (event, data) {
   switch (data.type) {
+    case 'UPDATE_CONTROLS':
+      syncMenuControls(data)
+      break
     case 'UPDATE_ACTIVE_PALETTE':
       syncActivePalette(data.id)
       break
   }
+}
+
+function syncMenuControls ({ group, key, value }) {
+  if (group === null) {
+    paletteState.stylesCount = value.styles.length
+    paletteState.styleIndex = value.lineTool.styleIndex
+    syncMenuStyles()
+  }
+  if (group === 'lineTool') {
+    paletteState.styleIndex = value.styleIndex
+    syncMenuStyles()
+  }
+  if (group === 'styles') {
+    paletteState.stylesCount = value.length
+    syncMenuStyles()
+  }
+}
+
+function syncMenuStyles () {
+  const { stylesCount, styleIndex } = paletteState
+  setMenuState('prev-style', 'enabled', styleIndex > 0)
+  setMenuState('next-style', 'enabled', styleIndex < stylesCount - 1)
 }
 
 function syncActivePalette (id) {

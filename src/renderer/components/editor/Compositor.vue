@@ -364,7 +364,7 @@ function mountCompositor ($el, $refs, actions) {
       })
 
       state.renderer.needsUpdate = true
-      this.updatePaletteState(null, null, state.controls)
+      this.updatePaletteState(null, null, state.controls, true)
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
@@ -499,8 +499,9 @@ function mountCompositor ($el, $refs, actions) {
       })
     },
 
-    updatePaletteState (group, key, value) {
-      actions.sendMessage('palette-message', {
+    updatePaletteState (group, key, value, toMenu = false) {
+      const channel = toMenu ? 'palette+menu-message' : 'palette-message'
+      actions.sendMessage(channel, {
         type: 'UPDATE_CONTROLS',
         group,
         key,

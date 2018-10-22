@@ -286,7 +286,7 @@ export default {
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
       if (this._mainDidUpdateControls) return
-      this.sendMessage('main-message', {
+      this.sendMessage('main+menu-message', {
         type: 'UPDATE_CONTROLS',
         group,
         value
