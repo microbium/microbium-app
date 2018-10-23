@@ -32,13 +32,13 @@ import { isHighSierra } from './utils/platform'
 import { fitRect } from './utils/window'
 import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './ui/menu'
-import { createPaletteTouchBar } from './ui/touchbar'
+import { createPaletteTouchBar, createEditorTouchBar } from './ui/touchbar'
 import { exportSceneHTML } from './exporters/html'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
 const ENABLE_IPC_EXTERNAL = false
-const DEBUG_MAIN = true
+const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
 
 /**
@@ -76,6 +76,10 @@ const paletteState = {
   activeId: 'tool',
   stylesCount: 0,
   styleIndex: 0
+}
+const editorState = {
+  isSimRunning: false,
+  isSimPaused: false
 }
 
 const mainURL = IS_DEV
@@ -194,6 +198,7 @@ function createAppActions () {
     },
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
+        toggleSimulationState()
         sendWindowMessage('main', 'command',
           {action: 'SIMULATION_TOGGLE'})
         // FIXME: Inconsistent key input capturing after toggling menu item state
@@ -201,6 +206,7 @@ function createAppActions () {
       }
     },
     toggleSimulationPause () {
+      toggleSimulationPauseState()
       sendWindowMessage('main', 'command',
         {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
@@ -295,6 +301,7 @@ function createMenu () {
 
 function createTouchBar () {
   appTouchBars.palette = createPaletteTouchBar(appActions)
+  appTouchBars.editor = createEditorTouchBar(appActions)
 }
 
 // ------------------------------------------------------------
@@ -333,6 +340,8 @@ function createMainWindow () {
 
   setMenuState('create-scene', 'enabled', false)
   setMenuState('revert-scene', 'enabled', true)
+
+  main.setTouchBar(appTouchBars.editor)
   main.loadURL(mainURL)
   onWindowFocus()
 
@@ -718,6 +727,16 @@ function toggleMenuItem (name) {
     menuItemOn.visible = menuItemOn.enabled = false
     menuItemOff.visible = menuItemOff.enabled = true
   }
+}
+
+function toggleSimulationState () {
+  const isSimRunning = editorState.isSimRunning = !editorState.isSimRunning
+  appTouchBars.editor.syncSimulationRunningState(isSimRunning)
+}
+
+function toggleSimulationPauseState () {
+  const isSimPaused = editorState.isSimPaused = !editorState.isSimPaused
+  appTouchBars.editor.syncSimulationPausedState(isSimPaused)
 }
 
 // ------------------------------------------------------------

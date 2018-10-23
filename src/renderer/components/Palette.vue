@@ -255,17 +255,19 @@ export default {
     },
 
     handleCommand (event, data) {
-      const { activePalettes, lineTool } = this.controls
+      const { activePalettes, lineTool, styles, constraintGroups } = this.controls
 
       switch (data.action) {
         case 'SET_ACTIVE_PALETTE':
           activePalettes.id = data.id
           break
         case 'SELECT_NEXT_STYLE_LAYER':
-          lineTool.styleIndex += data.dir
+          lineTool.styleIndex = clamp(0, styles.length - 1,
+            lineTool.styleIndex + data.dir)
           break
         case 'SELECT_NEXT_CONSTRAINT_GROUP':
-          lineTool.constraintIndex += data.dir
+          lineTool.constraintIndex = clamp(0, constraintGroups.length - 1,
+            lineTool.constraintIndex + data.dir)
           break
       }
     },
