@@ -156,7 +156,8 @@ const rendererConfig = {
     alias: {
       '@root': path.join(__dirname, '../'),
       '@src': path.join(__dirname, '../src/renderer'),
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
+      'regl': '@microbium/regl'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
   },
