@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@jpweeks/electron-recorder": "^1.1.0",
+    "@microbium/regl": "^1.3.71",
     "cardinal-spline": "^0.0.1",
     "colr": "^1.2.2",
     "electron-log": "^2.2.14",
@@ -78,7 +79,6 @@
     "lodash.template": "^4.4.0",
     "particulate": "^0.3.3",
     "pngjs": "^3.3.3",
-    "@microbium/regl": "^1.3.71",
     "regl-line-builder": "^0.4.2",
     "vue": "^2.5.13",
     "vue-electron": "^1.0.6",
