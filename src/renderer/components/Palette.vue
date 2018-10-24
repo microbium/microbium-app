@@ -261,9 +261,15 @@ export default {
         case 'SET_ACTIVE_PALETTE':
           activePalettes.id = data.id
           break
+        case 'SELECT_STYLE_LAYER':
+          lineTool.styleIndex = data.index
+          break
         case 'SELECT_NEXT_STYLE_LAYER':
           lineTool.styleIndex = clamp(0, styles.length - 1,
             lineTool.styleIndex + data.dir)
+          break
+        case 'SELECT_CONSTRAINT_GROUP':
+          lineTool.constraintIndex = data.index
           break
         case 'SELECT_NEXT_CONSTRAINT_GROUP':
           lineTool.constraintIndex = clamp(0, constraintGroups.length - 1,

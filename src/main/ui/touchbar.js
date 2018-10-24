@@ -6,8 +6,13 @@ const {
   TouchBarGroup,
   TouchBarButton,
   TouchBarSpacer,
+  TouchBarPopover,
   TouchBarSegmentedControl
 } = TouchBar
+
+// ------------------------------------------------------------
+// Palette TouchBar
+// ----------------
 
 export function createPaletteTouchBar (actions) {
   const paletteSelector = createPaletteSelector(actions)
@@ -27,7 +32,7 @@ function createPaletteSelector (actions) {
   const control = new TouchBarSegmentedControl({
     // segmentStyle: 'separated',
     segments: palettes.map(({ id }) => ({
-      icon: createIcon(id)
+      icon: createIcon(`${id}-alt`)
     })),
     change (selectedIndex) {
       const { id } = palettes[selectedIndex]
@@ -44,26 +49,34 @@ function createPaletteSelector (actions) {
   return control
 }
 
+// ------------------------------------------------------------
+// Editor TouchBar
+// ---------------
+
 export function createEditorTouchBar (actions) {
-  const simulationControls = createSimulationControls(actions)
-  const styleNavigator = createStyleNavigator(actions)
-  const constraintNavigator = createConstraintNavigator(actions)
+  const simulation = createSimulationControls(actions)
+  const styles = createStyleControls(actions)
+  const constraints = createConstraintControls(actions)
   // const lineEditor = createLineEditor(actions)
 
   const touchbar = new TouchBar({
     items: [
-      simulationControls,
+      simulation,
       new TouchBarSpacer({ size: 'large' }),
-      styleNavigator,
+      styles,
       new TouchBarSpacer({ size: 'small' }),
-      constraintNavigator
+      constraints
       // new TouchBarSpacer({ size: 'large' }),
       // lineEditor
     ]
   })
 
-  touchbar.syncSimulationRunningState = simulationControls.syncRunningState
-  touchbar.syncSimulationPausedState = simulationControls.syncPausedState
+  Object.assign(touchbar, {
+    syncSimulationRunningState: simulation.syncRunningState,
+    syncSimulationPausedState: simulation.syncPausedState,
+    syncStyles: styles.syncSelector,
+    syncConstraintGroups: constraints.syncSelector
+  })
 
   return touchbar
 }
@@ -81,7 +94,7 @@ function createSimulationControls (actions) {
     actionName: 'toggleSimulation'
   }, {
     name: 'simulation-pause',
-    icon: icons.pause,
+    icon: icons.pauseActive,
     actionName: 'toggleSimulationPause'
   }])
 
@@ -92,34 +105,24 @@ function createSimulationControls (actions) {
 
   controls.syncPausedState = (isPaused) => {
     const pauseItem = controls.itemsMap['simulation-pause']
-    pauseItem.icon = isPaused ? icons.pauseActive : icons.pause
+    pauseItem.icon = isPaused ? icons.pause : icons.pauseActive
   }
 
   return controls
 }
 
-function createStyleNavigator (actions) {
-  return createControlsGroup(actions, [{
-    name: 'styles-prev',
-    actionName: 'selectNextStyleLayer',
-    actionArgs: [-1]
-  }, {
-    name: 'styles-next',
-    actionName: 'selectNextStyleLayer',
-    actionArgs: [1]
-  }])
+function createStyleControls (actions) {
+  return createControlsSelector(actions, {
+    iconName: 'styles',
+    actionName: 'selectStyleLayer'
+  })
 }
 
-function createConstraintNavigator (actions) {
-  return createControlsGroup(actions, [{
-    name: 'constraints-prev',
-    actionName: 'selectNextConstraintGroup',
-    actionArgs: [-1]
-  }, {
-    name: 'constraints-next',
-    actionName: 'selectNextConstraintGroup',
-    actionArgs: [1]
-  }])
+function createConstraintControls (actions) {
+  return createControlsSelector(actions, {
+    iconName: 'constraints',
+    actionName: 'selectConstraintGroup'
+  })
 }
 
 /*
@@ -139,7 +142,8 @@ function createLineEditor (actions) {
 
 function createControlsGroup (actions, actionItems) {
   const itemsMap = {}
-  const items = actionItems.map(({ name, icon, backgroundColor, actionName, actionArgs }) => {
+  const items = actionItems.map((options) => {
+    const { name, icon, backgroundColor, actionName, actionArgs } = options
     const item = new TouchBarButton({
       icon: icon || createIcon(name),
       backgroundColor,
@@ -155,6 +159,29 @@ function createControlsGroup (actions, actionItems) {
   group.itemsMap = itemsMap
 
   return group
+}
+
+function createControlsSelector (actions, options) {
+  const actionHandler = actions[options.actionName]
+  const selector = new TouchBarSegmentedControl({
+    // segmentStyle: 'separated',
+    segments: [],
+    change (selectedIndex) {
+      actionHandler(selectedIndex)
+    }
+  })
+  const popover = new TouchBarPopover({
+    icon: createIcon(options.iconName),
+    items: [selector]
+  })
+
+  popover.syncSelector = (items) => {
+    selector.segments = items.map(({ name }) => ({
+      label: name
+    }))
+  }
+
+  return popover
 }
 
 function createIcon (name) {

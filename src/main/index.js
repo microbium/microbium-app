@@ -74,8 +74,10 @@ const paletteVisibility = {
 }
 const paletteState = {
   activeId: 'tool',
-  stylesCount: 0,
-  styleIndex: 0
+  styles: null,
+  styleIndex: 0,
+  constraintGroups: null,
+  constraintIndex: 0
 }
 const editorState = {
   isSimRunning: false,
@@ -235,9 +237,17 @@ function createAppActions () {
           {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
+    selectStyleLayer (index) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_STYLE_LAYER', index})
+    },
     selectNextStyleLayer (dir) {
       sendWindowMessage('palette', 'command',
         {action: 'SELECT_NEXT_STYLE_LAYER', dir})
+    },
+    selectConstraintGroup (index) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_CONSTRAINT_GROUP', index})
     },
     selectNextConstraintGroup (dir) {
       sendWindowMessage('palette', 'command',
@@ -650,7 +660,7 @@ function saveFrameImageFromCanvas (path) {
 function onMenuMessage (event, data) {
   switch (data.type) {
     case 'UPDATE_CONTROLS':
-      syncMenuControls(data)
+      syncControls(data)
       break
     case 'UPDATE_ACTIVE_PALETTE':
       syncActivePalette(data.id)
@@ -658,44 +668,46 @@ function onMenuMessage (event, data) {
   }
 }
 
-function syncMenuControls ({ group, key, value }) {
+function syncControls ({ group, key, value }) {
   if (group === null) {
     const { lineTool, styles, constraintGroups } = value
     Object.assign(paletteState, {
-      stylesCount: styles.length,
+      styles,
       styleIndex: lineTool.styleIndex,
-      constraintGroupsCount: constraintGroups.length,
+      constraintGroups,
       constraintIndex: lineTool.constraintIndex
     })
-    syncMenuStyleLayers()
-    syncMenuConstraintGroups()
+    syncStyleLayers()
+    syncConstraintGroups()
   }
   if (group === 'lineTool') {
     paletteState.styleIndex = value.styleIndex
     paletteState.constraintIndex = value.constraintIndex
-    syncMenuStyleLayers()
-    syncMenuConstraintGroups()
+    syncStyleLayers()
+    syncConstraintGroups()
   }
   if (group === 'styles') {
-    paletteState.stylesCount = value.length
-    syncMenuStyleLayers()
+    paletteState.styles = value
+    syncStyleLayers()
   }
   if (group === 'constraintGroups') {
-    paletteState.constraintGroupsCount = value.length
-    syncMenuConstraintGroups()
+    paletteState.constraintGroups = value
+    syncConstraintGroups()
   }
 }
 
-function syncMenuStyleLayers () {
-  const { stylesCount, styleIndex } = paletteState
+function syncStyleLayers () {
+  const { styles, styleIndex } = paletteState
   setMenuState('prev-style-layer', 'enabled', styleIndex > 0)
-  setMenuState('next-style-layer', 'enabled', styleIndex < stylesCount - 1)
+  setMenuState('next-style-layer', 'enabled', styleIndex < styles.length - 1)
+  appTouchBars.editor.syncStyles(styles)
 }
 
-function syncMenuConstraintGroups () {
-  const { constraintGroupsCount, constraintIndex } = paletteState
+function syncConstraintGroups () {
+  const { constraintGroups, constraintIndex } = paletteState
   setMenuState('prev-constraint-group', 'enabled', constraintIndex > 0)
-  setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroupsCount - 1)
+  setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroups.length - 1)
+  appTouchBars.editor.syncConstraintGroups(constraintGroups)
 }
 
 function syncActivePalette (id) {
