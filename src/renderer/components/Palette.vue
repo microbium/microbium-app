@@ -257,9 +257,16 @@ export default {
     handleCommand (event, data) {
       const { activePalettes, lineTool, styles, constraintGroups } = this.controls
 
+      this.menuDidUpdateControls()
       switch (data.action) {
         case 'SET_ACTIVE_PALETTE':
           activePalettes.id = data.id
+          break
+        case 'SET_STROKE_WIDTH':
+          lineTool.strokeWidth = data.value
+          break
+        case 'SET_INPUT_MOD_TYPE':
+          lineTool.inputModTypeIndex = data.value
           break
         case 'SELECT_STYLE_LAYER':
           lineTool.styleIndex = data.index
@@ -290,6 +297,13 @@ export default {
       }, 0)
     },
 
+    menuDidUpdateControls () {
+      this._menuDidUpdateControls = true
+      setTimeout(() => {
+        this._menuDidUpdateControls = false
+      }, 0)
+    },
+
     syncActivePaletteMode (id) {
       this.sendMessage('menu-message', {
         type: 'UPDATE_ACTIVE_PALETTE',
@@ -300,7 +314,9 @@ export default {
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
       if (this._mainDidUpdateControls) return
-      this.sendMessage('main+menu-message', {
+      const target = this._menuDidUpdateControls ? 'main' : 'main+menu'
+      console.log('syncControls', target)
+      this.sendMessage(`${target}-message`, {
         type: 'UPDATE_CONTROLS',
         group,
         value

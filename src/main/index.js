@@ -74,10 +74,9 @@ const paletteVisibility = {
 }
 const paletteState = {
   activeId: 'tool',
+  lineTool: null,
   styles: null,
-  styleIndex: 0,
-  constraintGroups: null,
-  constraintIndex: 0
+  constraintGroups: null
 }
 const editorState = {
   isSimRunning: false,
@@ -125,6 +124,7 @@ function createAppActions () {
       store.set('openScenePath', null)
       createMainWindow()
     },
+
     openScene () {
       dialog.showOpenDialog(null, {
         openDirectory: false,
@@ -137,6 +137,7 @@ function createAppActions () {
         openSceneFile(fileName)
       })
     },
+
     saveScene (useOpenScene) {
       const openScenePath = store.get('openScenePath')
       if (useOpenScene && openScenePath) {
@@ -151,6 +152,7 @@ function createAppActions () {
         saveSceneFile(fileName)
       })
     },
+
     revertScene () {
       const fileName = store.get('openScenePath')
       if (!fileName) return
@@ -173,6 +175,7 @@ function createAppActions () {
         }
       })
     },
+
     saveFrameImage () {
       dialog.showSaveDialog(null, {
         filters: imageTypeFilters
@@ -181,6 +184,7 @@ function createAppActions () {
         saveFrameImageFromCanvas(fileName)
       })
     },
+
     exportJSON () {
       dialog.showSaveDialog(null, {
         filters: jsonTypeFilters
@@ -189,6 +193,7 @@ function createAppActions () {
         exportSceneFile(fileName)
       })
     },
+
     exportHTML () {
       dialog.showSaveDialog(null, {
         filters: htmlTypeFilters
@@ -198,6 +203,7 @@ function createAppActions () {
           .then((data) => exportSceneHTML(fileName, data))
       })
     },
+
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
         toggleSimulationState()
@@ -207,11 +213,13 @@ function createAppActions () {
         // toggleMenuItem('simulation')
       }
     },
+
     toggleSimulationPause () {
       toggleSimulationPauseState()
       sendWindowMessage('main', 'command',
         {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
+
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
@@ -219,64 +227,88 @@ function createAppActions () {
         toggleMenuItem('status')
       }
     },
+
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_DELETE_LAST_SEGMENT'})
       }
     },
+
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_DELETE_LAST_VERTEX'})
       }
     },
+
     completeSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
+
+    setStrokeWidth (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_STROKE_WIDTH', value})
+    },
+
+    setInputModType (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_INPUT_MOD_TYPE', value})
+    },
+
     selectStyleLayer (index) {
       sendWindowMessage('palette', 'command',
         {action: 'SELECT_STYLE_LAYER', index})
     },
+
     selectNextStyleLayer (dir) {
       sendWindowMessage('palette', 'command',
         {action: 'SELECT_NEXT_STYLE_LAYER', dir})
     },
+
     selectConstraintGroup (index) {
       sendWindowMessage('palette', 'command',
         {action: 'SELECT_CONSTRAINT_GROUP', index})
     },
+
     selectNextConstraintGroup (dir) {
       sendWindowMessage('palette', 'command',
         {action: 'SELECT_NEXT_CONSTRAINT_GROUP', dir})
     },
+
     togglePalette () {
       paletteVisibility.isHiddenUser = !paletteVisibility.isHiddenUser
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
+
     setActivePalette (id) {
       syncActivePalette(id)
       sendWindowMessage('palette', 'command',
         {action: 'SET_ACTIVE_PALETTE', id})
     },
+
     setAspectRatio (aspect) {
       setWindowAspectRatio('main', aspect)
     },
+
     reportIssue () {
       shell.openExternal('https://github.com/microbium/microbium-app-issues')
     },
+
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
     },
+
     startScreenRecording () {
       setMenuState('start-screen-recording', 'enabled', false)
       setMenuState('stop-screen-recording', 'enabled', true)
       startWindowScreenRecording('main')
     },
+
     stopScreenRecording () {
       setMenuState('start-screen-recording', 'enabled', true)
       setMenuState('stop-screen-recording', 'enabled', false)
@@ -672,39 +704,49 @@ function syncControls ({ group, key, value }) {
   if (group === null) {
     const { lineTool, styles, constraintGroups } = value
     Object.assign(paletteState, {
+      lineTool,
       styles,
-      styleIndex: lineTool.styleIndex,
-      constraintGroups,
-      constraintIndex: lineTool.constraintIndex
+      constraintGroups
     })
+    syncStrokeControls()
     syncStyleLayers()
     syncConstraintGroups()
   }
+
   if (group === 'lineTool') {
-    paletteState.styleIndex = value.styleIndex
-    paletteState.constraintIndex = value.constraintIndex
+    Object.assign(paletteState.lineTool, value)
+    syncStrokeControls()
     syncStyleLayers()
     syncConstraintGroups()
   }
+
   if (group === 'styles') {
     paletteState.styles = value
     syncStyleLayers()
   }
+
   if (group === 'constraintGroups') {
     paletteState.constraintGroups = value
     syncConstraintGroups()
   }
 }
 
+function syncStrokeControls () {
+  const { lineTool } = paletteState
+  appTouchBars.editor.syncStroke(lineTool)
+}
+
 function syncStyleLayers () {
-  const { styles, styleIndex } = paletteState
+  const { styles, lineTool } = paletteState
+  const { styleIndex } = lineTool
   setMenuState('prev-style-layer', 'enabled', styleIndex > 0)
   setMenuState('next-style-layer', 'enabled', styleIndex < styles.length - 1)
   appTouchBars.editor.syncStyles(styles)
 }
 
 function syncConstraintGroups () {
-  const { constraintGroups, constraintIndex } = paletteState
+  const { constraintGroups, lineTool } = paletteState
+  const { constraintIndex } = lineTool
   setMenuState('prev-constraint-group', 'enabled', constraintIndex > 0)
   setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroups.length - 1)
   appTouchBars.editor.syncConstraintGroups(constraintGroups)

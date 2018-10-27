@@ -5,6 +5,7 @@ import { PALETTE_TYPES } from '@renderer/constants/types'
 const {
   TouchBarGroup,
   TouchBarButton,
+  TouchBarSlider,
   TouchBarSpacer,
   TouchBarPopover,
   TouchBarSegmentedControl
@@ -30,7 +31,6 @@ export function createPaletteTouchBar (actions) {
 function createPaletteSelector (actions) {
   const palettes = PALETTE_TYPES
   const control = new TouchBarSegmentedControl({
-    // segmentStyle: 'separated',
     segments: palettes.map(({ id }) => ({
       icon: createIcon(`${id}-alt`)
     })),
@@ -55,27 +55,26 @@ function createPaletteSelector (actions) {
 
 export function createEditorTouchBar (actions) {
   const simulation = createSimulationControls(actions)
+  const stroke = createStrokeControls(actions)
   const styles = createStyleControls(actions)
   const constraints = createConstraintControls(actions)
-  // const lineEditor = createLineEditor(actions)
 
   const touchbar = new TouchBar({
     items: [
       simulation,
-      new TouchBarSpacer({ size: 'large' }),
-      styles,
       new TouchBarSpacer({ size: 'small' }),
+      stroke,
+      styles,
       constraints
-      // new TouchBarSpacer({ size: 'large' }),
-      // lineEditor
     ]
   })
 
   Object.assign(touchbar, {
     syncSimulationRunningState: simulation.syncRunningState,
     syncSimulationPausedState: simulation.syncPausedState,
-    syncStyles: styles.syncSelector,
-    syncConstraintGroups: constraints.syncSelector
+    syncStroke: stroke.sync,
+    syncStyles: styles.sync,
+    syncConstraintGroups: constraints.sync
   })
 
   return touchbar
@@ -85,7 +84,7 @@ function createSimulationControls (actions) {
   const icons = {
     play: createIcon('simulation-play'),
     stop: createIcon('simulation-stop'),
-    pause: createIcon('simulation-pause'),
+    pause: createIcon('simulation-pause-inactive'),
     pauseActive: createIcon('simulation-pause-active')
   }
   const controls = createControlsGroup(actions, [{
@@ -125,20 +124,38 @@ function createConstraintControls (actions) {
   })
 }
 
-/*
-function createLineEditor (actions) {
-  return createControlsGroup(actions, [{
-    name: 'styles-prev',
-    actionName: 'deleteLastVertex'
-  }, {
-    name: 'styles-prev',
-    actionName: 'completeSegment'
-  }, {
-    name: 'styles-prev',
-    actionName: 'deleteLastSegment'
-  }])
+function createStrokeControls (actions) {
+  const baseSlider = new TouchBarSlider({
+    value: 15,
+    minValue: 1,
+    maxValue: 50,
+    change (value) {
+      const width = value / 10
+      actions.setStrokeWidth(width)
+    }
+  })
+  const modSelector = new TouchBarSegmentedControl({
+    segments: ['No', 'Vel', 'Pn Pr', 'Scrl'].map((label) => ({ label })),
+    change (selectedIndex) {
+      actions.setInputModType(selectedIndex)
+    }
+  })
+
+  const popover = new TouchBarPopover({
+    icon: createIcon('tool'),
+    items: [
+      baseSlider,
+      modSelector
+    ]
+  })
+
+  popover.sync = (lineTool) => {
+    baseSlider.value = Math.round(lineTool.strokeWidth * 10)
+    modSelector.selectedIndex = lineTool.inputModTypeIndex
+  }
+
+  return popover
 }
-*/
 
 function createControlsGroup (actions, actionItems) {
   const itemsMap = {}
@@ -164,7 +181,6 @@ function createControlsGroup (actions, actionItems) {
 function createControlsSelector (actions, options) {
   const actionHandler = actions[options.actionName]
   const selector = new TouchBarSegmentedControl({
-    // segmentStyle: 'separated',
     segments: [],
     change (selectedIndex) {
       actionHandler(selectedIndex)
@@ -172,10 +188,13 @@ function createControlsSelector (actions, options) {
   })
   const popover = new TouchBarPopover({
     icon: createIcon(options.iconName),
-    items: [selector]
+    items: [
+      new TouchBarSpacer({ size: 'small' }),
+      selector
+    ]
   })
 
-  popover.syncSelector = (items) => {
+  popover.sync = (items) => {
     selector.segments = items.map(({ name }) => ({
       label: name
     }))
