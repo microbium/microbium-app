@@ -29,9 +29,10 @@ import {
 } from 'zlib'
 
 import { isHighSierra } from './utils/platform'
+import { fitRect } from './utils/window'
 import { createMessageSocket } from './io/socket'
-import { createMenuTemplate } from './menu'
-import { fitRect } from './window'
+import { createMenuTemplate } from './ui/menu'
+import { createPaletteTouchBar, createEditorTouchBar } from './ui/touchbar'
 import { exportSceneHTML } from './exporters/html'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
@@ -59,6 +60,10 @@ const ipcExternal = ENABLE_IPC_EXTERNAL
 const appMenus = {
   main: null
 }
+const appTouchBars = {
+  main: null,
+  palette: null
+}
 const appWindows = {
   main: null,
   palette: null
@@ -66,6 +71,16 @@ const appWindows = {
 const paletteVisibility = {
   isHidden: false,
   isHiddenUser: false
+}
+const paletteState = {
+  activeId: 'tool',
+  lineTool: null,
+  styles: null,
+  constraintGroups: null
+}
+const editorState = {
+  isSimRunning: false,
+  isSimPaused: false
 }
 
 const mainURL = IS_DEV
@@ -79,13 +94,9 @@ const store = new Store()
 let appIsReady = false
 let appShouldQuit = false
 
-// ------------------------------------------------------------
-// Application Menu
-// ----------------
-
-function createMenu () {
-  if (appMenus.main !== null) return
-
+// TODO: Cleanup actions
+const appActions = createAppActions()
+function createAppActions () {
   // TODO: Cleanup file filters
   const fileTypeFilters = [{
     name: 'Microbium Scene',
@@ -108,12 +119,12 @@ function createMenu () {
     extensions: ['mov']
   }]
 
-  // TODO: Cleanup actions
-  const template = createMenuTemplate(app, {
+  return {
     createNewScene () {
       store.set('openScenePath', null)
       createMainWindow()
     },
+
     openScene () {
       dialog.showOpenDialog(null, {
         openDirectory: false,
@@ -126,6 +137,7 @@ function createMenu () {
         openSceneFile(fileName)
       })
     },
+
     saveScene (useOpenScene) {
       const openScenePath = store.get('openScenePath')
       if (useOpenScene && openScenePath) {
@@ -140,6 +152,7 @@ function createMenu () {
         saveSceneFile(fileName)
       })
     },
+
     revertScene () {
       const fileName = store.get('openScenePath')
       if (!fileName) return
@@ -156,13 +169,13 @@ function createMenu () {
         checkboxLabel: "Don't ask me again",
         checkboxChecked: false
       }, (id, checkboxChecked) => {
-        console.log(id, checkboxChecked)
         if (id === 0) {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
         }
       })
     },
+
     saveFrameImage () {
       dialog.showSaveDialog(null, {
         filters: imageTypeFilters
@@ -171,6 +184,7 @@ function createMenu () {
         saveFrameImageFromCanvas(fileName)
       })
     },
+
     exportJSON () {
       dialog.showSaveDialog(null, {
         filters: jsonTypeFilters
@@ -179,6 +193,7 @@ function createMenu () {
         exportSceneFile(fileName)
       })
     },
+
     exportHTML () {
       dialog.showSaveDialog(null, {
         filters: htmlTypeFilters
@@ -188,18 +203,23 @@ function createMenu () {
           .then((data) => exportSceneHTML(fileName, data))
       })
     },
+
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
+        toggleSimulationState()
         sendWindowMessage('main', 'command',
           {action: 'SIMULATION_TOGGLE'})
         // FIXME: Inconsistent key input capturing after toggling menu item state
         // toggleMenuItem('simulation')
       }
     },
+
     toggleSimulationPause () {
+      toggleSimulationPauseState()
       sendWindowMessage('main', 'command',
         {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
+
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
@@ -207,47 +227,93 @@ function createMenu () {
         toggleMenuItem('status')
       }
     },
+
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_DELETE_LAST_SEGMENT'})
       }
     },
+
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_DELETE_LAST_VERTEX'})
       }
     },
+
     completeSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
           {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
       }
     },
+
+    setStrokeWidth (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_STROKE_WIDTH', value})
+    },
+
+    setStrokeColor (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_STROKE_COLOR', value})
+    },
+
+    setInputModType (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_INPUT_MOD_TYPE', value})
+    },
+
+    selectStyleLayer (index) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_STYLE_LAYER', index})
+    },
+
+    selectNextStyleLayer (dir) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_NEXT_STYLE_LAYER', dir})
+    },
+
+    selectConstraintGroup (index) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_CONSTRAINT_GROUP', index})
+    },
+
+    selectNextConstraintGroup (dir) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SELECT_NEXT_CONSTRAINT_GROUP', dir})
+    },
+
     togglePalette () {
       paletteVisibility.isHiddenUser = !paletteVisibility.isHiddenUser
       toggleWindow('palette')
       toggleMenuItem('palette')
     },
+
     setActivePalette (id) {
+      syncActivePalette(id)
       sendWindowMessage('palette', 'command',
         {action: 'SET_ACTIVE_PALETTE', id})
     },
+
     setAspectRatio (aspect) {
       setWindowAspectRatio('main', aspect)
     },
+
     reportIssue () {
       shell.openExternal('https://github.com/microbium/microbium-app-issues')
     },
+
     sendFeedback () {
       shell.openExternal('mailto:jay.patrick.weeks@gmail.com')
     },
+
     startScreenRecording () {
       setMenuState('start-screen-recording', 'enabled', false)
       setMenuState('stop-screen-recording', 'enabled', true)
       startWindowScreenRecording('main')
     },
+
     stopScreenRecording () {
       setMenuState('start-screen-recording', 'enabled', true)
       setMenuState('stop-screen-recording', 'enabled', false)
@@ -261,10 +327,28 @@ function createMenu () {
           })
         })
     }
-  })
+  }
+}
 
+// ------------------------------------------------------------
+// Application Menu
+// ----------------
+
+function createMenu () {
+  if (appMenus.main !== null) return
+
+  const template = createMenuTemplate(app, appActions)
   const menu = appMenus.main = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+}
+
+// ------------------------------------------------------------
+// Main TouchBar
+// -------------
+
+function createTouchBar () {
+  appTouchBars.palette = createPaletteTouchBar(appActions)
+  appTouchBars.editor = createEditorTouchBar(appActions)
 }
 
 // ------------------------------------------------------------
@@ -303,13 +387,17 @@ function createMainWindow () {
 
   setMenuState('create-scene', 'enabled', false)
   setMenuState('revert-scene', 'enabled', true)
+
+  main.setTouchBar(appTouchBars.editor)
   main.loadURL(mainURL)
   onWindowFocus()
 
   main.on('focus', onWindowFocus)
   main.on('blur', onWindowBlur)
   ipcMain.on('main-message', onMessage)
+  ipcMain.on('main+menu-message', onMessage)
   ipcMain.on('menu-message', onMenuMessage)
+  ipcMain.on('main+menu-message', onMenuMessage)
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMessage)
@@ -362,6 +450,7 @@ function createPaletteWindow () {
     }
   })
 
+  palette.setTouchBar(appTouchBars.palette)
   palette.loadURL(paletteURL)
   palette.on('blur', onWindowBlur)
 
@@ -370,6 +459,7 @@ function createPaletteWindow () {
       palette.webContents.openDevTools({mode: 'detach'})
     }
     palette.showInactive()
+    ipcMain.on('palette+menu-message', onMenuMessage)
     ipcMain.on('palette-message', (event, data) => {
       sendWindowMessage('palette', 'message', data)
     })
@@ -414,6 +504,7 @@ function getDisplaySize () {
 
 function createStartWindows () {
   createMenu()
+  createTouchBar()
   createMainWindow()
   createPaletteWindow()
   restoreLastSession()
@@ -605,10 +696,73 @@ function saveFrameImageFromCanvas (path) {
 
 function onMenuMessage (event, data) {
   switch (data.type) {
+    case 'UPDATE_CONTROLS':
+      syncControls(data)
+      break
     case 'UPDATE_ACTIVE_PALETTE':
-      setMenuState(`palette-${data.id}`, 'checked', true)
+      syncActivePalette(data.id)
       break
   }
+}
+
+function syncControls ({ group, key, value }) {
+  if (group === null) {
+    const { lineTool, styles, constraintGroups } = value
+    Object.assign(paletteState, {
+      lineTool,
+      styles,
+      constraintGroups
+    })
+    syncStrokeControls()
+    syncStyleLayers()
+    syncConstraintGroups()
+  }
+
+  if (group === 'lineTool') {
+    Object.assign(paletteState.lineTool, value)
+    syncStrokeControls()
+    syncStyleLayers()
+    syncConstraintGroups()
+  }
+
+  if (group === 'styles') {
+    paletteState.styles = value
+    syncStyleLayers()
+  }
+
+  if (group === 'constraintGroups') {
+    paletteState.constraintGroups = value
+    syncConstraintGroups()
+  }
+}
+
+function syncStrokeControls () {
+  const { lineTool } = paletteState
+  appTouchBars.editor.syncStroke(lineTool)
+}
+
+function syncStyleLayers () {
+  const { styles, lineTool } = paletteState
+  const { styleIndex } = lineTool
+  setMenuState('prev-style-layer', 'enabled', styleIndex > 0)
+  setMenuState('next-style-layer', 'enabled', styleIndex < styles.length - 1)
+  appTouchBars.editor.syncStyles(styles)
+}
+
+function syncConstraintGroups () {
+  const { constraintGroups, lineTool } = paletteState
+  const { constraintIndex } = lineTool
+  setMenuState('prev-constraint-group', 'enabled', constraintIndex > 0)
+  setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroups.length - 1)
+  appTouchBars.editor.syncConstraintGroups(constraintGroups)
+}
+
+function syncActivePalette (id) {
+  if (paletteState.activeId === id) return
+  paletteState.activeId = id
+
+  setMenuState(`palette-${id}`, 'checked', true)
+  appTouchBars.palette.syncActivePalette(id)
 }
 
 function setMenuState (name, key, value) {
@@ -632,6 +786,16 @@ function toggleMenuItem (name) {
     menuItemOn.visible = menuItemOn.enabled = false
     menuItemOff.visible = menuItemOff.enabled = true
   }
+}
+
+function toggleSimulationState () {
+  const isSimRunning = editorState.isSimRunning = !editorState.isSimRunning
+  appTouchBars.editor.syncSimulationRunningState(isSimRunning)
+}
+
+function toggleSimulationPauseState () {
+  const isSimPaused = editorState.isSimPaused = !editorState.isSimPaused
+  appTouchBars.editor.syncSimulationPausedState(isSimPaused)
 }
 
 // ------------------------------------------------------------

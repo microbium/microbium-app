@@ -333,8 +333,8 @@ function mountCompositor ($el, $refs, actions) {
       document.addEventListener('keydown', viewport.keyDown, false)
       document.addEventListener('keyup', viewport.keyUp, false)
 
-      actions.observeMessage('message', (event, data) => viewport.message(data))
-      actions.observeMessage('command', (event, data) => viewport.command(data))
+      actions.observeMessage('message', (event, data) => viewport.handleMessage(data))
+      actions.observeMessage('command', (event, data) => viewport.handleCommand(data))
       actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
       actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
       actions.observeMessage('save-frame', (event, data) => view.saveFrameData(data))
@@ -364,7 +364,7 @@ function mountCompositor ($el, $refs, actions) {
       })
 
       state.renderer.needsUpdate = true
-      this.updatePaletteState(null, null, state.controls)
+      this.updatePaletteState(null, null, state.controls, true)
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
@@ -499,8 +499,9 @@ function mountCompositor ($el, $refs, actions) {
       })
     },
 
-    updatePaletteState (group, key, value) {
-      actions.sendMessage('palette-message', {
+    updatePaletteState (group, key, value, toMenu = false) {
+      const channel = toMenu ? 'palette+menu-message' : 'palette-message'
+      actions.sendMessage(channel, {
         type: 'UPDATE_CONTROLS',
         group,
         key,

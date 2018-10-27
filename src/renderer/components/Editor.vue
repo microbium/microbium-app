@@ -112,13 +112,13 @@ export default {
 
   methods: {
     bindEvents () {
-      this.message = this.message.bind(this)
+      this.handleMessage = this.handleMessage.bind(this)
       this.resize = debounce(1 / 60, this.resize.bind(this))
       window.addEventListener('resize', this.resize, false)
-      this.$electron.ipcRenderer.on('message', this.message)
+      this.$electron.ipcRenderer.on('message', this.handleMessage)
     },
 
-    message (event, data) {
+    handleMessage (event, data) {
       switch (data.type) {
         case 'UPDATE_FILE_PATH':
           this.updateFilePath(data)

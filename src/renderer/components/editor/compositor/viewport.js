@@ -90,7 +90,7 @@ export function createViewportController (tasks, state) {
       }
     },
 
-    command (data) {
+    handleCommand (data) {
       switch (data.action) {
         case 'SIMULATION_TOGGLE':
           requestSync('simulation.toggle')
@@ -113,11 +113,18 @@ export function createViewportController (tasks, state) {
       }
     },
 
-    message (data) {
+    handleMessage (data) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value
-          state.renderer.needsUpdate = true
+          switch (data.group) {
+            case 'styles':
+            case 'modifiers':
+            case 'viewport':
+            case 'postEffects':
+              state.renderer.needsUpdate = true
+              break
+          }
           break
         case 'MERGE_SEGMENT_PROP':
           requestSync('geometry.mergeSegmentProp',

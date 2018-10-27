@@ -1,3 +1,5 @@
+import { PALETTE_TYPES } from '@renderer/constants/types'
+
 export function createMenuTemplate (app, actions) {
   const template = [
     {
@@ -91,6 +93,40 @@ export function createMenuTemplate (app, actions) {
       label: 'Edit',
       submenu: [
         {
+          id: 'prev-style-layer',
+          label: 'Previous Style Layer',
+          accelerator: 'Cmd+[',
+          click () {
+            actions.selectNextStyleLayer(-1)
+          }
+        },
+        {
+          id: 'next-style-layer',
+          label: 'Next Style Layer',
+          accelerator: 'Cmd+]',
+          click () {
+            actions.selectNextStyleLayer(1)
+          }
+        },
+        {type: 'separator'},
+        {
+          id: 'prev-constraint-group',
+          label: 'Previous Constraint Group',
+          accelerator: 'Cmd+{',
+          click () {
+            actions.selectNextConstraintGroup(-1)
+          }
+        },
+        {
+          id: 'next-constraint-group',
+          label: 'Next Constraint Group',
+          accelerator: 'Cmd+}',
+          click () {
+            actions.selectNextConstraintGroup(1)
+          }
+        },
+        {type: 'separator'},
+        {
           id: 'delete-last-vertex',
           label: 'Delete Last Vertex',
           accelerator: 'X',
@@ -113,7 +149,8 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.deleteLastSegment()
           }
-        }
+        },
+        {type: 'separator'}
         // {role: 'undo'},
         // {role: 'redo'},
         // {type: 'separator'}
@@ -182,37 +219,7 @@ export function createMenuTemplate (app, actions) {
         {
           id: 'active-palette',
           label: 'Active Palette',
-          // TODO: Pull from shared constants
-          submenu: [
-            {
-              id: 'tool',
-              name: 'Line Tool'
-            },
-            {
-              id: 'geometry',
-              name: 'Geometry Modifiers'
-            },
-            {
-              id: 'styles',
-              name: 'Style Layers'
-            },
-            {
-              id: 'constraints',
-              name: 'Constraint Groups'
-            },
-            {
-              id: 'forces',
-              name: 'Simulation Forces'
-            },
-            {
-              id: 'viewport',
-              name: 'Viewport'
-            },
-            {
-              id: 'effects',
-              name: 'Visual Effects'
-            }
-          ].map(({ id, name }, index) => ({
+          submenu: PALETTE_TYPES.map(({ id, name }, index) => ({
             id: `palette-${id}`,
             label: name,
             type: 'radio',

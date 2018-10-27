@@ -255,11 +255,35 @@ export default {
     },
 
     handleCommand (event, data) {
-      const { controls } = this
+      const { activePalettes, lineTool, styles, constraintGroups } = this.controls
 
+      this.menuDidUpdateControls()
       switch (data.action) {
         case 'SET_ACTIVE_PALETTE':
-          controls.activePalettes.id = data.id
+          activePalettes.id = data.id
+          break
+        case 'SET_STROKE_WIDTH':
+          lineTool.strokeWidth = data.value
+          break
+        case 'SET_STROKE_COLOR':
+          lineTool.strokeColor = data.value
+          break
+        case 'SET_INPUT_MOD_TYPE':
+          lineTool.inputModTypeIndex = data.value
+          break
+        case 'SELECT_STYLE_LAYER':
+          lineTool.styleIndex = data.index
+          break
+        case 'SELECT_NEXT_STYLE_LAYER':
+          lineTool.styleIndex = clamp(0, styles.length - 1,
+            lineTool.styleIndex + data.dir)
+          break
+        case 'SELECT_CONSTRAINT_GROUP':
+          lineTool.constraintIndex = data.index
+          break
+        case 'SELECT_NEXT_CONSTRAINT_GROUP':
+          lineTool.constraintIndex = clamp(0, constraintGroups.length - 1,
+            lineTool.constraintIndex + data.dir)
           break
       }
     },
@@ -276,6 +300,13 @@ export default {
       }, 0)
     },
 
+    menuDidUpdateControls () {
+      this._menuDidUpdateControls = true
+      setTimeout(() => {
+        this._menuDidUpdateControls = false
+      }, 0)
+    },
+
     syncActivePaletteMode (id) {
       this.sendMessage('menu-message', {
         type: 'UPDATE_ACTIVE_PALETTE',
@@ -286,7 +317,9 @@ export default {
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
       if (this._mainDidUpdateControls) return
-      this.sendMessage('main-message', {
+      const target = this._menuDidUpdateControls ? 'main' : 'main+menu'
+      console.log('syncControls', target)
+      this.sendMessage(`${target}-message`, {
         type: 'UPDATE_CONTROLS',
         group,
         value
