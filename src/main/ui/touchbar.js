@@ -5,6 +5,7 @@ import { PALETTE_TYPES } from '@renderer/constants/types'
 const {
   TouchBarGroup,
   TouchBarButton,
+  TouchBarColorPicker,
   TouchBarSlider,
   TouchBarSpacer,
   TouchBarPopover,
@@ -140,21 +141,28 @@ function createStrokeControls (actions) {
       actions.setInputModType(selectedIndex)
     }
   })
+  const colorSelector = new TouchBarColorPicker({
+    change (colorHex) {
+      actions.setStrokeColor(colorHex)
+    }
+  })
 
   const popover = new TouchBarPopover({
     icon: createIcon('tool'),
-    items: [
-      baseSlider,
-      modSelector
-    ]
+    items: [baseSlider, modSelector]
   })
 
-  popover.sync = (lineTool) => {
+  const group = new TouchBarGroup({
+    items: [popover, colorSelector]
+  })
+
+  group.sync = (lineTool) => {
     baseSlider.value = Math.round(lineTool.strokeWidth * 10)
     modSelector.selectedIndex = lineTool.inputModTypeIndex
+    colorSelector.selectedColor = lineTool.strokeColor
   }
 
-  return popover
+  return group
 }
 
 function createControlsGroup (actions, actionItems) {

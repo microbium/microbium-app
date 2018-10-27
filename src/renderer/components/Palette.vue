@@ -265,6 +265,9 @@ export default {
         case 'SET_STROKE_WIDTH':
           lineTool.strokeWidth = data.value
           break
+        case 'SET_STROKE_COLOR':
+          lineTool.strokeColor = data.value
+          break
         case 'SET_INPUT_MOD_TYPE':
           lineTool.inputModTypeIndex = data.value
           break

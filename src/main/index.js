@@ -254,6 +254,11 @@ function createAppActions () {
         {action: 'SET_STROKE_WIDTH', value})
     },
 
+    setStrokeColor (value) {
+      sendWindowMessage('palette', 'command',
+        {action: 'SET_STROKE_COLOR', value})
+    },
+
     setInputModType (value) {
       sendWindowMessage('palette', 'command',
         {action: 'SET_INPUT_MOD_TYPE', value})
