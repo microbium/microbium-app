@@ -137,6 +137,7 @@ function createStrokeControls (actions) {
   })
   const modSelector = new TouchBarSegmentedControl({
     segments: ['No', 'Vel', 'Pn Pr', 'Scrl'].map((label) => ({ label })),
+    selectedIndex: 1,
     change (selectedIndex) {
       actions.setInputModType(selectedIndex)
     }

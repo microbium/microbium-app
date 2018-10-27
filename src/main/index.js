@@ -74,9 +74,9 @@ const paletteVisibility = {
 }
 const paletteState = {
   activeId: 'tool',
-  lineTool: null,
-  styles: null,
-  constraintGroups: null
+  lineTool: {},
+  styles: [],
+  constraintGroups: []
 }
 const editorState = {
   isSimRunning: false,
