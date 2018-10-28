@@ -138,11 +138,11 @@
 import {
   roundToPlaces,
   numberToWords
-} from '@src/utils/number'
-import { pluralize } from '@src/utils/word'
+} from '@renderer/utils/number'
+import { pluralize } from '@renderer/utils/word'
 
-import InputRange from '@src/components/input/Range'
-import PaletteGroup from '@src/components/palette/Group'
+import InputRange from '@renderer/components/input/Range'
+import PaletteGroup from '@renderer/components/palette/Group'
 
 export default {
   name: 'palette-effects',

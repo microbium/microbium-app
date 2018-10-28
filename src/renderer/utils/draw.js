@@ -1,5 +1,5 @@
 import cardinalSplineCurve from 'cardinal-spline'
-import { lerp } from '@src/utils/math'
+import { lerp } from '@renderer/utils/math'
 
 const { max } = Math
 

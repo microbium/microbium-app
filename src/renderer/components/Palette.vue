@@ -174,26 +174,26 @@ $base-color: rgba(#000, 0.15);
 <script>
 import Colr from 'colr'
 
-import { clamp } from '@src/utils/math'
+import { clamp } from '@renderer/utils/math'
 
 import {
   createControlsState,
   createControlsStaticParams
-} from '@src/store/modules/Palette'
+} from '@renderer/store/modules/Palette'
 
-import Icon from '@src/components/display/Icon'
-import InputText from '@src/components/input/Text'
-import InputButton from '@src/components/input/Button'
-import PaletteModes from '@src/components/palette/Modes'
-import PaletteSection from '@src/components/palette/Section'
-import PaletteGroup from '@src/components/palette/Group'
-import PaletteTool from '@src/components/palette/Tool'
-import PaletteForceList from '@src/components/palette/ForceList'
-import PaletteConstraintList from '@src/components/palette/ConstraintList'
-import PaletteStyleList from '@src/components/palette/StyleList'
-import PaletteModifiers from '@src/components/palette/Modifiers'
-import PaletteViewport from '@src/components/palette/Viewport'
-import PaletteEffects from '@src/components/palette/Effects'
+import Icon from '@renderer/components/display/Icon'
+import InputText from '@renderer/components/input/Text'
+import InputButton from '@renderer/components/input/Button'
+import PaletteModes from '@renderer/components/palette/Modes'
+import PaletteSection from '@renderer/components/palette/Section'
+import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteTool from '@renderer/components/palette/Tool'
+import PaletteForceList from '@renderer/components/palette/ForceList'
+import PaletteConstraintList from '@renderer/components/palette/ConstraintList'
+import PaletteStyleList from '@renderer/components/palette/StyleList'
+import PaletteModifiers from '@renderer/components/palette/Modifiers'
+import PaletteViewport from '@renderer/components/palette/Viewport'
+import PaletteEffects from '@renderer/components/palette/Effects'
 
 const DEBUG_DISABLE_FOCUS = false
 

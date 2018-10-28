@@ -25,10 +25,10 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@src/utils/number'
-import InputColor from '@src/components/input/Color'
-import InputRange from '@src/components/input/Range'
-import PaletteGroup from '@src/components/palette/Group'
+import { roundToPlaces } from '@renderer/utils/number'
+import InputColor from '@renderer/components/input/Color'
+import InputRange from '@renderer/components/input/Range'
+import PaletteGroup from '@renderer/components/palette/Group'
 
 export default {
   name: 'palette-scene',

@@ -77,9 +77,9 @@
 import { PNG } from 'pngjs'
 import { createWriteStream } from 'fs-extra'
 
-import { debounce } from '@src/utils/function'
-import { isFullscreen } from '@src/utils/screen'
-import { logger } from '@src/utils/logger'
+import { debounce } from '@renderer/utils/function'
+import { isFullscreen } from '@renderer/utils/screen'
+import { logger } from '@renderer/utils/logger'
 
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'

@@ -132,19 +132,19 @@ import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import createREGL from 'regl'
 import Colr from 'colr'
 
-// import { TEXTURES } from '@src/constants/line-styles'
+// import { TEXTURES } from '@renderer/constants/line-styles'
 
-import { createTaskManager } from '@src/utils/task'
-import { createLoop } from '@src/utils/loop'
-import { createPostBuffers } from '@src/utils/fbo'
-import { debounce } from '@src/utils/function'
-import { range } from '@src/utils/array'
-import { lerp } from '@src/utils/math'
-import { clampPixelRatio } from '@src/utils/screen'
-import { logger } from '@src/utils/logger'
-import { timer } from '@src/utils/timer'
+import { createTaskManager } from '@renderer/utils/task'
+import { createLoop } from '@renderer/utils/loop'
+import { createPostBuffers } from '@renderer/utils/fbo'
+import { debounce } from '@renderer/utils/function'
+import { range } from '@renderer/utils/array'
+import { lerp } from '@renderer/utils/math'
+import { clampPixelRatio } from '@renderer/utils/screen'
+import { logger } from '@renderer/utils/logger'
+import { timer } from '@renderer/utils/timer'
 
-// import { createTextureManager } from '@src/utils/texture'
+// import { createTextureManager } from '@renderer/utils/texture'
 import {
   createDrawBanding,
   createDrawEdges,
@@ -153,11 +153,11 @@ import {
   createDrawScreen,
   createDrawTexture,
   createSetupDrawScreen
-} from '@src/draw/commands/screen-space'
+} from '@renderer/draw/commands/screen-space'
 import {
   createCompositorState,
   hashRenderState
-} from '@src/store/modules/Editor'
+} from '@renderer/store/modules/Editor'
 
 import { createCameras } from './compositor/cameras'
 import { createScene, createUIScene } from './compositor/scenes'
@@ -170,17 +170,17 @@ import { createIOController } from './compositor/io'
 import {
   drawSimulatorForceUI,
   drawSimulatorOriginUI
-} from '@src/draw/routines/simulation'
+} from '@renderer/draw/routines/simulation'
 import {
   drawOrigin,
   drawOriginTick,
   drawPolarGrid
-} from '@src/draw/routines/origin'
+} from '@renderer/draw/routines/origin'
 import {
   drawGeometry,
   drawFocus,
   drawFocusProximate
-} from '@src/draw/routines/geometry'
+} from '@renderer/draw/routines/geometry'
 
 const TICK_MSG_INTERVAL = 20
 const DISABLE_FRAME_SYNC = true

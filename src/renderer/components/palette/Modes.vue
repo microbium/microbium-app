@@ -40,7 +40,7 @@
 </style>
 
 <script>
-import Icon from '@src/components/display/Icon'
+import Icon from '@renderer/components/display/Icon'
 
 export default {
   name: 'palette-modes',

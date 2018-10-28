@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { pixelRatio } from '@src/utils/screen'
+import { pixelRatio } from '@renderer/utils/screen'
 import { createControlsState } from './Palette'
 
 export function createCompositorState () {

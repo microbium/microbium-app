@@ -34,6 +34,7 @@ import { createMessageSocket } from './io/socket'
 import { createMenuTemplate } from './ui/menu'
 import { createPaletteTouchBar, createEditorTouchBar } from './ui/touchbar'
 import { exportSceneHTML } from './exporters/html'
+import { createControlsState } from '@renderer/store/modules/Palette'
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 const LOG_LEVEL_FILE = 'warn'
@@ -72,12 +73,7 @@ const paletteVisibility = {
   isHidden: false,
   isHiddenUser: false
 }
-const paletteState = {
-  activeId: 'tool',
-  lineTool: {},
-  styles: [],
-  constraintGroups: []
-}
+const paletteState = createControlsState()
 const editorState = {
   isSimRunning: false,
   isSimPaused: false
@@ -705,6 +701,12 @@ function onMenuMessage (event, data) {
   }
 }
 
+function initControls () {
+  syncStrokeControls()
+  syncStyleLayers()
+  syncConstraintGroups()
+}
+
 function syncControls ({ group, key, value }) {
   if (group === null) {
     const { lineTool, styles, constraintGroups } = value
@@ -758,8 +760,8 @@ function syncConstraintGroups () {
 }
 
 function syncActivePalette (id) {
-  if (paletteState.activeId === id) return
-  paletteState.activeId = id
+  if (paletteState.activePalettes.id === id) return
+  paletteState.activePalettes.id = id
 
   setMenuState(`palette-${id}`, 'checked', true)
   appTouchBars.palette.syncActivePalette(id)
@@ -829,6 +831,7 @@ app.on('window-all-closed', () => {
 app.on('ready', () => {
   appIsReady = true
   createStartWindows()
+  initControls()
 })
 app.on('activate', createStartWindows)
 

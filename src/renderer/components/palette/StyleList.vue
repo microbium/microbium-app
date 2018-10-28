@@ -42,13 +42,13 @@
 </style>
 
 <script>
-import Icon from '@src/components/display/Icon'
-import InputButton from '@src/components/input/Button'
-import InputText from '@src/components/input/Text'
-import PaletteGroup from '@src/components/palette/Group'
-import PaletteStyle from '@src/components/palette/Style'
-import PaletteStylePreview from '@src/components/palette/StylePreview'
-import EditableListMixin from '@src/mixins/EditableListMixin'
+import Icon from '@renderer/components/display/Icon'
+import InputButton from '@renderer/components/input/Button'
+import InputText from '@renderer/components/input/Text'
+import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteStyle from '@renderer/components/palette/Style'
+import PaletteStylePreview from '@renderer/components/palette/StylePreview'
+import EditableListMixin from '@renderer/mixins/EditableListMixin'
 
 export default {
   name: 'palette-style-list',

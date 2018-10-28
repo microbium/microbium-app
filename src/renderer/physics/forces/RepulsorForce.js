@@ -1,5 +1,5 @@
 import { Force } from 'particulate'
-import { inherit } from '@src/utils/ctor'
+import { inherit } from '@renderer/utils/ctor'
 
 export { RepulsorForce }
 

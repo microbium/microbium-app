@@ -6,9 +6,9 @@ import {
   FORCE_POSITION_TYPES,
   FORCE_INTENSITY_TYPES,
   CONSTRAINT_TYPES
-} from '@src/constants/types'
+} from '@renderer/constants/types'
 
-import { pixelRatioClamped } from '@src/utils/screen'
+import { pixelRatioClamped } from '@renderer/utils/screen'
 
 export function createControlsState () {
   return {

@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { clamp, mapLinear } from '@src/utils/math'
+import { clamp, mapLinear } from '@renderer/utils/math'
 
 export function createGeometryController (tasks, state) {
   const geometry = {

@@ -1,15 +1,15 @@
 import injectDefines from 'glsl-inject-defines'
 
-import basicFrag from '@src/shaders/basic.frag'
-import postFXVert from '@src/shaders/post-fx.vert'
-import postFXFrag from '@src/shaders/post-fx.frag'
-import postFXCopyVert from '@src/shaders/post-fx-copy.vert'
-import postFXCopyFrag from '@src/shaders/post-fx-copy.frag'
-import postFXBoxBlurFrag from '@src/shaders/post-fx-box-blur.frag'
-import postFXGaussBlurFrag from '@src/shaders/post-fx-gaussian-blur.frag'
-import postFXHashBlurFrag from '@src/shaders/post-fx-hash-blur.frag'
-import postFXBanding from '@src/shaders/post-fx-banding.frag'
-import postFXEdges from '@src/shaders/post-fx-edges.frag'
+import basicFrag from '@renderer/shaders/basic.frag'
+import postFXVert from '@renderer/shaders/post-fx.vert'
+import postFXFrag from '@renderer/shaders/post-fx.frag'
+import postFXCopyVert from '@renderer/shaders/post-fx-copy.vert'
+import postFXCopyFrag from '@renderer/shaders/post-fx-copy.frag'
+import postFXBoxBlurFrag from '@renderer/shaders/post-fx-box-blur.frag'
+import postFXGaussBlurFrag from '@renderer/shaders/post-fx-gaussian-blur.frag'
+import postFXHashBlurFrag from '@renderer/shaders/post-fx-hash-blur.frag'
+import postFXBanding from '@renderer/shaders/post-fx-banding.frag'
+import postFXEdges from '@renderer/shaders/post-fx-edges.frag'
 
 export function createDrawRect (regl) {
   return regl({

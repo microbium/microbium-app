@@ -1,8 +1,8 @@
 import merge from 'lodash.merge'
-import { map, flatten2, expand2 } from '@src/utils/array'
-import { roundToPlaces } from '@src/utils/number'
-import { createControlsState } from '@src/store/modules/Palette'
-import { SERIALIZE_KEYS_MAP } from '@src/constants/scene-format'
+import { map, flatten2, expand2 } from '@renderer/utils/array'
+import { roundToPlaces } from '@renderer/utils/number'
+import { createControlsState } from '@renderer/store/modules/Palette'
+import { SERIALIZE_KEYS_MAP } from '@renderer/constants/scene-format'
 
 const ABBRV_KEY_MAP = SERIALIZE_KEYS_MAP
 const KEY_ABBRV_MAP = Object.keys(ABBRV_KEY_MAP)

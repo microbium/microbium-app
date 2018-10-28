@@ -86,14 +86,14 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@src/utils/number'
+import { roundToPlaces } from '@renderer/utils/number'
 
-import InputColor from '@src/components/input/Color'
-import InputSelect from '@src/components/input/Select'
-import InputRange from '@src/components/input/Range'
-import PaletteGroup from '@src/components/palette/Group'
-import PaletteConstraintPreview from '@src/components/palette/ConstraintPreview'
-import PaletteStylePreview from '@src/components/palette/StylePreview'
+import InputColor from '@renderer/components/input/Color'
+import InputSelect from '@renderer/components/input/Select'
+import InputRange from '@renderer/components/input/Range'
+import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteConstraintPreview from '@renderer/components/palette/ConstraintPreview'
+import PaletteStylePreview from '@renderer/components/palette/StylePreview'
 
 export default {
   name: 'palette-tool',

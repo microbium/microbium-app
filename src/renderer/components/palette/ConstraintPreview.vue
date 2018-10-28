@@ -50,11 +50,11 @@
 import {
   // clamp,
   mapLinear
-} from '@src/utils/math'
+} from '@renderer/utils/math'
 import {
   pointsAttr,
   pointsCircle
-} from '@src/utils/svg'
+} from '@renderer/utils/svg'
 
 export default {
   name: 'palette-constraint-preview',

@@ -1,6 +1,6 @@
 import { vec2, mat2d } from 'gl-matrix'
-import { distance2 } from '@src/utils/array'
-import { mapLinear } from '@src/utils/math'
+import { distance2 } from '@renderer/utils/array'
+import { mapLinear } from '@renderer/utils/math'
 
 import {
   BoundingPlaneConstraint,
@@ -8,11 +8,11 @@ import {
   ParticleSystem
 } from 'particulate'
 
-import { logger } from '@src/utils/logger'
+import { logger } from '@renderer/utils/logger'
 
-import { ViscousDistanceConstraint } from '@src/physics/constraints/ViscousDistanceConstraint'
-import { RepulsorForce } from '@src/physics/forces/RepulsorForce'
-import { RotatorForce } from '@src/physics/forces/RotatorForce'
+import { ViscousDistanceConstraint } from '@renderer/physics/constraints/ViscousDistanceConstraint'
+import { RepulsorForce } from '@renderer/physics/forces/RepulsorForce'
+import { RotatorForce } from '@renderer/physics/forces/RotatorForce'
 
 export function createSimulationController (tasks, state, renderer) {
   const scratchVec2A = vec2.create()

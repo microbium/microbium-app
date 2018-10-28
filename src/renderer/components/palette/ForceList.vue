@@ -41,12 +41,12 @@
 </style>
 
 <script>
-import Icon from '@src/components/display/Icon'
-import InputButton from '@src/components/input/Button'
-import InputText from '@src/components/input/Text'
-import PaletteGroup from '@src/components/palette/Group'
-import PaletteForce from '@src/components/palette/Force'
-import EditableListMixin from '@src/mixins/EditableListMixin'
+import Icon from '@renderer/components/display/Icon'
+import InputButton from '@renderer/components/input/Button'
+import InputText from '@renderer/components/input/Text'
+import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteForce from '@renderer/components/palette/Force'
+import EditableListMixin from '@renderer/mixins/EditableListMixin'
 
 export default {
   name: 'palette-force-list',

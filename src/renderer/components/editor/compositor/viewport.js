@@ -1,6 +1,6 @@
 import { vec2 } from 'gl-matrix'
-import { clamp } from '@src/utils/math'
-import { clampPixelRatio } from '@src/utils/screen'
+import { clamp } from '@renderer/utils/math'
+import { clampPixelRatio } from '@renderer/utils/screen'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks

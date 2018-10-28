@@ -1,11 +1,11 @@
 import { LineBuilder } from 'regl-line-builder'
 
-import { curve, polyline } from '@src/utils/draw'
-import linesEntitiesVert from '@src/shaders/lines-entities.vert'
-import linesEntitiesFrag from '@src/shaders/lines-entities.frag'
-import fillsEntitiesVert from '@src/shaders/fills-entities.vert'
-import fillsEntitiesFrag from '@src/shaders/fills-entities.frag'
-import linesUIFrag from '@src/shaders/lines-ui.frag'
+import { curve, polyline } from '@renderer/utils/draw'
+import linesEntitiesVert from '@renderer/shaders/lines-entities.vert'
+import linesEntitiesFrag from '@renderer/shaders/lines-entities.frag'
+import fillsEntitiesVert from '@renderer/shaders/fills-entities.vert'
+import fillsEntitiesFrag from '@renderer/shaders/fills-entities.frag'
+import linesUIFrag from '@renderer/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
   const { regl } = renderer
