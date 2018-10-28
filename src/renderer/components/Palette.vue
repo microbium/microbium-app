@@ -257,7 +257,7 @@ export default {
     handleCommand (event, data) {
       const { activePalettes, lineTool, styles, constraintGroups } = this.controls
 
-      this.menuDidUpdateControls()
+      // this.menuDidUpdateControls()
       switch (data.action) {
         case 'SET_ACTIVE_PALETTE':
           activePalettes.id = data.id
