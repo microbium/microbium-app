@@ -318,7 +318,6 @@ export default {
     syncControls (group, value) {
       if (this._mainDidUpdateControls) return
       const target = this._menuDidUpdateControls ? 'main' : 'main+menu'
-      console.log('syncControls', target)
       this.sendMessage(`${target}-message`, {
         type: 'UPDATE_CONTROLS',
         group,

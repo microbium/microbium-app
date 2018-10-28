@@ -203,10 +203,11 @@ function createControlsSelector (actions, options) {
     ]
   })
 
-  popover.sync = (items) => {
+  popover.sync = (items, selectedIndex) => {
     selector.segments = items.map(({ name }) => ({
       label: name
     }))
+    selector.selectedIndex = selectedIndex
   }
 
   return popover

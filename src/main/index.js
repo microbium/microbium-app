@@ -748,7 +748,7 @@ function syncStyleLayers () {
   const { styleIndex } = lineTool
   setMenuState('prev-style-layer', 'enabled', styleIndex > 0)
   setMenuState('next-style-layer', 'enabled', styleIndex < styles.length - 1)
-  appTouchBars.editor.syncStyles(styles)
+  appTouchBars.editor.syncStyles(styles, styleIndex)
 }
 
 function syncConstraintGroups () {
@@ -756,7 +756,7 @@ function syncConstraintGroups () {
   const { constraintIndex } = lineTool
   setMenuState('prev-constraint-group', 'enabled', constraintIndex > 0)
   setMenuState('next-constraint-group', 'enabled', constraintIndex < constraintGroups.length - 1)
-  appTouchBars.editor.syncConstraintGroups(constraintGroups)
+  appTouchBars.editor.syncConstraintGroups(constraintGroups, constraintIndex)
 }
 
 function syncActivePalette (id) {
