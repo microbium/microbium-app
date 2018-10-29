@@ -64,12 +64,20 @@ export function drawSimulatorForces (
     ctx.lineWidth = 1.5 * scaleInv
     ctx.beginPath()
     ctx.arc(0, 0, baseRadius + intensity * 1.5, 0, PI * 2)
+    ctx.closePath()
+    ctx.stroke()
+
+    ctx.lineWidth = 1 * scaleInv
+    ctx.beginPath()
+    ctx.arc(0, 0, baseRadius + 4 + intensity * 1.5, 0, PI * 2)
+    ctx.closePath()
     ctx.stroke()
 
     if (renderTicker) {
       ctx.lineWidth = 1 * scaleInv
       ctx.beginPath()
-      ctx.arc(0, 0, baseRadius + Math.sin(tick * 0.05) * 4, 0, PI * 2)
+      ctx.arc(0, 0, baseRadius + 2 + Math.sin(tick * 0.05) * 6, 0, PI * 2)
+      ctx.closePath()
       ctx.stroke()
     }
 
