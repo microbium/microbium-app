@@ -1,8 +1,8 @@
-<!-- TODO: Add per-group checkbox to allow quickly toggling enabled state -->
 <template>
   <div class="palette-effects">
-    <palette-group open>
+    <palette-group persistent-controls open>
       <h2 slot="title">Bloom</h2>
+      <input-checkbox slot="controls" v-model="model.bloom.enabled" />
 
       <div class="palette-item">
         <input-range min="0" max="3" step="0.05" v-model="model.bloom.intensityFactor" />
@@ -41,8 +41,9 @@
       <hr />
     </palette-group>
 
-    <palette-group open>
+    <palette-group persistent-controls>
       <h2 slot="title">Gradient Banding</h2>
+      <input-checkbox slot="controls" v-model="model.banding.enabled" />
 
       <div class="palette-item">
         <input-range min="0" max="3" step="0.05" v-model="model.banding.intensityFactor" />
@@ -67,8 +68,9 @@
       <hr />
     </palette-group>
 
-    <palette-group>
+    <palette-group persistent-controls>
       <h2 slot="title">Shape Outlines</h2>
+      <input-checkbox slot="controls" v-model="model.edges.enabled" />
 
       <div class="palette-item">
         <input-range min="0" max="5" step="0.05" v-model="model.edges.intensityFactor" />
@@ -93,23 +95,24 @@
       <hr />
     </palette-group>
 
-    <palette-group>
+    <palette-group persistent-controls>
       <h2 slot="title">Color Shift</h2>
+      <input-checkbox slot="controls" v-model="model.colorShift.enabled" />
 
       <div class="palette-item">
-        <input-range min="-0.5" max="0.5" step="0.005" v-model="model.colorShift[0]" />
+        <input-range min="-0.5" max="0.5" step="0.005" v-model="model.colorShift.hsl[0]" />
         <div class="palette-item__label">
           <b>{{ colorShiftHueName }}</b> hue
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[1]" />
+        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[1]" />
         <div class="palette-item__label">
           <b>{{ colorShiftSatName }}</b> saturation
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift[2]" />
+        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[2]" />
         <div class="palette-item__label">
           <b>{{ colorShiftValName }}</b> value
         </div>
@@ -117,8 +120,9 @@
       <hr />
     </palette-group>
 
-    <palette-group>
+    <palette-group persistent-controls>
       <h2 slot="title">Noise</h2>
+      <input-checkbox slot="controls" v-model="model.noise.enabled" />
 
       <div class="palette-item">
         <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
@@ -141,6 +145,7 @@ import {
 } from '@renderer/utils/number'
 import { pluralize } from '@renderer/utils/word'
 
+import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 
@@ -148,6 +153,7 @@ export default {
   name: 'palette-effects',
 
   components: {
+    InputCheckbox,
     InputRange,
     PaletteGroup
   },
@@ -234,17 +240,17 @@ export default {
 
     colorShiftHueName () {
       const { colorShift } = this.model
-      return `${roundToPlaces(colorShift[0] * 360, 1)}°`
+      return `${roundToPlaces(colorShift.hsl[0] * 360, 1)}°`
     },
 
     colorShiftSatName () {
       const { colorShift } = this.model
-      return `${roundToPlaces(colorShift[1] * 100, 1)}%`
+      return `${roundToPlaces(colorShift.hsl[1] * 100, 1)}%`
     },
 
     colorShiftValName () {
       const { colorShift } = this.model
-      return `${roundToPlaces(colorShift[2] * 100, 1)}%`
+      return `${roundToPlaces(colorShift.hsl[2] * 100, 1)}%`
     }
   }
 }

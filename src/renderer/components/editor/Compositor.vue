@@ -300,6 +300,7 @@ function mountCompositor ($el, $refs, actions) {
         viewResolution: vec3.create(),
         viewOffset: vec2.create(),
         viewScale: 1,
+        colorShift: vec3.create(),
         shouldRenderBloom: false,
         shouldRenderBanding: false,
         shouldRenderEdges: false,
@@ -449,13 +450,13 @@ function mountCompositor ($el, $refs, actions) {
       const { computedState } = this
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
-      const { banding, bloom, noise, edges } = postEffects
+      const { bloom, banding, edges, colorShift, noise } = postEffects
 
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
-        bloom.blurPasses > 0 && bloom.intensityFactor > 0
+        bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
       const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
-        banding.intensityFactor > 0
-      const shouldRenderEdges = computedState.shouldRenderEdges = isRunning
+        banding.enabled && banding.intensityFactor > 0
+      const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
 
       computedState.bloomIntensity = !shouldRenderBloom ? 0
         : (0.4 * bloom.intensityFactor)
@@ -465,6 +466,7 @@ function mountCompositor ($el, $refs, actions) {
         : (0.6 * banding.intensityFactor)
       computedState.edgesIntensity = !shouldRenderEdges ? 0
         : (0.25 * edges.intensityFactor)
+      computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
     },
 
     // OPTIM: Improve syncing
@@ -878,11 +880,10 @@ function mountCompositor ($el, $refs, actions) {
       const { postBuffers } = renderer
       const { drawScreen } = renderer.commands
       const { overlay } = state.controls.viewport
-      const { colorShift } = state.controls.postEffects
       const {
         viewResolution, viewOffset,
         shouldRenderBloom, shouldRenderBanding,
-        bloomIntensity, bandingIntensity, edgesIntensity, noiseIntensity
+        bloomIntensity, bandingIntensity, edgesIntensity, colorShift, noiseIntensity
       } = this.computedState
 
       timer.begin('renderComposite')

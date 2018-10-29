@@ -242,25 +242,11 @@ export function createControlsState () {
       }
     },
 
+    // TODO: Scale by pixelRatio in renderer
+    // Will fix resolution discrepancy when sharing / exporting
     postEffects: {
-      noise: {
-        intensityFactor: 1
-      },
-      // TODO: Scale by pixelRatio in renderer
-      // Will fix resolution discrepancy when sharing / exporting
-      banding: {
-        intensityFactor: 1,
-        // blendMode: MIX,
-        bandStep: 32,
-        bufferScale: 1
-      },
-      edges: {
-        intensityFactor: 1,
-        // blendMode: OVERLAY,
-        thickness: 0.5,
-        bufferScale: 1
-      },
       bloom: {
+        enabled: true,
         intensityFactor: 1,
         // blendMode: MULTIPLY,
         blurPasses: 1,
@@ -268,7 +254,29 @@ export function createControlsState () {
         bufferScale: 1,
         feedbackOffset: 0
       },
-      colorShift: [0, 0, 0]
+      banding: {
+        enabled: true,
+        intensityFactor: 1,
+        // blendMode: MIX,
+        bandStep: 32,
+        bufferScale: 1
+      },
+      edges: {
+        enabled: true,
+        intensityFactor: 1,
+        // blendMode: OVERLAY,
+        thickness: 0.5,
+        bufferScale: 1
+      },
+      colorShift: {
+        enabled: true,
+        none: [0, 0, 0],
+        hsl: [0, 0, 0]
+      },
+      noise: {
+        enabled: true,
+        intensityFactor: 1
+      }
     }
   }
 }

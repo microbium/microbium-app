@@ -370,11 +370,12 @@ export default {
     themeHighlight () {
       const { colorHex } = this.controls.viewport.background
       const { colorShift } = this.controls.postEffects
+      const colorShiftHSL = colorShift.enabled ? colorShift.hsl : colorShift.none
       const backgroundColor = Colr.fromHex(colorHex).toHslArray()
 
-      const hue = (backgroundColor[0] + colorShift[0] * 360) % 360 - 30
-      const saturation = clamp(0, 100, (backgroundColor[1] + colorShift[1] * 100) * 5)
-      const lightness = clamp(0, 100, 70 - (backgroundColor[2] + colorShift[2] * 100) * 0.1)
+      const hue = (backgroundColor[0] + colorShiftHSL[0] * 360) % 360 - 30
+      const saturation = clamp(0, 100, (backgroundColor[1] + colorShiftHSL[1] * 100) * 5)
+      const lightness = clamp(0, 100, 70 - (backgroundColor[2] + colorShiftHSL[2] * 100) * 0.1)
 
       return `hsl(${hue}, ${saturation}%, ${lightness}%)`
     },
