@@ -460,7 +460,7 @@ function mountCompositor ($el, $refs, actions) {
 
       computedState.bloomIntensity = !shouldRenderBloom ? 0
         : (0.4 * bloom.intensityFactor)
-      computedState.noiseIntensity = !isRunning ? 0.0
+      computedState.noiseIntensity = !isRunning || !noise.enabled ? 0.0
         : (0.06 * noise.intensityFactor)
       computedState.bandingIntensity = !shouldRenderBanding ? 0
         : (0.6 * banding.intensityFactor)
