@@ -1,4 +1,9 @@
+import { vec2 } from 'gl-matrix'
+import { radialPosition } from '@renderer/utils/math'
+
 const { PI } = Math
+const scratchVec2A = vec2.create()
+const scratchVec2B = vec2.create()
 
 export function drawSimulatorUI (state, ctx) {
   if (!state.simulation.isRunning) return
@@ -26,55 +31,56 @@ export function drawSimulatorUI (state, ctx) {
   ctx.restore()
 }
 
-// TODO: Redesign simulator origin UI
-export function drawSimulatorOriginUI (state, ctx) {
-  // if (!state.simulation.isRunning) return
-  // const { diffusor, rotator } = state.simulationForces
-
-  // ctx.save()
-  // ctx.globalAlpha = 0.8
-
-  // ctx.strokeStyle = UI_PALETTE.BACK_PRIMARY
-  // ctx.lineWidth = 1.5
-  // ctx.beginPath()
-  // ctx.arc(0, 0, 14, 0, -rotator.intensity * 100 * PI, rotator.intensity > 0)
-  // ctx.stroke()
-
-  // ctx.strokeStyle = UI_PALETTE.BACK_SECONDARY
-  // ctx.lineWidth = 1
-  // ctx.beginPath()
-  // ctx.arc(0, 0, 14 + diffusor.intensity * 100 * 8, 0, PI * 2)
-  // ctx.stroke()
-
-  // ctx.restore()
-}
-
-// TODO: Redesign configurable forces UI
-export function drawSimulatorForceUI (state, ctx, intensityRadius, alpha) {
-  const { points } = state.simulationForces
+export function drawSimulatorForces (
+  state, ctx, baseRadius, alpha,
+  positionType = 0, renderTicker = false
+) {
+  const { tick, isRunning } = state.simulation
+  const { forces } = state.controls
   const { scale } = state.viewport
   const { overlay } = state.controls.viewport
+  const simulationPoints = state.simulationForces && state.simulationForces.points
   const scaleInv = 1 / scale
 
-  points.forEach(({position, force}) => {
-    const { intensity, radius } = force
+  forces.forEach(({ positionTypeIndex, polarAngle, polarOffset, intensity, radius }, i) => {
+    if (positionTypeIndex !== positionType) return
 
-    ctx.globalAlpha = 0.8 * alpha * overlay.alphaFactor
-    ctx.strokeStyle = overlay.colorHighlightHex
-    ctx.lineWidth = 1 * scaleInv
-    ctx.beginPath()
-    ctx.arc(position[0], position[1],
-      intensityRadius + intensity * 1.5,
-      0, PI * 2)
-    ctx.stroke()
+    let position
+    if (isRunning) {
+      const point = simulationPoints[i]
+      position = point.position
+      intensity = point.force.intensity
+    } else {
+      const offset = vec2.set(scratchVec2A, polarOffset * polarOffset, 0)
+      position = radialPosition(scratchVec2B, offset, polarAngle / 180 * PI)
+    }
 
-    ctx.globalAlpha = 0.1 * alpha * overlay.alphaFactor
+    ctx.save()
+    ctx.translate(position[0], position[1])
+
+    ctx.globalAlpha = 1 * alpha * overlay.alphaFactor
     ctx.strokeStyle = '#ffffff'
-    ctx.lineWidth = 0.8 * scaleInv
+
+    ctx.lineWidth = 1.5 * scaleInv
     ctx.beginPath()
-    ctx.arc(position[0], position[1],
-      radius,
-      0, PI * 2)
+    ctx.arc(0, 0, baseRadius + intensity * 1.5, 0, PI * 2)
     ctx.stroke()
+
+    if (renderTicker) {
+      ctx.lineWidth = 1 * scaleInv
+      ctx.beginPath()
+      ctx.arc(0, 0, baseRadius + Math.sin(tick * 0.05) * 4, 0, PI * 2)
+      ctx.stroke()
+    }
+
+    ctx.restore()
   })
+}
+
+export function drawSimulatorForcesTick (state, ctx, baseRadius, alpha) {
+  return drawSimulatorForces(state, ctx, baseRadius, alpha, 0, true)
+}
+
+export function drawSimulatorPointerForces (state, ctx, baseRadius, alpha) {
+  return drawSimulatorForces(state, ctx, baseRadius, alpha, 1, false)
 }

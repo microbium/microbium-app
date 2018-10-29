@@ -119,6 +119,7 @@ export function createViewportController (tasks, state) {
           state.controls[data.group] = data.value
           switch (data.group) {
             case 'styles':
+            case 'forces':
             case 'modifiers':
             case 'viewport':
             case 'postEffects':

@@ -139,7 +139,7 @@ import { createLoop } from '@renderer/utils/loop'
 import { createPostBuffers } from '@renderer/utils/fbo'
 import { debounce } from '@renderer/utils/function'
 import { range } from '@renderer/utils/array'
-import { lerp } from '@renderer/utils/math'
+import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
@@ -168,8 +168,9 @@ import { createViewportController } from './compositor/viewport'
 import { createIOController } from './compositor/io'
 
 import {
-  drawSimulatorForceUI,
-  drawSimulatorOriginUI
+  drawSimulatorForces,
+  drawSimulatorForcesTick,
+  drawSimulatorPointerForces
 } from '@renderer/draw/routines/simulation'
 import {
   drawOrigin,
@@ -188,6 +189,7 @@ const DISABLE_RENDER = false
 const DEBUG_RENDER_HASH = false
 const DEBUG_PERF = false
 
+const scratchVec2A = vec2.create()
 const scratchVec3A = vec3.create()
 const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
@@ -207,6 +209,7 @@ function mountCompositor ($el, $refs, actions) {
 
   const cameras = createCameras(tasks, state, renderer)
   const scene = createScene(tasks, state, renderer)
+  const sceneAltUI = createScene(tasks, state, renderer)
   const sceneUI = createUIScene(tasks, state, renderer)
 
   const geometry = createGeometryController(tasks, state)
@@ -307,7 +310,8 @@ function mountCompositor ($el, $refs, actions) {
         bloomIntensity: 0,
         noiseIntensity: 0,
         bandingIntensity: 0,
-        edgesIntensity: 0
+        edgesIntensity: 0,
+        forcePositions: []
       }
     },
 
@@ -409,6 +413,7 @@ function mountCompositor ($el, $refs, actions) {
 
       timer.reset()
       this.updateComputedPosition()
+      this.updateComputedForcePositions()
       this.updateComputedPostState()
 
       if (!isRunning) {
@@ -435,15 +440,30 @@ function mountCompositor ($el, $refs, actions) {
     },
 
     updateComputedPosition () {
+      const { computedState } = this
       const { offset, scale, resolution } = state.viewport
       const { pixelRatio } = state.controls.viewport
       const { panOffset, zoomOffset } = state.drag
-      const { viewResolution, viewOffset } = this.computedState
+      const { viewResolution, viewOffset } = computedState
 
       vec3.set(viewResolution,
         resolution[0], resolution[1], pixelRatio)
       vec2.add(viewOffset, offset, panOffset)
-      this.computedState.viewScale = scale + zoomOffset
+      computedState.viewScale = scale + zoomOffset
+    },
+
+    updateComputedForcePositions () {
+      const { computedState } = this
+      const { forces } = state.controls
+
+      computedState.forcePositions = forces
+        .filter((force) => force.positionTypeIndex === 0)
+        .map(({ polarOffset, polarAngle, radius }) => {
+          const offset = vec2.set(scratchVec2A, polarOffset * polarOffset, 0)
+          const position = radialPosition([], offset, polarAngle / 180 * Math.PI)
+          position[2] = radius * radius
+          return position
+        })
     },
 
     updateComputedPostState () {
@@ -568,27 +588,29 @@ function mountCompositor ($el, $refs, actions) {
 
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     updateRenderableGeometry (tick) {
+      // const { computedState } = this
       const { isRunning } = state.simulation
-      const { styles } = state.controls
+      const { styles, stylesUI } = state.controls
       const uiMain = sceneUI.main
       const sceneContexts = scene.syncContexts(styles)
+      const sceneUIContexts = sceneAltUI.syncContexts(stylesUI)
 
       sceneContexts.forEach(({ lines }) => {
         lines.reset()
       })
+      sceneUIContexts.forEach(({ lines }) => {
+        lines.reset()
+      })
       uiMain.lines.reset()
 
-      // TODO: Enable drawing force positions while editing
-      if (isRunning) {
-        drawSimulatorForceUI(state, sceneContexts[0].ctx, 3, 0.4)
-        drawSimulatorForceUI(state, uiMain.ctx, 8, 1)
-        drawSimulatorOriginUI(state, uiMain.ctx)
-      }
+      drawOrigin(state, uiMain.ctx)
+      drawSimulatorForces(state, sceneUIContexts[0].ctx, 8, 1)
 
       if (isRunning) {
         drawOriginTick(state, uiMain.ctx)
-      } else {
-        drawOrigin(state, uiMain.ctx)
+        // drawSimulatorForces(state, sceneUIContexts[0].ctx, 3, 0.4)
+        drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
+        drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
       }
 
       drawGeometry(state, sceneContexts, 0)
@@ -678,17 +700,20 @@ function mountCompositor ($el, $refs, actions) {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines () {
-      const { contexts } = scene
-      const { isRunning, tick } = state.simulation
+    renderLines ({ contexts }, { polarAlpha, renderMirror }) {
+      const { tick } = state.simulation
       const { polarIterations, mirror } = state.controls.modifiers
       const { styles, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
-      const polarAlpha = isRunning ? 1 : 0.025
       const polarStep = Math.PI * 2 / polarIterations
       const mirrorAlpha = mirror.intensityFactor
       const adjustProjectedThickness = this.shouldAdjustThickness()
+
+      const angles = range(polarIterations)
+        .map((i) => i * polarStep)
+      const anglesAlpha = range(polarIterations)
+        .map((i) => (i === 0 ? 1 : polarAlpha))
 
       for (let i = contexts.length - 1; i >= 0; i--) {
         const { index, lines } = contexts[i]
@@ -709,10 +734,6 @@ function mountCompositor ($el, $refs, actions) {
         const miterLimit = this.computeLineThickness(4)
 
         const mirror = vec3.set(scratchVec3A, 1, 1, 1)
-        const angles = range(polarIterations)
-          .map((index) => index * polarStep)
-        const anglesAlpha = range(polarIterations)
-          .map((index) => (index === 0 ? 1 : polarAlpha))
 
         const params = {
           mirror,
@@ -733,15 +754,16 @@ function mountCompositor ($el, $refs, actions) {
         state.renderer.drawCalls += 1
         lines.draw(params)
 
-        state.renderer.drawCalls += 1
-        params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
-        lines.draw(params)
+        if (renderMirror) {
+          state.renderer.drawCalls += 1
+          params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
+          lines.draw(params)
+        }
       }
     },
 
-    renderUI () {
+    renderUI ({ contexts }) {
       const { isRunning } = state.simulation
-      const { contexts } = sceneUI
       const { overlay } = state.controls.viewport
 
       const model = mat4.identity(scratchMat4A)
@@ -812,8 +834,10 @@ function mountCompositor ($el, $refs, actions) {
           viewOffset,
           viewScale
         }, () => {
-          this.renderLines()
-          // this.renderUI()
+          this.renderLines(scene, {
+            polarAlpha: isRunning ? 1 : 0.025,
+            renderMirror: true
+          })
         })
       })
       timer.end('renderLines')
@@ -881,7 +905,7 @@ function mountCompositor ($el, $refs, actions) {
       const { drawScreen } = renderer.commands
       const { overlay } = state.controls.viewport
       const {
-        viewResolution, viewOffset,
+        viewResolution, viewOffset, viewScale, forcePositions,
         shouldRenderBloom, shouldRenderBanding,
         bloomIntensity, bandingIntensity, edgesIntensity, colorShift, noiseIntensity
       } = this.computedState
@@ -904,7 +928,9 @@ function mountCompositor ($el, $refs, actions) {
         overlayAlpha: overlay.alphaFactor,
         tick,
         viewOffset,
-        viewResolution
+        viewResolution,
+        viewScale,
+        forcePositions
       }
 
       if (fbo) fbo.use(() => drawScreen(compositeParams))
@@ -938,7 +964,11 @@ function mountCompositor ($el, $refs, actions) {
         viewOffset,
         viewScale
       }, () => {
-        this.renderUI()
+        this.renderLines(sceneAltUI, {
+          polarAlpha: 0.4,
+          renderMirror: false
+        })
+        this.renderUI(sceneUI)
       })
     }
   }

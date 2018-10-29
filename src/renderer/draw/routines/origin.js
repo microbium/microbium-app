@@ -3,11 +3,11 @@ import { UI_PALETTE } from '@renderer/constants/color-palettes'
 const { PI } = Math
 
 export function drawOrigin (state, ctx) {
-  const size = 4
+  const size = 6
 
   ctx.globalAlpha = 0.95
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
-  ctx.lineWidth = 1
+  ctx.lineWidth = 1.5
 
   ctx.beginPath()
   ctx.arc(0, 0, size, 0, PI * 2)
@@ -17,18 +17,19 @@ export function drawOrigin (state, ctx) {
 
 export function drawOriginTick (state, ctx) {
   const { tick } = state.simulation
+  const size = 10
 
   ctx.save()
   ctx.globalAlpha = 0.95
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
-  ctx.lineWidth = 2
+  ctx.lineWidth = 1
   ctx.rotate(tick * 0.02)
 
   ctx.beginPath()
-  ctx.arc(0, 0, 8, 0, PI * 0.5)
+  ctx.arc(0, 0, size, 0, PI * 0.5)
   ctx.stroke()
   ctx.beginPath()
-  ctx.arc(0, 0, 8, PI, PI * 1.5)
+  ctx.arc(0, 0, size, PI, PI * 1.5)
   ctx.stroke()
 
   ctx.restore()

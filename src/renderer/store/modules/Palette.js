@@ -72,6 +72,22 @@ export function createControlsState () {
       }
     ],
 
+    stylesUI: [
+      {
+        index: 0,
+        name: 'Solid',
+        textureIndex: 0,
+        alphaTextureIndex: 0,
+        lineAlphaFuncIndex: 0,
+        fillAlphaFuncIndex: 0,
+        tintHex: '#FFFFFF',
+        tintAlpha: 1,
+        useScreenTintFunc: 0,
+        thickness: 1,
+        strokeWidthMod: 1
+      }
+    ],
+
     /*
     textures: [
       {
@@ -175,7 +191,7 @@ export function createControlsState () {
         intensityTypeIndex: 2,
         polarAngle: 30,
         polarOffset: 14,
-        radius: 20,
+        radius: 25,
         intensity: 0.1
       },
       {
@@ -184,9 +200,9 @@ export function createControlsState () {
         typeIndex: 1,
         positionTypeIndex: 0,
         intensityTypeIndex: 2,
-        polarAngle: 20,
+        polarAngle: 90,
         polarOffset: 17,
-        radius: 22,
+        radius: 20,
         intensity: 0.1
       }
     ],
@@ -255,23 +271,23 @@ export function createControlsState () {
         feedbackOffset: 0
       },
       banding: {
-        enabled: true,
+        enabled: false,
         intensityFactor: 1,
         // blendMode: MIX,
         bandStep: 32,
         bufferScale: 1
       },
       edges: {
-        enabled: true,
+        enabled: false,
         intensityFactor: 1,
         // blendMode: OVERLAY,
         thickness: 0.5,
         bufferScale: 1
       },
       colorShift: {
-        enabled: true,
+        enabled: false,
         none: [0, 0, 0],
-        hsl: [0, 0, 0]
+        hsl: [0.15, 0, 0]
       },
       noise: {
         enabled: true,

@@ -19,6 +19,10 @@ uniform vec3 colorShift; // [hue, saturation, value]
 uniform float tick;
 uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
+uniform float viewScale;
+
+uniform int forcePositionsCount;
+uniform vec3 forcePositions[3];
 
 varying vec2 uv;
 
@@ -35,11 +39,15 @@ varying vec2 uv;
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
 
+// TODO: Improve viewResolution density mapping
+vec2 transformScreenPosition(vec3 resolution, vec2 offset, vec2 coord) {
+  vec2 screenCoord = uv * resolution.xy / resolution.z;
+  vec2 screenCenter = screenCoord - resolution.xy / resolution.z * 0.5;
+  return screenCenter - vec2(offset.x, -offset.y);
+}
+
 void main() {
-  // TODO: Improve viewResolution density mapping ..
-  vec2 fragCoord = uv * viewResolution.xy / viewResolution.z;
-  vec2 fragCenter = fragCoord - viewResolution.xy / viewResolution.z * 0.5;
-  vec2 fragPosition = fragCenter - vec2(viewOffset.x, -viewOffset.y);
+  vec2 fragPosition = transformScreenPosition(viewResolution, viewOffset, uv);
 
   // ..................................................
 
@@ -117,7 +125,18 @@ void main() {
 
   // Origin Concentric Grid
   vec3 originDashColor = vec3(
-    concentricDash(fragPosition, 0.15, 1.0) * 0.035 * overlayAlpha);
+    concentricDash(fragPosition, 0.15 / viewScale, 1.0) *
+      0.035 * overlayAlpha);
+
+  for (int i = 0; i < 3; i++) {
+    if (i >= forcePositionsCount) break;
+    vec3 force = forcePositions[i];
+    vec2 forcePosition = force.xy * viewScale * vec2(1.0, -1.0);
+    float forceRadius = force.z * viewScale;
+    originDashColor += vec3(
+      concentricDash(fragPosition, 0.075 / viewScale, 1.5, forcePosition, forceRadius) *
+        0.04 * overlayAlpha);
+  }
 
   // Vignette
   vec3 vignetteColor = vec3(vignette(uv, 0.7, 0.4));

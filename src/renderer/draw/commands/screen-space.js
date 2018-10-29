@@ -131,7 +131,20 @@ export function createDrawScreen (regl) {
       overlayAlpha: regl.prop('overlayAlpha'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
-      viewOffset: regl.prop('viewOffset')
+      viewOffset: regl.prop('viewOffset'),
+      viewScale: regl.prop('viewScale'),
+      ...createArrayUniformProps('forcePositions', 3, [0, 0, 0])
     }
   })
+}
+
+function createArrayUniformProps (name, count, defaultValue) {
+  const props = {}
+  for (let i = 0; i < count; i++) {
+    props[`${name}[${i}]`] = (context, props) => {
+      return props[name][i] || defaultValue
+    }
+  }
+  props[`${name}Count`] = (context, props) => props[name].length
+  return props
 }
