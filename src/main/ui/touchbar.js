@@ -158,9 +158,18 @@ function createStrokeControls (actions) {
   })
 
   group.sync = (lineTool) => {
-    baseSlider.value = Math.round(lineTool.strokeWidth * 10)
-    modSelector.selectedIndex = lineTool.inputModTypeIndex
-    colorSelector.selectedColor = lineTool.strokeColor
+    const { strokeWidth, strokeColor, inputModTypeIndex } = lineTool
+    const sliderStrokeWidth = Math.round(strokeWidth * 10)
+
+    if (baseSlider.value !== sliderStrokeWidth) {
+      baseSlider.value = sliderStrokeWidth
+    }
+    if (modSelector.selectedIndex !== inputModTypeIndex) {
+      modSelector.selectedIndex = inputModTypeIndex
+    }
+    if (colorSelector.selectedColor !== strokeColor) {
+      colorSelector.selectedColor = strokeColor
+    }
   }
 
   return group
