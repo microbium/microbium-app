@@ -34,8 +34,6 @@ vec2 transformPosition (vec2 position, vec2 mirror, float angle) {
 }
 
 float mapZ (vec2 pos) {
-  // float l = length(pos) * 0.01;
-  // return l * l + 40.0;
   return 0.0;
 }
 
