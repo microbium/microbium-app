@@ -588,7 +588,6 @@ function mountCompositor ($el, $refs, actions) {
 
     // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     updateRenderableGeometry (tick) {
-      // const { computedState } = this
       const { isRunning } = state.simulation
       const { styles, stylesUI } = state.controls
       const uiMain = sceneUI.main
@@ -608,9 +607,10 @@ function mountCompositor ($el, $refs, actions) {
 
       if (isRunning) {
         drawOriginTick(state, uiMain.ctx)
-        // drawSimulatorForces(state, sceneUIContexts[0].ctx, 3, 0.4)
         drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
         drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
+        drawSimulatorPointerForces(state, sceneContexts[0].ctx, 4, 0.15)
+        drawSimulatorForces(state, sceneContexts[0].ctx, 10, 0.05)
       }
 
       drawGeometry(state, sceneContexts, 0)
