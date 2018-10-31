@@ -52,7 +52,7 @@ $toggle-duration: 200ms;
 
     &.open {
       background: transparent;
-      font-weight: bold;
+      font-weight: 700;
     }
 
     &__inner {
@@ -109,11 +109,15 @@ $toggle-duration: 200ms;
 
   &__title {
     position: relative;
-    font-size: 15px;
-    font-weight: lighter;
+    font-size: #{(15 / 13)}em;
+    font-weight: 300;
+
+    &.open {
+      font-weight: 500;
+    }
 
     &.nested {
-      font-size: 14px;
+      font-size: #{(14 / 13)}em;
     }
   }
 

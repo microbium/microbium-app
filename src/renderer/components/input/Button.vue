@@ -16,7 +16,7 @@
 
   color: #fff;
   font-size: 18px;
-  font-weight: lighter;
+  font-weight: 300;
   line-height: 1;
 
   --webkit-appearance: none;

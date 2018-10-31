@@ -75,9 +75,10 @@ $base-color: rgba(#000, 0.15);
   width: 100vw;
   min-height: 100vh;
   background: transparent;
-  font-weight: lighter;
+  font-weight: 300;
   letter-spacing: 0.75px;
   color: #fafafa;
+  text-shadow: 0px 0px 4px rgba(#222, 0.7);
   cursor: default;
 
   h2 {
@@ -145,7 +146,7 @@ $base-color: rgba(#000, 0.15);
 
 .palette-item {
   padding: 6px 0;
-  font-size: 13px;
+  font-size: 1em;
 
   &__label {
     padding: 0 8px;
@@ -155,7 +156,7 @@ $base-color: rgba(#000, 0.15);
       display: inline-block;
       border-top: 2px solid #fff;
       padding-top: 6px;
-      font-weight: normal;
+      font-weight: 500;
 
       &:first-letter {
         text-transform: uppercase;

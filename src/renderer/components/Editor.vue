@@ -66,7 +66,7 @@
     width: 240px;
 
     color: rgba(49,64,68,0.95);
-    font-size: 14px;
+    font-size: #{(14 / 13)}em;
     text-align: center;
     cursor: default;
   }

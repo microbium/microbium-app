@@ -33,7 +33,7 @@ function createPaletteSelector (actions) {
   const palettes = PALETTE_TYPES
   const control = new TouchBarSegmentedControl({
     segments: palettes.map(({ id }) => ({
-      icon: createIcon(`${id}-alt`)
+      icon: createIcon(`${id}`)
     })),
     change (selectedIndex) {
       const { id } = palettes[selectedIndex]
