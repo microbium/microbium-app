@@ -304,11 +304,15 @@ export function createSimulationController (tasks, state, renderer) {
       const { forces } = state.controls
       const { isDragging, down } = state.drag
       const { move, velocity } = state.seek
-      const { polarIterations } = state.controls.modifiers
+      const { polarIterations, mirror } = state.controls.modifiers
 
       // TODO: Improve pointer force polar distribution
+      const hasMirror = mirror.intensityFactor > 0
+      const mirrorInterval = hasMirror ? 2 : 1
+      const shouldApplyMirror = hasMirror && tick % 2 === 0
+
       const angleStep = Math.PI * 2 / polarIterations
-      const angleIndex = tick % polarIterations
+      const angleIndex = Math.floor((tick / mirrorInterval) % polarIterations)
       const rotationAngle = angleStep * angleIndex
 
       points.forEach((item, i) => {
@@ -336,6 +340,7 @@ export function createSimulationController (tasks, state, renderer) {
             const polarTickPosition = radialPosition(scratchVec2D,
               polarOffsetVec, polarRotationAngle + rotationAngle)
 
+            if (shouldApplyMirror) polarTickPosition[0] *= -1
             vec2.copy(position, polarPosition)
             force.set(polarTickPosition[0], polarTickPosition[1], 0)
             break
@@ -345,6 +350,7 @@ export function createSimulationController (tasks, state, renderer) {
             const pointerForcePosition = radialPosition(scratchVec2A,
               pointerPosition, rotationAngle)
 
+            if (shouldApplyMirror) pointerForcePosition[0] *= -1
             vec2.copy(position, pointerPosition)
             force.set(pointerForcePosition[0], pointerForcePosition[1], 0)
             break
