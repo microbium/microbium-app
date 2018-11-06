@@ -78,7 +78,6 @@ $base-color: rgba(#000, 0.15);
   font-weight: 300;
   letter-spacing: 0.75px;
   color: #fafafa;
-  text-shadow: 0px 0px 4px rgba(#222, 0.7);
   cursor: default;
 
   h2 {

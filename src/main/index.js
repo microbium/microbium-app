@@ -435,7 +435,7 @@ function createPaletteWindow () {
     fullscreen: false,
     fullscreenable: false,
     hasShadow: true,
-    vibrancy: 'dark',
+    vibrancy: 'ultra-dark',
     transparent: isHighSierra(),
     show: false,
     alwaysOnTop: true,
