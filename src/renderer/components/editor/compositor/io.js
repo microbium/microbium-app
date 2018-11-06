@@ -1,7 +1,5 @@
-import merge from 'lodash.merge'
 import { map, flatten2, expand2 } from '@renderer/utils/array'
 import { roundToPlaces } from '@renderer/utils/number'
-import { createControlsState } from '@renderer/store/modules/Palette'
 import { SERIALIZE_KEYS_MAP } from '@renderer/constants/scene-format'
 
 const ABBRV_KEY_MAP = SERIALIZE_KEYS_MAP
@@ -61,7 +59,6 @@ export function createIOController (tasks, state) {
       const { segments, vertices } = unmapKeys(data.geometry)
       const viewport = unmapKeys(data.viewport)
       const controls = unmapKeysDeep(data.controls)
-      const defaultControls = createControlsState()
 
       const segmentsOut = segments
         .map((seg) => unmapKeys(seg))
@@ -95,7 +92,7 @@ export function createIOController (tasks, state) {
           segments: segmentsOut,
           vertices: verticesOut
         },
-        controls: merge(defaultControls, controls)
+        controls
       }
     },
 

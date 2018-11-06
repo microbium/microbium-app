@@ -78,7 +78,6 @@
     "glsl-inject-defines": "^1.0.3",
     "glsl-noise": "^0.0.0",
     "glsl-random": "^0.0.5",
-    "lodash.merge": "^4.6.1",
     "lodash.template": "^4.4.0",
     "particulate": "^0.3.3",
     "pngjs": "^3.3.3",
