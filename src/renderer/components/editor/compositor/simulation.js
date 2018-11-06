@@ -1,6 +1,4 @@
-import { vec2, mat2d } from 'gl-matrix'
-import { distance2 } from '@renderer/utils/array'
-import { mapLinear } from '@renderer/utils/math'
+import { vec2 } from 'gl-matrix'
 
 import {
   BoundingPlaneConstraint,
@@ -8,6 +6,8 @@ import {
   ParticleSystem
 } from 'particulate'
 
+import { distance2 } from '@renderer/utils/array'
+import { mapLinear, radialPosition } from '@renderer/utils/math'
 import { logger } from '@renderer/utils/logger'
 
 import { ViscousDistanceConstraint } from '@renderer/physics/constraints/ViscousDistanceConstraint'
@@ -19,9 +19,6 @@ export function createSimulationController (tasks, state, renderer) {
   const scratchVec2B = vec2.create()
   const scratchVec2C = vec2.create()
   const scratchVec2D = vec2.create()
-  const scratchMat2dA = mat2d.create()
-  const scratchMat2dB = mat2d.create()
-  const scratchMat2dC = mat2d.create()
 
   const simulation = {
     // TODO: Prevent running simulation while still editing segment
@@ -312,9 +309,7 @@ export function createSimulationController (tasks, state, renderer) {
       // TODO: Improve pointer force polar distribution
       const angleStep = Math.PI * 2 / polarIterations
       const angleIndex = tick % polarIterations
-      const rotation = mat2d.fromRotation(scratchMat2dA, angleStep * angleIndex)
-      const pointerPosition = isDragging ? down : move
-      const pointerForcePosition = vec2.transformMat2d(scratchVec2A, pointerPosition, rotation)
+      const rotationAngle = angleStep * angleIndex
 
       points.forEach((item, i) => {
         const config = forces[i]
@@ -335,21 +330,21 @@ export function createSimulationController (tasks, state, renderer) {
             // Static
             const polarOffsetVec = vec2.set(scratchVec2B,
               simulation.computePolarOffset(polarOffset), 0)
-            const polarAngleRad = Math.PI * polarAngle / 180
-            const polarRotation = mat2d.fromRotation(scratchMat2dB, polarAngleRad)
-            const polarTickRotation = mat2d.fromRotation(scratchMat2dC,
-              angleStep * angleIndex * polarAngleRad)
-
-            const polarPosition = vec2.transformMat2d(scratchVec2C,
-              polarOffsetVec, polarRotation)
-            const polarTickPosition = vec2.transformMat2d(scratchVec2D,
-              polarOffsetVec, polarTickRotation)
+            const polarRotationAngle = polarAngle / 180 * Math.PI
+            const polarPosition = radialPosition(scratchVec2C,
+              polarOffsetVec, polarRotationAngle)
+            const polarTickPosition = radialPosition(scratchVec2D,
+              polarOffsetVec, polarRotationAngle + rotationAngle)
 
             vec2.copy(position, polarPosition)
             force.set(polarTickPosition[0], polarTickPosition[1], 0)
             break
           case 1:
             // Pointer
+            const pointerPosition = isDragging ? down : move
+            const pointerForcePosition = radialPosition(scratchVec2A,
+              pointerPosition, rotationAngle)
+
             vec2.copy(position, pointerPosition)
             force.set(pointerForcePosition[0], pointerForcePosition[1], 0)
             break

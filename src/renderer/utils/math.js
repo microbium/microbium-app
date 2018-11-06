@@ -14,6 +14,6 @@ export function lerp (a, b, t) {
 export function radialPosition (out, position, angle) {
   const { cos, sin } = Math
   out[0] = +cos(angle) * position[0] + position[1] * sin(angle)
-  out[1] = sin(angle) * position[0] + position[1] * cos(angle)
+  out[1] = -sin(angle) * position[0] + position[1] * cos(angle)
   return out
 }
