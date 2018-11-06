@@ -1,6 +1,6 @@
 {
   "name": "Microbium",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
   "description": "Microbiome drawing and simulating toy.",
   "private": true,
