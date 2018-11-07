@@ -27,8 +27,8 @@
   }
 
   &__title {
-    font-size: #{(17 / 13)}em;
-    font-weight: 500;
+    font-size: #{(20 / 13)}em;
+    font-weight: 700;
   }
 
   &__content {

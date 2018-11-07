@@ -5,24 +5,24 @@
     <div class="editor-compositor__stats" :class="statsClassNames" v-if="viewport">
       <ul class="editor-compositor__stats__group">
         <li>
-          {{ viewport.resolution[0] }}w
-          {{ viewport.resolution[1] }}h
-          ({{ controls.viewport.pixelRatio.toFixed(2) }}x)
+          <b>{{ viewport.resolution[0] }}</b>w
+          <b>{{ viewport.resolution[1] }}</b>h
+          (<b>{{ controls.viewport.pixelRatio.toFixed(2) }}</b>x)
           <span v-if="(viewport.pixelRatioClamped != controls.viewport.pixelRatio)">
-            [{{ viewport.pixelRatioClamped.toFixed(2) }}x]
+            [<b>{{ viewport.pixelRatioClamped.toFixed(2) }}</b>x]
           </span>
         </li>
       </ul><ul class="editor-compositor__stats__group">
-        <li title="Pin Constraints">{{ simulation.pinConstraintCount || '-' }} pns</li>
-        <li title="Local Constraints">{{ simulation.localConstraintCount || '-' }} lcs</li>
-        <li title="Forces">{{ simulation.forcesCount || '-' }} frcs</li>
+        <li title="Pin Constraints"><b>{{ simulation.pinConstraintCount || '-' }}</b> pns</li>
+        <li title="Local Constraints"><b>{{ simulation.localConstraintCount || '-' }}</b> lcs</li>
+        <li title="Forces"><b>{{ simulation.forcesCount || '-' }}</b> frcs</li>
       </ul><ul class="editor-compositor__stats__group">
-        <li title="Vertices">{{ renderer.verticesCount }} vrts</li>
-        <li title="Line Segments">{{ renderer.segmentsCount }} sgs</li>
+        <li title="Vertices"><b>{{ renderer.verticesCount }}</b> vrts</li>
+        <li title="Line Segments"><b>{{ renderer.segmentsCount }}</b> sgs</li>
       </ul><ul class="editor-compositor__stats__group">
-        <li title="Line Quads">{{ renderer.lineQuads }} qds</li>
-        <li title="Draw Calls">{{ renderer.drawCalls }} drw cls</li>
-        <li title="Full Screen Passes">{{ renderer.fullScreenPasses }} pss</li>
+        <li title="Line Quads"><b>{{ renderer.lineQuads }}</b> qds</li>
+        <li title="Draw Calls"><b>{{ renderer.drawCalls }}</b> drw cls</li>
+        <li title="Full Screen Passes"><b>{{ renderer.fullScreenPasses }}</b> pss</li>
       </ul>
       <ul class="editor-compositor__stats__group" v-if="DEBUG_PERF">
         <li>update physics: {{ timer.get('updatePhysics', 6) }} ms</li>
@@ -84,7 +84,8 @@
     width: 100%;
 
     color: #eee;
-    font: 10px/1.6 Fira Code, Fira Mono, Monaco, monospace;
+    font: 10px/1.6 'Fira Mono', Monaco, monospace;
+    font-weight: 500;
     text-align: center;
     cursor: default;
 
@@ -116,6 +117,10 @@
         width: 24px;
         text-align: center;
       }
+    }
+
+    b {
+      font-weight: 600;
     }
 
     &.stats--show {

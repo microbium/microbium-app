@@ -146,6 +146,7 @@ $base-color: rgba(#000, 0.15);
 .palette-item {
   padding: 6px 0;
   font-size: 1em;
+  font-weight: 400;
 
   &__label {
     padding: 0 8px;
@@ -155,7 +156,7 @@ $base-color: rgba(#000, 0.15);
       display: inline-block;
       border-top: 2px solid #fff;
       padding-top: 6px;
-      font-weight: 500;
+      font-weight: 600;
 
       &:first-letter {
         text-transform: uppercase;

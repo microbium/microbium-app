@@ -5,6 +5,9 @@
 </template>
 
 <style>
+@import './assets/fonts/fira-sans/index.scss';
+@import './assets/fonts/fira-mono/index.scss';
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,7 +16,7 @@
 
 body {
   background: transparent;
-  font: 13px/1 Helvetica Neue, sans-serif;
+  font: 12px/1 'Fira Sans', sans-serif;
 }
 
 #app {
