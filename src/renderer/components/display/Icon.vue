@@ -41,7 +41,8 @@ export default {
     selectIcon,
     stylesIcon,
     toolIcon,
-    viewportIcon
+    viewportIcon,
+    controllersIcon: geometryIcon
   },
 
   computed: {

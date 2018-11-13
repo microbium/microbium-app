@@ -297,6 +297,15 @@ export function createControlsState () {
   }
 }
 
+export function createControllersState () {
+  return {
+    midi: {
+      activeInput: null,
+      availableInputs: []
+    }
+  }
+}
+
 export function createControlsStaticParams () {
   return {
     modeTypes: MODE_TYPES,

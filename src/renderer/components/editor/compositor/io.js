@@ -51,6 +51,7 @@ export function createIOController (tasks, state) {
       })
     },
 
+    // FIXME: Controls getting overwritten by defaults still ..?
     deserializeScene (json) {
       const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
       const unmapKeysDeep = io.mapKeysDeep.bind(null, ABBRV_KEY_MAP)

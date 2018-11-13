@@ -35,6 +35,10 @@ export const PALETTE_TYPES = [
     name: 'Viewport'
   },
   {
+    id: 'controllers',
+    name: 'Controllers'
+  },
+  {
     id: 'effects',
     name: 'Visual Effects'
   }

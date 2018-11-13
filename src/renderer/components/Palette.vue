@@ -61,6 +61,11 @@
         <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
         <palette-effects :model="controls.postEffects" />
       </palette-section>
+
+      <palette-section :hidden="!showControllersPanel">
+        <h2 slot="title">{{ paletteTypesMap.controllers.name }}</h2>
+        <palette-controllers :model="controllers" />
+      </palette-section>
     </div>
   </div>
 </template>
@@ -174,13 +179,18 @@ $base-color: rgba(#000, 0.15);
 
 <script>
 import Colr from 'colr'
+import WebMidi from 'webmidi'
+import DotProp from 'dot-prop'
 
-import { clamp } from '@renderer/utils/math'
+import { clamp, mapLinear } from '@renderer/utils/math'
 
 import {
   createControlsState,
+  createControllersState,
   createControlsStaticParams
 } from '@renderer/store/modules/Palette'
+
+import { CONTROLLER_MAP_MIDI } from '@renderer/constants/controller-map'
 
 import Icon from '@renderer/components/display/Icon'
 import InputText from '@renderer/components/input/Text'
@@ -195,6 +205,7 @@ import PaletteStyleList from '@renderer/components/palette/StyleList'
 import PaletteModifiers from '@renderer/components/palette/Modifiers'
 import PaletteViewport from '@renderer/components/palette/Viewport'
 import PaletteEffects from '@renderer/components/palette/Effects'
+import PaletteControllers from '@renderer/components/palette/Controllers'
 
 const DEBUG_DISABLE_FOCUS = false
 
@@ -205,6 +216,7 @@ export default {
     Icon,
     InputButton,
     InputText,
+    PaletteControllers,
     PaletteConstraintList,
     PaletteEffects,
     PaletteForceList,
@@ -220,21 +232,22 @@ export default {
   data () {
     return {
       controls: createControlsState(),
+      controllers: createControllersState(),
       params: createControlsStaticParams()
     }
   },
 
   created () {
-    this.$electron.ipcRenderer.on('message', this.handleMessage.bind(this))
-    this.$electron.ipcRenderer.on('command', this.handleCommand.bind(this))
-  },
-
-  mounted () {
     this.bindEvents()
+    this.bindMidi()
   },
 
   methods: {
     bindEvents () {
+      const { ipcRenderer } = this.$electron
+
+      ipcRenderer.on('message', this.handleMessage.bind(this))
+      ipcRenderer.on('command', this.handleCommand.bind(this))
       window.addEventListener('wheel', this.handleWheel.bind(this), false)
     },
 
@@ -287,6 +300,29 @@ export default {
             lineTool.constraintIndex + data.dir)
           break
       }
+    },
+
+    bindMidi () {
+      WebMidi.enable((err) => {
+        if (err) return
+        const { midi } = this.controllers
+        const { inputs } = WebMidi
+        midi.availableInputs = inputs || []
+      })
+    },
+
+    // TODO: Disable controller messages unless sim is running?
+    handleMidiMessage (event) {
+      const { data } = event
+      const cc = data[1]
+      const val = data[2]
+
+      const config = CONTROLLER_MAP_MIDI[cc]
+      if (!config) return
+
+      const [path, min, max] = config
+      DotProp.set(this.controls, path,
+        mapLinear(0, 127, min, max, val))
     },
 
     sendMessage (name, data) {
@@ -397,6 +433,7 @@ export default {
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
     showViewportPanel: createModeCondition('activePalettes', 'viewport'),
+    showControllersPanel: createModeCondition('activePalettes', 'controllers'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
 
@@ -410,6 +447,18 @@ export default {
     'controls.postEffects': createStateSyncer('postEffects'),
     'controls.activePalettes.id': function (id) {
       this.syncActivePaletteMode(id)
+    },
+
+    'controllers.midi.activeInput': function (name) {
+      const prevInput = this._activeMidiInput
+      const nextInput = WebMidi.getInputByName(name)
+      if (prevInput) {
+        prevInput.removeListener('controlchange')
+      }
+      if (nextInput) {
+        this._activeMidiInput = nextInput
+        nextInput.addListener('controlchange', 'all', this.handleMidiMessage.bind(this))
+      }
     }
   }
 }

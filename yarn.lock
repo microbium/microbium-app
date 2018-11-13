@@ -2983,7 +2983,7 @@ dot-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
 
-dot-prop@^4.1.0:
+dot-prop@^4.1.0, dot-prop@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-4.2.0.tgz#1f19e0c2e1aa0e32797c49799f2837ac6af69c57"
   dependencies:
@@ -9596,6 +9596,10 @@ webdriverio@^4.8.0:
     url "~0.11.0"
     wdio-dot-reporter "~0.0.8"
     wgxpath "~1.0.0"
+
+webmidi@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/webmidi/-/webmidi-2.3.0.tgz#66e3c932eecd4a3d44b0d88e59c9621287fead1f"
 
 webpack-bundle-analyzer@^2.11.1:
   version "2.13.1"
