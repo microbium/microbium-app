@@ -301,11 +301,20 @@ export function createControllersState () {
   return {
     midi: {
       activeInput: null,
-      availableInputs: []
+      availableInputs: [],
+      channels: [
+        {
+          channel: 0,
+          name: 'Feedback Offset',
+          prop: 'postEffects.bloom.feedbackOffset',
+          scale: 1
+        }
+      ]
     }
   }
 }
 
+// TODO: Refactor to pull in directly rather than pass as props
 export function createControlsStaticParams () {
   return {
     modeTypes: MODE_TYPES,

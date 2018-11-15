@@ -62,6 +62,7 @@
         <palette-effects :model="controls.postEffects" />
       </palette-section>
 
+      <!-- TODO: Maybe move controllers to separate window, outside palette -->
       <palette-section :hidden="!showControllersPanel">
         <h2 slot="title">{{ paletteTypesMap.controllers.name }}</h2>
         <palette-controllers :model="controllers" />
@@ -190,7 +191,7 @@ import {
   createControlsStaticParams
 } from '@renderer/store/modules/Palette'
 
-import { CONTROLLER_MAP_MIDI } from '@renderer/constants/controller-map'
+import { CONTROLLER_CHANNEL_PROPS_MAP } from '@renderer/constants/controller-channels'
 
 import Icon from '@renderer/components/display/Icon'
 import InputText from '@renderer/components/input/Text'
@@ -302,27 +303,32 @@ export default {
       }
     },
 
+    // TODO: Listen for new inputs
     bindMidi () {
       WebMidi.enable((err) => {
         if (err) return
         const { midi } = this.controllers
         const { inputs } = WebMidi
+        console.log(inputs)
         midi.availableInputs = inputs || []
       })
     },
 
     // TODO: Disable controller messages unless sim is running?
     handleMidiMessage (event) {
+      const { midi } = this.controllers
       const { data } = event
       const cc = data[1]
       const val = data[2]
 
-      const config = CONTROLLER_MAP_MIDI[cc]
+      const config = midi.channels[cc]
       if (!config) return
 
-      const [path, min, max] = config
-      DotProp.set(this.controls, path,
-        mapLinear(0, 127, min, max, val))
+      const { prop, scale } = config
+      const { min, max } = CONTROLLER_CHANNEL_PROPS_MAP[prop]
+
+      DotProp.set(this.controls, prop,
+        mapLinear(0, 127, min * scale, max * scale, val))
     },
 
     sendMessage (name, data) {
