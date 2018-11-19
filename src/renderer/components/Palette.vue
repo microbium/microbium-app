@@ -61,12 +61,6 @@
         <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
         <palette-effects :model="controls.postEffects" />
       </palette-section>
-
-      <!-- TODO: Maybe move controllers to separate window, outside palette -->
-      <palette-section :hidden="!showControllersPanel">
-        <h2 slot="title">{{ paletteTypesMap.controllers.name }}</h2>
-        <palette-controllers :model="controllers" />
-      </palette-section>
     </div>
   </div>
 </template>
@@ -150,6 +144,8 @@ $base-color: rgba(#000, 0.15);
 }
 
 .palette-item {
+  position: relative;
+
   padding: 6px 0;
   font-size: 1em;
   font-weight: 400;
@@ -206,7 +202,6 @@ import PaletteStyleList from '@renderer/components/palette/StyleList'
 import PaletteModifiers from '@renderer/components/palette/Modifiers'
 import PaletteViewport from '@renderer/components/palette/Viewport'
 import PaletteEffects from '@renderer/components/palette/Effects'
-import PaletteControllers from '@renderer/components/palette/Controllers'
 
 const DEBUG_DISABLE_FOCUS = false
 
@@ -217,7 +212,6 @@ export default {
     Icon,
     InputButton,
     InputText,
-    PaletteControllers,
     PaletteConstraintList,
     PaletteEffects,
     PaletteForceList,
@@ -309,7 +303,6 @@ export default {
         if (err) return
         const { midi } = this.controllers
         const { inputs } = WebMidi
-        console.log(inputs)
         midi.availableInputs = inputs || []
       })
     },

@@ -37,10 +37,6 @@ export const PALETTE_TYPES = [
   {
     id: 'effects',
     name: 'Visual Effects'
-  },
-  {
-    id: 'controllers',
-    name: 'Controllers'
   }
 ]
 

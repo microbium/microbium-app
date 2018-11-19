@@ -20,6 +20,7 @@
       <div class="palette-item__label">
         <b>{{ thicknessName }}</b> stroke width factor
       </div>
+      <palette-item-controller />
     </div>
     <div class="palette-item">
       <input-range min="0" max="5" step="0.1"
@@ -28,6 +29,7 @@
         <b>{{ strokeModName }}</b>
         stroke modulation
       </div>
+      <palette-item-controller />
     </div>
     <hr />
 
@@ -58,6 +60,7 @@
       <div class="palette-item__label">
         <b>{{ tintAlphaName }}</b> opacity
       </div>
+      <palette-item-controller />
     </div>
     <hr />
 
@@ -100,6 +103,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 import InputColor from '@renderer/components/input/Color'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-style',
@@ -107,7 +111,8 @@ export default {
   components: {
     InputColor,
     InputRange,
-    InputSelect
+    InputSelect,
+    PaletteItemController
   },
 
   props: {
