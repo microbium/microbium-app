@@ -71,9 +71,17 @@ export default {
     this.bindControllerEvents()
   },
 
+  beforeDestroy () {
+    this.unbindControllerEvents()
+  },
+
   methods: {
     bindControllerEvents () {
       PaletteControllers.on('cc', this.handleControllerMessage)
+    },
+
+    unbindControllerEvents () {
+      PaletteControllers.off('cc', this.handleControllerMessage)
     },
 
     handleControllerMessage (cc, value) {
