@@ -41,11 +41,11 @@ export function createControlsState () {
         fillAlphaFuncIndex: 0,
         tintHex: '#FFFFFF',
         tintAlpha: 1,
-        tintAlphaController: -1,
         useScreenTintFunc: 0,
         thickness: 1,
-        thicknessController: -1,
         strokeWidthMod: 0.6,
+        tintAlphaController: -1,
+        thicknessController: -1,
         strokeWidthModController: -1
       },
       {
@@ -60,7 +60,9 @@ export function createControlsState () {
         useScreenTintFunc: 0,
         thickness: 0.25,
         strokeWidthMod: 0.6,
-        controllerChannel: -1
+        tintAlphaController: -1,
+        thicknessController: -1,
+        strokeWidthModController: -1
       },
       {
         index: 2,
@@ -74,7 +76,9 @@ export function createControlsState () {
         useScreenTintFunc: 0,
         thickness: 1,
         strokeWidthMod: 1.2,
-        controllerChannel: -1
+        tintAlphaController: -1,
+        thicknessController: -1,
+        strokeWidthModController: -1
       }
     ],
 
