@@ -1,7 +1,7 @@
 <template>
-  <div class="palette-item-controller">
+  <div class="palette-item-controller" :class="baseClassNames">
     <div class="palette-item-controller__label">
-      <b>CC {{ channelName }}</b>
+      CC <b>{{ channelName }}</b>
       <input-select v-model="model[channelProp]">
         <option v-for="channel in channels" :value="channel.index">
           {{ channel.name }}
@@ -13,13 +13,15 @@
 
 <style lang="scss">
 .palette-item-controller {
+  opacity: 0.4;
+
   &__label {
     padding: 0 8px;
 
     > b {
       position: relative;
       display: inline-block;
-      border-top: 2px solid rgba(#fff, 0.1);
+      border-top: 2px solid rgba(#fff, 0.3);
       padding-top: 6px;
       font-weight: 600;
 
@@ -27,6 +29,10 @@
         text-transform: uppercase;
       }
     }
+  }
+
+  &--active {
+    opacity: 1;
   }
 }
 </style>
@@ -95,6 +101,14 @@ export default {
   },
 
   computed: {
+    baseClassNames () {
+      const { model, channelProp } = this
+      const channel = model[channelProp]
+      return {
+        'palette-item-controller--active': channel >= 0
+      }
+    },
+
     channelProp () {
       const { prop } = this
       return `${prop}Controller`
@@ -103,7 +117,7 @@ export default {
     channelName () {
       const { model, channelProp } = this
       const channel = model[channelProp]
-      return channel >= 0 ? channel : '–'
+      return channel >= 0 ? channel : 'N'
     }
   }
 }
