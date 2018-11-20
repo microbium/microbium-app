@@ -8,6 +8,7 @@ import {
   CONSTRAINT_TYPES
 } from '@renderer/constants/types'
 
+import { range } from '@renderer/utils/array'
 import { pixelRatioClamped } from '@renderer/utils/screen'
 
 export function createControlsState () {
@@ -40,9 +41,12 @@ export function createControlsState () {
         fillAlphaFuncIndex: 0,
         tintHex: '#FFFFFF',
         tintAlpha: 1,
+        tintAlphaController: -1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 0.6
+        thicknessController: -1,
+        strokeWidthMod: 0.6,
+        strokeWidthModController: -1
       },
       {
         index: 1,
@@ -55,7 +59,8 @@ export function createControlsState () {
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 0.25,
-        strokeWidthMod: 0.6
+        strokeWidthMod: 0.6,
+        controllerChannel: -1
       },
       {
         index: 2,
@@ -68,7 +73,8 @@ export function createControlsState () {
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 1.2
+        strokeWidthMod: 1.2,
+        controllerChannel: -1
       }
     ],
 
@@ -302,14 +308,10 @@ export function createControllersState () {
     midi: {
       activeInput: null,
       availableInputs: [],
-      channels: [
-        {
-          channel: 0,
-          name: 'Feedback Offset',
-          prop: 'postEffects.bloom.feedbackOffset',
-          scale: 1
-        }
-      ]
+      channelValues: range(16).reduce((map, i) => {
+        map[i] = 0
+        return map
+      }, {})
     }
   }
 }

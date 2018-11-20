@@ -19,8 +19,9 @@
         v-model="model.thickness" />
       <div class="palette-item__label">
         <b>{{ thicknessName }}</b> stroke width factor
+        <palette-item-controller :min="0" :max="5"
+          :model="model" prop="thickness" />
       </div>
-      <palette-item-controller />
     </div>
     <div class="palette-item">
       <input-range min="0" max="5" step="0.1"
@@ -28,8 +29,9 @@
       <div class="palette-item__label">
         <b>{{ strokeModName }}</b>
         stroke modulation
+        <palette-item-controller :min="0" :max="5"
+          :model="model" prop="strokeWidthMod" />
       </div>
-      <palette-item-controller />
     </div>
     <hr />
 
@@ -59,8 +61,9 @@
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
       <div class="palette-item__label">
         <b>{{ tintAlphaName }}</b> opacity
+        <palette-item-controller :min="0" :max="1"
+          :model="model" prop="tintAlpha" />
       </div>
-      <palette-item-controller />
     </div>
     <hr />
 

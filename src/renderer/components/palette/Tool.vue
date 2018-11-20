@@ -60,7 +60,8 @@
       <hr />
     </palette-group>
 
-    <palette-group persistent-controls open>
+    <!-- Simulation Behavior -->
+    <palette-group persistent-controls>
       <h2 slot="title">Behavior</h2>
 
       <palette-constraint-preview slot="controls"
@@ -78,6 +79,22 @@
         </div>
       </div>
       <hr />
+    </palette-group>
+
+    <!-- Controller -->
+    <palette-group>
+      <h2 slot="title">Controller (Midi)</h2>
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ midiInputName }}
+            <input-select v-model="controllers.midi.activeInput">
+              <option v-for="item in midiAvailableInputs" :value="item.name">
+                {{ item.name }}
+              </option>
+            </input-select>
+          </b> active input
+        </div>
+      </div>
     </palette-group>
   </div>
 </template>
@@ -112,7 +129,8 @@ export default {
     styles: Array,
     constraints: Array,
     inputModTypes: Array,
-    physicsTypes: Array
+    physicsTypes: Array,
+    controllers: Object
   },
 
   computed: {
@@ -147,6 +165,19 @@ export default {
     strokeConstraintName () {
       const type = this.constraints[this.model.constraintIndex]
       return type.name
+    },
+
+    midiInputName () {
+      const { activeInput } = this.controllers.midi
+      return activeInput || 'None'
+    },
+
+    midiAvailableInputs () {
+      const { availableInputs } = this.controllers.midi
+      return [
+        { name: 'None' },
+        ...availableInputs
+      ]
     }
   }
 }

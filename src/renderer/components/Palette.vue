@@ -16,6 +16,7 @@
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
           :constraints="controls.constraintGroups"
+          :controllers="controllers"
           :inputModTypes="params.inputModTypes"
           :physicsTypes="params.physicsTypes" />
       </palette-section>
@@ -145,12 +146,12 @@ $base-color: rgba(#000, 0.15);
 
 .palette-item {
   position: relative;
-
   padding: 6px 0;
   font-size: 1em;
   font-weight: 400;
 
   &__label {
+    position: relative;
     padding: 0 8px;
 
     > b {
@@ -163,6 +164,12 @@ $base-color: rgba(#000, 0.15);
       &:first-letter {
         text-transform: uppercase;
       }
+    }
+
+    .palette-item-controller {
+      position: absolute;
+      right: 0;
+      bottom: 0;
     }
   }
 
@@ -177,17 +184,15 @@ $base-color: rgba(#000, 0.15);
 <script>
 import Colr from 'colr'
 import WebMidi from 'webmidi'
-import DotProp from 'dot-prop'
 
-import { clamp, mapLinear } from '@renderer/utils/math'
+import { clamp } from '@renderer/utils/math'
 
 import {
   createControlsState,
   createControllersState,
   createControlsStaticParams
 } from '@renderer/store/modules/Palette'
-
-import { CONTROLLER_CHANNEL_PROPS_MAP } from '@renderer/constants/controller-channels'
+import { PaletteControllers } from '@renderer/components/PaletteControllers'
 
 import Icon from '@renderer/components/display/Icon'
 import InputText from '@renderer/components/input/Text'
@@ -309,19 +314,14 @@ export default {
 
     // TODO: Disable controller messages unless sim is running?
     handleMidiMessage (event) {
-      const { midi } = this.controllers
+      const { channelValues } = this.controllers.midi
       const { data } = event
       const cc = data[1]
-      const val = data[2]
+      const value = data[2]
+      if (channelValues[cc] == null) return
 
-      const config = midi.channels[cc]
-      if (!config) return
-
-      const { prop, scale } = config
-      const { min, max } = CONTROLLER_CHANNEL_PROPS_MAP[prop]
-
-      DotProp.set(this.controls, prop,
-        mapLinear(0, 127, min * scale, max * scale, val))
+      channelValues[cc] = value
+      PaletteControllers.emit('cc', cc, value)
     },
 
     sendMessage (name, data) {

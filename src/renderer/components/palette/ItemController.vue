@@ -2,7 +2,7 @@
   <div class="palette-item-controller">
     <div class="palette-item-controller__label">
       <b>CC {{ channelName }}</b>
-      <input-select v-model="channel">
+      <input-select v-model="model[channelProp]">
         <option v-for="channel in channels" :value="channel.index">
           {{ channel.name }}
         </option>
@@ -13,10 +13,6 @@
 
 <style lang="scss">
 .palette-item-controller {
-  position: absolute;
-  right: 0;
-  bottom: 6px;
-
   &__label {
     padding: 0 8px;
 
@@ -37,6 +33,8 @@
 
 <script>
 import { range } from '@renderer/utils/array'
+import { mapLinear } from '@renderer/utils/math'
+import { PaletteControllers } from '@renderer/components/PaletteControllers'
 import InputSelect from '@renderer/components/input/Select'
 
 const CHANNELS = [{
@@ -55,19 +53,48 @@ export default {
   },
 
   props: {
-    // model: Object
+    min: Number,
+    max: Number,
+    model: Object,
+    prop: String
   },
 
   data () {
     return {
-      channel: -1,
+      controllerValue: null,
       channels: CHANNELS
     }
   },
 
+  created () {
+    this.controllerValue = this.value
+    this.bindControllerEvents()
+  },
+
+  methods: {
+    bindControllerEvents () {
+      PaletteControllers.on('cc', this.handleControllerMessage)
+    },
+
+    handleControllerMessage (cc, value) {
+      const { model, channelProp } = this
+      const channel = model[channelProp]
+      if (channel !== cc) return
+
+      const { prop, min, max } = this
+      model[prop] = mapLinear(0, 127, min, max, value)
+    }
+  },
+
   computed: {
+    channelProp () {
+      const { prop } = this
+      return `${prop}Controller`
+    },
+
     channelName () {
-      const { channel } = this
+      const { model, channelProp } = this
+      const channel = model[channelProp]
       return channel >= 0 ? channel : '–'
     }
   }

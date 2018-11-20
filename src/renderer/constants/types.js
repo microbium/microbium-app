@@ -12,7 +12,7 @@ export const MODE_TYPES = [
 export const PALETTE_TYPES = [
   {
     id: 'tool',
-    name: 'Line Tool'
+    name: 'Line Tool / Controllers'
   },
   {
     id: 'geometry',
