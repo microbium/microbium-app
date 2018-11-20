@@ -31,12 +31,16 @@
         <input-range min="-180" max="180" step="0.5" v-model="model.polarAngle" />
         <div class="palette-item__label">
           <b>{{ polarAngleName }}</b> polar angle
+          <palette-item-controller :min="-180" :max="180"
+            :model="model" prop="polarAngle" />
         </div>
       </div>
       <div class="palette-item">
         <input-range min="0" max="40" step="0.5" v-model="model.polarOffset" />
         <div class="palette-item__label">
           <b>{{ polarOffsetName }}</b> polar offset
+          <palette-item-controller :min="0" :max="40"
+            :model="model" prop="polarOffset" />
         </div>
       </div>
     </div>
@@ -58,12 +62,16 @@
       <input-range min="-2" max="2" step="0.01" v-model="model.intensity" />
       <div class="palette-item__label">
         <b>{{ intensityName }}</b> intensity
+        <palette-item-controller :min="-2" :max="2"
+          :model="model" prop="intensity" />
       </div>
     </div>
     <div class="palette-item">
       <input-range min="2" max="60" step="0.5" v-model="model.radius" />
       <div class="palette-item__label">
         <b>{{ radiusName }}</b> radius
+        <palette-item-controller :min="2" :max="60"
+          :model="model" prop="radius" />
       </div>
     </div>
     <hr />
@@ -77,13 +85,15 @@
 import { roundToPlaces } from '@renderer/utils/number'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-force',
 
   components: {
     InputRange,
-    InputSelect
+    InputSelect,
+    PaletteItemController
   },
 
   props: {
