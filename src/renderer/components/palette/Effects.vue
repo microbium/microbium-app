@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.bloom.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
         <div class="palette-item__label">
           <b>{{ bloomBufferScaleName }}</b> buffer resolution
         </div>
@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.banding.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.banding.bufferScale" />
         <div class="palette-item__label">
           <b>{{ bandingBufferScaleName }}</b> buffer resolution
         </div>
@@ -99,7 +99,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.edges.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.edges.bufferScale" />
         <div class="palette-item__label">
           <b>{{ edgesBufferScaleName }}</b> buffer resolution
         </div>
