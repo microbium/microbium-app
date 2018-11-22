@@ -340,6 +340,7 @@ export function createControlsState () {
 export function createControllersState () {
   return {
     midi: {
+      enabled: false,
       activeInput: null,
       availableInputs: [],
       channelValues: range(16).reduce((map, i) => {

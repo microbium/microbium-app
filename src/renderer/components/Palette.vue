@@ -314,7 +314,9 @@ export default {
 
     // TODO: Disable controller messages unless sim is running?
     handleMidiMessage (event) {
-      const { channelValues } = this.controllers.midi
+      const { enabled, channelValues } = this.controllers.midi
+      if (!enabled) return
+
       const { data } = event
       const cc = data[1]
       const value = data[2]

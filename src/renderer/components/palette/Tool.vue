@@ -82,8 +82,10 @@
     </palette-group>
 
     <!-- Controller -->
-    <palette-group>
+    <palette-group persistent-controls>
       <h2 slot="title">Controller (Midi)</h2>
+      <input-checkbox slot="controls" v-model="controllers.midi.enabled" />
+
       <div class="palette-item">
         <div class="palette-item__label">
           <b>{{ midiInputName }}
@@ -107,6 +109,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 
 import InputColor from '@renderer/components/input/Color'
 import InputSelect from '@renderer/components/input/Select'
+import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteConstraintPreview from '@renderer/components/palette/ConstraintPreview'
@@ -119,6 +122,7 @@ export default {
     InputColor,
     InputSelect,
     InputRange,
+    InputCheckbox,
     PaletteGroup,
     PaletteConstraintPreview,
     PaletteStylePreview
