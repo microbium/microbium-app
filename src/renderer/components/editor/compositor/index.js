@@ -520,7 +520,7 @@ export function mountCompositor ($el, $refs, actions) {
       postBuffers.resize('edges', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
-      bufPixelRatio = bloom.bufferScale / (pixelRatioNative * 2)
+      bufPixelRatio = bloom.bufferScale / pixelRatioNative
       postBuffers.resize('blurA', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
       postBuffers.resize('blurB', resolution,

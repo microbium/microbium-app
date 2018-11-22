@@ -8,6 +8,7 @@ import {
   CONSTRAINT_TYPES
 } from '@renderer/constants/types'
 
+import { range } from '@renderer/utils/array'
 import { pixelRatioClamped } from '@renderer/utils/screen'
 
 export function createControlsState () {
@@ -42,7 +43,10 @@ export function createControlsState () {
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 0.6
+        strokeWidthMod: 0.6,
+        tintAlphaController: -1,
+        thicknessController: -1,
+        strokeWidthModController: -1
       },
       {
         index: 1,
@@ -55,7 +59,10 @@ export function createControlsState () {
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 0.25,
-        strokeWidthMod: 0.6
+        strokeWidthMod: 0.6,
+        tintAlphaController: -1,
+        thicknessController: -1,
+        strokeWidthModController: -1
       },
       {
         index: 2,
@@ -68,7 +75,10 @@ export function createControlsState () {
         tintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 1.2
+        strokeWidthMod: 1.2,
+        tintAlphaController: -1,
+        thicknessController: -1,
+        strokeWidthModController: -1
       }
     ],
 
@@ -181,7 +191,11 @@ export function createControlsState () {
         polarAngle: 0,
         polarOffset: 0,
         radius: 8,
-        intensity: 0.1
+        intensity: 0.1,
+        intensityController: -1,
+        radiusController: -1,
+        polarAngleController: -1,
+        polarOffsetController: -1
       },
       {
         index: 1,
@@ -192,7 +206,11 @@ export function createControlsState () {
         polarAngle: 30,
         polarOffset: 14,
         radius: 25,
-        intensity: 0.1
+        intensity: 0.1,
+        intensityController: -1,
+        radiusController: -1,
+        polarAngleController: -1,
+        polarOffsetController: -1
       },
       {
         index: 2,
@@ -203,7 +221,11 @@ export function createControlsState () {
         polarAngle: 90,
         polarOffset: 17,
         radius: 20,
-        intensity: 0.1
+        intensity: 0.1,
+        intensityController: -1,
+        radiusController: -1,
+        polarAngleController: -1,
+        polarOffsetController: -1
       }
     ],
 
@@ -214,7 +236,10 @@ export function createControlsState () {
         typeIndex: 2,
         slipTolerance: 0.1,
         engineCadence: 0.1,
-        engineFlex: 0.25
+        engineFlex: 0.25,
+        slipToleranceController: -1,
+        engineCadenceController: -1,
+        engineFlexController: -1
       },
       {
         index: 1,
@@ -222,7 +247,10 @@ export function createControlsState () {
         typeIndex: 1,
         slipTolerance: 0.1,
         engineCadence: 0.1,
-        engineFlex: 0
+        engineFlex: 0,
+        slipToleranceController: -1,
+        engineCadenceController: -1,
+        engineFlexController: -1
       },
       {
         index: 2,
@@ -230,14 +258,19 @@ export function createControlsState () {
         typeIndex: 0,
         slipTolerance: 0,
         engineCadence: 0.1,
-        engineFlex: 0
+        engineFlex: 0,
+        slipToleranceController: -1,
+        engineCadenceController: -1,
+        engineFlexController: -1
       }
     ],
 
     modifiers: {
       polarIterations: 3,
+      polarIterationsController: -1,
       mirror: {
-        intensityFactor: 0.5
+        intensityFactor: 0.5,
+        intensityFactorController: -1
       },
       curve: {
         segMinLength: 10,
@@ -268,21 +301,27 @@ export function createControlsState () {
         blurPasses: 1,
         blurStep: 4,
         bufferScale: 1,
-        feedbackOffset: 0
+        feedbackOffset: 0,
+        intensityFactorController: -1,
+        feedbackOffsetController: -1
       },
       banding: {
         enabled: false,
         intensityFactor: 1,
         // blendMode: MIX,
         bandStep: 32,
-        bufferScale: 1
+        bufferScale: 1,
+        intensityController: -1,
+        bandStepController: -1
       },
       edges: {
         enabled: false,
         intensityFactor: 1,
         // blendMode: OVERLAY,
         thickness: 0.5,
-        bufferScale: 1
+        bufferScale: 1,
+        intensityFactorController: -1,
+        thicknessController: -1
       },
       colorShift: {
         enabled: false,
@@ -291,12 +330,28 @@ export function createControlsState () {
       },
       noise: {
         enabled: true,
-        intensityFactor: 1
+        intensityFactor: 1,
+        intensityFactorController: -1
       }
     }
   }
 }
 
+export function createControllersState () {
+  return {
+    midi: {
+      enabled: false,
+      activeInput: null,
+      availableInputs: [],
+      channelValues: range(16).reduce((map, i) => {
+        map[i] = 0
+        return map
+      }, {})
+    }
+  }
+}
+
+// TODO: Refactor to pull in directly rather than pass as props
 export function createControlsStaticParams () {
   return {
     modeTypes: MODE_TYPES,

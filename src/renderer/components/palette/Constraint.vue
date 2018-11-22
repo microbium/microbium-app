@@ -1,7 +1,6 @@
 <template>
   <div class="palette-constraint">
-    <!-- TODO: Disable changing constraint type while simulation is running
-    -->
+    <!-- TODO: Disable changing constraint type while simulation is running -->
     <div class="palette-item">
       <div class="palette-item__label">
         <b>{{ typeName }}
@@ -20,6 +19,8 @@
         <input-range min="0" max="1" step="0.01" v-model="model.slipTolerance" />
         <div class="palette-item__label">
           <b>{{ slipToleranceName }}</b> slip tolerance
+          <palette-item-controller :min="0" :max="1"
+            :model="model" prop="slipTolerance" />
         </div>
       </div>
       <hr />
@@ -30,12 +31,16 @@
         <input-range min="0" max="1" step="0.01" v-model="model.engineFlex" />
         <div class="palette-item__label">
           <b>{{ engineFlexName }}</b> distance flex
+          <palette-item-controller :min="0" :max="1"
+            :model="model" prop="engineFlex" />
         </div>
       </div>
       <div class="palette-item">
         <input-range min="0" max="0.5" step="0.01" v-model="model.engineCadence" />
         <div class="palette-item__label">
           <b>{{ engineCadenceName }}</b> flex cadence
+          <palette-item-controller :min="0" :max="0.5"
+            :model="model" prop="engineCadence" />
         </div>
       </div>
       <hr />
@@ -50,13 +55,15 @@
 import { roundToPlaces } from '@renderer/utils/number'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-constraint',
 
   components: {
     InputRange,
-    InputSelect
+    InputSelect,
+    PaletteItemController
   },
 
   props: {

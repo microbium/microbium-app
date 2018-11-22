@@ -8,6 +8,8 @@
         <input-range min="0" max="3" step="0.05" v-model="model.bloom.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ bloomFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="3"
+            :model="model.bloom" prop="intensityFactor" />
         </div>
       </div>
       <hr />
@@ -16,6 +18,8 @@
         <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackOffset" />
         <div class="palette-item__label">
           <b>{{ bloomFeedbackOffsetName }}</b> feedback offset
+          <palette-item-controller :min="-1" :max="1"
+            :model="model.bloom" prop="feedbackOffset" />
         </div>
       </div>
       <hr />
@@ -33,7 +37,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.bloom.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
         <div class="palette-item__label">
           <b>{{ bloomBufferScaleName }}</b> buffer resolution
         </div>
@@ -49,6 +53,8 @@
         <input-range min="0" max="3" step="0.05" v-model="model.banding.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ bandingFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="3"
+            :model="model.banding" prop="intensityFactor" />
         </div>
       </div>
       <hr />
@@ -57,10 +63,12 @@
         <input-range min="4" max="256" step="2" v-model="model.banding.bandStep" />
         <div class="palette-item__label">
           <b>{{ bandingStepName }}</b> banding interval
+          <palette-item-controller :min="4" :max="256"
+            :model="model.bloom" prop="bandStep" />
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.banding.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.banding.bufferScale" />
         <div class="palette-item__label">
           <b>{{ bandingBufferScaleName }}</b> buffer resolution
         </div>
@@ -76,6 +84,8 @@
         <input-range min="0" max="5" step="0.05" v-model="model.edges.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ edgesFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="5"
+            :model="model.edges" prop="intensityFactor" />
         </div>
       </div>
       <hr />
@@ -84,10 +94,12 @@
         <input-range min="0.1" max="5.0" step="0.1" v-model="model.edges.thickness" />
         <div class="palette-item__label">
           <b>{{ edgesThicknessName }}</b> thickness
+          <palette-item-controller :min="0.1" :max="5"
+            :model="model.edges" prop="thickness" />
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0.1" max="1.5" step="0.05" v-model="model.edges.bufferScale" />
+        <input-range min="0.05" max="2" step="0.05" v-model="model.edges.bufferScale" />
         <div class="palette-item__label">
           <b>{{ edgesBufferScaleName }}</b> buffer resolution
         </div>
@@ -128,6 +140,8 @@
         <input-range min="0" max="5" step="0.05" v-model="model.noise.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ noiseFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="5"
+            :model="model.noise" prop="intensityFactor" />
         </div>
       </div>
       <hr />
@@ -148,6 +162,7 @@ import { pluralize } from '@renderer/utils/word'
 import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-effects',
@@ -155,7 +170,8 @@ export default {
   components: {
     InputCheckbox,
     InputRange,
-    PaletteGroup
+    PaletteGroup,
+    PaletteItemController
   },
 
   props: {

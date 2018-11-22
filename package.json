@@ -86,7 +86,8 @@
     "vue-electron": "^1.0.6",
     "vue-range-slider": "^0.2.4",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "webmidi": "^2.3.0"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

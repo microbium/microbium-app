@@ -60,7 +60,8 @@
       <hr />
     </palette-group>
 
-    <palette-group persistent-controls open>
+    <!-- Simulation Behavior -->
+    <palette-group persistent-controls>
       <h2 slot="title">Behavior</h2>
 
       <palette-constraint-preview slot="controls"
@@ -79,6 +80,24 @@
       </div>
       <hr />
     </palette-group>
+
+    <!-- Controller -->
+    <palette-group persistent-controls>
+      <h2 slot="title">Controller (Midi)</h2>
+      <input-checkbox slot="controls" v-model="controllers.midi.enabled" />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ midiInputName }}
+            <input-select v-model="controllers.midi.activeInput">
+              <option v-for="item in midiAvailableInputs" :value="item.name">
+                {{ item.name }}
+              </option>
+            </input-select>
+          </b> active input
+        </div>
+      </div>
+    </palette-group>
   </div>
 </template>
 
@@ -90,6 +109,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 
 import InputColor from '@renderer/components/input/Color'
 import InputSelect from '@renderer/components/input/Select'
+import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteConstraintPreview from '@renderer/components/palette/ConstraintPreview'
@@ -102,6 +122,7 @@ export default {
     InputColor,
     InputSelect,
     InputRange,
+    InputCheckbox,
     PaletteGroup,
     PaletteConstraintPreview,
     PaletteStylePreview
@@ -112,7 +133,8 @@ export default {
     styles: Array,
     constraints: Array,
     inputModTypes: Array,
-    physicsTypes: Array
+    physicsTypes: Array,
+    controllers: Object
   },
 
   computed: {
@@ -147,6 +169,19 @@ export default {
     strokeConstraintName () {
       const type = this.constraints[this.model.constraintIndex]
       return type.name
+    },
+
+    midiInputName () {
+      const { activeInput } = this.controllers.midi
+      return activeInput || 'None'
+    },
+
+    midiAvailableInputs () {
+      const { availableInputs } = this.controllers.midi
+      return [
+        { name: 'None' },
+        ...availableInputs
+      ]
     }
   }
 }

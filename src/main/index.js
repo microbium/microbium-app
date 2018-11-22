@@ -335,6 +335,9 @@ function createMenu () {
 
   const template = createMenuTemplate(app, appActions)
   const menu = appMenus.main = Menu.buildFromTemplate(template)
+
+  ipcMain.on('main+menu-message', onMenuMessage)
+  ipcMain.on('menu-message', onMenuMessage)
   Menu.setApplicationMenu(menu)
 }
 
@@ -377,7 +380,7 @@ function createMainWindow () {
 
   // TODO: Should probably save state in main process
   // then sync to windows .. this is fine for now
-  const onMessage = (event, data) => {
+  const onMainMessage = (event, data) => {
     sendWindowMessage('main', 'message', data)
   }
 
@@ -390,13 +393,12 @@ function createMainWindow () {
 
   main.on('focus', onWindowFocus)
   main.on('blur', onWindowBlur)
-  ipcMain.on('main-message', onMessage)
-  ipcMain.on('main+menu-message', onMessage)
-  ipcMain.on('menu-message', onMenuMessage)
-  ipcMain.on('main+menu-message', onMenuMessage)
+  ipcMain.on('main-message', onMainMessage)
+  ipcMain.on('main+menu-message', onMainMessage)
 
   main.on('closed', () => {
-    ipcMain.removeListener('main-message', onMessage)
+    ipcMain.removeListener('main-message', onMainMessage)
+    ipcMain.removeListener('main+menu-message', onMainMessage)
     setMenuState('create-scene', 'enabled', true)
     setMenuState('revert-scene', 'enabled', false)
     appWindows.main = null
@@ -446,6 +448,10 @@ function createPaletteWindow () {
     }
   })
 
+  const onPaletteMessage = (event, data) => {
+    sendWindowMessage('palette', 'message', data)
+  }
+
   palette.setTouchBar(appTouchBars.palette)
   palette.loadURL(paletteURL)
   palette.on('blur', onWindowBlur)
@@ -456,9 +462,8 @@ function createPaletteWindow () {
     }
     palette.showInactive()
     ipcMain.on('palette+menu-message', onMenuMessage)
-    ipcMain.on('palette-message', (event, data) => {
-      sendWindowMessage('palette', 'message', data)
-    })
+    ipcMain.on('palette+menu-message', onPaletteMessage)
+    ipcMain.on('palette-message', onPaletteMessage)
   })
 
   palette.on('close', (event) => {

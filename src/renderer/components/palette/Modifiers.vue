@@ -33,6 +33,8 @@
         <input-range min="1" max="11" v-model="model.polarIterations" />
         <div class="palette-item__label">
           <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
+          <palette-item-controller :min="1" :max="11"
+            :model="model" prop="polarIterations" />
         </div>
       </div>
       <hr />
@@ -45,6 +47,8 @@
         <input-range min="0" max="1" step="0.05" v-model="model.mirror.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ mirrorFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.mirror" prop="intensityFactor" />
         </div>
       </div>
       <hr />
@@ -64,13 +68,15 @@ import { pluralize } from '@renderer/utils/word'
 
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-modifiers',
 
   components: {
     InputRange,
-    PaletteGroup
+    PaletteGroup,
+    PaletteItemController
   },
 
   props: {

@@ -19,6 +19,8 @@
         v-model="model.thickness" />
       <div class="palette-item__label">
         <b>{{ thicknessName }}</b> stroke width factor
+        <palette-item-controller :min="0" :max="5"
+          :model="model" prop="thickness" />
       </div>
     </div>
     <div class="palette-item">
@@ -27,6 +29,8 @@
       <div class="palette-item__label">
         <b>{{ strokeModName }}</b>
         stroke modulation
+        <palette-item-controller :min="0" :max="5"
+          :model="model" prop="strokeWidthMod" />
       </div>
     </div>
     <hr />
@@ -57,6 +61,8 @@
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
       <div class="palette-item__label">
         <b>{{ tintAlphaName }}</b> opacity
+        <palette-item-controller :min="0" :max="1"
+          :model="model" prop="tintAlpha" />
       </div>
     </div>
     <hr />
@@ -100,6 +106,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 import InputColor from '@renderer/components/input/Color'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-style',
@@ -107,7 +114,8 @@ export default {
   components: {
     InputColor,
     InputRange,
-    InputSelect
+    InputSelect,
+    PaletteItemController
   },
 
   props: {

@@ -16,6 +16,7 @@
         <palette-tool :model="controls.lineTool"
           :styles="controls.styles"
           :constraints="controls.constraintGroups"
+          :controllers="controllers"
           :inputModTypes="params.inputModTypes"
           :physicsTypes="params.physicsTypes" />
       </palette-section>
@@ -144,11 +145,13 @@ $base-color: rgba(#000, 0.15);
 }
 
 .palette-item {
+  position: relative;
   padding: 6px 0;
   font-size: 1em;
   font-weight: 400;
 
   &__label {
+    position: relative;
     padding: 0 8px;
 
     > b {
@@ -162,6 +165,12 @@ $base-color: rgba(#000, 0.15);
         text-transform: uppercase;
       }
     }
+
+    .palette-item-controller {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+    }
   }
 
   > .range-slider {
@@ -174,13 +183,16 @@ $base-color: rgba(#000, 0.15);
 
 <script>
 import Colr from 'colr'
+import WebMidi from 'webmidi'
 
 import { clamp } from '@renderer/utils/math'
 
 import {
   createControlsState,
+  createControllersState,
   createControlsStaticParams
 } from '@renderer/store/modules/Palette'
+import { PaletteControllers } from '@renderer/components/PaletteControllers'
 
 import Icon from '@renderer/components/display/Icon'
 import InputText from '@renderer/components/input/Text'
@@ -220,21 +232,22 @@ export default {
   data () {
     return {
       controls: createControlsState(),
+      controllers: createControllersState(),
       params: createControlsStaticParams()
     }
   },
 
   created () {
-    this.$electron.ipcRenderer.on('message', this.handleMessage.bind(this))
-    this.$electron.ipcRenderer.on('command', this.handleCommand.bind(this))
-  },
-
-  mounted () {
     this.bindEvents()
+    this.bindMidi()
   },
 
   methods: {
     bindEvents () {
+      const { ipcRenderer } = this.$electron
+
+      ipcRenderer.on('message', this.handleMessage.bind(this))
+      ipcRenderer.on('command', this.handleCommand.bind(this))
       window.addEventListener('wheel', this.handleWheel.bind(this), false)
     },
 
@@ -287,6 +300,30 @@ export default {
             lineTool.constraintIndex + data.dir)
           break
       }
+    },
+
+    // TODO: Listen for new inputs
+    bindMidi () {
+      WebMidi.enable((err) => {
+        if (err) return
+        const { midi } = this.controllers
+        const { inputs } = WebMidi
+        midi.availableInputs = inputs || []
+      })
+    },
+
+    // TODO: Disable controller messages unless sim is running?
+    handleMidiMessage (event) {
+      const { enabled, channelValues } = this.controllers.midi
+      if (!enabled) return
+
+      const { data } = event
+      const cc = data[1]
+      const value = data[2]
+      if (channelValues[cc] == null) return
+
+      channelValues[cc] = value
+      PaletteControllers.emit('cc', cc, value)
     },
 
     sendMessage (name, data) {
@@ -397,6 +434,7 @@ export default {
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
     showViewportPanel: createModeCondition('activePalettes', 'viewport'),
+    showControllersPanel: createModeCondition('activePalettes', 'controllers'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
 
@@ -410,6 +448,18 @@ export default {
     'controls.postEffects': createStateSyncer('postEffects'),
     'controls.activePalettes.id': function (id) {
       this.syncActivePaletteMode(id)
+    },
+
+    'controllers.midi.activeInput': function (name) {
+      const prevInput = this._activeMidiInput
+      const nextInput = WebMidi.getInputByName(name)
+      if (prevInput) {
+        prevInput.removeListener('controlchange')
+      }
+      if (nextInput) {
+        this._activeMidiInput = nextInput
+        nextInput.addListener('controlchange', 'all', this.handleMidiMessage.bind(this))
+      }
     }
   }
 }

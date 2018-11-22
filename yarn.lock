@@ -9597,6 +9597,10 @@ webdriverio@^4.8.0:
     wdio-dot-reporter "~0.0.8"
     wgxpath "~1.0.0"
 
+webmidi@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/webmidi/-/webmidi-2.3.0.tgz#66e3c932eecd4a3d44b0d88e59c9621287fead1f"
+
 webpack-bundle-analyzer@^2.11.1:
   version "2.13.1"
   resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-2.13.1.tgz#07d2176c6e86c3cdce4c23e56fae2a7b6b4ad526"
