@@ -107,6 +107,19 @@
       <hr />
     </palette-group>
 
+    <palette-group persistent-controls open>
+      <h2 slot="title">LUT Transform</h2>
+      <input-checkbox slot="controls" v-model="model.lut.enabled" />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ lutFileName }}
+            <input-file accept=".png,.jpg" v-model="model.lut.textureFile" />
+          </b> texture
+        </div>
+      </div>
+    </palette-group>
+
     <palette-group persistent-controls>
       <h2 slot="title">Color Shift</h2>
       <input-checkbox slot="controls" v-model="model.colorShift.enabled" />
@@ -160,6 +173,7 @@ import {
 import { pluralize } from '@renderer/utils/word'
 
 import InputCheckbox from '@renderer/components/input/Checkbox'
+import InputFile from '@renderer/components/input/File'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteItemController from '@renderer/components/palette/ItemController'
@@ -169,6 +183,7 @@ export default {
 
   components: {
     InputCheckbox,
+    InputFile,
     InputRange,
     PaletteGroup,
     PaletteItemController
@@ -250,6 +265,14 @@ export default {
     edgesBufferScaleName () {
       const { edges } = this.model
       return `${roundToPlaces(edges.bufferScale, 2)}x`
+    },
+
+    // LUT Transform
+
+    lutFileName () {
+      const { textureFile } = this.model.lut
+      if (!textureFile) return 'Empty'
+      return textureFile.name
     },
 
     // Color Shift
