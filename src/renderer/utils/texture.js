@@ -1,25 +1,27 @@
-export function createTextureManager (regl, textureMap) {
+// TODO: Handle image load errors
+export function createTextureManager (regl) {
   const cache = {}
   const empty = regl.texture()
 
-  function getTexture (key, textureOpts = {}) {
-    if (key == null) return empty
+  function getTexture (key, src, opts = {}) {
+    if (key == null || src == null) return empty
 
     const cached = cache[key]
-    if (cached) return cached
+    if (cached && cached.src === src) return cached.texture
 
-    const descriptor = textureMap[key]
-    const texture = regl.texture(Object.assign({
-      width: descriptor.size,
-      height: descriptor.size
-    }, textureOpts))
+    const texture = regl.texture(opts)
     const image = document.createElement('img')
 
-    cache[key] = texture
-    image.src = descriptor.path
     image.onload = () => {
-      texture({data: image})
+      const { naturalWidth, naturalHeight } = image
+      texture({
+        width: naturalWidth,
+        height: naturalHeight,
+        data: image
+      })
     }
+    image.src = `file://${src}`
+    cache[key] = { src, image, texture }
 
     return texture
   }

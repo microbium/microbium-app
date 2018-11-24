@@ -107,7 +107,7 @@ export function createIOController (tasks, state) {
     },
 
     mapKeysDeep (map, src) {
-      if (typeof src !== 'object') return src
+      if (typeof src !== 'object' || src == null) return src
 
       return Object.keys(src).reduce((out, key) => {
         const mappedKey = map[key] || key

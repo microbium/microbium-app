@@ -4364,6 +4364,10 @@ glsl-inject-defines@^1.0.1, glsl-inject-defines@^1.0.3:
     glsl-token-string "^1.0.1"
     glsl-tokenizer "^2.0.2"
 
+glsl-lut@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/glsl-lut/-/glsl-lut-1.1.0.tgz#b4919a12ab71d40e5d7c2e4922839749e3dcb03e"
+
 glsl-noise@^0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/glsl-noise/-/glsl-noise-0.0.0.tgz#367745f3a33382c0eeec4cb54b7e99cfc1d7670b"

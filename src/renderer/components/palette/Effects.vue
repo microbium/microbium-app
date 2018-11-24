@@ -108,6 +108,29 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Color Transform</h2>
+      <input-checkbox slot="controls" v-model="model.lut.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.05" v-model="model.lut.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ lutFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.lut" prop="intensityFactor" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ lutFileName }}
+            <input-file accept=".png,.jpg" v-model="model.lut.textureFile" />
+          </b> texture (LUT)
+        </div>
+      </div>
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Color Shift</h2>
       <input-checkbox slot="controls" v-model="model.colorShift.enabled" />
 
@@ -160,6 +183,7 @@ import {
 import { pluralize } from '@renderer/utils/word'
 
 import InputCheckbox from '@renderer/components/input/Checkbox'
+import InputFile from '@renderer/components/input/File'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteItemController from '@renderer/components/palette/ItemController'
@@ -169,6 +193,7 @@ export default {
 
   components: {
     InputCheckbox,
+    InputFile,
     InputRange,
     PaletteGroup,
     PaletteItemController
@@ -250,6 +275,19 @@ export default {
     edgesBufferScaleName () {
       const { edges } = this.model
       return `${roundToPlaces(edges.bufferScale, 2)}x`
+    },
+
+    // LUT Transform
+
+    lutFactorName () {
+      const { lut } = this.model
+      return `${roundToPlaces(lut.intensityFactor, 2)}x`
+    },
+
+    lutFileName () {
+      const { textureFile } = this.model.lut
+      if (!textureFile) return 'Empty'
+      return textureFile.name
     },
 
     // Color Shift

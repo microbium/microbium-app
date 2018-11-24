@@ -323,6 +323,12 @@ export function createControlsState () {
         intensityFactorController: -1,
         thicknessController: -1
       },
+      lut: {
+        enabled: false,
+        intensityFactor: 1,
+        textureFile: null,
+        intensityFactorController: -1
+      },
       colorShift: {
         enabled: false,
         none: [0, 0, 0],

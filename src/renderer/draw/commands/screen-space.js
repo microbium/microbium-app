@@ -128,6 +128,8 @@ export function createDrawScreen (regl) {
       edges: regl.prop('edges'),
       edgesIntensity: regl.prop('edgesIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
+      lutIntensity: regl.prop('lutIntensity'),
+      lutTexture: regl.prop('lutTexture'),
       overlayAlpha: regl.prop('overlayAlpha'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),

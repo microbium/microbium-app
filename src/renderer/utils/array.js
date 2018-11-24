@@ -44,7 +44,7 @@ export function flatten2 (arr, Ctor = Array) {
 }
 
 export function expand2 (arr, Ctor = Array) {
-  const count = arr.length / 2
+  const count = Math.round(arr.length / 2)
   const out = new Array(count)
   for (let i = 0; i < count; i++) {
     const v = new Ctor(2)
