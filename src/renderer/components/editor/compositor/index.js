@@ -1,10 +1,8 @@
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
-import createREGL from 'regl'
 import Colr from 'colr'
 
 import { createTaskManager } from '@renderer/utils/task'
 import { createLoop } from '@renderer/utils/loop'
-import { createPostBuffers } from '@renderer/utils/fbo'
 import { debounce } from '@renderer/utils/function'
 import { range } from '@renderer/utils/array'
 import { lerp, radialPosition } from '@renderer/utils/math'
@@ -13,19 +11,11 @@ import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
 
 import {
-  createDrawBanding,
-  createDrawEdges,
-  createDrawGaussBlur,
-  createDrawRect,
-  createDrawScreen,
-  createDrawTexture,
-  createSetupDrawScreen
-} from '@renderer/draw/commands/screen-space'
-import {
   createCompositorState,
   hashRenderState
 } from '@renderer/store/modules/Editor'
 
+import { createRenderer } from './renderer'
 import { createCameras } from './cameras'
 import { createScene, createUIScene } from './scenes'
 import { createGeometryController } from './geometry'
@@ -70,8 +60,8 @@ export function mountCompositor ($el, $refs, actions) {
     'update', 'render', 'resize')
   const loop = createAnimationLoop()
   const state = createCompositorState()
-  const renderer = createRenderer()
 
+  const renderer = createRenderer(tasks, state)
   const cameras = createCameras(tasks, state, renderer)
   const scene = createScene(tasks, state, renderer)
   const sceneAltUI = createScene(tasks, state, renderer)
@@ -83,63 +73,6 @@ export function mountCompositor ($el, $refs, actions) {
   const drag = createDragController(tasks, state)
   const viewport = createViewportController(tasks, state)
   const io = createIOController(tasks, state)
-
-  // OPTIM: Investigate preserveDrawingBuffer effect on perf
-  // It's currently needed to enable full dpi canvas export
-  function createRenderer () {
-    const canvas = document.createElement('canvas')
-    const regl = createREGL({
-      canvas,
-      extensions: [
-        'ANGLE_instanced_arrays',
-        'OES_standard_derivatives',
-        'OES_element_index_uint'
-      ],
-      attributes: {
-        antialias: false,
-        preserveDrawingBuffer: true,
-        premultipliedAlpha: false,
-        alpha: false
-      }
-    })
-
-    const { resolutionMax } = state.viewport
-    const { maxRenderbufferSize } = regl.limits
-    vec2.set(resolutionMax,
-      maxRenderbufferSize, maxRenderbufferSize)
-
-    // const textures = createTextureManager(regl, TEXTURES)
-    const postBuffers = createPostBuffers(regl,
-      'full', 'fullExport', 'banding', 'edges', 'blurA', 'blurB')
-    const commands = {
-      setupDrawScreen: createSetupDrawScreen(regl),
-      drawBanding: createDrawBanding(regl),
-      drawEdges: createDrawEdges(regl),
-      drawScreen: createDrawScreen(regl),
-      drawGaussBlur: createDrawGaussBlur(regl),
-      drawRect: createDrawRect(regl),
-      drawTexture: createDrawTexture(regl)
-    }
-
-    tasks.defer((containers) => {
-      containers.scene.appendChild(canvas)
-      return Promise.resolve()
-    }, 'inject')
-
-    tasks.add((event) => {
-      const { resolution } = state.viewport
-      canvas.width = resolution[0]
-      canvas.height = resolution[1]
-    }, 'resize')
-
-    return {
-      regl,
-      canvas,
-      // textures,
-      postBuffers,
-      commands
-    }
-  }
 
   function createAnimationLoop () {
     let animationFrame = 0
@@ -176,6 +109,7 @@ export function mountCompositor ($el, $refs, actions) {
         noiseIntensity: 0,
         bandingIntensity: 0,
         edgesIntensity: 0,
+        lutIntensity: 0,
         forcePositions: []
       }
     },
@@ -217,6 +151,9 @@ export function mountCompositor ($el, $refs, actions) {
       actions.sendMessage('serialize-scene--response', data)
     },
 
+    // FIXME: Issue with `postEffects.lut.textureFile`
+    // not always getting set to `state` when available in `scene`
+    // seems to only happen in dev live-reload
     deserializeScene (data) {
       const wasRunning = state.simulation.isRunning
 
@@ -335,13 +272,14 @@ export function mountCompositor ($el, $refs, actions) {
       const { computedState } = this
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
-      const { bloom, banding, edges, colorShift, noise } = postEffects
+      const { bloom, banding, edges, lut, colorShift, noise } = postEffects
 
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
         bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
       const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
         banding.enabled && banding.intensityFactor > 0
       const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
+      const shouldRenderLut = isRunning && lut.enabled && !!lut.textureFile
 
       computedState.bloomIntensity = !shouldRenderBloom ? 0
         : (0.4 * bloom.intensityFactor)
@@ -351,6 +289,7 @@ export function mountCompositor ($el, $refs, actions) {
         : (0.6 * banding.intensityFactor)
       computedState.edgesIntensity = !shouldRenderEdges ? 0
         : (0.25 * edges.intensityFactor)
+      computedState.lutIntensity = !shouldRenderLut ? 0 : lut.intensityFactor
       computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
     },
 
@@ -766,13 +705,15 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneComposite (tick, fbo) {
-      const { postBuffers } = renderer
+      const { postBuffers, textures } = renderer
       const { drawScreen } = renderer.commands
       const { overlay } = state.controls.viewport
+      const { lut } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
         shouldRenderBloom, shouldRenderBanding,
-        bloomIntensity, bandingIntensity, edgesIntensity, colorShift, noiseIntensity
+        bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity,
+        colorShift, noiseIntensity
       } = this.computedState
 
       timer.begin('renderComposite')
@@ -790,6 +731,8 @@ export function mountCompositor ($el, $refs, actions) {
         edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
         edgesIntensity,
         noiseIntensity,
+        lutIntensity,
+        lutTexture: textures.get('lut', lut.textureFile && lut.textureFile.path),
         overlayAlpha: overlay.alphaFactor,
         tick,
         viewOffset,

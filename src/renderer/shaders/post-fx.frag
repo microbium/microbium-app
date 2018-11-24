@@ -8,11 +8,13 @@ uniform sampler2D color;
 uniform sampler2D bloom;
 uniform sampler2D banding;
 uniform sampler2D edges;
+uniform sampler2D lutTexture;
 
 uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
 uniform float noiseIntensity;
+uniform float lutIntensity;
 uniform float overlayAlpha;
 uniform vec3 colorShift; // [hue, saturation, value]
 
@@ -32,7 +34,9 @@ varying vec2 uv;
 #pragma glslify: blendSubtract = require(glsl-blend/subtract)
 #pragma glslify: blendSoftLight = require(glsl-blend/soft-light)
 
+#pragma glslify: lutTransform = require(glsl-lut)
 #pragma glslify: random = require(glsl-random)
+
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
 #pragma glslify: brightnessContrast = require(./color/brightness-contrast)
@@ -148,6 +152,11 @@ void main() {
   outColor = blendColorBurn(
     outColor + outColor * noiseColor + originDashColor - forceDashColor,
     vignetteColor);
+
+  // Apply LUT transform
+  if (lutIntensity > 0.0) {
+    outColor = mix(outColor, lutTransform(vec4(outColor, 1.0), lutTexture).rgb, lutIntensity);
+  }
 
   gl_FragColor = vec4(outColor, 1.0);
 }

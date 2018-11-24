@@ -374,7 +374,8 @@ function createMainWindow () {
     height: transform.height,
     show: true,
     webPreferences: {
-      devTools: DEBUG_MAIN
+      devTools: DEBUG_MAIN,
+      webSecurity: !IS_DEV
     }
   })
 

@@ -39,6 +39,7 @@ export default {
   },
 
   created () {
+    console.log(this.value)
     this.actualValue = this.value
   },
 
@@ -54,6 +55,7 @@ export default {
 
   watch: {
     value () {
+      console.log('input-file.watch.value', this.value)
       this.actualValue = this.value
     }
   }

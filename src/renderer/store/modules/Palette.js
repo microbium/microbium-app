@@ -325,7 +325,9 @@ export function createControlsState () {
       },
       lut: {
         enabled: false,
-        textureFile: null
+        intensityFactor: 1,
+        textureFile: null,
+        intensityFactorController: -1
       },
       colorShift: {
         enabled: false,

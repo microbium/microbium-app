@@ -107,15 +107,25 @@
       <hr />
     </palette-group>
 
-    <palette-group persistent-controls open>
-      <h2 slot="title">LUT Transform</h2>
+    <palette-group persistent-controls>
+      <h2 slot="title">Color Transform</h2>
       <input-checkbox slot="controls" v-model="model.lut.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.05" v-model="model.lut.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ lutFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.lut" prop="intensityFactor" />
+        </div>
+      </div>
+      <hr />
 
       <div class="palette-item">
         <div class="palette-item__label">
           <b>{{ lutFileName }}
             <input-file accept=".png,.jpg" v-model="model.lut.textureFile" />
-          </b> texture
+          </b> texture (LUT)
         </div>
       </div>
     </palette-group>
@@ -268,6 +278,11 @@ export default {
     },
 
     // LUT Transform
+
+    lutFactorName () {
+      const { lut } = this.model
+      return `${roundToPlaces(lut.intensityFactor, 2)}x`
+    },
 
     lutFileName () {
       const { textureFile } = this.model.lut
