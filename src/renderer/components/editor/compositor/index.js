@@ -505,13 +505,13 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderLines ({ contexts }, { polarAlpha, renderMirror }) {
-      const { tick } = state.simulation
+      const { tick, isRunning } = state.simulation
       const { polarIterations, mirror } = state.controls.modifiers
       const { styles, alphaFunctions } = state.controls
 
       const model = mat4.identity(scratchMat4A)
       const polarStep = Math.PI * 2 / polarIterations
-      const mirrorAlpha = mirror.intensityFactor
+      const mirrorAlpha = mirror.intensityFactor * (isRunning ? 1 : 0.2)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       const angles = range(polarIterations)
