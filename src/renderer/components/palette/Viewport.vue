@@ -1,6 +1,4 @@
 <template>
-  <!-- TODO: Add UI to disable or lessen opacity of overlay elements
-    (polar grid, concentric lines, force indicators) -->
   <div class="palette-viewport">
     <palette-group open>
       <h2 slot="title">Background</h2>
