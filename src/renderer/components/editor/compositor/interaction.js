@@ -1,4 +1,5 @@
 import { vec2 } from 'gl-matrix'
+import { clamp } from '@renderer/utils/math'
 
 export function createSeekController (tasks, state) {
   const { requestSync } = tasks
@@ -43,8 +44,19 @@ export function createSeekController (tasks, state) {
         move, stateSeek.maxDistance / scale, lastOffset, ignoreIndex,
         proximateIndices, proximateDistance)
       stateSeek.index = close ? close.index : null
+    },
+
+    wheelOffset (event) {
+      const { deltaY } = event
+      const stateSeek = state.seek
+      stateSeek.wheelOffset = clamp(-1, 1,
+        stateSeek.wheelOffset + deltaY * 0.001)
     }
   }
+
+  tasks.registerResponders([
+    'wheelOffset'
+  ], seek, 'seek')
 
   return seek
 }
@@ -225,11 +237,43 @@ export function createDragController (tasks, state) {
 
     cancelDraw () {
       state.drag.isDrawing = false
+    },
+
+    wheelPan (event) {
+      const { deltaX, deltaY } = event
+      const { panOffset } = state.drag
+      const { offset, scale } = state.viewport
+
+      vec2.set(panOffset, -deltaX, -deltaY)
+      vec2.scale(panOffset, panOffset, scale)
+
+      vec2.add(offset, offset, panOffset)
+      vec2.set(panOffset, 0, 0)
+    },
+
+    wheelZoom (event) {
+      const { deltaY } = event
+      const { panOffset } = state.drag
+      const { offset, size, scale } = state.viewport
+
+      const diff = -deltaY * scale * 2
+      const nextZoomOffset = diff / (size[1] / scale * 0.4)
+
+      vec2.copy(panOffset, offset)
+      vec2.scale(panOffset, panOffset, nextZoomOffset / scale)
+      state.drag.zoomOffset = nextZoomOffset
+
+      state.viewport.scale = scale + nextZoomOffset
+      state.drag.zoomOffset = 0
+      vec2.add(offset, offset, panOffset)
+      vec2.set(panOffset, 0, 0)
     }
   }
 
   tasks.registerResponders([
-    'cancelDraw'
+    'cancelDraw',
+    'wheelPan',
+    'wheelZoom'
   ], drag, 'drag')
 
   return drag

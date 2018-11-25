@@ -1,5 +1,4 @@
 import { vec2 } from 'gl-matrix'
-import { clamp } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 
 export function createViewportController (tasks, state) {
@@ -41,12 +40,9 @@ export function createViewportController (tasks, state) {
     },
 
     wheel (event) {
-      const { deltaY } = event
-      const stateSeek = state.seek
-
-      stateSeek.wheelOffset = clamp(-1, 1,
-        stateSeek.wheelOffset + deltaY * 0.001)
-
+      if (event.shiftKey) tasks.requestSync('seek.wheelOffset', event)
+      else if (event.ctrlKey) tasks.requestSync('drag.wheelZoom', event)
+      else tasks.requestSync('drag.wheelPan', event)
       event.preventDefault()
     },
 
