@@ -83,8 +83,14 @@
 
     <!-- Controller -->
     <palette-group persistent-controls>
-      <h2 slot="title">Controller (Midi)</h2>
+      <h2 slot="title">Controller</h2>
       <input-checkbox slot="controls" v-model="controllers.midi.enabled" />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>MIDI</b> interface
+        </div>
+      </div>
 
       <div class="palette-item">
         <div class="palette-item__label">
@@ -97,6 +103,7 @@
           </b> active input
         </div>
       </div>
+      <hr />
     </palette-group>
   </div>
 </template>
