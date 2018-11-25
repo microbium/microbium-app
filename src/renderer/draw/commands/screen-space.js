@@ -131,6 +131,7 @@ export function createDrawScreen (regl) {
       lutIntensity: regl.prop('lutIntensity'),
       lutTexture: regl.prop('lutTexture'),
       overlayAlpha: regl.prop('overlayAlpha'),
+      vignetteParams: regl.prop('vignetteParams'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset'),

@@ -109,6 +109,7 @@ export function mountCompositor ($el, $refs, actions) {
         noiseIntensity: 0,
         bandingIntensity: 0,
         edgesIntensity: 0,
+        vignetteParams: vec3.create(),
         lutIntensity: 0,
         forcePositions: []
       }
@@ -272,7 +273,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { computedState } = this
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
-      const { bloom, banding, edges, lut, colorShift, noise } = postEffects
+      const { bloom, banding, edges, lut, vignette, colorShift, noise } = postEffects
 
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
         bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
@@ -290,6 +291,11 @@ export function mountCompositor ($el, $refs, actions) {
       computedState.edgesIntensity = !shouldRenderEdges ? 0
         : (0.25 * edges.intensityFactor)
       computedState.lutIntensity = !shouldRenderLut ? 0 : lut.intensityFactor
+
+      vec3.set(computedState.vignetteParams,
+        vignette.radius, vignette.smoothness,
+        vignette.enabled ? vignette.intensityFactor : 0)
+
       computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
     },
 
@@ -713,7 +719,7 @@ export function mountCompositor ($el, $refs, actions) {
         viewResolution, viewOffset, viewScale, forcePositions,
         shouldRenderBloom, shouldRenderBanding,
         bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity,
-        colorShift, noiseIntensity
+        vignetteParams, colorShift, noiseIntensity
       } = this.computedState
 
       timer.begin('renderComposite')
@@ -734,6 +740,7 @@ export function mountCompositor ($el, $refs, actions) {
         lutIntensity,
         lutTexture: textures.get('lut', lut.textureFile && lut.textureFile.path),
         overlayAlpha: overlay.alphaFactor,
+        vignetteParams,
         tick,
         viewOffset,
         viewResolution,

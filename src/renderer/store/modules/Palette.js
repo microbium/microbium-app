@@ -329,6 +329,15 @@ export function createControlsState () {
         textureFile: null,
         intensityFactorController: -1
       },
+      vignette: {
+        enabled: true,
+        intensityFactor: 1,
+        radius: 0.7,
+        smoothness: 0.4,
+        intensityFactorController: -1,
+        radiusController: -1,
+        smoothnessController: -1
+      },
       colorShift: {
         enabled: false,
         none: [0, 0, 0],

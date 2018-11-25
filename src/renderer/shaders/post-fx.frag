@@ -16,6 +16,7 @@ uniform float edgesIntensity;
 uniform float noiseIntensity;
 uniform float lutIntensity;
 uniform float overlayAlpha;
+uniform vec3 vignetteParams; // [radius, smoothness, intensity]
 uniform vec3 colorShift; // [hue, saturation, value]
 
 uniform float tick;
@@ -144,7 +145,9 @@ void main() {
   }
 
   // Vignette
-  vec3 vignetteColor = vec3(vignette(uv, 0.7, 0.4));
+  vec3 vignetteColor = vec3(mix(1.0,
+    vignette(uv, vignetteParams.x, vignetteParams.y),
+    vignetteParams.z));
 
   // ..................................................
 

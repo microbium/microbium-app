@@ -156,6 +156,37 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Vignette</h2>
+      <input-checkbox slot="controls" v-model="model.vignette.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.vignette.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ vignetteFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="3"
+            :model="model.vignette" prop="intensityFactor" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1.0" step="0.01" v-model="model.vignette.radius" />
+        <div class="palette-item__label">
+          <b>{{ vignetteRadiusName }}</b> radius
+          <palette-item-controller :min="0" :max="3"
+            :model="model.vignette" prop="radius" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.vignette.smoothness" />
+        <div class="palette-item__label">
+          <b>{{ vignetteSmoothnessName }}</b> smoothness
+          <palette-item-controller :min="0" :max="3"
+            :model="model.vignette" prop="smoothness" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Noise</h2>
       <input-checkbox slot="controls" v-model="model.noise.enabled" />
 
@@ -305,6 +336,23 @@ export default {
     colorShiftValName () {
       const { colorShift } = this.model
       return `${roundToPlaces(colorShift.hsl[2] * 100, 1)}%`
+    },
+
+    // Vignette
+
+    vignetteFactorName () {
+      const { vignette } = this.model
+      return `${roundToPlaces(vignette.intensityFactor, 2)}x`
+    },
+
+    vignetteRadiusName () {
+      const { vignette } = this.model
+      return `${roundToPlaces(vignette.radius * 100, 0)}%`
+    },
+
+    vignetteSmoothnessName () {
+      const { vignette } = this.model
+      return `${roundToPlaces(vignette.smoothness * 100, 0)}%`
     }
   }
 }
