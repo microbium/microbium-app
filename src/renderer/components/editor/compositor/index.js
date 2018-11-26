@@ -213,6 +213,7 @@ export function mountCompositor ($el, $refs, actions) {
 
     update (tick) {
       const { isRunning, wasRunning, isPaused } = state.simulation
+      const { speed } = state.controls.simulation
 
       timer.reset()
       this.updateComputedPosition()
@@ -229,7 +230,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (isRunning && !isPaused) {
         timer.begin('updatePhysics')
         state.simulation.tick++
-        simulation.update(tick)
+        simulation.update(tick, speed)
         timer.end('updatePhysics')
       }
       if (isRunning && !wasRunning) {

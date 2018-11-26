@@ -31,6 +31,11 @@ export function createControlsState () {
       styleIndex: 0
     },
 
+    simulation: {
+      speed: 1,
+      speedController: -1
+    },
+
     styles: [
       {
         index: 0,

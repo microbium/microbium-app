@@ -38,6 +38,7 @@
 
       <palette-section :hidden="!showForcesPanels">
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
+        <palette-simulation :model="controls.simulation" />
         <palette-force-list
           :list="controls.forces"
           :forceTypes="params.forceTypes"
@@ -201,6 +202,7 @@ import PaletteModes from '@renderer/components/palette/Modes'
 import PaletteSection from '@renderer/components/palette/Section'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteTool from '@renderer/components/palette/Tool'
+import PaletteSimulation from '@renderer/components/palette/Simulation'
 import PaletteForceList from '@renderer/components/palette/ForceList'
 import PaletteConstraintList from '@renderer/components/palette/ConstraintList'
 import PaletteStyleList from '@renderer/components/palette/StyleList'
@@ -221,6 +223,7 @@ export default {
     PaletteEffects,
     PaletteForceList,
     PaletteSection,
+    PaletteSimulation,
     PaletteGroup,
     PaletteModes,
     PaletteModifiers,
@@ -441,6 +444,7 @@ export default {
   watch: {
     'controls.lineTool': createStateSyncer('lineTool'),
     'controls.styles': createStateSyncer('styles'),
+    'controls.simulation': createStateSyncer('simulation'),
     'controls.forces': createStateSyncer('forces'),
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.modifiers': createStateSyncer('modifiers'),

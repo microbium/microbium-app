@@ -23,12 +23,12 @@ export const PALETTE_TYPES = [
     name: 'Style Layers'
   },
   {
-    id: 'constraints',
-    name: 'Constraint Groups'
+    id: 'forces',
+    name: 'Simulation / Forces'
   },
   {
-    id: 'forces',
-    name: 'Simulation Forces'
+    id: 'constraints',
+    name: 'Constraint Groups'
   },
   {
     id: 'viewport',
