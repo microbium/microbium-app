@@ -44,11 +44,13 @@ export function createSimulationController (tasks, state, renderer) {
 
     createFromGeometry () {
       const { constraintGroups, forces, styles } = state.controls
+      const { iterations } = state.controls.simulation
       const { segments, vertices } = state.geometry
 
+      // TODO: Update system iterations on controls change
       // Initialize particle system positions and weights
       const count = vertices.length
-      const system = ParticleSystem.create(count, 2)
+      const system = ParticleSystem.create(count, iterations)
       simulation.initializeParticles(system, vertices, segments, styles)
 
       const { stickGroups, engineGroups } = simulation

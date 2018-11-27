@@ -32,6 +32,7 @@ export function createControlsState () {
     },
 
     simulation: {
+      iterations: 3,
       speed: 1,
       speedController: -1
     },
