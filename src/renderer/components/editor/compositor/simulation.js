@@ -2,14 +2,14 @@ import { vec2 } from 'gl-matrix'
 
 import {
   BoundingPlaneConstraint,
-  PointConstraint,
-  ParticleSystem
+  PointConstraint
 } from 'particulate'
 
 import { distance2 } from '@renderer/utils/array'
 import { mapLinear, radialPosition } from '@renderer/utils/math'
 import { logger } from '@renderer/utils/logger'
 
+import { ParticleSystem } from '@renderer/physics/systems/ParticleSystem'
 import { ViscousDistanceConstraint } from '@renderer/physics/constraints/ViscousDistanceConstraint'
 import { RepulsorForce } from '@renderer/physics/forces/RepulsorForce'
 import { RotatorForce } from '@renderer/physics/forces/RotatorForce'
@@ -163,9 +163,10 @@ export function createSimulationController (tasks, state, renderer) {
     },
 
     createDynamicSegment (system, segment, config, group) {
-      const { slipTolerance } = config
       const { lineLengths, isComplete } = segment
       if (!isComplete) return
+
+      const { slipTolerance, typeIndex } = config
       const lines = simulation.expandIndicesToLines(segment.indices)
       const constraints = []
 
@@ -174,7 +175,15 @@ export function createSimulationController (tasks, state, renderer) {
         const constraint = ViscousDistanceConstraint.create(
           [distance * (1 - slipTolerance), distance], line)
 
-        system.addConstraint(constraint)
+        switch (typeIndex) {
+          case 2:
+            system.addEngineConstraint(constraint)
+            break
+          default:
+            system.addConstraint(constraint)
+            break
+        }
+
         constraints.push({
           distance,
           constraint
