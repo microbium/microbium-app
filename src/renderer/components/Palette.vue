@@ -193,7 +193,7 @@ import {
   createControllersState,
   createControlsStaticParams
 } from '@renderer/store/modules/Palette'
-import { PaletteControllers } from '@renderer/components/PaletteControllers'
+import { PaletteControllers } from '@renderer/store/hubs/PaletteControllers'
 
 import Icon from '@renderer/components/display/Icon'
 import InputText from '@renderer/components/input/Text'

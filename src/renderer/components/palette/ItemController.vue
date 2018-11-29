@@ -40,7 +40,7 @@
 <script>
 import { range } from '@renderer/utils/array'
 import { mapLinear } from '@renderer/utils/math'
-import { PaletteControllers } from '@renderer/components/PaletteControllers'
+import { PaletteControllers } from '@renderer/store/hubs/PaletteControllers'
 import InputSelect from '@renderer/components/input/Select'
 
 const CHANNELS = [{
