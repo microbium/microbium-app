@@ -178,6 +178,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (wasRunning) simulation.toggle()
     },
 
+    // Message intercepted by Editor and saved to image file
     saveFrameData ({ path }) {
       logger.time('save frame data')
       const { regl, postBuffers } = renderer

@@ -134,7 +134,7 @@
 
 <script>
 import { timer } from '@renderer/utils/timer'
-import { mountCompositor } from './compositor/index'
+import { mountCompositor } from '@renderer/core/'
 
 // import { createTextureManager } from '@renderer/utils/texture'
 const DEBUG_RENDER_HASH = false
