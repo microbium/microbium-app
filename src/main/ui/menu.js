@@ -67,8 +67,7 @@ export function createMenuTemplate (app, actions) {
               }
             }
           ]
-        }
-        /*
+        },
         {type: 'separator'},
         {
           id: 'start-screen-recording',
@@ -86,7 +85,6 @@ export function createMenuTemplate (app, actions) {
             actions.stopScreenRecording()
           }
         }
-        */
       ]
     },
     {

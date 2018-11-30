@@ -92,9 +92,11 @@
   dependencies:
     commander "^2.15.1"
 
-"@jpweeks/electron-recorder@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@jpweeks/electron-recorder/-/electron-recorder-1.1.0.tgz#7cac6a3c993324915ffb7c2d2777e4410d7c8bbb"
+"@microbium/electron-recorder@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@microbium/electron-recorder/-/electron-recorder-3.0.0.tgz#ff33f052a683344c412470da42d123aeeb3f00a3"
+  dependencies:
+    ffmpeg-static "^2.4.0"
 
 "@microbium/regl@^1.3.71":
   version "1.3.71"
@@ -3868,6 +3870,10 @@ fd-slicer@~1.0.1:
   resolved "https://registry.yarnpkg.com/fd-slicer/-/fd-slicer-1.0.1.tgz#8b5bcbd9ec327c5041bf9ab023fd6750f1177e65"
   dependencies:
     pend "~1.2.0"
+
+ffmpeg-static@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/ffmpeg-static/-/ffmpeg-static-2.4.0.tgz#eb3a248849943d493c2a311c0e5e45a06259103a"
 
 figures@^1.4.0:
   version "1.7.0"

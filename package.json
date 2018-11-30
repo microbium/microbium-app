@@ -63,7 +63,7 @@
     }
   },
   "dependencies": {
-    "@jpweeks/electron-recorder": "^1.1.0",
+    "@microbium/electron-recorder": "^3.0.0",
     "@microbium/regl": "^1.3.71",
     "cardinal-spline": "^0.0.1",
     "colr": "^1.2.2",

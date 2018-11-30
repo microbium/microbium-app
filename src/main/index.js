@@ -11,7 +11,7 @@ import {
 } from 'electron'
 import Store from 'electron-store'
 import log from 'electron-log'
-import createVideoRecorder from '@jpweeks/electron-recorder'
+import createVideoRecorder from '@microbium/electron-recorder'
 
 import {
   readFile,
@@ -636,13 +636,12 @@ function startWindowScreenRecording (name) {
       new Error(`window ${name} does not exist or recording has started`))
   }
 
+  // TODO: Investigate fps / video playback speed issues
+  // Maybe sync compositor animation loop with encoding frame rate
   const output = pathJoin(dirname(store.path), 'temp-output.mov')
   const video = createVideoRecorder(win, {
-    // FIXME: Path is wrong in built app
-    ffmpeg: '/usr/local/bin/ffmpeg',
-    fps: 24,
-    quality: 100,
-    format: 'mov',
+    fps: 20,
+    crf: 18,
     output
   })
   const recording = activeRecordings[name] = {
@@ -653,7 +652,6 @@ function startWindowScreenRecording (name) {
 
   function frame () {
     if (recording.isRecording) video.frame(frame)
-    else recording.video.end()
   }
   frame()
 
@@ -671,7 +669,11 @@ function stopWindowScreenRecording (name) {
   recording.isRecording = false
   activeRecordings[name] = null
 
-  return Promise.resolve(recording)
+  return new Promise((resolve) => {
+    recording.video.end(() => {
+      resolve(recording)
+    })
+  })
 }
 
 function saveScreenRecording (recording, fileName) {
