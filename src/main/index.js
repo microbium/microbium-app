@@ -292,8 +292,8 @@ function createAppActions () {
         {action: 'SET_ACTIVE_PALETTE', id})
     },
 
-    setAspectRatio (aspect) {
-      setWindowAspectRatio('main', aspect)
+    setAspectRatio (aspectName) {
+      setWindowAspectRatio('main', aspectName)
     },
 
     reportIssue () {
@@ -388,6 +388,10 @@ function createMainWindow () {
   setMenuState('create-scene', 'enabled', false)
   setMenuState('revert-scene', 'enabled', true)
 
+  restoreWindowPosition('main')
+  restoreWindowAspect('main')
+  restoreWindowPosition('palette')
+
   main.setTouchBar(appTouchBars.editor)
   main.loadURL(mainURL)
   onWindowFocus()
@@ -396,6 +400,11 @@ function createMainWindow () {
   main.on('blur', onWindowBlur)
   ipcMain.on('main-message', onMainMessage)
   ipcMain.on('main+menu-message', onMainMessage)
+
+  main.on('close', () => {
+    storeWindowPosition('main')
+    storeWindowPosition('palette')
+  })
 
   main.on('closed', () => {
     ipcMain.removeListener('main-message', onMainMessage)
@@ -507,8 +516,8 @@ function getDisplaySize () {
 function createStartWindows () {
   createMenu()
   createTouchBar()
-  createMainWindow()
   createPaletteWindow()
+  createMainWindow()
   restoreLastSession()
 }
 
@@ -518,6 +527,33 @@ function toggleWindow (name) {
 
   if (win.isVisible()) win.hide()
   else win.showInactive()
+}
+
+function storeWindowPosition (name) {
+  const win = appWindows[name]
+  if (!win) return
+
+  const position = win.getPosition()
+  const size = win.getSize()
+
+  store.set(`window.${name}.position`, {
+    x: position[0],
+    y: position[1],
+    width: size[0],
+    height: size[1]
+  })
+}
+
+function restoreWindowPosition (name) {
+  const win = appWindows[name]
+  if (!win) return
+
+  const state = store.get(`window.${name}.position`)
+  if (!state) return
+
+  const { x, y, width, height } = state
+  win.setPosition(x, y)
+  win.setSize(width, height)
 }
 
 function setWindowFilePath (name, fullPath) {
@@ -533,13 +569,23 @@ function setWindowFilePath (name, fullPath) {
   win.setRepresentedFilename(fullPath)
 }
 
+const ASPECT_RATIOS = {
+  '0': 0,
+  '1:1': 1,
+  '4:5': 4 / 5,
+  '16:9': 16 / 9
+}
+
 // TODO: Ensure resized window fits within screen
-function setWindowAspectRatio (name, aspect) {
+function setWindowAspectRatio (name, aspectName) {
   const win = appWindows[name]
   if (!win) return
 
-  if (aspect === 0) {
-    win.setAspectRatio(aspect)
+  const aspect = ASPECT_RATIOS[aspectName]
+  store.set(`window.${name}.aspect`, aspectName)
+
+  if (aspectName === '0') {
+    win.setAspectRatio(0)
     return
   }
 
@@ -549,6 +595,17 @@ function setWindowAspectRatio (name, aspect) {
 
   win.setSize(targetWidth, targetHeight)
   win.setAspectRatio(aspect)
+}
+
+function restoreWindowAspect (name) {
+  const win = appWindows[name]
+  if (!win) return
+
+  const aspectName = store.get(`window.${name}.aspect`) || '0'
+  const aspect = ASPECT_RATIOS[aspectName]
+
+  win.setAspectRatio(aspect)
+  setMenuState(`aspect-ratio-${aspectName}`, 'checked', true)
 }
 
 function sendWindowMessage (name, messageKey, messageData) {

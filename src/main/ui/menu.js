@@ -233,31 +233,35 @@ export function createMenuTemplate (app, actions) {
           label: 'Aspect Ratio',
           submenu: [
             {
+              id: 'aspect-ratio-0',
               label: 'None',
               type: 'radio',
               click () {
-                actions.setAspectRatio(0)
+                actions.setAspectRatio('0')
               }
             },
             {
+              id: 'aspect-ratio-1:1',
               label: '1:1',
               type: 'radio',
               click () {
-                actions.setAspectRatio(1)
+                actions.setAspectRatio('1:1')
               }
             },
             {
+              id: 'aspect-ratio-4:5',
               label: '4:5',
               type: 'radio',
               click () {
-                actions.setAspectRatio(4 / 5)
+                actions.setAspectRatio('4:5')
               }
             },
             {
+              id: 'aspect-ratio-16:9',
               label: '16:9',
               type: 'radio',
               click () {
-                actions.setAspectRatio(16 / 9)
+                actions.setAspectRatio('16:9')
               }
             }
           ]
