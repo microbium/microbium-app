@@ -75,6 +75,7 @@ const paletteVisibility = {
 }
 const paletteState = createControlsState()
 const editorState = {
+  isEdited: false,
   isSimRunning: false,
   isSimPaused: false
 }
@@ -382,6 +383,9 @@ function createMainWindow () {
   // TODO: Should probably save state in main process
   // then sync to windows .. this is fine for now
   const onMainMessage = (event, data) => {
+    if (data.type === 'UPDATE_CONTROLS') {
+      setMainEdited(true)
+    }
     sendWindowMessage('main', 'message', data)
   }
 
@@ -401,7 +405,10 @@ function createMainWindow () {
   ipcMain.on('main-message', onMainMessage)
   ipcMain.on('main+menu-message', onMainMessage)
 
-  main.on('close', () => {
+  main.on('close', (event) => {
+    if (!confirmShouldCloseWindow(main)) {
+      event.preventDefault()
+    }
     storeWindowPosition('main')
     storeWindowPosition('palette')
   })
@@ -608,6 +615,12 @@ function restoreWindowAspect (name) {
   setMenuState(`aspect-ratio-${aspectName}`, 'checked', true)
 }
 
+function setMainEdited (isEdited) {
+  const { main } = appWindows
+  editorState.isEdited = isEdited
+  if (main) main.setDocumentEdited(isEdited)
+}
+
 function sendWindowMessage (name, messageKey, messageData) {
   const win = appWindows[name]
   if (!win) return
@@ -628,6 +641,19 @@ function requestWindowResponse (name, messageKey, messageData) {
   })
 }
 
+// TODO: Track if changes have been made to geometry since last save
+// Currently just tracking controls changes
+function confirmShouldCloseWindow (win) {
+  if (!editorState.isEdited) return true
+  const choice = dialog.showMessageBox(win, {
+    type: 'question',
+    buttons: ['OK', 'Cancel'],
+    defaultId: 1,
+    message: 'Close scene and lose unsaved changes?'
+  })
+  return choice === 0
+}
+
 // ------------------------------------------------------------
 // Scene Persistence
 // -----------------
@@ -640,6 +666,7 @@ function openSceneFile (path) {
       setMenuState('revert-scene', 'enabled', true)
       setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
+      setMainEdited(false)
       sendWindowMessage('main', 'deserialize-scene', data)
     })
     .catch((err) => {
@@ -654,6 +681,7 @@ function saveSceneFile (path) {
     .then((buf) => writeFile(path, buf))
     .then(() => {
       setWindowFilePath('main', path)
+      setMainEdited(false)
       console.log(`Saved scene to ${path}.`)
     })
     .catch((err) => {
