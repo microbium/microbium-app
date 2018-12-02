@@ -58,8 +58,8 @@ export function mountCompositor ($el, $refs, actions) {
   const tasks = createTaskManager(
     'inject', 'syncState',
     'update', 'render', 'resize')
-  const loop = createAnimationLoop()
   const state = createCompositorState()
+  const loop = createAnimationLoop()
 
   const renderer = createRenderer(tasks, state)
   const cameras = createCameras(tasks, state, renderer)
@@ -75,10 +75,23 @@ export function mountCompositor ($el, $refs, actions) {
   const io = createIOController(tasks, state)
 
   function createAnimationLoop () {
+    const { recording } = state
     let animationFrame = 0
-    return createLoop(null,
-      () => tasks.run('update', animationFrame++),
-      () => tasks.run('render', animationFrame),
+    const looper = {
+      sync () {
+        animationFrame = recording.isActive ? recording.tick : animationFrame + 1
+        return animationFrame
+      },
+      update () {
+        tasks.run('update', animationFrame)
+      },
+      render () {
+        tasks.run('render', animationFrame)
+      }
+    }
+
+    return createLoop(looper,
+      'sync', 'update', 'render',
       (1 / 60 * 1000))
   }
 

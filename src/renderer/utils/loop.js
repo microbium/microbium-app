@@ -1,5 +1,6 @@
-export function createLoop (context_, update_, render_, delta) {
+export function createLoop (context_, sync_, update_, render_, delta) {
   const instance = {}
+  const sync = context_ ? context_[sync_] : sync_
   const update = context_ ? context_[update_] : update_
   const render = context_ ? context_[render_] : render_
   const context = context_ || instance
@@ -7,6 +8,9 @@ export function createLoop (context_, update_, render_, delta) {
   const targetDelta = delta || (1 / 60 * 1000)
   const maxDelta = targetDelta
   let stepTime = 0
+
+  let lastTick = 0
+  let tick = 0
 
   let isLooping = false
   let lastTime
@@ -24,7 +28,9 @@ export function createLoop (context_, update_, render_, delta) {
       update.call(context, targetDelta)
       steps--
     }
+  }
 
+  function renderStep (delta) {
     const stepProgress = stepTime / targetDelta
     render.call(context, targetDelta, stepProgress)
   }
@@ -34,10 +40,16 @@ export function createLoop (context_, update_, render_, delta) {
     const time = Date.now()
     const delta = Math.min(maxDelta, time - lastTime)
 
-    instance.didUpdate = false
-    animateStep(delta)
+    tick = sync(time, delta)
+    if (tick !== lastTick) {
+      instance.didUpdate = false
+      animateStep(delta)
+    }
+    renderStep(delta)
+
     window.requestAnimationFrame(animate)
     lastTime = time
+    lastTick = tick
   }
 
   instance.stop = () => {

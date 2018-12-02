@@ -721,11 +721,9 @@ function startWindowScreenRecording (name) {
       new Error(`window ${name} does not exist or recording has started`))
   }
 
-  // TODO: Investigate fps / video playback speed issues
-  // Maybe sync compositor animation loop with encoding frame rate
   const output = pathJoin(dirname(store.path), 'temp-output.mov')
   const video = createVideoRecorder(win, {
-    fps: 20,
+    fps: 24,
     crf: 18,
     output
   })
@@ -735,10 +733,18 @@ function startWindowScreenRecording (name) {
     video
   }
 
-  function frame () {
-    if (recording.isRecording) video.frame(frame)
+  let tick = 0
+  const frame = () => {
+    if (!recording.isRecording) return
+    tick++
+    sendWindowMessage(name, 'command',
+      {action: 'RECORDING_FRAME', tick})
+    video.frame(frame)
   }
-  frame()
+
+  process.nextTick(frame)
+  sendWindowMessage(name, 'command',
+    {action: 'RECORDING_START'})
 
   return Promise.resolve(recording)
 }
@@ -753,6 +759,8 @@ function stopWindowScreenRecording (name) {
 
   recording.isRecording = false
   activeRecordings[name] = null
+  sendWindowMessage(name, 'command',
+    {action: 'RECORDING_STOP'})
 
   return new Promise((resolve) => {
     recording.video.end(() => {

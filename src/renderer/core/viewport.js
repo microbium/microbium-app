@@ -86,6 +86,22 @@ export function createViewportController (tasks, state) {
       }
     },
 
+    startRecording () {
+      const { recording } = state
+      recording.isActive = true
+      recording.tick = 0
+    },
+
+    stopRecording () {
+      const { recording } = state
+      recording.isActive = false
+    },
+
+    updateRecordingFrame (tick) {
+      const { recording } = state
+      recording.tick = tick
+    },
+
     handleCommand (data) {
       switch (data.action) {
         case 'SIMULATION_TOGGLE':
@@ -104,7 +120,17 @@ export function createViewportController (tasks, state) {
         case 'GEOMETRY_DELETE_LAST_SEGMENT':
           requestSync('geometry.deleteLastSegment')
           break
-        case 'VIEWPORT_TOGGLE_STATS': viewport.toggleStats()
+        case 'VIEWPORT_TOGGLE_STATS':
+          viewport.toggleStats()
+          break
+        case 'RECORDING_START':
+          viewport.startRecording()
+          break
+        case 'RECORDING_STOP':
+          viewport.stopRecording()
+          break
+        case 'RECORDING_FRAME':
+          viewport.updateRecordingFrame(data.tick)
           break
       }
     },

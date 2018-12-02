@@ -82,6 +82,11 @@ export function createCompositorState () {
     localConstraintCount: null
   }
 
+  const recording = {
+    isActive: false,
+    tick: 0
+  }
+
   const renderer = {
     lastRenderHash: null,
     needsUpdate: false, // Force render escape hatch
@@ -102,6 +107,7 @@ export function createCompositorState () {
     input,
     geometry,
     simulation,
+    recording,
     renderer,
     controls
   }
