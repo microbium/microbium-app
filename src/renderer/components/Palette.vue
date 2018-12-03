@@ -393,9 +393,7 @@ export default {
     },
 
     close () {
-      this.sendMessage('toggle-window', {
-        key: 'palette'
-      })
+      this.sendMessage('toggle-window', {name: 'palette'})
     }
   },
 

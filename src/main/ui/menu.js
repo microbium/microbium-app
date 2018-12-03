@@ -181,6 +181,22 @@ export function createMenuTemplate (app, actions) {
         },
         {type: 'separator'},
         {
+          id: 'toolbar-on',
+          label: 'Show Toolbar',
+          enabled: false,
+          visible: false,
+          click () {
+            actions.toggleMainToolbar()
+          }
+        },
+        {
+          id: 'toolbar-off',
+          label: 'Hide Toolbar',
+          click () {
+            actions.toggleMainToolbar()
+          }
+        },
+        {
           id: 'status-on',
           label: 'Show Status',
           accelerator: 'Cmd+/',

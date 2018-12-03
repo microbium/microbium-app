@@ -217,6 +217,14 @@ function createAppActions () {
         {action: 'SIMULATION_TOGGLE_PAUSE'})
     },
 
+    toggleMainToolbar () {
+      if (appWindows.main) {
+        sendWindowMessage('main', 'command',
+          {action: 'EDITOR_TOGGLE_TOOLBAR'})
+        toggleMenuItem('toolbar')
+      }
+    },
+
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
@@ -367,7 +375,8 @@ function createMainWindow () {
   })
 
   const main = appWindows.main = new BrowserWindow({
-    titleBarStyle: 'hiddenInset',
+    // titleBarStyle: 'hiddenInset',
+    frame: false,
     backgroundColor: '#222222',
     x: transform.x,
     y: transform.y,
@@ -406,7 +415,7 @@ function createMainWindow () {
   ipcMain.on('main+menu-message', onMainMessage)
 
   main.on('close', (event) => {
-    if (!confirmShouldCloseWindow(main)) {
+    if (!IS_DEV && !confirmShouldCloseWindow(main)) {
       event.preventDefault()
     }
     storeWindowPosition('main')
@@ -536,6 +545,13 @@ function toggleWindow (name) {
   else win.showInactive()
 }
 
+function closeWindow (name) {
+  const win = appWindows[name]
+  if (!win) return
+
+  win.close()
+}
+
 function storeWindowPosition (name) {
   const win = appWindows[name]
   if (!win) return
@@ -618,7 +634,10 @@ function restoreWindowAspect (name) {
 function setMainEdited (isEdited) {
   const { main } = appWindows
   editorState.isEdited = isEdited
-  if (main) main.setDocumentEdited(isEdited)
+  if (main) {
+    main.setDocumentEdited(isEdited)
+    main.send('message', {type: 'SET_EDITED', isEdited})
+  }
 }
 
 function sendWindowMessage (name, messageKey, messageData) {
@@ -911,6 +930,10 @@ ipcMain.on('external-message', (event, data) => {
 ipcMain.on('toggle-window', (event, data) => {
   toggleWindow('palette')
   toggleMenuItem('palette')
+})
+
+ipcMain.on('close-window', (event, data) => {
+  closeWindow(data.name)
 })
 
 app.on('open-file', (event, fileName) => {

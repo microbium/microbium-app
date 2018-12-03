@@ -1,8 +1,9 @@
 <template>
   <div class="editor"
     v-on:mouseenter="mouseEnterMain">
-    <div class="editor-toolbar">
+    <div class="editor-toolbar" :class="toolbarClassNames">
       <div class="editor-toolbar__draggable"></div>
+      <div @click="close" class="editor-toolbar__close"></div>
       <div class="editor-toolbar__title" v-if="fileName && !isFullscreen">
         <span @click.meta="openFileLocation">
           {{ fileName }}
@@ -49,6 +50,7 @@
   width: 100%;
   height: 40px;
   mix-blend-mode: overlay;
+  transition: opacity 200ms;
 
   &__draggable {
     position: absolute;
@@ -69,6 +71,44 @@
     font-size: #{(14 / 13)}em;
     text-align: center;
     cursor: default;
+  }
+
+  &__close {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #fff;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #444;
+    border-radius: 50%;
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      border-radius: 50%;
+      background: #222;
+      width: 5px;
+      height: 5px;
+      opacity: 0;
+      transition: opacity 100ms;
+    }
+
+    &:hover {
+      background: #aaa;
+    }
+  }
+
+  &.hidden {
+    opacity: 0;
+  }
+
+  &.edited & {
+    &__close:before {
+      opacity: 1;
+    }
   }
 }
 </style>
@@ -101,7 +141,9 @@ export default {
       isFullscreen: false,
       hasMouse: false,
       cursorIsActive: false,
-      cursorData: null
+      cursorData: null,
+      toolbarIsHidden: false,
+      sceneIsEdited: false
     }
   },
 
@@ -112,16 +154,33 @@ export default {
 
   methods: {
     bindEvents () {
+      const { ipcRenderer } = this.$electron
+
       this.handleMessage = this.handleMessage.bind(this)
+      this.handleCommand = this.handleCommand.bind(this)
       this.resize = debounce(1 / 60, this.resize.bind(this))
+
       window.addEventListener('resize', this.resize, false)
-      this.$electron.ipcRenderer.on('message', this.handleMessage)
+      ipcRenderer.on('message', this.handleMessage)
+      ipcRenderer.on('command', this.handleCommand)
     },
 
+    // TODO: Cleanup `message` vs `command`
     handleMessage (event, data) {
       switch (data.type) {
         case 'UPDATE_FILE_PATH':
           this.updateFilePath(data)
+          break
+        case 'SET_EDITED':
+          this.sceneIsEdited = data.isEdited
+          break
+      }
+    },
+
+    handleCommand (event, data) {
+      switch (data.action) {
+        case 'EDITOR_TOGGLE_TOOLBAR':
+          this.toolbarIsHidden = !this.toolbarIsHidden
           break
       }
     },
@@ -178,10 +237,22 @@ export default {
     updateCursor (isActive, data) {
       this.cursorIsActive = isActive
       this.cursorData = data
+    },
+
+    close () {
+      this.sendMessage('close-window', {name: 'main'})
     }
   },
 
   computed: {
+    toolbarClassNames () {
+      const { toolbarIsHidden, sceneIsEdited } = this
+      return {
+        hidden: toolbarIsHidden,
+        edited: sceneIsEdited
+      }
+    },
+
     observeMessage () {
       const { ipcRenderer } = this.$electron
       return ipcRenderer.on.bind(ipcRenderer)
