@@ -241,6 +241,12 @@ export default {
   },
 
   created () {
+    // NOTE: Race condition with updating controls on app startup
+    this._isSettingUp = true
+    setTimeout(() => {
+      this._isSettingUp = false
+    }, 1)
+
     this.bindEvents()
     this.bindMidi()
   },
@@ -357,7 +363,7 @@ export default {
 
     // OPTIM: Improve syncing controls
     syncControls (group, value) {
-      if (this._mainDidUpdateControls) return
+      if (this._mainDidUpdateControls || this._isSettingUp) return
       const target = this._menuDidUpdateControls ? 'main' : 'main+menu'
       this.sendMessage(`${target}-message`, {
         type: 'UPDATE_CONTROLS',
