@@ -271,6 +271,7 @@ export function createSimulationController (tasks, state, renderer) {
 
     // Update
 
+    // TODO: Sync simulation iterations (from controls)
     update (tick, speed) {
       simulation.updateEngines(speed)
       simulation.updateForces(speed)
