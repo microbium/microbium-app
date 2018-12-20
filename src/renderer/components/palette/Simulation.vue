@@ -34,6 +34,7 @@ import {
 
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-simulation',
@@ -44,7 +45,8 @@ export default {
 
   components: {
     InputRange,
-    PaletteGroup
+    PaletteGroup,
+    PaletteItemController
   },
 
   computed: {
