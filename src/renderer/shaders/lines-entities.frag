@@ -8,11 +8,12 @@ uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
 uniform float tick;
 
-// uniform sampler2D diffuseMap;
-// uniform sampler2D alphaMap;
 uniform int dashFunction;
+uniform int useAlphaMap;
+uniform sampler2D alphaMap;
+
 // uniform int useDiffuseMap;
-// uniform int useAlphaMap;
+// uniform sampler2D diffuseMap;
 // uniform int useScreenTintFunc;
 
 varying vec4 vColor;
@@ -51,9 +52,9 @@ void main() {
   //   outColor *= vec3(coord.x, 0.6 - distance(coord, vec2(0.5)), coord.y);
   // }
 
-  // if (useAlphaMap == 1) {
-  //   outAlpha *= sampleAlphaMap(udo, alphaMap);
-  // }
+  if (useAlphaMap == 1) {
+    outAlpha *= sampleAlphaMap(udo, alphaMap);
+  }
 
   if (dashFunction == 1) {
     outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);

@@ -57,10 +57,20 @@
         </b> tint
       </div>
     </div>
+    <hr />
+
+    <!-- Alpha -->
+    <div class="palette-item">
+      <div class="palette-item__label">
+        <b>{{ alphaMapName }}
+          <input-file accept=".png,.jpg" v-model="model.alphaMapFile" />
+        </b> alpha map
+      </div>
+    </div>
     <div class="palette-item">
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
       <div class="palette-item__label">
-        <b>{{ tintAlphaName }}</b> opacity
+        <b>{{ tintAlphaName }}</b> alpha factor
         <palette-item-controller :min="0" :max="1"
           :model="model" prop="tintAlpha" />
       </div>
@@ -104,6 +114,7 @@
 import { roundToPlaces } from '@renderer/utils/number'
 
 import InputColor from '@renderer/components/input/Color'
+import InputFile from '@renderer/components/input/File'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
 import PaletteItemController from '@renderer/components/palette/ItemController'
@@ -113,6 +124,7 @@ export default {
 
   components: {
     InputColor,
+    InputFile,
     InputRange,
     InputSelect,
     PaletteItemController
@@ -144,6 +156,12 @@ export default {
     fillAlphaFunctionName () {
       const alphaFunc = this.lineAlphaFunctions[this.model.fillAlphaFuncIndex]
       return alphaFunc.name
+    },
+
+    alphaMapName () {
+      const { alphaMapFile } = this.model
+      if (!alphaMapFile) return 'Empty'
+      return alphaMapFile.name
     },
 
     thicknessName () {

@@ -8,7 +8,7 @@ import fillsEntitiesFrag from '@renderer/shaders/fills-entities.frag'
 import linesUIFrag from '@renderer/shaders/lines-ui.frag'
 
 export function createScene (tasks, state, renderer) {
-  const { regl } = renderer
+  const { regl, textures } = renderer
 
   const blend = {
     enable: true,
@@ -28,24 +28,24 @@ export function createScene (tasks, state, renderer) {
     enable: false
   }
 
-  // const alphaMapOpts = {
-  //   min: 'nearest',
-  //   mag: 'nearest',
-  //   wrap: ['clamp', 'repeat'],
-  //   format: 'rgb'
-  // }
+  const alphaMapOpts = {
+    min: 'nearest',
+    mag: 'nearest',
+    wrap: ['clamp', 'repeat'],
+    format: 'rgb'
+  }
 
   const uniforms = {
     tick: regl.prop('tick'),
     tint: regl.prop('tint'),
-    mirror: regl.prop('mirror')
+    mirror: regl.prop('mirror'),
+    alphaMap: (params, { alphaMapPath }) => textures.get('alpha', alphaMapPath, alphaMapOpts),
+    useAlphaMap: (params, { alphaMapPath }) => (alphaMapPath == null ? 0 : 1)
 
     // FEAT: Add multiple screen space tinting functions
     // useScreenTintFunc: regl.prop('useScreenTintFunc'),
     // diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),
     // useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
-    // alphaMap: (params, { alphaMap }) => textures.get(alphaMap, alphaMapOpts),
-    // useAlphaMap: (params, { alphaMap }) => (alphaMap == null ? 0 : 1)
   }
 
   const attributes = {

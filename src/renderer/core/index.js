@@ -553,25 +553,31 @@ export function mountCompositor ($el, $refs, actions) {
           .map((v) => v / 255)
         tint.push(tintAlpha)
 
-        const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
-        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
+        const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
 
-        const mirror = vec3.set(scratchVec3A, 1, 1, 1)
+        const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
+        const lineDashFunction = lineAlphaFunc.dashFunction
+        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
+        const fillDashFunction = fillAlphaFunc.dashFunction
+        const alphaMapPath = style.alphaMapFile && style.alphaMapFile.path
 
         const params = {
-          mirror,
           angles,
           anglesAlpha,
           tick,
           model,
-          lineDashFunction: lineAlphaFunc.dashFunction,
-          fillDashFunction: fillAlphaFunc.dashFunction,
-          tint,
+
+          mirror,
           thickness,
           miterLimit,
-          adjustProjectedThickness
+          adjustProjectedThickness,
+
+          tint,
+          lineDashFunction,
+          fillDashFunction,
+          alphaMapPath
         }
 
         state.renderer.lineQuads += lines.state.cursor.quad
