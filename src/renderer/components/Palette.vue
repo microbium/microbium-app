@@ -166,12 +166,13 @@ $base-color: rgba(#000, 0.15);
         text-transform: uppercase;
       }
     }
+  }
 
-    .palette-item-controller {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-    }
+  &__controls,
+  &__label .palette-item-controller {
+    position: absolute;
+    right: 0;
+    bottom: 0;
   }
 
   > .range-slider {

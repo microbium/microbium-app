@@ -66,6 +66,9 @@
           <input-file accept=".png,.jpg" v-model="model.alphaMapFile" />
         </b> alpha map
       </div>
+      <div class="palette-item__controls">
+        <input-file-refresh v-model="model.alphaMapFile" />
+      </div>
     </div>
     <div class="palette-item">
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
@@ -76,34 +79,6 @@
       </div>
     </div>
     <hr />
-
-    <!-- FEAT: Add support for user-defined textures, improve alpha / tint mapping
-     -->
-    <!--
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ textureName }}
-          <input-select v-model="model.textureIndex">
-            <option v-for="texture in textures" :value="texture.index">
-              {{ texture.name }}
-            </option>
-          </input-select>
-        </b> tint texture
-      </div>
-    </div>
-
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ alphaTextureName }}
-          <input-select v-model="model.alphaTextureIndex">
-            <option v-for="texture in alphaTextures" :value="texture.index">
-              {{ texture.name }}
-            </option>
-          </input-select>
-        </b> alpha texture
-      </div>
-    </div>
-    -->
   </div>
 </template>
 
@@ -115,6 +90,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 
 import InputColor from '@renderer/components/input/Color'
 import InputFile from '@renderer/components/input/File'
+import InputFileRefresh from '@renderer/components/input/FileRefresh'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
 import PaletteItemController from '@renderer/components/palette/ItemController'
@@ -125,6 +101,7 @@ export default {
   components: {
     InputColor,
     InputFile,
+    InputFileRefresh,
     InputRange,
     InputSelect,
     PaletteItemController

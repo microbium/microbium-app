@@ -48,7 +48,8 @@ export default {
       if (file == null) return this.$emit('input', null)
 
       const { name, path, type } = file
-      this.$emit('input', { name, path, type })
+      const version = 0
+      this.$emit('input', { name, path, type, version })
     }
   },
 

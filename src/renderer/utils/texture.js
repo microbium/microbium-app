@@ -9,7 +9,7 @@ export function createTextureManager (regl) {
     const cached = cache[key]
     if (cached && cached.src === src) return cached.texture
 
-    const texture = regl.texture(opts)
+    const texture = (cached && cached.texture) || regl.texture(opts)
     const image = document.createElement('img')
 
     image.onload = () => {

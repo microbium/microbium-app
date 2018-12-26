@@ -95,6 +95,11 @@ export function mountCompositor ($el, $refs, actions) {
       (1 / 60 * 1000))
   }
 
+  function getVersionedPath (file) {
+    if (!(file && file.path)) return null
+    return `${file.path}?v=${file.version || 0}`
+  }
+
   // Update / Render
 
   const view = {
@@ -561,7 +566,7 @@ export function mountCompositor ($el, $refs, actions) {
         const lineDashFunction = lineAlphaFunc.dashFunction
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillDashFunction = fillAlphaFunc.dashFunction
-        const alphaMapPath = style.alphaMapFile && style.alphaMapFile.path
+        const alphaMapPath = getVersionedPath(style.alphaMapFile)
 
         const params = {
           angles,
