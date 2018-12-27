@@ -1,5 +1,7 @@
 <template>
-  <label class="input-file-refresh" @click="refresh" />
+  <label class="input-file-refresh" @click="refresh">
+    <span class="input-file-refresh__ticker" :style="tickerStyle" />
+  </label>
 </template>
 
 <style lang="scss">
@@ -7,7 +9,7 @@
   position: relative;
   display: block;
 
-  margin: 8px 0;
+  margin: 8px;
   border-radius: 8px;
   border: 2px solid rgba(#fff, 0.3);
   width: 14px;
@@ -28,6 +30,21 @@
     width: 4px;
     height: 4px;
   }
+
+  &__ticker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+
+    margin: -8px 0 0 -1px;
+    border-top: 3px solid #fff;
+    width: 2px;
+    height: 16px;
+
+    transform-origin: 50% 50%;
+    transition: transform 150ms;
+  }
 }
 </style>
 
@@ -43,6 +60,19 @@ export default {
     refresh () {
       if (!this.value) return
       this.value.version++
+    }
+  },
+
+  computed: {
+    tickerStyle () {
+      if (!this.value) return
+      const { version } = this.value
+      const angle = (version || 0) * Math.PI / 4
+      console.log(version, angle)
+
+      return {
+        transform: `rotate(${angle}rad)`
+      }
     }
   }
 }
