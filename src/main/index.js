@@ -95,6 +95,7 @@ let appShouldQuit = false
 const appActions = createAppActions()
 function createAppActions () {
   // TODO: Cleanup file filters
+  // FIXME: File filters not highlighting in dialog
   const fileTypeFilters = [{
     name: 'Microbium Scene',
     extensions: ['mcrbm']
@@ -661,6 +662,7 @@ function requestWindowResponse (name, messageKey, messageData) {
 }
 
 // TODO: Track if changes have been made to geometry since last save
+// TODO: Prompt to save changes
 // Currently just tracking controls changes
 function confirmShouldCloseWindow (win) {
   if (!editorState.isEdited) return true
