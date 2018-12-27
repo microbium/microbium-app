@@ -68,7 +68,6 @@ export default {
       if (!this.value) return
       const { version } = this.value
       const angle = (version || 0) * Math.PI / 4
-      console.log(version, angle)
 
       return {
         transform: `rotate(${angle}rad)`
