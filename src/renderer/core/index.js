@@ -550,7 +550,10 @@ export function mountCompositor ($el, $refs, actions) {
         if (lines.state.cursor.vertex === 0) continue
 
         const style = styles[index]
-        const { lineAlphaFuncIndex, fillAlphaFuncIndex, tintHex, tintAlpha } = style
+        const {
+          lineAlphaFuncIndex, fillAlphaFuncIndex,
+          tintHex, tintAlpha, alphaMapRepeat
+        } = style
 
         // OPTIM: Cache unchanged computed rgba array
         const tint = Colr.fromHex(tintHex)
@@ -582,6 +585,7 @@ export function mountCompositor ($el, $refs, actions) {
           tint,
           lineDashFunction,
           fillDashFunction,
+          alphaMapRepeat,
           alphaMapPath
         }
 

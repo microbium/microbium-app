@@ -39,6 +39,7 @@ export function createScene (tasks, state, renderer) {
     tick: regl.prop('tick'),
     tint: regl.prop('tint'),
     mirror: regl.prop('mirror'),
+    alphaMapRepeat: regl.prop('alphaMapRepeat'),
     alphaMap: (params, { alphaMapPath }) => textures.get('alpha', alphaMapPath, alphaMapOpts),
     useAlphaMap: (params, { alphaMapPath }) => (alphaMapPath == null ? 0 : 1)
 

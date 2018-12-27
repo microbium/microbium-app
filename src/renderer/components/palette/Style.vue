@@ -71,6 +71,14 @@
       </div>
     </div>
     <div class="palette-item">
+      <input-range min="20" max="120" step="1" v-model="model.alphaMapRepeat" />
+      <div class="palette-item__label">
+        <b>{{ alphaMapRepeatName }}</b> alpha map repeat size
+        <palette-item-controller :min="20" :max="120"
+          :model="model" prop="alphaMapRepeat" />
+      </div>
+    </div>
+    <div class="palette-item">
       <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
       <div class="palette-item__label">
         <b>{{ tintAlphaName }}</b> alpha factor
@@ -139,6 +147,11 @@ export default {
       const { alphaMapFile } = this.model
       if (!alphaMapFile) return 'Empty'
       return alphaMapFile.name
+    },
+
+    alphaMapRepeatName () {
+      const { alphaMapRepeat } = this.model
+      return `${roundToPlaces(alphaMapRepeat, 0)}n`
     },
 
     thicknessName () {
