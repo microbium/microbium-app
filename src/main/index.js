@@ -120,6 +120,7 @@ function createAppActions () {
   return {
     createNewScene () {
       store.set('openScenePath', null)
+      resetControls()
       createMainWindow()
     },
 
@@ -827,6 +828,15 @@ function initControls () {
   syncStrokeControls()
   syncStyleLayers()
   syncConstraintGroups()
+}
+
+function resetControls () {
+  Object.assign(paletteState, createControlsState())
+  syncStrokeControls()
+  syncStyleLayers()
+  syncConstraintGroups()
+  sendWindowMessage('palette', 'message',
+    {type: 'RESET_CONTROLS'})
 }
 
 function syncControls ({ group, key, value }) {

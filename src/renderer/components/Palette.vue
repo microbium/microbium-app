@@ -269,6 +269,9 @@ export default {
       const { controls } = this
 
       switch (data.type) {
+        case 'RESET_CONTROLS':
+          Object.assign(controls, createControlsState())
+          break
         case 'UPDATE_CONTROLS':
           this.mainDidUpdateControls()
           if (data.key) controls[data.group][data.key] = data.value
