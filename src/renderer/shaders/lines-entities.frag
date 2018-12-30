@@ -28,10 +28,10 @@ varying vec3 vUDO; // [u, distance, offset]
 #pragma glslify: lateralDash = require(./alpha/lateral-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: wavyDash = require(./alpha/wavy-dash, fwidth=fwidth, PI=PI)
 
-float sampleAlphaMap (vec3 udo, float offset, sampler2D map) {
+float sampleAlphaMap (vec3 udo, float repeat, float offset, sampler2D map) {
   vec2 coords = vec2(
     (udo.x + 1.0) * 0.5,
-    fract((udo.y + offset) / alphaMapRepeat) * 0.8 + 0.1);
+    fract((udo.y + offset) / repeat) * 0.8 + 0.1);
   return texture2D(map, coords).r; // * smoothstep(0.0, 2.0, 1.0 - coords.x);
 }
 
@@ -55,7 +55,7 @@ void main() {
 
   if (useAlphaMap == 1) {
     // TODO: Parameterize tick offset animation
-    outAlpha *= sampleAlphaMap(udo, tick * 0.5, alphaMap);
+    outAlpha *= sampleAlphaMap(udo, alphaMapRepeat, tick * 0.5, alphaMap);
   }
 
   if (dashFunction == 1) {

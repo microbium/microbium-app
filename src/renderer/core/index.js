@@ -551,8 +551,9 @@ export function mountCompositor ($el, $refs, actions) {
 
         const style = styles[index]
         const {
-          lineAlphaFuncIndex, fillAlphaFuncIndex,
-          tintHex, tintAlpha, alphaMapRepeat
+          lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
+          fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
+          tintHex, tintAlpha
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
@@ -569,7 +570,9 @@ export function mountCompositor ($el, $refs, actions) {
         const lineDashFunction = lineAlphaFunc.dashFunction
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillDashFunction = fillAlphaFunc.dashFunction
-        const alphaMapPath = getVersionedPath(style.alphaMapFile)
+
+        const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
+        const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
         const params = {
           angles,
@@ -584,9 +587,12 @@ export function mountCompositor ($el, $refs, actions) {
 
           tint,
           lineDashFunction,
+          lineAlphaMapRepeat,
+          lineAlphaMapPath,
+
           fillDashFunction,
-          alphaMapRepeat,
-          alphaMapPath
+          fillAlphaMapRepeat,
+          fillAlphaMapPath
         }
 
         state.renderer.lineQuads += lines.state.cursor.quad

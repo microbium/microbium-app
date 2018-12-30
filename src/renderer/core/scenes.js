@@ -28,25 +28,23 @@ export function createScene (tasks, state, renderer) {
     enable: false
   }
 
-  const alphaMapOpts = {
-    min: 'nearest',
-    mag: 'nearest',
-    wrap: ['clamp', 'repeat'],
+  const lineAlphaMapOpts = {
+    min: 'linear',
+    mag: 'linear',
+    wrap: ['clamp', 'clamp'],
+    format: 'rgb'
+  }
+  const fillAlphaMapOpts = {
+    min: 'linear',
+    mag: 'linear',
+    wrap: ['repeat', 'repeat'],
     format: 'rgb'
   }
 
   const uniforms = {
     tick: regl.prop('tick'),
     tint: regl.prop('tint'),
-    mirror: regl.prop('mirror'),
-    alphaMapRepeat: regl.prop('alphaMapRepeat'),
-    alphaMap: (params, { alphaMapPath }) => textures.get('alpha', alphaMapPath, alphaMapOpts),
-    useAlphaMap: (params, { alphaMapPath }) => (alphaMapPath == null ? 0 : 1)
-
-    // FEAT: Add multiple screen space tinting functions
-    // useScreenTintFunc: regl.prop('useScreenTintFunc'),
-    // diffuseMap: (params, { diffuseMap }) => textures.get(diffuseMap),
-    // useDiffuseMap: (params, { diffuseMap }) => (diffuseMap == null ? 0 : 1),
+    mirror: regl.prop('mirror')
   }
 
   const attributes = {
@@ -69,25 +67,37 @@ export function createScene (tasks, state, renderer) {
     const lines = LineBuilder.create(regl, {
       dimensions: 2,
       bufferSize,
+
       drawLineArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
         instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
-          dashFunction: regl.prop('lineDashFunction')
+          dashFunction: regl.prop('lineDashFunction'),
+          alphaMapRepeat: regl.prop('lineAlphaMapRepeat'),
+          alphaMap: (params, { lineAlphaMapPath }) =>
+            (textures.get('lineAlpha', lineAlphaMapPath, lineAlphaMapOpts)),
+          useAlphaMap: (params, { lineAlphaMapPath }) =>
+            (lineAlphaMapPath == null ? 0 : 1)
         },
         attributes,
         blend,
         depth
       },
+
       drawFillArgs: {
         vert: fillsEntitiesVert,
         frag: fillsEntitiesFrag,
         instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
-          dashFunction: regl.prop('fillDashFunction')
+          dashFunction: regl.prop('fillDashFunction'),
+          alphaMapRepeat: regl.prop('fillAlphaMapRepeat'),
+          alphaMap: (params, { fillAlphaMapPath }) =>
+            (textures.get('fillAlpha', fillAlphaMapPath, fillAlphaMapOpts)),
+          useAlphaMap: (params, { fillAlphaMapPath }) =>
+            (fillAlphaMapPath == null ? 0 : 1)
         },
         attributes,
         blend,

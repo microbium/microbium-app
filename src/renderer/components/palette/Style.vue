@@ -1,92 +1,114 @@
 <template>
   <div class="palette-style">
-    <!-- Stroke pattern -->
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ lineAlphaFunctionName }}
-          <input-select v-model="model.lineAlphaFuncIndex">
-            <option v-for="alphaFunc in lineAlphaFunctions" :value="alphaFunc.index">
-              {{ alphaFunc.name }}
-            </option>
-          </input-select>
-        </b> stroke pattern
-      </div>
-    </div>
 
-    <!-- Stroke width -->
-    <div class="palette-item">
-      <input-range min="0" max="5" step="0.1"
-        v-model="model.thickness" />
-      <div class="palette-item__label">
-        <b>{{ thicknessName }}</b> stroke width factor
-        <palette-item-controller :min="0" :max="5"
-          :model="model" prop="thickness" />
+    <palette-group nested open>
+      <h2 slot="title">Geometry / Color</h2>
+      <div class="palette-item">
+        <input-range min="0" max="5" step="0.1"
+          v-model="model.thickness" />
+        <div class="palette-item__label">
+          <b>{{ thicknessName }}</b> stroke width factor
+          <palette-item-controller :min="0" :max="5"
+            :model="model" prop="thickness" />
+        </div>
       </div>
-    </div>
-    <div class="palette-item">
-      <input-range min="0" max="5" step="0.1"
-        v-model="model.strokeWidthMod" />
-      <div class="palette-item__label">
-        <b>{{ strokeModName }}</b>
-        stroke modulation
-        <palette-item-controller :min="0" :max="5"
-          :model="model" prop="strokeWidthMod" />
+      <div class="palette-item">
+        <input-range min="0" max="5" step="0.1"
+          v-model="model.strokeWidthMod" />
+        <div class="palette-item__label">
+          <b>{{ strokeModName }}</b>
+          stroke modulation
+          <palette-item-controller :min="0" :max="5"
+            :model="model" prop="strokeWidthMod" />
+        </div>
       </div>
-    </div>
-    <hr />
+      <hr />
 
-    <!-- Fill pattern -->
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ fillAlphaFunctionName }}
-          <input-select v-model="model.fillAlphaFuncIndex">
-            <option v-for="alphaFunc in fillAlphaFunctions" :value="alphaFunc.index">
-              {{ alphaFunc.name }}
-            </option>
-          </input-select>
-        </b> fill pattern
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ model.tintHex.toUpperCase() }}
+            <input-color v-model="model.tintHex" />
+          </b> tint
+        </div>
       </div>
-    </div>
-    <hr />
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
+        <div class="palette-item__label">
+          <b>{{ tintAlphaName }}</b> alpha factor
+          <palette-item-controller :min="0" :max="1"
+            :model="model" prop="tintAlpha" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
 
-    <!-- Color -->
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ model.tintHex.toUpperCase() }}
-          <input-color v-model="model.tintHex" />
-        </b> tint
+    <palette-group nested>
+      <h2 slot="title">Stroke Pattern</h2>
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ lineAlphaFunctionName }}
+            <input-select v-model="model.lineAlphaFuncIndex">
+              <option v-for="alphaFunc in lineAlphaFunctions" :value="alphaFunc.index">
+                {{ alphaFunc.name }}
+              </option>
+            </input-select>
+          </b> pattern base
+        </div>
       </div>
-    </div>
-    <hr />
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ lineAlphaMapName }}
+            <input-file accept=".png,.jpg" v-model="model.lineAlphaMapFile" />
+          </b> pattern map
+        </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.lineAlphaMapFile" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="20" max="120" step="1" v-model="model.lineAlphaMapRepeat" />
+        <div class="palette-item__label">
+          <b>{{ lineAlphaMapRepeatName }}</b> pattern map size
+          <palette-item-controller :min="20" :max="120"
+            :model="model" prop="lineAlphaMapRepeat" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
 
-    <!-- Alpha -->
-    <div class="palette-item">
-      <div class="palette-item__label">
-        <b>{{ alphaMapName }}
-          <input-file accept=".png,.jpg" v-model="model.alphaMapFile" />
-        </b> alpha map
+    <palette-group nested>
+      <h2 slot="title">Fill Pattern</h2>
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ fillAlphaFunctionName }}
+            <input-select v-model="model.fillAlphaFuncIndex">
+              <option v-for="alphaFunc in fillAlphaFunctions" :value="alphaFunc.index">
+                {{ alphaFunc.name }}
+              </option>
+            </input-select>
+          </b> pattern base
+        </div>
       </div>
-      <div class="palette-item__controls">
-        <input-file-refresh v-model="model.alphaMapFile" />
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ fillAlphaMapName }}
+            <input-file accept=".png,.jpg" v-model="model.fillAlphaMapFile" />
+          </b> pattern map
+        </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.fillAlphaMapFile" />
+        </div>
       </div>
-    </div>
-    <div class="palette-item">
-      <input-range min="20" max="120" step="1" v-model="model.alphaMapRepeat" />
-      <div class="palette-item__label">
-        <b>{{ alphaMapRepeatName }}</b> alpha map repeat size
-        <palette-item-controller :min="20" :max="120"
-          :model="model" prop="alphaMapRepeat" />
+      <div class="palette-item">
+        <input-range min="20" max="120" step="1" v-model="model.fillAlphaMapRepeat" />
+        <div class="palette-item__label">
+          <b>{{ fillAlphaMapRepeatName }}</b> pattern map size
+          <palette-item-controller :min="20" :max="120"
+            :model="model" prop="fillAlphaMapRepeat" />
+        </div>
       </div>
-    </div>
-    <div class="palette-item">
-      <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
-      <div class="palette-item__label">
-        <b>{{ tintAlphaName }}</b> alpha factor
-        <palette-item-controller :min="0" :max="1"
-          :model="model" prop="tintAlpha" />
-      </div>
-    </div>
-    <hr />
+      <hr />
+    </palette-group>
   </div>
 </template>
 
@@ -101,6 +123,7 @@ import InputFile from '@renderer/components/input/File'
 import InputFileRefresh from '@renderer/components/input/FileRefresh'
 import InputRange from '@renderer/components/input/Range'
 import InputSelect from '@renderer/components/input/Select'
+import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
@@ -112,6 +135,7 @@ export default {
     InputFileRefresh,
     InputRange,
     InputSelect,
+    PaletteGroup,
     PaletteItemController
   },
 
@@ -138,20 +162,31 @@ export default {
       return alphaFunc.name
     },
 
+    lineAlphaMapName () {
+      const { lineAlphaMapFile } = this.model
+      if (!lineAlphaMapFile) return 'Empty'
+      return lineAlphaMapFile.name
+    },
+
+    lineAlphaMapRepeatName () {
+      const { lineAlphaMapRepeat } = this.model
+      return `${roundToPlaces(lineAlphaMapRepeat, 0)}n`
+    },
+
     fillAlphaFunctionName () {
       const alphaFunc = this.lineAlphaFunctions[this.model.fillAlphaFuncIndex]
       return alphaFunc.name
     },
 
-    alphaMapName () {
-      const { alphaMapFile } = this.model
-      if (!alphaMapFile) return 'Empty'
-      return alphaMapFile.name
+    fillAlphaMapName () {
+      const { fillAlphaMapFile } = this.model
+      if (!fillAlphaMapFile) return 'Empty'
+      return fillAlphaMapFile.name
     },
 
-    alphaMapRepeatName () {
-      const { alphaMapRepeat } = this.model
-      return `${roundToPlaces(alphaMapRepeat, 0)}n`
+    fillAlphaMapRepeatName () {
+      const { fillAlphaMapRepeat } = this.model
+      return `${roundToPlaces(fillAlphaMapRepeat, 0)}n`
     },
 
     thicknessName () {

@@ -11,7 +11,8 @@ export function createCameras (tasks, state, renderer) {
 
   const baseUniforms = {
     viewResolution: regl.prop('viewResolution'),
-    viewOffset: regl.prop('viewOffset')
+    viewOffset: regl.prop('viewOffset'),
+    viewScale: regl.prop('viewScale')
   }
 
   const sceneOrtho = (() => {

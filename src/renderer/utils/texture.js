@@ -9,7 +9,7 @@ export function createTextureManager (regl) {
     const cached = cache[key]
     if (cached && cached.src === src) return cached.texture
 
-    const texture = (cached && cached.texture) || regl.texture(opts)
+    const texture = (cached && cached.texture) || regl.texture()
     const image = document.createElement('img')
 
     image.onload = () => {
@@ -17,7 +17,8 @@ export function createTextureManager (regl) {
       texture({
         width: naturalWidth,
         height: naturalHeight,
-        data: image
+        data: image,
+        ...opts
       })
     }
     image.src = `file://${src}`
