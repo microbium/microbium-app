@@ -1,5 +1,7 @@
 <template>
-  <label class="input-file-refresh" @click="refresh">
+  <label class="input-file-refresh"
+    :class="baseClassNames"
+    @click="refresh" v-on:dblclick="reset">
     <span class="input-file-refresh__ticker" :style="tickerStyle" />
   </label>
 </template>
@@ -17,6 +19,10 @@
 
   opacity: 0.4;
   cursor: pointer;
+
+  &.active {
+    opacity: 1;
+  }
 
   &:after {
     content: "";
@@ -60,10 +66,21 @@ export default {
     refresh () {
       if (!this.value) return
       this.value.version++
+    },
+
+    // TODO: Implement better UI to reset file
+    reset () {
+      this.$emit('input', null)
     }
   },
 
   computed: {
+    baseClassNames () {
+      return {
+        active: !!this.value
+      }
+    },
+
     tickerStyle () {
       if (!this.value) return
       const { version } = this.value
