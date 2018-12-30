@@ -22,7 +22,7 @@ varying vec4 vColor;
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 
 float sampleAlphaMap (vec2 fragPosition, float repeat, float offset, sampler2D map) {
-  vec2 coords = (fragPosition + offset) / repeat;
+  vec2 coords = fract((fragPosition + offset) / repeat);
   return texture2D(map, coords).r;
 }
 

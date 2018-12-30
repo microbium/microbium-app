@@ -37,7 +37,7 @@ export function createScene (tasks, state, renderer) {
   const fillAlphaMapOpts = {
     min: 'linear',
     mag: 'linear',
-    wrap: ['repeat', 'repeat'],
+    wrap: ['clamp', 'clamp'],
     format: 'rgb'
   }
 
