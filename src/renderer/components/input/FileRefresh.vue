@@ -20,10 +20,6 @@
   opacity: 0.4;
   cursor: pointer;
 
-  &.active {
-    opacity: 1;
-  }
-
   &:after {
     content: "";
     position: absolute;
@@ -51,6 +47,10 @@
     transform-origin: 50% 50%;
     transition: transform 150ms;
   }
+
+  &--active {
+    opacity: 1;
+  }
 }
 </style>
 
@@ -77,7 +77,7 @@ export default {
   computed: {
     baseClassNames () {
       return {
-        active: !!this.value
+        'input-file-refresh--active': !!this.value
       }
     },
 
