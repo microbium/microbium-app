@@ -23,8 +23,11 @@ varying float vId;
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 
 float sampleAlphaMap (vec2 fragPosition, float repeat, float offset, sampler2D map) {
-  vec2 coords = fract((fragPosition + offset) / repeat);
-  return texture2D(map, coords).r;
+  vec2 c0 = (fragPosition + offset) / repeat;
+  vec2 m0 = mod(floor(c0), 2.0);
+  float cx = fract(mix(c0.x, 1.0 - c0.x, m0.x));
+  float cy = fract(mix(c0.y, 1.0 - c0.y, m0.y));
+  return texture2D(map, vec2(cx, cy)).r;
 }
 
 void main() {
