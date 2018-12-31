@@ -46,7 +46,9 @@ void main() {
   if (useAlphaMap == 1) {
     // TODO: Parameterize tick offset animation
     outAlpha *= sampleAlphaMap(fragPosition,
-      alphaMapRepeat * viewScale, vId * alphaMapRepeat, alphaMap);
+      alphaMapRepeat * viewScale,
+      vId * alphaMapRepeat * viewScale,
+      alphaMap);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);
