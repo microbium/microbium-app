@@ -16,6 +16,7 @@ uniform sampler2D alphaMap;
 uniform int dashFunction;
 
 varying vec4 vColor;
+varying float vId;
 // varying vec3 vUDO; // [u, distance, offset]
 
 #pragma glslify: radialDash = require(./alpha/radial-dash, fwidth=fwidth, PI=PI)
@@ -45,7 +46,7 @@ void main() {
   if (useAlphaMap == 1) {
     // TODO: Parameterize tick offset animation
     outAlpha *= sampleAlphaMap(fragPosition,
-      alphaMapRepeat * viewScale, 0.0, alphaMap);
+      alphaMapRepeat * viewScale, vId * alphaMapRepeat, alphaMap);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);

@@ -9,11 +9,13 @@ uniform vec3 mirror; // [x, y, alpha]
 
 attribute vec2 position;
 attribute vec4 color;
+attribute float id;
 
 attribute float angle;
 attribute float angleAlpha;
 
 varying vec4 vColor;
+varying float vId;
 
 vec2 transformPosition (vec2 position, vec2 mirror, float angle) {
   return vec2(
@@ -33,6 +35,7 @@ void main() {
     vec4(transformPosition(position, mirror.xy, angle), mapZ(position), 1.0);
 
   vColor = vec4(tint.rgb * color.rgb, tint.a * color.a * mirror.z * angleAlpha);
+  vId = id;
 
   gl_Position = posProjected * vec4(0.5, 0.5, 0.0, 1.0);
 }
