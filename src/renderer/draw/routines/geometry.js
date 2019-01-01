@@ -86,7 +86,7 @@ export function drawFocus (state, ctx, index) {
   ctx.beginPath()
   arc(ctx,
     point[0], point[1], innerRad,
-    0, Math.PI * 2,
+    0, Math.PI * 2 * 5 / 6,
     false, Math.PI * 0.3)
   ctx.closePath()
   ctx.stroke()
@@ -131,7 +131,7 @@ export function drawFocusProximate (state, ctx, indices, ignoreIndex) {
     ctx.beginPath()
     arc(ctx,
       point[0], point[1], innerRad,
-      0, Math.PI * 2,
+      0, Math.PI * 2 * 0.75,
       false, Math.PI * 0.45)
     ctx.closePath()
     ctx.stroke()
