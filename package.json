@@ -82,7 +82,7 @@
     "lodash.template": "^4.4.0",
     "particulate": "^0.3.3",
     "pngjs": "^3.3.3",
-    "regl-line-builder": "^0.5.0",
+    "regl-line-builder": "0.6.0",
     "vue": "^2.5.13",
     "vue-electron": "^1.0.6",
     "vue-range-slider": "^0.2.4",
