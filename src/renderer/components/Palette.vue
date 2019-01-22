@@ -179,6 +179,7 @@ $base-color: rgba(#000, 0.15);
     position: relative;
     display: block;
     margin-top: -4px;
+    z-index: 2;
   }
 }
 </style>
