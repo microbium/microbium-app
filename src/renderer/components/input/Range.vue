@@ -3,6 +3,7 @@ $slider-height: 13px;
 $slider-width: 100%;
 $rail-height: 2px;
 $knob-size: 13px;
+$hitbox-size: 30px;
 $rail-color: rgba(#000, 0.1);
 $rail-fill-color: var(--highlight-color);
 $knob-color: transparent;
@@ -15,8 +16,9 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
   border-radius: 0;
   transform: translate(-50%, -50%) rotate(45deg);
   cursor: default;
+  pointer-events: none;
 
-  &:after {
+  &:before {
     content: '';
     position: absolute;
     top: 2px;
@@ -25,6 +27,20 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
     background: $rail-fill-color;
     width: 5px;
     height: 5px;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: transparent;
+    width: $hitbox-size;
+    height: $hitbox-size;
+    border-radius: 50%;
+    z-index: 10;
+    pointer-events: all;
   }
 
   .range-slider--knob-hidden & {
