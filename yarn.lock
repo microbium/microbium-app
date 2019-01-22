@@ -9522,9 +9522,10 @@ vue-loader@^14.1.1:
     vue-style-loader "^4.0.1"
     vue-template-es2015-compiler "^1.6.0"
 
-vue-range-slider@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/vue-range-slider/-/vue-range-slider-0.2.4.tgz#8b73e273718035d3203e5d1aa081c72d473fce61"
+vue-range-slider@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/vue-range-slider/-/vue-range-slider-0.6.0.tgz#a2c1927a5a38e72a96146478b421752817df34ff"
+  integrity sha512-VH5ZI7ZxZ/2I+4kmHMvRNShB87N+N71wgENFaycMI2NEBCxKyF+gN/NbbralGQP63X9IrCWgggo8uBjm7SdM7g==
 
 vue-router@^3.0.1:
   version "3.0.1"

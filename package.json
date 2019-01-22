@@ -85,7 +85,7 @@
     "regl-line-builder": "0.6.0",
     "vue": "^2.5.13",
     "vue-electron": "^1.0.6",
-    "vue-range-slider": "^0.2.4",
+    "vue-range-slider": "0.6.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
     "webmidi": "^2.3.0"
