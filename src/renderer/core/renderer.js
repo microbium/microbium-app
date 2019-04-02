@@ -29,7 +29,8 @@ export function createRenderer (tasks, state) {
       antialias: false,
       preserveDrawingBuffer: true,
       premultipliedAlpha: false,
-      alpha: false
+      alpha: false,
+      powerPreference: 'high-performance'
     }
   })
 
