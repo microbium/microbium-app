@@ -106,7 +106,7 @@ void main() {
     //   vec3(smoothstep(0.285, 0.5, edgesColorHSV.g * 2.0)),
     //   0.0, 0.75);
     vec3 edgesV0 = brightnessContrast(
-      vec3(smoothstep(0.0, 0.25, edgesSample * 10.0)),
+      vec3(smoothstep(0.0, 1.0, edgesSample)),
       0.0, 1.1);
     vec3 edgesV1 = brightnessContrast(
       vec3(smoothstep(0.0, 0.125, edgesColorHSV.b + 0.025)),
@@ -114,7 +114,7 @@ void main() {
 
     // outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
     // outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
-    outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.1);
+    outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.5);
     outColor = blendSubtract(outColor, vec3(edgesV1), edgesIntensity * 0.35);
   }
 

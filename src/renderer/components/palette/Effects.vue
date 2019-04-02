@@ -77,7 +77,7 @@
     </palette-group>
 
     <palette-group persistent-controls>
-      <h2 slot="title">Shape Outlines</h2>
+      <h2 slot="title">Gradient Contours</h2>
       <input-checkbox slot="controls" v-model="model.edges.enabled" />
 
       <div class="palette-item">

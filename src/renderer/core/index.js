@@ -481,7 +481,7 @@ export function mountCompositor ($el, $refs, actions) {
       postBuffers.resize('banding', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
-      bufPixelRatio = edges.bufferScale / pixelRatioNative
+      bufPixelRatio = edges.bufferScale
       postBuffers.resize('edges', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
@@ -723,7 +723,6 @@ export function mountCompositor ($el, $refs, actions) {
       timer.end('renderBanding')
     },
 
-    // OPTIM: Research more performant methods for rendering edges
     renderSceneEdges (tick) {
       const { postBuffers } = renderer
       const { drawEdges } = renderer.commands
