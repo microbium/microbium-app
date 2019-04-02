@@ -737,6 +737,7 @@ export function mountCompositor ($el, $refs, actions) {
           drawEdges({
             color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
             thickness: edges.thickness,
+            repeat: edges.repeat,
             tick,
             viewResolution
           })
@@ -752,7 +753,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { lut } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
-        shouldRenderBloom, shouldRenderBanding,
+        shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
         bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
@@ -769,7 +770,7 @@ export function mountCompositor ($el, $refs, actions) {
         bloomIntensity,
         banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
         bandingIntensity,
-        edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
+        edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
         edgesIntensity,
         noiseIntensity,
         lutIntensity,

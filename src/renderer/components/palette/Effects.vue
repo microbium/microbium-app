@@ -81,7 +81,7 @@
       <input-checkbox slot="controls" v-model="model.edges.enabled" />
 
       <div class="palette-item">
-        <input-range min="0" max="5" step="0.05" v-model="model.edges.intensityFactor" />
+        <input-range min="0" max="10" step="0.05" v-model="model.edges.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ edgesFactorName }}</b> intensity
           <palette-item-controller :min="0" :max="5"
@@ -96,6 +96,14 @@
           <b>{{ edgesThicknessName }}</b> thickness
           <palette-item-controller :min="0.1" :max="5"
             :model="model.edges" prop="thickness" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="1" max="128" step="1" v-model="model.edges.repeat" />
+        <div class="palette-item__label">
+          <b>{{ edgesRepeatName }}</b> contour interval
+          <palette-item-controller :min="1" :max="128"
+            :model="model.edges" prop="repeat" />
         </div>
       </div>
       <div class="palette-item">
@@ -301,6 +309,11 @@ export default {
     edgesThicknessName () {
       const { edges } = this.model
       return `${roundToPlaces(edges.thickness, 2)}px`
+    },
+
+    edgesRepeatName () {
+      const { edges } = this.model
+      return `${roundToPlaces(edges.repeat, 2)}n`
     },
 
     edgesBufferScaleName () {

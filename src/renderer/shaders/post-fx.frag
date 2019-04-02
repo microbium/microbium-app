@@ -94,7 +94,7 @@ void main() {
   // FIXME: Investigate glitchy artifacts with S0 channel + hue shifting
   if (edgesIntensity > 0.0) {
     vec4 edgesColorSample = texture2D(edges, uv);
-    vec3 edgesColor = blendOverlay(bandingColor, edgesColorSample.rgb, 0.85);
+    vec3 edgesColor = blendOverlay(outColor, edgesColorSample.rgb, 0.85);
     float edgesSample = edgesColorSample.a;
 
     // Edge Channel Mapping
@@ -114,7 +114,7 @@ void main() {
 
     // outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
     // outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
-    outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.5);
+    outColor = blendOverlay(outColor, edgesV0, edgesIntensity * 0.25);
     outColor = blendSubtract(outColor, vec3(edgesV1), edgesIntensity * 0.35);
   }
 
