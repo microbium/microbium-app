@@ -314,7 +314,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       vec3.set(computedState.vignetteParams,
         vignette.radius, vignette.smoothness,
-        vignette.enabled ? vignette.intensityFactor : 0)
+        (isRunning && vignette.enabled) ? vignette.intensityFactor : 0)
 
       computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
     },
@@ -613,7 +613,8 @@ export function mountCompositor ($el, $refs, actions) {
       const { overlay } = state.controls.viewport
 
       const model = mat4.identity(scratchMat4A)
-      const tint = vec4.set(scratchVec4A, 1, 1, 1, overlay.alphaFactor)
+      const tint = vec4.set(scratchVec4A, 1, 1, 1,
+        isRunning ? overlay.alphaFactor : 1.0)
       const thickness = this.computeLineThickness(1)
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
