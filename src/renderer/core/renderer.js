@@ -14,6 +14,8 @@ import {
   createSetupDrawScreen
 } from '@renderer/draw/commands/screen-space'
 
+const DEBUG_LOG_GPU = false
+
 // OPTIM: Investigate preserveDrawingBuffer effect on perf
 // It's currently needed to enable full dpi canvas export
 export function createRenderer (tasks, state) {
@@ -52,6 +54,8 @@ export function createRenderer (tasks, state) {
     drawTexture: createDrawTexture(regl)
   }
 
+  if (DEBUG_LOG_GPU) logGpuInfo(regl)
+
   tasks.defer((containers) => {
     containers.scene.appendChild(canvas)
     return Promise.resolve()
@@ -70,4 +74,13 @@ export function createRenderer (tasks, state) {
     postBuffers,
     commands
   }
+}
+
+function logGpuInfo (regl) {
+  let gl = regl._gl
+  let debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+  let vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
+  let renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+
+  console.log('gpu', { vendor, renderer })
 }
