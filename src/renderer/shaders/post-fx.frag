@@ -40,7 +40,6 @@ varying vec2 uv;
 
 #pragma glslify: concentricDash = require(./alpha/concentric-dash, fwidth=fwidth, PI=PI)
 #pragma glslify: vignette = require(./vignette)
-#pragma glslify: brightnessContrast = require(./color/brightness-contrast)
 #pragma glslify: rgb2hsv = require('./color/rgb2hsv')
 #pragma glslify: hsv2rgb = require('./color/hsv2rgb')
 
@@ -91,29 +90,18 @@ void main() {
 
   // Edges
   // TODO: Parameterize individual edge channels
-  // FIXME: Investigate glitchy artifacts with S0 channel + hue shifting
   if (edgesIntensity > 0.0) {
     vec4 edgesColorSample = texture2D(edges, uv);
     vec3 edgesColor = blendOverlay(outColor, edgesColorSample.rgb, 0.85);
     float edgesSample = edgesColorSample.a;
+    float edgesAlpha = edgesIntensity * (1.0 - edgesSample);
 
     // Edge Channel Mapping
-    vec3 edgesColorHSV = rgb2hsv(edgesColor);
-    // vec3 edgesH0 = brightnessContrast(
-    //   vec3(smoothstep(0.6, 1.5, edgesColorHSV.r * 1.25)),
-    //   0.6, 1.6);
-    // vec3 edgesS0 = brightnessContrast(
-    //   vec3(smoothstep(0.285, 0.5, edgesColorHSV.g * 2.0)),
-    //   0.0, 0.75);
-    vec3 edgesV0 = edgesColor * edgesSample;
-    vec3 edgesV1 = brightnessContrast(
-      vec3(smoothstep(0.0, 0.125, edgesColorHSV.b + 0.025)),
-      0.0, 1.2);
+    vec3 edgesV0 = edgesColor;
+    vec3 edgesV1 = 1.0 - edgesColor;
 
-    // outColor = blendSoftLight(outColor, edgesH0, edgesIntensity);
-    // outColor = blendColorDodge(outColor, edgesS0, edgesIntensity * 0.15);
-    outColor = blendOverlay(outColor, edgesV0, edgesIntensity);
-    outColor = blendSubtract(outColor, vec3(edgesV1), edgesIntensity * 0.35);
+    outColor = blendOverlay(outColor, edgesV0, edgesAlpha);
+    outColor = blendColorBurn(outColor, edgesV1, edgesAlpha);
   }
 
   // ..................................................
