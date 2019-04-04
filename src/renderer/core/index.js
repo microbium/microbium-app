@@ -750,6 +750,7 @@ export function mountCompositor ($el, $refs, actions) {
     renderSceneComposite (tick, fbo) {
       const { postBuffers, textures } = renderer
       const { drawScreen } = renderer.commands
+      const { isRunning } = state.simulation
       const { overlay } = state.controls.viewport
       const { lut } = state.controls.postEffects
       const {
@@ -776,7 +777,7 @@ export function mountCompositor ($el, $refs, actions) {
         noiseIntensity,
         lutIntensity,
         lutTexture: textures.get('lut', lut.textureFile && lut.textureFile.path),
-        overlayAlpha: overlay.alphaFactor,
+        overlayAlpha: isRunning ? overlay.alphaFactor : 1,
         vignetteParams,
         tick,
         viewOffset,

@@ -7,7 +7,7 @@ const scratchVec2B = vec2.create()
 
 export function drawSimulatorUI (state, ctx) {
   if (!state.simulation.isRunning) return
-  const { tick } = state.simulation
+  const { tick, isRunning } = state.simulation
   const { center, size } = state.viewport
   const { overlay } = state.controls.viewport
 
@@ -17,7 +17,7 @@ export function drawSimulatorUI (state, ctx) {
   ctx.save()
   ctx.translate(-center[0], -center[1])
 
-  ctx.globalAlpha = 0.8 * overlay.alphaFactor
+  ctx.globalAlpha = (isRunning ? overlay.alphaFactor : 1) * 0.8
   ctx.strokeStyle = overlay.colorHighlightHex
 
   ctx.lineWidth = 3
@@ -58,7 +58,7 @@ export function drawSimulatorForces (
     ctx.save()
     ctx.translate(position[0], position[1])
 
-    ctx.globalAlpha = 1 * alpha * overlay.alphaFactor
+    ctx.globalAlpha = (isRunning ? overlay.alphaFactor : 1) * alpha
     ctx.strokeStyle = '#ffffff'
 
     ctx.lineWidth = 1.5 * scaleInv
