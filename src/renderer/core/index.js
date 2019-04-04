@@ -314,7 +314,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       vec3.set(computedState.vignetteParams,
         vignette.radius, vignette.smoothness,
-        vignette.enabled ? vignette.intensityFactor : 0)
+        (isRunning && vignette.enabled) ? vignette.intensityFactor : 0)
 
       computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
     },
@@ -481,7 +481,7 @@ export function mountCompositor ($el, $refs, actions) {
       postBuffers.resize('banding', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
-      bufPixelRatio = edges.bufferScale / pixelRatioNative
+      bufPixelRatio = edges.bufferScale
       postBuffers.resize('edges', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
@@ -613,7 +613,8 @@ export function mountCompositor ($el, $refs, actions) {
       const { overlay } = state.controls.viewport
 
       const model = mat4.identity(scratchMat4A)
-      const tint = vec4.set(scratchVec4A, 1, 1, 1, overlay.alphaFactor)
+      const tint = vec4.set(scratchVec4A, 1, 1, 1,
+        isRunning ? overlay.alphaFactor : 1.0)
       const thickness = this.computeLineThickness(1)
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
@@ -723,7 +724,6 @@ export function mountCompositor ($el, $refs, actions) {
       timer.end('renderBanding')
     },
 
-    // OPTIM: Research more performant methods for rendering edges
     renderSceneEdges (tick) {
       const { postBuffers } = renderer
       const { drawEdges } = renderer.commands
@@ -738,6 +738,7 @@ export function mountCompositor ($el, $refs, actions) {
           drawEdges({
             color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
             thickness: edges.thickness,
+            repeat: edges.repeat,
             tick,
             viewResolution
           })
@@ -753,7 +754,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { lut } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
-        shouldRenderBloom, shouldRenderBanding,
+        shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
         bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
@@ -770,7 +771,7 @@ export function mountCompositor ($el, $refs, actions) {
         bloomIntensity,
         banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
         bandingIntensity,
-        edges: postBuffers.get(shouldRenderBanding ? 'edges' : 'blank'),
+        edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
         edgesIntensity,
         noiseIntensity,
         lutIntensity,

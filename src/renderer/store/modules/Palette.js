@@ -331,6 +331,7 @@ export function createControlsState () {
         intensityFactor: 1,
         // blendMode: OVERLAY,
         thickness: 0.5,
+        repeat: 32,
         bufferScale: 1,
         intensityFactorController: -1,
         thicknessController: -1

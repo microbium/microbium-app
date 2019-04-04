@@ -109,6 +109,7 @@ export function createDrawEdges (regl) {
     uniforms: {
       color: regl.prop('color'),
       thickness: regl.prop('thickness'),
+      repeat: regl.prop('repeat'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution')
     }
