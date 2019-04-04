@@ -135,6 +135,9 @@
             <input-file accept=".png,.jpg" v-model="model.lut.textureFile" />
           </b> texture (LUT)
         </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.lut.textureFile" />
+        </div>
       </div>
     </palette-group>
 
@@ -223,6 +226,7 @@ import { pluralize } from '@renderer/utils/word'
 
 import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputFile from '@renderer/components/input/File'
+import InputFileRefresh from '@renderer/components/input/FileRefresh'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteItemController from '@renderer/components/palette/ItemController'
@@ -233,6 +237,7 @@ export default {
   components: {
     InputCheckbox,
     InputFile,
+    InputFileRefresh,
     InputRange,
     PaletteGroup,
     PaletteItemController
