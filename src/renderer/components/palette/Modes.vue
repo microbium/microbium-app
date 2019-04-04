@@ -25,6 +25,7 @@
     justify-content: center;
     width: 24px;
     height: 100%;
+    -webkit-app-region: no-drag;
 
     path {
       stroke: #fff;

@@ -82,6 +82,7 @@
     height: 13px;
     border: 1px solid #444;
     border-radius: 50%;
+    -webkit-app-region: no-drag;
 
     &:before {
       content: "";

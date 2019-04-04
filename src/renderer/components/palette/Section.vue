@@ -24,6 +24,7 @@
     background: $base-color;
     padding: 0 18px;
     height: 26px;
+    -webkit-app-region: drag;
   }
 
   &__title {
