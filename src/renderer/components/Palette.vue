@@ -38,7 +38,6 @@
 
       <palette-section :hidden="!showForcesPanels">
         <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
-        <palette-simulation :model="controls.simulation" />
         <palette-force-list
           :list="controls.forces"
           :forceTypes="params.forceTypes"
@@ -56,6 +55,7 @@
 
       <palette-section :hidden="!showViewportPanel">
         <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
+        <palette-simulation :model="controls.simulation" />
         <palette-viewport :model="controls.viewport" />
       </palette-section>
 
@@ -446,8 +446,8 @@ export default {
     showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
-    showViewportPanel: createModeCondition('activePalettes', 'viewport'),
     showControllersPanel: createModeCondition('activePalettes', 'controllers'),
+    showViewportPanel: createModeCondition('activePalettes', 'viewport'),
     showEffectsPanels: createModeCondition('activePalettes', 'effects')
   },
 

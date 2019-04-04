@@ -61,7 +61,7 @@
     </palette-group>
 
     <!-- Simulation Behavior -->
-    <palette-group persistent-controls>
+    <palette-group persistent-controls open>
       <h2 slot="title">Behavior</h2>
 
       <palette-constraint-preview slot="controls"
@@ -82,7 +82,7 @@
     </palette-group>
 
     <!-- Controller -->
-    <palette-group persistent-controls>
+    <palette-group persistent-controls open>
       <h2 slot="title">Controller</h2>
       <input-checkbox slot="controls" v-model="controllers.midi.enabled" />
 

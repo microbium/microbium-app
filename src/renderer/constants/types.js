@@ -12,7 +12,11 @@ export const MODE_TYPES = [
 export const PALETTE_TYPES = [
   {
     id: 'tool',
-    name: 'Line Tool / Controllers'
+    name: 'Tools / Controllers'
+  },
+  {
+    id: 'viewport',
+    name: 'World / Simulation'
   },
   {
     id: 'geometry',
@@ -24,15 +28,11 @@ export const PALETTE_TYPES = [
   },
   {
     id: 'forces',
-    name: 'Simulation / Forces'
+    name: 'Simulation Forces'
   },
   {
     id: 'constraints',
     name: 'Constraint Groups'
-  },
-  {
-    id: 'viewport',
-    name: 'Viewport'
   },
   {
     id: 'effects',
