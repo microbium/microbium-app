@@ -27,8 +27,7 @@ void main() {
   vec3 baseColorHSV = rgb2hsv(baseColor);
 
   // Edge Detection
-  float edgesSample = edgeDetect(baseColorHSV.b / (1.0 / repeat),
-    thickness, thickness * 1.5);
+  float edgesSample = edgeDetect(baseColorHSV.b *  repeat, thickness, thickness * 1.5);
   vec3 edgesColor = hsv2rgb(vec3(baseColorHSV.r, baseColorHSV.g, edgesSample));
 
   gl_FragColor = vec4(edgesColor, edgesSample);
