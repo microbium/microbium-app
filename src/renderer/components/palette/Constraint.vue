@@ -36,11 +36,19 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0" max="0.5" step="0.01" v-model="model.engineCadence" />
+        <input-range min="20" max="400" step="5" v-model="model.engineCadence" />
         <div class="palette-item__label">
           <b>{{ engineCadenceName }}</b> flex cadence
-          <palette-item-controller :min="0" :max="0.5"
+          <palette-item-controller :min="20" :max="400"
             :model="model" prop="engineCadence" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="10" step="0.25" v-model="model.engineCadenceDelay" />
+        <div class="palette-item__label">
+          <b>{{ engineCadenceDelayName }}</b> instance flex delay
+          <palette-item-controller :min="0" :max="10"
+            :model="model" prop="engineCadenceDelay" />
         </div>
       </div>
       <hr />
@@ -93,7 +101,12 @@ export default {
 
     engineCadenceName () {
       const { engineCadence } = this.model
-      return `${roundToPlaces(engineCadence * 1000, 0)}ms (t)`
+      return `${roundToPlaces(engineCadence, 0)} bpm`
+    },
+
+    engineCadenceDelayName () {
+      const { engineCadenceDelay } = this.model
+      return `${roundToPlaces(engineCadenceDelay, 2)}x bpm`
     },
 
     engineFlexName () {

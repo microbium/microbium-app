@@ -247,10 +247,12 @@ export function createControlsState () {
         name: 'Muscle',
         typeIndex: 2,
         slipTolerance: 0.1,
-        engineCadence: 0.1,
+        engineCadence: 120,
+        engineCadenceDelay: 1,
         engineFlex: 0.25,
         slipToleranceController: -1,
         engineCadenceController: -1,
+        engineCadenceDelayController: -1,
         engineFlexController: -1
       },
       {
@@ -258,10 +260,12 @@ export function createControlsState () {
         name: 'Bone',
         typeIndex: 1,
         slipTolerance: 0.1,
-        engineCadence: 0.1,
+        engineCadence: 120,
+        engineCadenceDelay: 1,
         engineFlex: 0,
         slipToleranceController: -1,
         engineCadenceController: -1,
+        engineCadenceDelayController: -1,
         engineFlexController: -1
       },
       {
@@ -269,10 +273,12 @@ export function createControlsState () {
         name: 'Anchor',
         typeIndex: 0,
         slipTolerance: 0,
-        engineCadence: 0.1,
+        engineCadence: 120,
+        engineCadenceDelay: 1,
         engineFlex: 0,
         slipToleranceController: -1,
         engineCadenceController: -1,
+        engineCadenceDelayController: -1,
         engineFlexController: -1
       }
     ],

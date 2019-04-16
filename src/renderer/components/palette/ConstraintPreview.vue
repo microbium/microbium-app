@@ -106,7 +106,7 @@ export default {
       const innerOffset = offset + (width * 0.5 - offset) * slipTolerance
       const bendX = innerOffset + width * 0.3
       const bendY = mapLinear(0, 1, 2, 10, engineFlex)
-      const bendS = mapLinear(0, 0.5, width * 0.2, 0, engineCadence)
+      const bendS = mapLinear(20, 400, width * 0.2, 0, engineCadence)
 
       return `
         M ${innerOffset},0

@@ -284,17 +284,19 @@ export function createSimulationController (tasks, state, renderer) {
       const { constraintGroups } = state.controls
       const { engines } = state.simulationConstraintGroups
 
-      engines.forEach((engine) => {
+      engines.forEach((engine, i) => {
         const { segment, constraints, localTime } = engine
         const config = constraintGroups[segment.constraintIndex]
-        const { slipTolerance, engineCadence, engineFlex } = config
+        const { slipTolerance, engineCadence, engineCadenceDelay, engineFlex } = config
 
-        const nextLocalTime = localTime + engineCadence * speed
+        const engineSpeed = engineCadence * speed / (60 * 60)
+        const engineDelay = engineCadenceDelay * engineSpeed * i
+        const nextLocalTime = localTime + engineSpeed
+        const constraintTime = nextLocalTime - engineDelay
         engine.localTime = nextLocalTime
 
-        constraints.forEach(({distance, constraint}, i) => {
-          const constraintTime = nextLocalTime + i * speed
-          const distanceScale = Math.sin(constraintTime) *
+        constraints.forEach(({distance, constraint}) => {
+          const distanceScale = Math.sin(constraintTime * Math.PI * 2) *
             mapLinear(0, 1, 0, 0.5, engineFlex) +
             mapLinear(0, 1, 1, 0.5, engineFlex)
 
