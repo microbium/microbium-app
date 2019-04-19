@@ -43,7 +43,7 @@ void main() {
   if (dashFunction == 1) {
     outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);
   } else if (dashFunction == 2) {
-    outAlpha *= concentricDash(fragPosition, 0.1, 3.0);
+    outAlpha *= concentricDash(fragPosition, 0.1 / viewScale, 3.0);
   }
 
   if (useAlphaMap == 1) {

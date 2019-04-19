@@ -6,6 +6,7 @@ precision highp float;
 
 uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
+uniform float viewScale;
 uniform float tick;
 
 uniform int dashFunction;
@@ -61,7 +62,7 @@ void main() {
   if (dashFunction == 1) {
     outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);
   } else if (dashFunction == 2) {
-    outAlpha *= concentricDash(fragPosition, 0.1, 3.0);
+    outAlpha *= concentricDash(fragPosition, 0.1 / viewScale, 3.0);
   } else if (dashFunction == 3) {
     outAlpha *= basicDash(udo, 0.1, 3.0);
   } else if (dashFunction == 4) {
