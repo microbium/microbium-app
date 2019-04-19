@@ -126,6 +126,7 @@ export function createGeometryController (tasks, state) {
       const { activeSegment } = stateGeom
       if (!activeSegment) return
 
+      const { scale } = state.viewport
       const {
         shouldAppend, shouldAppendOnce,
         linkSizeMin, linkSizeMinStrokeFactor,
@@ -138,7 +139,9 @@ export function createGeometryController (tasks, state) {
 
       const hasCandidate = !!stateGeom.candidatePoint
       const dist = vec2.distance(prevPoint, point)
-      const adjLinkSizeMin = linkSizeMin + strokeWidth * linkSizeMinStrokeFactor
+      const adjLinkSizeMin = (linkSizeMin +
+        strokeWidth * linkSizeMinStrokeFactor) / scale
+
       if (!hasCandidate && dist < adjLinkSizeMin * 0.2) return
 
       const candidatePoint = stateGeom.candidatePoint || vec2.create()
