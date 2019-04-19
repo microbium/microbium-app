@@ -1,5 +1,6 @@
 import { vec2 } from 'gl-matrix'
 import { radialPosition } from '@renderer/utils/math'
+import { arc } from './primitive'
 
 const { PI } = Math
 const scratchVec2A = vec2.create()
@@ -63,20 +64,30 @@ export function drawSimulatorForces (
 
     ctx.lineWidth = 1.5 * scaleInv
     ctx.beginPath()
-    ctx.arc(0, 0, baseRadius + intensity * 1.5, 0, PI * 2)
+    arc(ctx,
+      0, 0, baseRadius + intensity * 1.5,
+      0, Math.PI * 2 - Math.PI * 0.2,
+      false, Math.PI * 0.2)
     ctx.closePath()
     ctx.stroke()
 
     ctx.lineWidth = 1 * scaleInv
     ctx.beginPath()
-    ctx.arc(0, 0, baseRadius + 4 + intensity * 1.5, 0, PI * 2)
+    arc(ctx,
+      0, 0, baseRadius + intensity * 1.5 + 4,
+      0, Math.PI * 2 - Math.PI * 0.2,
+      false, Math.PI * 0.2)
     ctx.closePath()
     ctx.stroke()
 
     if (renderTicker) {
       ctx.lineWidth = 1 * scaleInv
       ctx.beginPath()
-      ctx.arc(0, 0, baseRadius + 2 + Math.sin(tick * 0.05) * 6, 0, PI * 2)
+      arc(ctx,
+        0, 0,
+        baseRadius + 2 + Math.sin(tick * 0.05) * 6,
+        0, Math.PI * 2 - Math.PI * 0.2,
+        false, Math.PI * 0.2)
       ctx.closePath()
       ctx.stroke()
     }

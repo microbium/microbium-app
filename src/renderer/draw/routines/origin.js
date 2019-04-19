@@ -1,4 +1,5 @@
 import { UI_PALETTE } from '@renderer/constants/color-palettes'
+import { arc } from './primitive'
 
 const { PI } = Math
 
@@ -10,7 +11,10 @@ export function drawOrigin (state, ctx) {
   ctx.lineWidth = 1.5
 
   ctx.beginPath()
-  ctx.arc(0, 0, size, 0, PI * 2)
+  arc(ctx,
+    0, 0, size,
+    0, PI * 2 - Math.PI * 0.2,
+    false, Math.PI * 0.2)
   ctx.closePath()
   ctx.stroke()
 }
