@@ -1,8 +1,8 @@
 <template>
   <div class="palette-style">
+    <palette-group nested>
+      <h2 slot="title">Stroke</h2>
 
-    <palette-group nested open>
-      <h2 slot="title">Geometry / Color</h2>
       <div class="palette-item">
         <input-range min="0" max="5" step="0.1"
           v-model="model.thickness" />
@@ -26,24 +26,21 @@
 
       <div class="palette-item">
         <div class="palette-item__label">
-          <b>{{ model.tintHex.toUpperCase() }}
-            <input-color v-model="model.tintHex" />
+          <b>{{ model.lineTintHex.toUpperCase() }}
+            <input-color v-model="model.lineTintHex" />
           </b> tint
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0" max="1" step="0.01" v-model="model.tintAlpha" />
+        <input-range min="0" max="1" step="0.01" v-model="model.lineTintAlpha" />
         <div class="palette-item__label">
-          <b>{{ tintAlphaName }}</b> alpha factor
+          <b>{{ lineTintAlphaName }}</b> alpha factor
           <palette-item-controller :min="0" :max="1"
-            :model="model" prop="tintAlpha" />
+            :model="model" prop="lineTintAlpha" />
         </div>
       </div>
       <hr />
-    </palette-group>
 
-    <palette-group nested>
-      <h2 slot="title">Stroke Pattern</h2>
       <div class="palette-item">
         <div class="palette-item__label">
           <b>{{ lineAlphaFunctionName }}
@@ -77,7 +74,25 @@
     </palette-group>
 
     <palette-group nested>
-      <h2 slot="title">Fill Pattern</h2>
+      <h2 slot="title">Fill</h2>
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ model.fillTintHex.toUpperCase() }}
+            <input-color v-model="model.fillTintHex" />
+          </b> tint
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.fillTintAlpha" />
+        <div class="palette-item__label">
+          <b>{{ fillTintAlphaName }}</b> alpha factor
+          <palette-item-controller :min="0" :max="1"
+            :model="model" prop="fillTintAlpha" />
+        </div>
+      </div>
+      <hr />
+
       <div class="palette-item">
         <div class="palette-item__label">
           <b>{{ fillAlphaFunctionName }}
@@ -109,6 +124,32 @@
       </div>
       <hr />
     </palette-group>
+
+    <palette-group nested>
+      <h2 slot="title">Curve Geometry</h2>
+
+      <div class="palette-item">
+        <input-range min="0" max="20" step="1" v-model="model.curveSegMinLength" />
+        <div class="palette-item__label">
+          <b>{{ curveSegMinLengthName }}</b> min length
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="2" max="16" step="1" v-model="model.curveSegMaxLength" />
+        <div class="palette-item__label">
+          <b>{{ curveSegMaxLengthName }}</b> max length
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="1" max="12" v-model="model.curveSubDivisions" />
+        <div class="palette-item__label">
+          <b>{{ curveSubDivisionsName }}</b> {{ curveSubDivisionsLabel }}
+        </div>
+      </div>
+      <hr />
+    </palette-group>
   </div>
 </template>
 
@@ -116,7 +157,8 @@
 </style>
 
 <script>
-import { roundToPlaces } from '@renderer/utils/number'
+import { roundToPlaces, numberToWords } from '@renderer/utils/number'
+import { pluralize } from '@renderer/utils/word'
 
 import InputColor from '@renderer/components/input/Color'
 import InputFile from '@renderer/components/input/File'
@@ -199,9 +241,14 @@ export default {
       return `${roundToPlaces(strokeWidthMod, 1)}x`
     },
 
-    tintAlphaName () {
-      const { tintAlpha } = this.model
-      return `${roundToPlaces(tintAlpha * 100, 0)}%`
+    lineTintAlphaName () {
+      const { lineTintAlpha } = this.model
+      return `${roundToPlaces(lineTintAlpha * 100, 0)}%`
+    },
+
+    fillTintAlphaName () {
+      const { fillTintAlpha } = this.model
+      return `${roundToPlaces(fillTintAlpha * 100, 0)}%`
     },
 
     textureName () {
@@ -212,6 +259,26 @@ export default {
     alphaTextureName () {
       const texture = this.alphaTextures[this.model.alphaTextureIndex]
       return texture.name
+    },
+
+    curveSegMinLengthName () {
+      const { curveSegMinLength } = this.model
+      return `${roundToPlaces(curveSegMinLength, 0)}pt`
+    },
+
+    curveSegMaxLengthName () {
+      const { curveSegMaxLength } = this.model
+      return `${roundToPlaces(curveSegMaxLength * 10, 0)}pt`
+    },
+
+    curveSubDivisionsName () {
+      const { curveSubDivisions } = this.model
+      return numberToWords(curveSubDivisions)
+    },
+
+    curveSubDivisionsLabel () {
+      const { curveSubDivisions } = this.model
+      return `segment ${pluralize(curveSubDivisions, 'subdivision', 'subdivisions')}`
     }
   }
 }

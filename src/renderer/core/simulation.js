@@ -317,18 +317,18 @@ export function createSimulationController (tasks, state, renderer) {
     updateForces (speed) {
       const { points } = state.simulationForces
       const { tick } = state.simulation
-      const { forces } = state.controls
+      const { forces, postEffects } = state.controls
       const { isDragging, down } = state.drag
       const { move, velocity } = state.seek
-      const { polarIterations, mirror } = state.controls.modifiers
+      const { polar } = postEffects
 
       // TODO: Improve pointer force polar distribution
-      const hasMirror = mirror.intensityFactor > 0
+      const hasMirror = polar.enabled && polar.mirrorIntensityFactor > 0
       const mirrorInterval = hasMirror ? 2 : 1
       const shouldApplyMirror = hasMirror && tick % 2 === 0
 
-      const angleStep = Math.PI * 2 / polarIterations
-      const angleIndex = Math.floor((tick / mirrorInterval) % polarIterations)
+      const angleStep = Math.PI * 2 / polar.iterations
+      const angleIndex = Math.floor((tick / mirrorInterval) % polar.iterations)
       const rotationAngle = angleStep * angleIndex
 
       points.forEach((item, i) => {

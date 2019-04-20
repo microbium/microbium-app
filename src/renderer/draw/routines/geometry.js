@@ -10,7 +10,7 @@ export function drawGeometry (state, contexts, segmentStart, segmentCount) {
 
 export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   const { segments, vertices } = state.geometry
-  const { styles, modifiers } = state.controls
+  const { styles } = state.controls
   const segmentStart = segmentStart_ || 0
   const segmentCount = segmentCount_ || segments.length
   if (!segments.length) return
@@ -27,8 +27,14 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     if (count < 2) continue
 
     const { ctx } = contexts[styleIndex]
-    const { strokeWidthMod } = styles[styleIndex]
-    const curvePrecision = computeCurvePrecision(modifiers.curve, linkSizeAvg)
+    const {
+      strokeWidthMod,
+      curveSubDivisions,
+      curveSegMinLength,
+      curveSegMaxLength
+    } = styles[styleIndex]
+    const curvePrecision = computeCurvePrecision(
+      curveSubDivisions, curveSegMinLength, curveSegMaxLength, linkSizeAvg)
 
     const points = map(indices, (i) => vertices[i])
     if (isClosed) points.pop()
@@ -60,9 +66,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 }
 
 // TODO: Improve curve precision mapping
-function computeCurvePrecision (
-  {subDivisions, segMinLength, segMaxLength},
-  linkSizeAvg) {
+function computeCurvePrecision (subDivisions, segMinLength, segMaxLength, linkSizeAvg) {
   return Math.round(subDivisions * clamp(0, 1,
     mapLinear(segMinLength, segMaxLength * 10, 0, 1, linkSizeAvg)))
 }

@@ -19,10 +19,6 @@ export const PALETTE_TYPES = [
     name: 'World / Simulation'
   },
   {
-    id: 'geometry',
-    name: 'Geometry Modifiers'
-  },
-  {
     id: 'styles',
     name: 'Style Layers'
   },

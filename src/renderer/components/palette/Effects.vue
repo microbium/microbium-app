@@ -1,45 +1,25 @@
 <template>
   <div class="palette-effects">
-    <palette-group persistent-controls open>
-      <h2 slot="title">Bloom</h2>
-      <input-checkbox slot="controls" v-model="model.bloom.enabled" />
+    <palette-group persistent-controls>
+      <h2 slot="title">Polar Generator</h2>
+      <input-checkbox slot="controls" v-model="model.polar.enabled" />
 
       <div class="palette-item">
-        <input-range min="0" max="3" step="0.05" v-model="model.bloom.intensityFactor" />
+        <input-range min="1" max="11" v-model="model.polar.iterations" />
         <div class="palette-item__label">
-          <b>{{ bloomFactorName }}</b> intensity
-          <palette-item-controller :min="0" :max="3"
-            :model="model.bloom" prop="intensityFactor" />
+          <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
+          <palette-item-controller :min="1" :max="11"
+            :model="model.polar" prop="iterations" />
         </div>
       </div>
       <hr />
 
       <div class="palette-item">
-        <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackOffset" />
+        <input-range min="0" max="1" step="0.05" v-model="model.polar.mirrorIntensityFactor" />
         <div class="palette-item__label">
-          <b>{{ bloomFeedbackOffsetName }}</b> feedback offset
-          <palette-item-controller :min="-1" :max="1"
-            :model="model.bloom" prop="feedbackOffset" />
-        </div>
-      </div>
-      <hr />
-
-      <div class="palette-item">
-        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
-        <div class="palette-item__label">
-          <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="1" max="20" step="1" v-model="model.bloom.blurStep" />
-        <div class="palette-item__label">
-          <b>{{ bloomBlurStepName }}</b> blur radius interval
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
-        <div class="palette-item__label">
-          <b>{{ bloomBufferScaleName }}</b> buffer resolution
+          <b>{{ mirrorFactorName }}</b> mirror intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.polar" prop="mirrorIntensityFactor" />
         </div>
       </div>
       <hr />
@@ -167,6 +147,51 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Bloom</h2>
+      <input-checkbox slot="controls" v-model="model.bloom.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="3" step="0.05" v-model="model.bloom.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ bloomFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="3"
+            :model="model.bloom" prop="intensityFactor" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackOffset" />
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackOffsetName }}</b> feedback offset
+          <palette-item-controller :min="-1" :max="1"
+            :model="model.bloom" prop="feedbackOffset" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="1" max="20" step="1" v-model="model.bloom.blurStep" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurStepName }}</b> blur radius interval
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
+        <div class="palette-item__label">
+          <b>{{ bloomBufferScaleName }}</b> buffer resolution
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Vignette</h2>
       <input-checkbox slot="controls" v-model="model.vignette.enabled" />
 
@@ -248,6 +273,23 @@ export default {
   },
 
   computed: {
+    // Polar
+
+    polarIterationsName () {
+      const { iterations } = this.model.polar
+      return numberToWords(iterations)
+    },
+
+    polarIterationsLabel () {
+      const { iterations } = this.model.polar
+      return `polar ${pluralize(iterations, 'iteration', 'iterations')}`
+    },
+
+    mirrorFactorName () {
+      const { mirrorIntensityFactor } = this.model.polar
+      return `${roundToPlaces(mirrorIntensityFactor, 2)}x`
+    },
+
     // Noise
 
     noiseFactorName () {

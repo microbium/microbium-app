@@ -532,17 +532,20 @@ export function mountCompositor ($el, $refs, actions) {
 
     renderLines ({ contexts }, { polarAlpha, renderMirror }) {
       const { tick, isRunning } = state.simulation
-      const { polarIterations, mirror } = state.controls.modifiers
-      const { styles, alphaFunctions } = state.controls
+      const { styles, alphaFunctions, postEffects } = state.controls
+      const { polar } = postEffects
 
       const model = mat4.identity(scratchMat4A)
+      const polarIterations = polar.enabled ? polar.iterations : 1
       const polarStep = Math.PI * 2 / polarIterations
-      const mirrorAlpha = mirror.intensityFactor * (isRunning ? 1 : 0.2)
+      const mirrorAlpha = polar.enabled
+        ? polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
+        : 0
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       const angles = range(polarIterations)
         .map((i) => i * polarStep)
-      const anglesAlpha = range(polarIterations)
+      const anglesAlpha = range(polar.iterations)
         .map((i) => (i === 0 ? 1 : polarAlpha))
 
       for (let i = contexts.length - 1; i >= 0; i--) {
@@ -553,14 +556,14 @@ export function mountCompositor ($el, $refs, actions) {
         const {
           lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
           fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
-          tintHex, tintAlpha
+          lineTintHex, lineTintAlpha
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const tint = Colr.fromHex(tintHex)
+        const tint = Colr.fromHex(lineTintHex)
           .toRgbArray()
           .map((v) => v / 255)
-        tint.push(tintAlpha)
+        tint.push(lineTintAlpha)
 
         const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const thickness = this.computeLineThickness(style.thickness)

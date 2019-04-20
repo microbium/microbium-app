@@ -21,11 +21,6 @@
           :physicsTypes="params.physicsTypes" />
       </palette-section>
 
-      <palette-section :hidden="!showGeometryPanels">
-        <h2 slot="title">{{ paletteTypesMap.geometry.name }}</h2>
-        <palette-modifiers :model="controls.modifiers" />
-      </palette-section>
-
       <palette-section :hidden="!showStylePanels">
         <h2 slot="title">{{ paletteTypesMap.styles.name }}</h2>
         <palette-style-list
@@ -209,7 +204,6 @@ import PaletteSimulation from '@renderer/components/palette/Simulation'
 import PaletteForceList from '@renderer/components/palette/ForceList'
 import PaletteConstraintList from '@renderer/components/palette/ConstraintList'
 import PaletteStyleList from '@renderer/components/palette/StyleList'
-import PaletteModifiers from '@renderer/components/palette/Modifiers'
 import PaletteViewport from '@renderer/components/palette/Viewport'
 import PaletteEffects from '@renderer/components/palette/Effects'
 
@@ -229,7 +223,6 @@ export default {
     PaletteSimulation,
     PaletteGroup,
     PaletteModes,
-    PaletteModifiers,
     PaletteStyleList,
     PaletteTool,
     PaletteViewport
@@ -442,7 +435,6 @@ export default {
     isSelectMode: createModeCondition('activeMode', 'select'),
 
     showToolPanels: createModeCondition('activePalettes', 'tool'),
-    showGeometryPanels: createModeCondition('activePalettes', 'geometry'),
     showStylePanels: createModeCondition('activePalettes', 'styles'),
     showForcesPanels: createModeCondition('activePalettes', 'forces'),
     showConstraintsPanels: createModeCondition('activePalettes', 'constraints'),
@@ -457,7 +449,6 @@ export default {
     'controls.simulation': createStateSyncer('simulation'),
     'controls.forces': createStateSyncer('forces'),
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
-    'controls.modifiers': createStateSyncer('modifiers'),
     'controls.viewport': createStateSyncer('viewport'),
     'controls.postEffects': createStateSyncer('postEffects'),
     'controls.activePalettes.id': function (id) {
