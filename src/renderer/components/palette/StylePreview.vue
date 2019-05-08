@@ -149,13 +149,13 @@ export default {
     },
 
     strokeColor () {
-      const { tintHex } = this.model
-      return tintHex
+      const { lineTintHex } = this.model
+      return lineTintHex
     },
 
     strokeOpacity () {
-      const { tintAlpha } = this.model
-      return tintAlpha
+      const { lineTintAlpha } = this.model
+      return lineTintAlpha
     },
 
     strokeDashArray () {

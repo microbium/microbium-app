@@ -44,14 +44,19 @@ export function createControlsState () {
         lineAlphaFuncIndex: 0,
         lineAlphaMapFile: null,
         lineAlphaMapRepeat: 40,
+        lineTintHex: '#FFFFFF',
+        lineTintAlpha: 1,
         fillAlphaFuncIndex: 0,
         fillAlphaMapFile: null,
         fillAlphaMapRepeat: 40,
-        tintHex: '#FFFFFF',
-        tintAlpha: 1,
+        fillTintHex: '#FFFFFF',
+        fillTintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
         strokeWidthMod: 0.6,
+        curveSegMinLength: 10,
+        curveSegMaxLength: 8, // x10
+        curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
         strokeWidthModController: -1
@@ -62,14 +67,19 @@ export function createControlsState () {
         lineAlphaFuncIndex: 1,
         lineAlphaMapFile: null,
         lineAlphaMapRepeat: 40,
+        lineTintHex: '#FFFFFF',
+        lineTintAlpha: 1,
         fillAlphaFuncIndex: 1,
         fillAlphaMapFile: null,
         fillAlphaMapRepeat: 40,
-        tintHex: '#EEEEEE',
-        tintAlpha: 1,
+        fillTintHex: '#FFFFFF',
+        fillTintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 0.25,
         strokeWidthMod: 0.6,
+        curveSegMinLength: 10,
+        curveSegMaxLength: 8, // x10
+        curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
         strokeWidthModController: -1
@@ -80,14 +90,19 @@ export function createControlsState () {
         lineAlphaFuncIndex: 3,
         lineAlphaMapFile: null,
         lineAlphaMapRepeat: 40,
+        lineTintHex: '#FFFFFF',
+        lineTintAlpha: 1,
         fillAlphaFuncIndex: 0,
         fillAlphaMapFile: null,
         fillAlphaMapRepeat: 40,
-        tintHex: '#AAAAAA',
-        tintAlpha: 1,
+        fillTintHex: '#FFFFFF',
+        fillTintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
         strokeWidthMod: 1.2,
+        curveSegMinLength: 10,
+        curveSegMaxLength: 8, // x10
+        curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
         strokeWidthModController: -1
@@ -109,46 +124,6 @@ export function createControlsState () {
         strokeWidthMod: 1
       }
     ],
-
-    /*
-    textures: [
-      {
-        index: 0,
-        name: 'Blank',
-        path: null
-      },
-      {
-        index: 1,
-        name: 'Watercolor',
-        path: 'watercolor'
-      },
-      {
-        index: 2,
-        name: 'Ground Mud',
-        path: 'ground-mud'
-      }
-    ],
-    */
-
-    /*
-    alphaTextures: [
-      {
-        index: 0,
-        name: 'Blank',
-        path: null
-      },
-      {
-        index: 1,
-        name: 'Hairy',
-        path: 'alpha-hairy'
-      },
-      {
-        index: 2,
-        name: 'Hatchy',
-        path: 'alpha-hatchy'
-      }
-    ],
-    */
 
     // FEAT: Design alpha functions / params
     alphaFunctions: {
@@ -283,20 +258,6 @@ export function createControlsState () {
       }
     ],
 
-    modifiers: {
-      polarIterations: 3,
-      polarIterationsController: -1,
-      mirror: {
-        intensityFactor: 0.5,
-        intensityFactorController: -1
-      },
-      curve: {
-        segMinLength: 10,
-        segMaxLength: 8, // x10
-        subDivisions: 4
-      }
-    },
-
     viewport: {
       pixelRatio: pixelRatioClamped(),
       background: {
@@ -312,6 +273,13 @@ export function createControlsState () {
     // TODO: Scale by pixelRatio in renderer
     // Will fix resolution discrepancy when sharing / exporting
     postEffects: {
+      polar: {
+        enabled: true,
+        iterations: 3,
+        mirrorIntensityFactor: 0.5,
+        iterationsController: -1,
+        mirrorIntensityFactorController: -1
+      },
       bloom: {
         enabled: true,
         intensityFactor: 1,
