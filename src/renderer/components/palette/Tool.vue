@@ -103,6 +103,12 @@
           </b> active input
         </div>
       </div>
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ midiSignalName }}</b> current signal
+        </div>
+      </div>
       <hr />
     </palette-group>
   </div>
@@ -189,6 +195,14 @@ export default {
         { name: 'None' },
         ...availableInputs
       ]
+    },
+
+    midiSignalName () {
+      const { currentSignal } = this.controllers.midi
+      return !currentSignal.cc ? 'None'
+        : `CC ${currentSignal.cc} :
+          ${(currentSignal.value / 127).toFixed(2)}
+          [${currentSignal.value}]`
     }
   }
 }

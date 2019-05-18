@@ -345,6 +345,7 @@ export function createControllersState () {
       enabled: false,
       activeInput: null,
       availableInputs: [],
+      currentSignal: { cc: null, value: -1 },
       channelValues: range(64).reduce((map, i) => {
         map[i] = 0
         return map

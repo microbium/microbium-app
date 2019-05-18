@@ -322,16 +322,21 @@ export default {
 
     // TODO: Disable controller messages unless sim is running?
     handleMidiMessage (event) {
-      const { enabled, channelValues } = this.controllers.midi
+      let { midi } = this.controllers
+      const { enabled, channelValues } = midi
       if (!enabled) return
 
       const { data } = event
       const cc = data[1]
       const value = data[2]
-      if (channelValues[cc] == null) return
 
-      channelValues[cc] = value
-      PaletteControllers.emit('cc', cc, value)
+      midi.currentSignal.cc = cc
+      midi.currentSignal.value = value
+
+      if (channelValues[cc] != null) {
+        channelValues[cc] = value
+        PaletteControllers.emit('cc', cc, value)
+      }
     },
 
     sendMessage (name, data) {
