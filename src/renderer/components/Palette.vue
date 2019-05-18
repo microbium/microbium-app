@@ -316,7 +316,12 @@ export default {
         if (err) return
         const { midi } = this.controllers
         const { inputs } = WebMidi
+
         midi.availableInputs = inputs || []
+        if (inputs.length) {
+          midi.enabled = true
+          midi.activeInput = inputs[0].name
+        }
       })
     },
 
