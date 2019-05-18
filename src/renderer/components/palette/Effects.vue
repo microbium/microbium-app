@@ -100,7 +100,7 @@
       <input-checkbox slot="controls" v-model="model.lut.enabled" />
 
       <div class="palette-item">
-        <input-range min="0" max="1" step="0.05" v-model="model.lut.intensityFactor" />
+        <input-range min="0" max="1" step="0.01" v-model="model.lut.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ lutFactorName }}</b> intensity
           <palette-item-controller :min="0" :max="1"
@@ -129,18 +129,24 @@
         <input-range min="-0.5" max="0.5" step="0.005" v-model="model.colorShift.hsl[0]" />
         <div class="palette-item__label">
           <b>{{ colorShiftHueName }}</b> hue
+          <palette-item-controller :min="-0.5" :max="0.5"
+            :model="model.colorShift.hsl" prop="0" />
         </div>
       </div>
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[1]" />
         <div class="palette-item__label">
           <b>{{ colorShiftSatName }}</b> saturation
+          <palette-item-controller :min="-1" :max="1"
+            :model="model.colorShift.hsl" prop="1" />
         </div>
       </div>
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[2]" />
         <div class="palette-item__label">
           <b>{{ colorShiftValName }}</b> value
+          <palette-item-controller :min="-1" :max="1"
+            :model="model.colorShift.hsl" prop="2" />
         </div>
       </div>
       <hr />
@@ -174,12 +180,16 @@
         <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
         <div class="palette-item__label">
           <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
+          <palette-item-controller :min="0" :max="6" :step="1"
+            :model="model.bloom" prop="blurPasses" />
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="1" max="20" step="1" v-model="model.bloom.blurStep" />
+        <input-range min="1" max="20" step="0.5" v-model="model.bloom.blurStep" />
         <div class="palette-item__label">
           <b>{{ bloomBlurStepName }}</b> blur radius interval
+          <palette-item-controller :min="1" :max="20" :step="0.5"
+            :model="model.bloom" prop="blurStep" />
         </div>
       </div>
       <div class="palette-item">
@@ -321,7 +331,7 @@ export default {
 
     bloomBlurStepName () {
       const { bloom } = this.model
-      return `${bloom.blurStep}px`
+      return `${roundToPlaces(bloom.blurStep, 1)}px`
     },
 
     bloomBufferScaleName () {

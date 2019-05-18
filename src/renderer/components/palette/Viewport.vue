@@ -14,6 +14,8 @@
         <input-range min="0" max="2" step="0.05" v-model="model.background.alphaFactor" />
         <div class="palette-item__label">
           <b>{{ backgroundAlphaName }}</b> fade out
+          <palette-item-controller :min="0" :max="2"
+            :model="model.background" prop="alphaFactor" />
         </div>
       </div>
       <hr />
@@ -33,6 +35,8 @@
         <input-range min="0" max="1" step="0.05" v-model="model.overlay.alphaFactor" />
         <div class="palette-item__label">
           <b>{{ overlayAlphaName }}</b> opacity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.overlay" prop="alphaFactor" />
         </div>
       </div>
       <hr />
@@ -62,6 +66,7 @@ import { roundToPlaces } from '@renderer/utils/number'
 import InputColor from '@renderer/components/input/Color'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 
 export default {
   name: 'palette-viewport',
@@ -69,7 +74,8 @@ export default {
   components: {
     InputColor,
     InputRange,
-    PaletteGroup
+    PaletteGroup,
+    PaletteItemController
   },
 
   props: {

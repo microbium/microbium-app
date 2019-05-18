@@ -316,7 +316,8 @@ export function mountCompositor ($el, $refs, actions) {
         vignette.radius, vignette.smoothness,
         (isRunning && vignette.enabled) ? vignette.intensityFactor : 0)
 
-      computedState.colorShift = colorShift.enabled ? colorShift.hsl : colorShift.none
+      vec3.copy(computedState.colorShift,
+        colorShift.enabled ? colorShift.hsl : colorShift.none)
     },
 
     // OPTIM: Improve syncing

@@ -262,11 +262,13 @@ export function createControlsState () {
       pixelRatio: pixelRatioClamped(),
       background: {
         colorHex: '#7399A1',
-        alphaFactor: 1
+        alphaFactor: 1,
+        alphaFactorController: -1
       },
       overlay: {
         colorHighlightHex: '#92D9E7',
-        alphaFactor: 1
+        alphaFactor: 1,
+        alphaFactorController: -1
       }
     },
 
@@ -289,7 +291,9 @@ export function createControlsState () {
         bufferScale: 1,
         feedbackOffset: 0,
         intensityFactorController: -1,
-        feedbackOffsetController: -1
+        feedbackOffsetController: -1,
+        blurPassesController: -1,
+        blurStepController: -1
       },
       banding: {
         enabled: false,
@@ -328,7 +332,14 @@ export function createControlsState () {
       colorShift: {
         enabled: false,
         none: [0, 0, 0],
-        hsl: [0.15, 0, 0]
+        hsl: {
+          0: 0.15,
+          1: 0,
+          2: 0,
+          '0Controller': -1,
+          '1Controller': -1,
+          '2Controller': -1
+        }
       },
       noise: {
         enabled: true,
