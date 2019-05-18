@@ -61,6 +61,7 @@ export default {
   props: {
     min: Number,
     max: Number,
+    step: Number,
     model: Object,
     prop: String
   },
@@ -95,8 +96,11 @@ export default {
       const channel = model[channelProp]
       if (channel !== cc) return
 
-      const { prop, min, max } = this
-      model[prop] = mapLinear(0, 127, min, max, value)
+      const { prop, min, max, step } = this
+      const nextValue = mapLinear(0, 127, min, max, value)
+      model[prop] = !step
+        ? nextValue
+        : (Math.round(nextValue * (1 / step)) * step)
     }
   },
 
