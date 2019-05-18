@@ -46,7 +46,7 @@ import InputSelect from '@renderer/components/input/Select'
 const CHANNELS = [{
   name: '–',
   index: -1
-}].concat(range(16).map((index) => ({
+}].concat(range(64).map((index) => ({
   name: `${index}`,
   index
 })))
