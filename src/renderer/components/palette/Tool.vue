@@ -102,7 +102,7 @@
                 {{ item.name }}
               </option>
             </input-select>
-          </b> active input
+          </b> active MIDI input
         </div>
       </div>
 

@@ -319,7 +319,7 @@ export function createSimulationController (tasks, state, renderer) {
       const { tick } = state.simulation
       const { forces, postEffects } = state.controls
       const { isDragging, down } = state.drag
-      const { move, velocity } = state.seek
+      const { move, velocity, hand } = state.seek
       const { polar } = postEffects
 
       // TODO: Improve pointer force polar distribution
@@ -361,14 +361,24 @@ export function createSimulationController (tasks, state, renderer) {
             force.set(polarTickPosition[0], polarTickPosition[1], 0)
             break
           case 1:
-            // Pointer
-            const pointerPosition = isDragging ? down : move
-            const pointerForcePosition = radialPosition(scratchVec2A,
-              pointerPosition, rotationAngle)
+            // Cursor
+            const cursorPosition = isDragging ? down : move
+            const cursorForcePosition = radialPosition(scratchVec2A,
+              cursorPosition, rotationAngle)
 
-            if (shouldApplyMirror) pointerForcePosition[0] *= -1
-            vec2.copy(position, pointerPosition)
-            force.set(pointerForcePosition[0], pointerForcePosition[1], 0)
+            if (shouldApplyMirror) cursorForcePosition[0] *= -1
+            vec2.copy(position, cursorPosition)
+            force.set(cursorForcePosition[0], cursorForcePosition[1], 0)
+            break
+          case 2:
+            // Hand (Leap)
+            const handPosition = hand
+            const handForcePosition = radialPosition(scratchVec2A,
+              handPosition, rotationAngle)
+
+            if (shouldApplyMirror) handForcePosition[0] *= -1
+            vec2.copy(position, handPosition)
+            force.set(handForcePosition[0], handForcePosition[1], 0)
             break
         }
 
@@ -378,12 +388,18 @@ export function createSimulationController (tasks, state, renderer) {
             force.intensity = intensity
             break
           case 1:
-            // Pointer Velocity
-            force.intensity = Math.min(velocity, 3) * intensity + 2
-            break
-          case 2:
             // Ebb and Flow
             force.intensity = Math.sin(tick * 0.01) * intensity * 0.1
+            break
+          case 2:
+            // Cursor Velocity
+            force.intensity = Math.min(velocity, 3) * intensity + 2
+            if (positionTypeIndex === 0) force.intensity *= 0.1
+            break
+          case 3:
+            // Hand Proximity
+            force.intensity = (1 - hand[2]) * 5 * intensity + 2
+            if (positionTypeIndex === 0) force.intensity *= 0.1
             break
         }
       })

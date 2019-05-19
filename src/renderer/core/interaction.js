@@ -1,5 +1,5 @@
-import { vec2 } from 'gl-matrix'
-import { clamp } from '@renderer/utils/math'
+import { vec2, vec3 } from 'gl-matrix'
+import { clamp, mapLinear } from '@renderer/utils/math'
 
 export function createSeekController (tasks, state) {
   const { requestSync } = tasks
@@ -51,6 +51,20 @@ export function createSeekController (tasks, state) {
       const stateSeek = state.seek
       stateSeek.wheelOffset = clamp(-1, 1,
         stateSeek.wheelOffset + deltaY * 0.001)
+    },
+
+    handMove (frame) {
+      const { hand } = state.seek
+      const { size } = state.viewport
+      const pointable0 = frame.pointables[0]
+      const pos = pointable0.tipPosition
+
+      vec3.set(hand,
+        mapLinear(-80, 80, 0, size[0], pos[0]),
+        mapLinear(-80, 80, 0, size[1], pos[2]),
+        mapLinear(0, 200, 0, 1, pos[1]))
+
+      requestSync('viewport.projectScreen', hand)
     }
   }
 
