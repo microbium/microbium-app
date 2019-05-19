@@ -133,6 +133,7 @@ export function mountCompositor ($el, $refs, actions) {
         shouldRenderBanding: false,
         shouldRenderEdges: false,
         bloomIntensity: 0,
+        bloomFeedbackPosition: vec2.create(),
         noiseIntensity: 0,
         bandingIntensity: 0,
         edgesIntensity: 0,
@@ -298,10 +299,12 @@ export function mountCompositor ($el, $refs, actions) {
         })
     },
 
+    // TODO: Cleanup ...
     updateComputedPostState () {
       const { computedState } = this
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
+      const { size } = state.viewport
       const { bloom, banding, edges, lut, vignette, colorShift, noise } = postEffects
 
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
@@ -320,6 +323,13 @@ export function mountCompositor ($el, $refs, actions) {
       computedState.edgesIntensity = !shouldRenderEdges ? 0
         : (0.25 * edges.intensityFactor)
       computedState.lutIntensity = !shouldRenderLut ? 0 : lut.intensityFactor
+
+      radialPosition(computedState.bloomFeedbackPosition,
+        vec2.set(scratchVec2A,
+          -Math.sign(bloom.feedbackPolarOffset) * Math.pow(bloom.feedbackPolarOffset, 2), 0),
+        bloom.feedbackPolarAngle / 180 * Math.PI)
+      vec2.divide(computedState.bloomFeedbackPosition,
+        computedState.bloomFeedbackPosition, size)
 
       vec3.set(computedState.vignetteParams,
         vignette.radius, vignette.smoothness,
@@ -810,13 +820,14 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawTexture } = renderer.commands
       const { isRunning } = state.simulation
       const { bloom } = state.controls.postEffects
-      const { shouldRenderBloom } = this.computedState
+      const { shouldRenderBloom, bloomFeedbackPosition } = this.computedState
 
       if (isRunning && shouldRenderBloom) {
         postBuffers.get('full').use(() => {
           drawTexture({
             color: postBuffers.get('blurB'),
-            scale: 1 - bloom.feedbackOffset * 0.2
+            offset: bloomFeedbackPosition,
+            scale: 1 - bloom.feedbackOffset * 0.05
           })
         })
       }

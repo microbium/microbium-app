@@ -174,6 +174,22 @@
             :model="model.bloom" prop="feedbackOffset" />
         </div>
       </div>
+      <div class="palette-item">
+        <input-range min="-10" max="10" step="0.25" v-model="model.bloom.feedbackPolarOffset" />
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackPolarOffsetName }}</b> polar offset
+          <palette-item-controller :min="-10" :max="10"
+            :model="model.bloom" prop="feedbackPolarOffset" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="-180" max="180" step="0.5" v-model="model.bloom.feedbackPolarAngle" />
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackPolarAngleName }}</b> polar angle
+          <palette-item-controller :min="-180" :max="180"
+            :model="model.bloom" prop="feedbackPolarAngle" />
+        </div>
+      </div>
       <hr />
 
       <div class="palette-item">
@@ -317,6 +333,17 @@ export default {
     bloomFeedbackOffsetName () {
       const { bloom } = this.model
       return `${roundToPlaces(bloom.feedbackOffset, 2)}x`
+    },
+
+    bloomFeedbackPolarAngleName () {
+      const { feedbackPolarAngle } = this.model.bloom
+      return `${roundToPlaces(feedbackPolarAngle, 1)}°`
+    },
+
+    bloomFeedbackPolarOffsetName () {
+      const { feedbackPolarOffset } = this.model.bloom
+      return `${Math.sign(feedbackPolarOffset) *
+        roundToPlaces(feedbackPolarOffset * feedbackPolarOffset, 0)}pt`
     },
 
     bloomBlurPassesName () {

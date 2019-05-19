@@ -51,7 +51,8 @@ export function createDrawTexture (regl) {
     vert: postFXCopyVert,
     uniforms: {
       color: regl.prop('color'),
-      scale: regl.prop('scale')
+      scale: regl.prop('scale'),
+      offset: regl.prop('offset')
     }
   })
 }

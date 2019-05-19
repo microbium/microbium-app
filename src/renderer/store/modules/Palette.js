@@ -290,10 +290,14 @@ export function createControlsState () {
         blurStep: 4,
         bufferScale: 1,
         feedbackOffset: 0,
+        feedbackPolarAngle: 0,
+        feedbackPolarOffset: 0,
         intensityFactorController: -1,
         feedbackOffsetController: -1,
         blurPassesController: -1,
-        blurStepController: -1
+        blurStepController: -1,
+        feedbackPolarAngleController: -1,
+        feedbackPolarOffsetController: -1
       },
       banding: {
         enabled: false,
