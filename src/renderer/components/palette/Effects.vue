@@ -5,10 +5,10 @@
       <input-checkbox slot="controls" v-model="model.polar.enabled" />
 
       <div class="palette-item">
-        <input-range min="1" max="11" v-model="model.polar.iterations" />
+        <input-range min="1" max="11" step="1" v-model="model.polar.iterations" />
         <div class="palette-item__label">
           <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
-          <palette-item-controller :min="1" :max="11"
+          <palette-item-controller :min="1" :max="11" :step="1"
             :model="model.polar" prop="iterations" />
         </div>
       </div>
