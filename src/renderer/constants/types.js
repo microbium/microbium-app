@@ -73,7 +73,11 @@ export const FORCE_POSITION_TYPES = [
   },
   {
     index: 1,
-    name: 'Pointer'
+    name: 'Cursor'
+  },
+  {
+    index: 2,
+    name: 'Hand'
   }
 ]
 
@@ -84,11 +88,15 @@ export const FORCE_INTENSITY_TYPES = [
   },
   {
     index: 1,
-    name: 'Pointer Velocity'
+    name: 'Ebb and Flow'
   },
   {
     index: 2,
-    name: 'Ebb and Flow'
+    name: 'Cursor Velocity'
+  },
+  {
+    index: 3,
+    name: 'Hand Proximity'
   }
 ]
 

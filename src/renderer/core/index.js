@@ -1,5 +1,6 @@
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import Colr from 'colr'
+import Leap from 'leapjs'
 
 import { createTaskManager } from '@renderer/utils/task'
 import { createLoop } from '@renderer/utils/loop'
@@ -99,6 +100,14 @@ export function mountCompositor ($el, $refs, actions) {
     if (!(file && file.path)) return null
     return `${file.path}?v=${file.version || 0}`
   }
+
+  // TODO: Enable enabling / disabling Leap controller
+  let controller = new Leap.Controller()
+  controller.loop((frame) => {
+    if (!frame.pointables.length) return
+    seek.handMove(frame)
+  })
+  controller.connect()
 
   // Update / Render
 
@@ -440,7 +449,7 @@ export function mountCompositor ($el, $refs, actions) {
         drawOriginTick(state, uiMain.ctx)
         drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
         drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
-        drawSimulatorPointerForces(state, sceneContexts[0].ctx, 4, 0.15)
+        drawSimulatorPointerForces(state, sceneContexts[0].ctx, 4, 0.05)
         drawSimulatorForces(state, sceneContexts[0].ctx, 10, 0.05)
       }
 

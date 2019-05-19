@@ -1,4 +1,4 @@
-import { vec2 } from 'gl-matrix'
+import { vec2, vec3 } from 'gl-matrix'
 import { pixelRatio } from '@renderer/utils/screen'
 import { createControlsState } from './Palette'
 
@@ -11,6 +11,7 @@ export function createCompositorState () {
     move: vec2.create(),
     movePrev: vec2.create(),
     wheelOffset: 0,
+    hand: vec3.create(),
     index: null,
     maxDistance: 14,
     proximateDistance: 60,

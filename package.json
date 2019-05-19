@@ -79,6 +79,7 @@
     "glsl-lut": "^1.1.0",
     "glsl-noise": "^0.0.0",
     "glsl-random": "^0.0.5",
+    "leapjs": "^0.6.4",
     "lodash.template": "^4.4.0",
     "particulate": "^0.3.3",
     "pngjs": "^3.3.3",

@@ -97,9 +97,10 @@ export function drawSimulatorForces (
 }
 
 export function drawSimulatorForcesTick (state, ctx, baseRadius, alpha) {
-  return drawSimulatorForces(state, ctx, baseRadius, alpha, 0, true)
+  drawSimulatorForces(state, ctx, baseRadius, alpha, 0, true)
 }
 
 export function drawSimulatorPointerForces (state, ctx, baseRadius, alpha) {
-  return drawSimulatorForces(state, ctx, baseRadius, alpha, 1, false)
+  drawSimulatorForces(state, ctx, baseRadius, alpha, 1, false)
+  drawSimulatorForces(state, ctx, baseRadius, alpha, 2, false)
 }
