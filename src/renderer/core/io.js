@@ -33,6 +33,8 @@ export function createIOController (tasks, state) {
           strokeColor: seg.strokeColor,
           strokeWidth: roundToPlaces(seg.strokeWidth, 3),
           strokeWidthModulations: io.serializeArray(seg.strokeWidthModulations, 3),
+          fillAlpha: roundToPlaces(seg.fillAlpha, 3),
+          fillColor: seg.fillColor,
           styleIndex: seg.styleIndex
         }))
         .map((seg) => mapKeys(seg))
@@ -78,6 +80,8 @@ export function createIOController (tasks, state) {
           strokeWidth: seg.strokeWidth,
           strokeWidthModulations: new Float32Array(
             io.deserializeFloatArray(seg.strokeWidthModulations)),
+          fillAlpha: seg.fillAlpha,
+          fillColor: seg.fillColor,
           styleIndex: seg.styleIndex
         }))
       const verticesOut = expand2(

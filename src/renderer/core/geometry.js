@@ -91,6 +91,7 @@ export function createGeometryController (tasks, state) {
       const { segments, vertices } = stateGeom
       const {
         strokeWidth, strokeColor, strokeAlpha,
+        fillColor, fillAlpha,
         constraintIndex, styleIndex
       } = state.controls.lineTool
 
@@ -108,6 +109,8 @@ export function createGeometryController (tasks, state) {
         strokeWidth: geometry.computeStrokeWidth(strokeWidth),
         strokeColor,
         strokeAlpha,
+        fillColor,
+        fillAlpha,
         constraintIndex,
         styleIndex
       }

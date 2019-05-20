@@ -20,6 +20,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
     const {
       indices, isClosed, styleIndex,
       strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha,
+      fillColor, fillAlpha,
       linkSizeAvg
     } = segment
 
@@ -57,10 +58,12 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
     if (isClosed) {
       ctx.closePath()
-      ctx.fillStyle = strokeColor
+      ctx.globalAlpha = fillAlpha
+      ctx.fillStyle = fillColor
       ctx.fill()
     }
 
+    ctx.globalAlpha = strokeAlpha
     ctx.stroke()
   }
 }

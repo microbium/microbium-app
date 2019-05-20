@@ -43,7 +43,6 @@ export function createScene (tasks, state, renderer) {
 
   const uniforms = {
     tick: regl.prop('tick'),
-    tint: regl.prop('tint'),
     mirror: regl.prop('mirror')
   }
 
@@ -74,6 +73,7 @@ export function createScene (tasks, state, renderer) {
         instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
+          tint: regl.prop('lineTint'),
           dashFunction: regl.prop('lineDashFunction'),
           alphaMapRepeat: regl.prop('lineAlphaMapRepeat'),
           alphaMap: (params, { lineAlphaMapPath }) =>
@@ -92,6 +92,7 @@ export function createScene (tasks, state, renderer) {
         instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
+          tint: regl.prop('fillTint'),
           dashFunction: regl.prop('fillDashFunction'),
           alphaMapRepeat: regl.prop('fillAlphaMapRepeat'),
           alphaMap: (params, { fillAlphaMapPath }) =>

@@ -576,14 +576,19 @@ export function mountCompositor ($el, $refs, actions) {
         const {
           lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
           fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
-          lineTintHex, lineTintAlpha
+          lineTintHex, lineTintAlpha,
+          fillTintHex, fillTintAlpha
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const tint = Colr.fromHex(lineTintHex)
+        const lineTint = Colr.fromHex(lineTintHex)
           .toRgbArray()
           .map((v) => v / 255)
-        tint.push(lineTintAlpha)
+        lineTint.push(lineTintAlpha)
+        const fillTint = Colr.fromHex(fillTintHex)
+          .toRgbArray()
+          .map((v) => v / 255)
+        fillTint.push(fillTintAlpha)
 
         const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const thickness = this.computeLineThickness(style.thickness)
@@ -608,11 +613,12 @@ export function mountCompositor ($el, $refs, actions) {
           miterLimit,
           adjustProjectedThickness,
 
-          tint,
+          lineTint,
           lineDashFunction,
           lineAlphaMapRepeat,
           lineAlphaMapPath,
 
+          fillTint,
           fillDashFunction,
           fillAlphaMapRepeat,
           fillAlphaMapPath

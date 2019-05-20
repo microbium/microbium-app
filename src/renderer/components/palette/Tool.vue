@@ -58,6 +58,22 @@
         </div>
       </div>
       <hr />
+
+      <!-- Fill color -->
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ model.fillColor.toUpperCase() }}
+            <input-color v-model="model.fillColor" />
+          </b> fill color
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.fillAlpha" />
+        <div class="palette-item__label">
+          <b>{{ fillAlphaName }}</b> fill opacity
+        </div>
+      </div>
+      <hr />
     </palette-group>
 
     <!-- Simulation Behavior -->
@@ -174,6 +190,11 @@ export default {
     strokeAlphaName () {
       const { strokeAlpha } = this.model
       return `${roundToPlaces(strokeAlpha * 100, 0)}%`
+    },
+
+    fillAlphaName () {
+      const { fillAlpha } = this.model
+      return `${roundToPlaces(fillAlpha * 100, 0)}%`
     },
 
     strokeStyleName () {
