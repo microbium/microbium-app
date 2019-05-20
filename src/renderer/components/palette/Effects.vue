@@ -175,10 +175,10 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="-10" max="10" step="0.25" v-model="model.bloom.feedbackPolarOffset" />
+        <input-range min="-10" max="10" step="0.1" v-model="model.bloom.feedbackPolarOffset" />
         <div class="palette-item__label">
           <b>{{ bloomFeedbackPolarOffsetName }}</b> polar offset
-          <palette-item-controller :min="-10" :max="10"
+          <palette-item-controller :min="-10" :max="10" :step="0.1"
             :model="model.bloom" prop="feedbackPolarOffset" />
         </div>
       </div>
@@ -343,7 +343,7 @@ export default {
     bloomFeedbackPolarOffsetName () {
       const { feedbackPolarOffset } = this.model.bloom
       return `${Math.sign(feedbackPolarOffset) *
-        roundToPlaces(feedbackPolarOffset * feedbackPolarOffset, 0)}pt`
+        roundToPlaces(feedbackPolarOffset * feedbackPolarOffset, 1)}pt`
     },
 
     bloomBlurPassesName () {
