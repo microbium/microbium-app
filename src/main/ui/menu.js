@@ -1,4 +1,7 @@
-import { PALETTE_TYPES } from '@renderer/constants/types'
+import {
+  PALETTE_TYPES,
+  PALETTE_LAYOUTS
+} from '@renderer/constants/types'
 
 export function createMenuTemplate (app, actions) {
   const template = [
@@ -242,6 +245,19 @@ export function createMenuTemplate (app, actions) {
             accelerator: `Cmd+${index + 1}`,
             click () {
               actions.setActivePalette(id)
+            }
+          }))
+        },
+        {
+          id: 'palette-layout',
+          label: 'Palette Layout',
+          submenu: PALETTE_LAYOUTS.map(({ id, name }, index) => ({
+            id: `palette-layout-${id}`,
+            label: name,
+            type: 'radio',
+            accelerator: `Cmd+Alt+${index + 1}`,
+            click () {
+              actions.setPaletteLayout(id)
             }
           }))
         },

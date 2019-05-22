@@ -1,9 +1,9 @@
 <template>
-  <div class="palette" :style="themeStyle"
+  <div class="palette" :class="layoutClassNames" :style="themeStyle"
     v-on:mouseenter="mouseEnter">
     <div class="palette__toolbar">
       <div @click="close" class="palette__close"></div>
-      <div class="palette__toolbar__modes">
+      <div v-if="!isWideLayout" class="palette__toolbar__modes">
         <palette-modes
           :activeMode="controls.activePalettes"
           :modeTypes="params.paletteTypes" />
@@ -11,53 +11,63 @@
     </div>
 
     <div class="palette__content">
-      <palette-section :hidden="!showToolPanels">
-        <h2 slot="title">{{ paletteTypesMap.tool.name }}</h2>
-        <palette-tool :model="controls.lineTool"
-          :styles="controls.styles"
-          :constraints="controls.constraintGroups"
-          :controllers="controllers"
-          :inputModTypes="params.inputModTypes"
-          :physicsTypes="params.physicsTypes" />
-      </palette-section>
+      <div class="palette__content__group">
+        <palette-section :hidden="!showToolPanels && !isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.tool.name }}</h2>
+          <palette-tool :model="controls.lineTool"
+            :styles="controls.styles"
+            :constraints="controls.constraintGroups"
+            :controllers="controllers"
+            :inputModTypes="params.inputModTypes"
+            :physicsTypes="params.physicsTypes" />
+        </palette-section>
 
-      <palette-section :hidden="!showStylePanels">
-        <h2 slot="title">{{ paletteTypesMap.styles.name }}</h2>
-        <palette-style-list
-          :list="controls.styles"
-          :textures="controls.textures"
-          :alphaTextures="controls.alphaTextures"
-          :alphaFunctions="controls.alphaFunctions"
-          :willRemoveListItem="willRemoveStyle" />
-      </palette-section>
+        <palette-section :hidden="!showViewportPanel && !isWideLayout"
+          :collapseHeader="isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
+          <palette-simulation :model="controls.simulation" />
+          <palette-viewport :model="controls.viewport" />
+        </palette-section>
+      </div>
 
-      <palette-section :hidden="!showForcesPanels">
-        <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
-        <palette-force-list
-          :list="controls.forces"
-          :forceTypes="params.forceTypes"
-          :forcePositionTypes="params.forcePositionTypes"
-          :forceIntensityTypes="params.forceIntensityTypes" />
-      </palette-section>
+      <div class="palette__content__group">
+        <palette-section :hidden="!showForcesPanels && !isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.forces.name }}</h2>
+          <palette-force-list
+            :list="controls.forces"
+            :forceTypes="params.forceTypes"
+            :forcePositionTypes="params.forcePositionTypes"
+            :forceIntensityTypes="params.forceIntensityTypes" />
+        </palette-section>
 
-      <palette-section :hidden="!showConstraintsPanels">
-        <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
-        <palette-constraint-list
-          :list="controls.constraintGroups"
-          :constraintTypes="params.constraintTypes"
-          :willRemoveListItem="willRemoveConstraint" />
-      </palette-section>
+        <palette-section :hidden="!showConstraintsPanels && !isWideLayout"
+          :collapseHeader="isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.constraints.name }}</h2>
+          <palette-constraint-list
+            :list="controls.constraintGroups"
+            :constraintTypes="params.constraintTypes"
+            :willRemoveListItem="willRemoveConstraint" />
+        </palette-section>
+      </div>
 
-      <palette-section :hidden="!showViewportPanel">
-        <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
-        <palette-simulation :model="controls.simulation" />
-        <palette-viewport :model="controls.viewport" />
-      </palette-section>
+      <div class="palette__content__group">
+        <palette-section :hidden="!showStylePanels && !isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.styles.name }}</h2>
+          <palette-style-list
+            :list="controls.styles"
+            :textures="controls.textures"
+            :alphaTextures="controls.alphaTextures"
+            :alphaFunctions="controls.alphaFunctions"
+            :willRemoveListItem="willRemoveStyle" />
+        </palette-section>
+      </div>
 
-      <palette-section :hidden="!showEffectsPanels">
-        <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
-        <palette-effects :model="controls.postEffects" />
-      </palette-section>
+      <div class="palette__content__group">
+        <palette-section :hidden="!showEffectsPanels && !isWideLayout">
+          <h2 slot="title">{{ paletteTypesMap.effects.name }}</h2>
+          <palette-effects :model="controls.postEffects" />
+        </palette-section>
+      </div>
     </div>
   </div>
 </template>
@@ -129,6 +139,10 @@ $base-color: rgba(#000, 0.15);
     overflow-y: scroll;
     width: 100%;
     height: calc(100% - #{$toolbar-height});
+
+    &__group {
+      max-width: 420px;
+    }
   }
 
   hr {
@@ -138,6 +152,26 @@ $base-color: rgba(#000, 0.15);
     padding: 0;
     width: 10%;
     opacity: 0.1;
+  }
+
+  &--wide-grid {
+    .palette {
+      &__content {
+        display: flex;
+
+        &__group {
+          flex: 1;
+          position: relative;
+          overflow: auto;
+          border-right: 1px solid $base-color;
+          min-width: 320px;
+
+          &:last-child {
+            border-right: none;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -277,10 +311,16 @@ export default {
     },
 
     handleCommand (event, data) {
-      const { activePalettes, lineTool, styles, constraintGroups } = this.controls
+      const {
+        layoutMode, activePalettes,
+        lineTool, styles, constraintGroups
+      } = this.controls
 
       // this.menuDidUpdateControls()
       switch (data.action) {
+        case 'SET_LAYOUT':
+          layoutMode.id = data.id
+          break
         case 'SET_ACTIVE_PALETTE':
           activePalettes.id = data.id
           break
@@ -434,6 +474,13 @@ export default {
       return `hsl(${hue}, ${saturation}%, ${lightness}%)`
     },
 
+    layoutClassNames () {
+      const { layoutMode } = this.controls
+      return [
+        layoutMode.id === 'wide' && 'palette--wide-grid'
+      ]
+    },
+
     themeStyle () {
       const { themeHighlight } = this
       return {
@@ -443,6 +490,8 @@ export default {
 
     isDrawMode: createModeCondition('activeMode', 'draw'),
     isSelectMode: createModeCondition('activeMode', 'select'),
+
+    isWideLayout: createModeCondition('layoutMode', 'wide'),
 
     showToolPanels: createModeCondition('activePalettes', 'tool'),
     showStylePanels: createModeCondition('activePalettes', 'styles'),

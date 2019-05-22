@@ -13,6 +13,10 @@ import { pixelRatioClamped } from '@renderer/utils/screen'
 
 export function createControlsState () {
   return {
+    layoutMode: {
+      id: 'narrow'
+    },
+
     activeMode: {
       id: 'draw'
     },

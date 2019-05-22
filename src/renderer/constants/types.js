@@ -19,10 +19,6 @@ export const PALETTE_TYPES = [
     name: 'World / Simulation'
   },
   {
-    id: 'styles',
-    name: 'Style Layers'
-  },
-  {
     id: 'forces',
     name: 'Simulation Forces'
   },
@@ -31,8 +27,23 @@ export const PALETTE_TYPES = [
     name: 'Constraint Groups'
   },
   {
+    id: 'styles',
+    name: 'Style Layers'
+  },
+  {
     id: 'effects',
     name: 'Visual Effects'
+  }
+]
+
+export const PALETTE_LAYOUTS = [
+  {
+    id: 'narrow',
+    name: 'Narrow'
+  },
+  {
+    id: 'wide',
+    name: 'Wide'
   }
 ]
 

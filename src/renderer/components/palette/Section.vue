@@ -1,6 +1,6 @@
 <template>
   <section class="palette-section" :class="mainClassNames">
-    <div class="palette-section__header">
+    <div v-if="!collapseHeader" class="palette-section__header">
       <div class="palette-section__title">
         <slot name="title" />
       </div>
@@ -46,7 +46,8 @@ export default {
   name: 'palette-section',
 
   props: {
-    hidden: Boolean
+    hidden: Boolean,
+    collapseHeader: Boolean
   },
 
   computed: {

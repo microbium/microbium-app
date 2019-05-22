@@ -303,6 +303,10 @@ function createAppActions () {
         {action: 'SET_ACTIVE_PALETTE', id})
     },
 
+    setPaletteLayout (id) {
+      syncPaletteLayout(id)
+    },
+
     setAspectRatio (aspectName) {
       setWindowAspectRatio('main', aspectName)
     },
@@ -452,7 +456,7 @@ function createPaletteWindow () {
     y: Math.round((displaySize.height - windowSize.height) / 3),
     width: windowSize.width,
     minWidth: 320,
-    maxWidth: DEBUG_PALETTE ? 900 : 420,
+    maxWidth: 420,
     height: windowSize.height,
     minHeight: 500,
     backgroundColor: null,
@@ -897,6 +901,31 @@ function syncActivePalette (id) {
 
   setMenuState(`palette-${id}`, 'checked', true)
   appTouchBars.palette.syncActivePalette(id)
+}
+
+// TODO: Preserve palette layout state
+function syncPaletteLayout (id) {
+  const { palette } = appWindows
+  if (!palette) return
+
+  const displaySize = getDisplaySize()
+  const size = palette.getSize()
+
+  switch (id) {
+    case 'narrow':
+      palette.setMinimumSize(320, 500)
+      palette.setMaximumSize(420, 1200)
+      palette.setSize(320, size[1])
+      break
+    case 'wide':
+      palette.setMinimumSize(960, 500)
+      palette.setMaximumSize(1800, 1200)
+      palette.setSize(displaySize.width * 0.9, size[1])
+      break
+  }
+
+  sendWindowMessage('palette', 'command',
+    {action: 'SET_LAYOUT', id})
 }
 
 function setMenuState (name, key, value) {
