@@ -482,9 +482,9 @@ export default {
     },
 
     themeStyle () {
-      const { themeHighlight } = this
+      // const { themeHighlight } = this
       return {
-        '--highlight-color': themeHighlight
+        '--highlight-color': `#41EDC1`
       }
     },
 
