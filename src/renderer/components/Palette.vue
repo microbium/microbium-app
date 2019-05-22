@@ -241,7 +241,7 @@ import PaletteStyleList from '@renderer/components/palette/StyleList'
 import PaletteViewport from '@renderer/components/palette/Viewport'
 import PaletteEffects from '@renderer/components/palette/Effects'
 
-const DEBUG_DISABLE_FOCUS = false
+const DEBUG_DISABLE_FOCUS = true
 
 export default {
   name: 'palette',
