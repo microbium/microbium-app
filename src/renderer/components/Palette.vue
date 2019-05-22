@@ -305,7 +305,11 @@ export default {
           this.mainDidUpdateControls()
           if (data.key) controls[data.group][data.key] = data.value
           else if (data.group) Object.assign(controls[data.group], data.value)
-          else Object.assign(controls, data.value)
+          else {
+            const prevLayoutMode = controls.layoutMode.id
+            Object.assign(controls, data.value)
+            controls.layoutMode.id = prevLayoutMode
+          }
           break
       }
     },

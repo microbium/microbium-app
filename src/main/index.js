@@ -467,7 +467,7 @@ function createPaletteWindow () {
     minimizable: false,
     maximizable: false,
     fullscreen: false,
-    fullscreenable: false,
+    fullscreenable: true,
     hasShadow: true,
     vibrancy: 'ultra-dark',
     transparent: isHighSierra(),
@@ -525,7 +525,9 @@ function onWindowFocus () {
 }
 function onWindowBlur () {
   if (DEBUG_PALETTE) return
-  if (appWindows.palette && !BrowserWindow.getFocusedWindow()) {
+  const shouldHide = !BrowserWindow.getFocusedWindow() &&
+    paletteState.layoutMode.id === 'narrow'
+  if (appWindows.palette && shouldHide) {
     appWindows.palette.hide()
     paletteVisibility.isHidden = true
   }
@@ -910,17 +912,20 @@ function syncPaletteLayout (id) {
 
   const displaySize = getDisplaySize()
   const size = palette.getSize()
+  paletteState.layoutMode.id = id
 
   switch (id) {
     case 'narrow':
       palette.setMinimumSize(320, 500)
       palette.setMaximumSize(420, 1200)
       palette.setSize(320, size[1])
+      palette.setAlwaysOnTop(true)
       break
     case 'wide':
       palette.setMinimumSize(960, 500)
       palette.setMaximumSize(1800, 1200)
       palette.setSize(displaySize.width * 0.9, size[1])
+      palette.setAlwaysOnTop(false)
       break
   }
 
