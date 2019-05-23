@@ -22,7 +22,7 @@
     </palette-group>
 
     <palette-group open>
-      <h2 slot="title">Overlays</h2>
+      <h2 slot="title">Overlay</h2>
 
       <div class="palette-item">
         <div class="palette-item__label">

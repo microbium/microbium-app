@@ -1,6 +1,8 @@
 precision highp float;
 
 #pragma glslify: computeMiterOffset = require(regl-line-builder/src/shaders/compute-miter-offset)
+#pragma glslify: transformPosition = require(./position/entities-transform)
+#pragma glslify: mapZ = require(./position/entities-mapz)
 
 uniform mat4 projection;
 uniform mat4 model;
@@ -31,25 +33,15 @@ attribute float angleAlpha;
 varying vec4 vColor;
 varying vec3 vUDO;
 
-vec2 transformPosition (vec2 position, vec2 mirror, float angle) {
-  return vec2(
-    (+cos(angle) * position.x + position.y * sin(angle)) * mirror.x,
-    (-sin(angle) * position.x + position.y * cos(angle)) * mirror.y);
-}
-
-float mapZ (vec2 pos) {
-  return 0.0;
-}
-
 void main() {
   mat4 projViewModel = projection * view * model;
 
   vec4 prevProjected = projViewModel *
-    vec4(transformPosition(prevPosition, mirror.xy, angle), mapZ(prevPosition), 1.0);
+    vec4(transformPosition(prevPosition, mirror.xy, angle), mapZ(prevPosition, prevId), 1.0);
   vec4 currProjected = projViewModel *
-    vec4(transformPosition(currPosition, mirror.xy, angle), mapZ(currPosition), 1.0);
+    vec4(transformPosition(currPosition, mirror.xy, angle), mapZ(currPosition, currId), 1.0);
   vec4 nextProjected = projViewModel *
-    vec4(transformPosition(nextPosition, mirror.xy, angle), mapZ(nextPosition), 1.0);
+    vec4(transformPosition(nextPosition, mirror.xy, angle), mapZ(nextPosition, nextId), 1.0);
 
   vec2 miterOffset = computeMiterOffset(
     projection, adjustProjectedThickness,

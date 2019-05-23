@@ -1,7 +1,7 @@
 import { vec3, mat4 } from 'gl-matrix'
 
 // TODO: Improve transition between ortho / perspective projection
-const ENABLE_PERSPECTIVE_VIEW = false
+const ENABLE_PERSPECTIVE_VIEW = true
 
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
@@ -53,6 +53,7 @@ export function createCameras (tasks, state, renderer) {
   const scenePerspective = (() => {
     const view = mat4.create()
     const projection = mat4.create()
+    // const rotation = quat.create()
 
     // FIXME: Inverted up vector
     const eye = vec3.create()
@@ -65,7 +66,7 @@ export function createCameras (tasks, state, renderer) {
         // FEAT: Improve perspective camera controls
         view: (params, context) => {
           const { viewOffset, viewScale } = context
-          vec3.set(eye, -viewOffset[0], -viewOffset[1], -435 / viewScale)
+          vec3.set(eye, 0, 0, -435 / viewScale)
           vec3.set(center, -viewOffset[0], -viewOffset[1], 0)
           mat4.lookAt(view, eye, center, up)
           return view
@@ -77,7 +78,7 @@ export function createCameras (tasks, state, renderer) {
     const resize = (event, size) => {
       const aspect = size[0] / size[1]
       const fov = Math.PI * 0.6
-      mat4.perspective(projection, fov, aspect, 0.01, 2000)
+      mat4.perspective(projection, fov, aspect, 0.01, 10000)
     }
 
     return {
