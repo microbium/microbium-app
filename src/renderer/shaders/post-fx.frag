@@ -120,15 +120,15 @@ void main() {
       0.035 * overlayAlpha);
 
   vec3 forceDashColor = vec3(0.0);
-  for (int i = 0; i < 3; i++) {
-    if (i >= forcePositionsCount) break;
-    vec3 force = forcePositions[i];
-    vec2 forcePosition = force.xy * viewScale * vec2(1.0, -1.0);
-    float forceRadius = force.z * viewScale;
-    forceDashColor += vec3(
-      concentricDash(fragPosition, 0.1 / viewScale, 1.5, forcePosition, forceRadius) *
-        0.04 * overlayAlpha);
-  }
+  // for (int i = 0; i < 3; i++) {
+  //   if (i >= forcePositionsCount) break;
+  //   vec3 force = forcePositions[i];
+  //   vec2 forcePosition = force.xy * viewScale * vec2(1.0, -1.0);
+  //   float forceRadius = force.z * viewScale;
+  //   forceDashColor += vec3(
+  //     concentricDash(fragPosition, 0.1 / viewScale, 1.5, forcePosition, forceRadius) *
+  //       0.04 * overlayAlpha);
+  // }
 
   // Vignette
   vec3 vignetteColor = vec3(mix(1.0,
