@@ -144,6 +144,7 @@ export function createViewportController (tasks, state) {
             case 'forces':
             case 'modifiers':
             case 'viewport':
+            case 'camera':
             case 'postEffects':
               state.renderer.needsUpdate = true
               break

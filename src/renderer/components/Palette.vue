@@ -25,6 +25,7 @@
         <palette-section :hidden="!showViewportPanel && !isWideLayout"
           :collapseHeader="isWideLayout">
           <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
+          <palette-camera :model="controls.camera" />
           <palette-simulation :model="controls.simulation" />
           <palette-viewport :model="controls.viewport" />
         </palette-section>
@@ -240,6 +241,7 @@ import PaletteConstraintList from '@renderer/components/palette/ConstraintList'
 import PaletteStyleList from '@renderer/components/palette/StyleList'
 import PaletteViewport from '@renderer/components/palette/Viewport'
 import PaletteEffects from '@renderer/components/palette/Effects'
+import PaletteCamera from '@renderer/components/palette/Camera'
 
 const DEBUG_DISABLE_FOCUS = true
 
@@ -250,6 +252,7 @@ export default {
     Icon,
     InputButton,
     InputText,
+    PaletteCamera,
     PaletteConstraintList,
     PaletteEffects,
     PaletteForceList,
@@ -513,6 +516,7 @@ export default {
     'controls.forces': createStateSyncer('forces'),
     'controls.constraintGroups': createStateSyncer('constraintGroups'),
     'controls.viewport': createStateSyncer('viewport'),
+    'controls.camera': createStateSyncer('camera'),
     'controls.postEffects': createStateSyncer('postEffects'),
     'controls.activePalettes.id': function (id) {
       this.syncActivePaletteMode(id)

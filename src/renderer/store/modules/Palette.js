@@ -278,6 +278,18 @@ export function createControlsState () {
       }
     },
 
+    camera: {
+      enabled: true,
+      polarAngle: 0,
+      polarOffset: 20,
+      depthOffset: 20,
+      tweenFactor: 0.05,
+      polarOffsetController: -1,
+      polarAngleController: -1,
+      depthOffsetController: -1,
+      tweenFactorController: -1
+    },
+
     // TODO: Scale by pixelRatio in renderer
     // Will fix resolution discrepancy when sharing / exporting
     postEffects: {
