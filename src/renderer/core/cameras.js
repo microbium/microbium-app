@@ -1,7 +1,8 @@
-import { vec3, mat4 } from 'gl-matrix'
+import { vec2, vec3, mat4 } from 'gl-matrix'
+import { radialPosition } from '@renderer/utils/math'
 
 // TODO: Improve transition between ortho / perspective projection
-const ENABLE_PERSPECTIVE_VIEW = false
+const ENABLE_PERSPECTIVE_VIEW = true
 
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
@@ -55,7 +56,9 @@ export function createCameras (tasks, state, renderer) {
     const projection = mat4.create()
 
     // FIXME: Inverted up vector
+    const polarPosition = vec2.create()
     const eye = vec3.create()
+    const eyeTarget = vec3.create()
     const center = vec3.create()
     const up = vec3.set(vec3.create(), 0, -1, 0)
 
@@ -64,10 +67,20 @@ export function createCameras (tasks, state, renderer) {
         ...baseUniforms,
         // FEAT: Improve perspective camera controls
         view: (params, context) => {
-          const { viewOffset, viewScale } = context
-          vec3.set(eye, -viewOffset[0], -viewOffset[1], -435 / viewScale)
-          vec3.set(center, -viewOffset[0], -viewOffset[1], 0)
+          const cameraState = state.controls.camera
+          const { polarOffset, polarAngle, depthOffset, tweenFactor } = cameraState
+
+          polarPosition[1] = polarOffset * polarOffset
+          radialPosition(eyeTarget, polarPosition, polarAngle / 180 * Math.PI)
+          eyeTarget[2] = -(depthOffset * depthOffset)
+
+          eye[0] += (eyeTarget[0] - eye[0]) * tweenFactor
+          eye[1] += (eyeTarget[1] - eye[1]) * tweenFactor
+          eye[2] += (eyeTarget[2] - eye[2]) * tweenFactor
+
+          vec3.set(center, 0, 0, 0)
           mat4.lookAt(view, eye, center, up)
+
           return view
         },
         projection: () => projection
