@@ -1,9 +1,11 @@
 import {
+  copyFile,
   readFile,
   writeFile
 } from 'fs-extra'
 import {
   basename,
+  dirname,
   join as pathJoin
 } from 'path'
 import log from 'electron-log'
@@ -29,23 +31,54 @@ function toTitleCase (str) {
     (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
 }
 
-export function exportSceneHTML (destPath, sceneData) {
-  return getTemplate(TEMPLATE_SRC)
-    .then((template) => {
-      const subTitle = toTitleCase(
-        basename(destPath, '.html').replace(/[-_]+/g, ' '))
-      const rawSceneData = JSON.stringify(sceneData)
-      const backgroundColor = '#222222'
+function resolveDataAssets (destPath, sceneData) {
+  let { controls } = sceneData
+  let textureAssetFiles = []
+  let exportedAssets = {}
 
-      return template({
-        API_VERSION,
-        PEP_VERSION,
-        subTitle,
-        backgroundColor,
-        rawSceneData
-      })
+  textureAssetFiles.push(controls.postEffects.lut.textureFile)
+  controls.styles.forEach((style) => {
+    textureAssetFiles.push(style.fillAlphaMapFile, style.fillAlphaMapFile)
+  })
+
+  let assetResolutions = textureAssetFiles.map((textureFile) => {
+    if (!textureFile) return null
+
+    let srcName = textureFile.name
+    let srcPath = textureFile.path
+    if (exportedAssets[srcPath] != null) return
+
+    let exportPath = `${srcName}`
+    let assetDestPath = pathJoin(dirname(destPath), exportPath)
+    textureFile.path = exportPath
+    exportedAssets[srcPath] = 1
+
+    return copyFile(srcPath, assetDestPath)
+  }).filter(Boolean)
+
+  return Promise.all(assetResolutions).then(() => {
+    return sceneData
+  })
+}
+
+export function exportSceneHTML (destPath, sceneData) {
+  return Promise.all([
+    resolveDataAssets(destPath, sceneData),
+    getTemplate(TEMPLATE_SRC)
+  ]).then(([resolvedSceneData, template]) => {
+    const subTitle = toTitleCase(
+      basename(destPath, '.html').replace(/[-_]+/g, ' '))
+    const rawSceneData = JSON.stringify(resolvedSceneData)
+    const backgroundColor = '#222222'
+
+    return template({
+      API_VERSION,
+      PEP_VERSION,
+      subTitle,
+      backgroundColor,
+      rawSceneData
     })
-    .then((htmlOut) => writeFile(destPath, htmlOut))
+  }).then((htmlOut) => writeFile(destPath, htmlOut))
     .catch((err) => {
       log.error(err)
     })

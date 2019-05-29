@@ -17,7 +17,6 @@ export function createIOController (tasks, state) {
   const io = {
     serializeScene () {
       const mapKeys = io.mapKeys.bind(null, KEY_ABBRV_MAP)
-      const mapKeysDeep = io.mapKeysDeep.bind(null, KEY_ABBRV_MAP)
       const { geometry, controls, viewport } = state
       const { segments, vertices } = geometry
 
@@ -40,7 +39,7 @@ export function createIOController (tasks, state) {
         .map((seg) => mapKeys(seg))
       const verticesOut = io.serializeArray(flatten2(vertices), 2)
 
-      return mapKeys({
+      return {
         viewport: mapKeys({
           offset: io.serializeArray(viewport.offset, 2),
           scale: roundToPlaces(viewport.scale, 3)
@@ -49,18 +48,17 @@ export function createIOController (tasks, state) {
           segments: segmentsOut,
           vertices: verticesOut
         }),
-        controls: mapKeysDeep(controls)
-      })
+        controls
+      }
     },
 
     deserializeScene (json) {
       const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
-      const unmapKeysDeep = io.mapKeysDeep.bind(null, ABBRV_KEY_MAP)
 
-      const data = unmapKeys(json)
+      const data = json
       const { segments, vertices } = unmapKeys(data.geometry)
       const viewport = unmapKeys(data.viewport)
-      const controls = unmapKeysDeep(data.controls)
+      const controls = data.controls
 
       const segmentsOut = segments
         .map((seg) => unmapKeys(seg))
