@@ -1,6 +1,6 @@
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import Colr from 'colr'
-import Leap from 'leapjs'
+// import Leap from 'leapjs'
 
 import { createTaskManager } from '@renderer/utils/task'
 import { createLoop } from '@renderer/utils/loop'
@@ -102,12 +102,14 @@ export function mountCompositor ($el, $refs, actions) {
   }
 
   // TODO: Enable enabling / disabling Leap controller
+  /*
   let controller = new Leap.Controller()
   controller.loop((frame) => {
     if (!frame.pointables.length) return
     seek.handMove(frame)
   })
   controller.connect()
+  */
 
   // Update / Render
 
