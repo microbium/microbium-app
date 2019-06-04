@@ -132,6 +132,8 @@ export function createDrawScreen (regl) {
       noiseIntensity: regl.prop('noiseIntensity'),
       lutIntensity: regl.prop('lutIntensity'),
       lutTexture: regl.prop('lutTexture'),
+      watermarkIntensity: regl.prop('watermarkIntensity'),
+      watermarkTexture: regl.prop('watermarkTexture'),
       overlayAlpha: regl.prop('overlayAlpha'),
       vignetteParams: regl.prop('vignetteParams'),
       tick: regl.prop('tick'),

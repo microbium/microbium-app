@@ -5,10 +5,10 @@
       <input-checkbox slot="controls" v-model="model.polar.enabled" />
 
       <div class="palette-item">
-        <input-range min="1" max="11" step="1" v-model="model.polar.iterations" />
+        <input-range min="1" max="21" step="1" v-model="model.polar.iterations" />
         <div class="palette-item__label">
           <b>{{ polarIterationsName }}</b> {{ polarIterationsLabel }}
-          <palette-item-controller :min="1" :max="11" :step="1"
+          <palette-item-controller :min="1" :max="21" :step="1"
             :model="model.polar" prop="iterations" />
         </div>
       </div>
@@ -262,6 +262,31 @@
       </div>
       <hr />
     </palette-group>
+
+    <palette-group persistent-controls>
+      <h2 slot="title">Watermark</h2>
+      <input-checkbox slot="controls" v-model="model.watermark.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.watermark.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ watermarkFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.watermark" prop="intensityFactor" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ watermarkFileName }}
+            <input-file accept=".png,.jpg" v-model="model.watermark.textureFile" />
+          </b> texture
+        </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.watermark.textureFile" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
   </div>
 </template>
 
@@ -321,6 +346,19 @@ export default {
     noiseFactorName () {
       const { noise } = this.model
       return `${roundToPlaces(noise.intensityFactor, 2)}x`
+    },
+
+    // Watermark
+
+    watermarkFactorName () {
+      const { watermark } = this.model
+      return `${roundToPlaces(watermark.intensityFactor, 2)}x`
+    },
+
+    watermarkFileName () {
+      const { textureFile } = this.model.watermark
+      if (!textureFile) return 'Empty'
+      return textureFile.name
     },
 
     // Bloom

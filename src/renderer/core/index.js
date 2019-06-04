@@ -141,6 +141,7 @@ export function mountCompositor ($el, $refs, actions) {
         edgesIntensity: 0,
         vignetteParams: vec3.create(),
         lutIntensity: 0,
+        watermarkIntensity: 0,
         forcePositions: []
       }
     },
@@ -307,7 +308,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { isRunning } = state.simulation
       const { postEffects } = state.controls
       const { size } = state.viewport
-      const { bloom, banding, edges, lut, vignette, colorShift, noise } = postEffects
+      const { bloom, banding, edges, lut, watermark, vignette, colorShift, noise } = postEffects
 
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
         bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
@@ -315,6 +316,7 @@ export function mountCompositor ($el, $refs, actions) {
         banding.enabled && banding.intensityFactor > 0
       const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
       const shouldRenderLut = isRunning && lut.enabled && !!lut.textureFile
+      const shouldRenderWatermark = isRunning && watermark.enabled && !!watermark.textureFile
 
       computedState.bloomIntensity = !shouldRenderBloom ? 0
         : (0.4 * bloom.intensityFactor)
@@ -325,6 +327,7 @@ export function mountCompositor ($el, $refs, actions) {
       computedState.edgesIntensity = !shouldRenderEdges ? 0
         : (0.25 * edges.intensityFactor)
       computedState.lutIntensity = !shouldRenderLut ? 0 : lut.intensityFactor
+      computedState.watermarkIntensity = !shouldRenderWatermark ? 0 : watermark.intensityFactor
 
       radialPosition(computedState.bloomFeedbackPosition,
         vec2.set(scratchVec2A,
@@ -783,11 +786,11 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawScreen } = renderer.commands
       const { isRunning } = state.simulation
       const { overlay } = state.controls.viewport
-      const { lut } = state.controls.postEffects
+      const { lut, watermark } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
         shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
-        bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity,
+        bloomIntensity, bandingIntensity, edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
 
@@ -807,7 +810,11 @@ export function mountCompositor ($el, $refs, actions) {
         edgesIntensity,
         noiseIntensity,
         lutIntensity,
-        lutTexture: textures.get('lut', lut.textureFile && lut.textureFile.path),
+        watermarkIntensity,
+        lutTexture: textures.get('lut',
+          lut.textureFile && lut.textureFile.path),
+        watermarkTexture: textures.get('watermark',
+          watermark.textureFile && watermark.textureFile.path),
         overlayAlpha: isRunning ? overlay.alphaFactor : 1,
         vignetteParams,
         tick,
