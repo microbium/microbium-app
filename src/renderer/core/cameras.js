@@ -2,7 +2,7 @@ import { vec2, vec3, mat4 } from 'gl-matrix'
 import { radialPosition } from '@renderer/utils/math'
 
 // TODO: Improve transition between ortho / perspective projection
-const ENABLE_PERSPECTIVE_VIEW = false
+const ENABLE_PERSPECTIVE_VIEW = true
 
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
@@ -67,12 +67,17 @@ export function createCameras (tasks, state, renderer) {
         ...baseUniforms,
         // FEAT: Improve perspective camera controls
         view: (params, context) => {
+          const { tick } = state.simulation
           const cameraState = state.controls.camera
           const { polarOffset, polarAngle, depthOffset, tweenFactor } = cameraState
 
-          polarPosition[1] = polarOffset * polarOffset
-          radialPosition(eyeTarget, polarPosition, polarAngle / 180 * Math.PI)
-          eyeTarget[2] = -(depthOffset * depthOffset)
+          const animPolarOffset = Math.sin(tick * 0.04) * 3
+          const animPolarAngle = Math.sin(tick * 0.03) * 10
+          const animDepthOffset = Math.sin(tick * 0.02) * 1.5
+
+          polarPosition[1] = polarOffset * polarOffset + animPolarOffset
+          radialPosition(eyeTarget, polarPosition, (polarAngle + animPolarAngle) / 180 * Math.PI)
+          eyeTarget[2] = -(depthOffset * depthOffset + animDepthOffset)
 
           eye[0] += (eyeTarget[0] - eye[0]) * tweenFactor
           eye[1] += (eyeTarget[1] - eye[1]) * tweenFactor
