@@ -247,9 +247,9 @@ export default {
 
   computed: {
     toolbarClassNames () {
-      const { toolbarIsHidden, sceneIsEdited } = this
+      const { toolbarIsHidden, sceneIsEdited, isFullscreen } = this
       return {
-        hidden: toolbarIsHidden,
+        hidden: toolbarIsHidden || isFullscreen,
         edited: sceneIsEdited
       }
     },
