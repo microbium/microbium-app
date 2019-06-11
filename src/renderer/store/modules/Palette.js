@@ -367,6 +367,12 @@ export function createControlsState () {
         enabled: true,
         intensityFactor: 1,
         intensityFactorController: -1
+      },
+      watermark: {
+        enabled: false,
+        textureFile: null,
+        intensityFactor: 1,
+        intensityFactorController: -1
       }
     }
   }

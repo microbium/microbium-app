@@ -9,12 +9,14 @@ uniform sampler2D bloom;
 uniform sampler2D banding;
 uniform sampler2D edges;
 uniform sampler2D lutTexture;
+uniform sampler2D watermarkTexture;
 
 uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
 uniform float noiseIntensity;
 uniform float lutIntensity;
+uniform float watermarkIntensity;
 uniform float overlayAlpha;
 uniform vec3 vignetteParams; // [radius, smoothness, intensity]
 uniform vec3 colorShift; // [hue, saturation, value]
@@ -141,6 +143,12 @@ void main() {
   outColor = blendColorBurn(
     outColor + outColor * noiseColor + originDashColor - forceDashColor,
     vignetteColor);
+
+  if (watermarkIntensity > 0.0) {
+    vec3 watermarkColor = texture2D(watermarkTexture, vec2(uv.x, 1.0 - uv.y)).rgb;
+    outColor = blendOverlay(outColor, watermarkColor, watermarkIntensity) +
+      watermarkColor * watermarkIntensity * 0.5;
+  }
 
   // Apply LUT transform
   if (lutIntensity > 0.0) {
