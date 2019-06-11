@@ -2,7 +2,7 @@ import { vec2, vec3, mat4 } from 'gl-matrix'
 import { radialPosition } from '@renderer/utils/math'
 
 // TODO: Improve transition between ortho / perspective projection
-const ENABLE_PERSPECTIVE_VIEW = true
+const ENABLE_PERSPECTIVE_VIEW = false
 
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
