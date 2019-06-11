@@ -1,4 +1,4 @@
-const SRC_PROTOCOL = process.env.IS_WEB ? '//' : 'file://'
+const SRC_BASE = process.env.IS_WEB ? '' : 'file://'
 
 // TODO: Handle image load errors
 export function createTextureManager (regl) {
@@ -24,7 +24,7 @@ export function createTextureManager (regl) {
       })
     }
 
-    image.src = `${SRC_PROTOCOL}${src}`
+    image.src = `${SRC_BASE}${src}`
     cache[key] = { src, image, texture }
 
     return texture
