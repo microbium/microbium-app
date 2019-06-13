@@ -14,7 +14,7 @@ import {
   createSetupDrawScreen
 } from '@renderer/draw/commands/screen-space'
 
-const DEBUG_LOG_GPU = false
+const DEBUG_LOG_GPU = true
 
 // OPTIM: Investigate preserveDrawingBuffer effect on perf
 // It's currently needed to enable full dpi canvas export
