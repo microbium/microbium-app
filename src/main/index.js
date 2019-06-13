@@ -42,6 +42,9 @@ const ENABLE_IPC_EXTERNAL = false
 const DEBUG_MAIN = false
 const DEBUG_PALETTE = false
 
+// Disable security warnings for now
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
