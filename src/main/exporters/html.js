@@ -38,7 +38,7 @@ function resolveDataAssets (destPath, sceneData) {
 
   textureAssetFiles.push(controls.postEffects.lut.textureFile)
   controls.styles.forEach((style) => {
-    textureAssetFiles.push(style.fillAlphaMapFile, style.fillAlphaMapFile)
+    textureAssetFiles.push(style.lineAlphaMapFile, style.fillAlphaMapFile)
   })
 
   let assetResolutions = textureAssetFiles.map((textureFile) => {
@@ -46,11 +46,12 @@ function resolveDataAssets (destPath, sceneData) {
 
     let srcName = textureFile.name
     let srcPath = textureFile.path
-    if (exportedAssets[srcPath] != null) return
 
     let exportPath = `${srcName}`
     let assetDestPath = pathJoin(dirname(destPath), exportPath)
     textureFile.path = exportPath
+
+    if (exportedAssets[srcPath] != null) return
     exportedAssets[srcPath] = 1
 
     return copyFile(srcPath, assetDestPath)
