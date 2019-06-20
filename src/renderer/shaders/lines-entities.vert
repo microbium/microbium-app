@@ -15,6 +15,9 @@ uniform float thickness;
 uniform float miterLimit;
 uniform vec3 mirror; // [x, y, alpha]
 
+uniform float angle;
+uniform float angleAlpha;
+
 attribute vec2 prevPosition;
 attribute vec2 currPosition;
 attribute vec2 nextPosition;
@@ -26,9 +29,6 @@ attribute float nextId;
 attribute float offset;
 attribute vec4 color;
 attribute vec2 ud;
-
-attribute float angle;
-attribute float angleAlpha;
 
 varying vec4 vColor;
 varying vec3 vUDO;

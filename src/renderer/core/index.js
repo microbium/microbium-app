@@ -5,7 +5,6 @@ import Colr from 'colr'
 import { createTaskManager } from '@renderer/utils/task'
 import { createLoop } from '@renderer/utils/loop'
 import { debounce } from '@renderer/utils/function'
-import { range } from '@renderer/utils/array'
 import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 import { logger } from '@renderer/utils/logger'
@@ -568,11 +567,6 @@ export function mountCompositor ($el, $refs, actions) {
         : 0
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      const angles = range(polarIterations)
-        .map((i) => i * polarStep)
-      const anglesAlpha = range(polar.iterations)
-        .map((i) => (i === 0 ? 1 : polarAlpha))
-
       for (let i = contexts.length - 1; i >= 0; i--) {
         const { index, lines } = contexts[i]
         if (lines.state.cursor.vertex === 0) continue
@@ -608,8 +602,6 @@ export function mountCompositor ($el, $refs, actions) {
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
         const params = {
-          angles,
-          anglesAlpha,
           tick,
           model,
 
@@ -631,13 +623,19 @@ export function mountCompositor ($el, $refs, actions) {
 
         state.renderer.lineQuads += lines.state.cursor.quad
 
-        state.renderer.drawCalls += 1
-        lines.draw(params)
-
-        if (renderMirror) {
+        // OPTIM: Render in batched draw calls
+        for (let i = 0; i < polarIterations; i++) {
+          params.angle = i * polarStep
+          params.angleAlpha = (i === 0 ? 1 : polarAlpha)
+          params.mirror = vec3.set(mirror, 1, 1, 1)
           state.renderer.drawCalls += 1
-          params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
           lines.draw(params)
+
+          if (renderMirror && mirrorAlpha > 0.0) {
+            params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
+            state.renderer.drawCalls += 1
+            lines.draw(params)
+          }
         }
       }
     },

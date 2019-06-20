@@ -10,12 +10,12 @@ uniform mat4 view;
 uniform vec4 tint;
 uniform vec3 mirror; // [x, y, alpha]
 
+uniform float angle;
+uniform float angleAlpha;
+
 attribute vec2 position;
 attribute vec4 color;
 attribute float id;
-
-attribute float angle;
-attribute float angleAlpha;
 
 varying vec4 vColor;
 varying float vId;

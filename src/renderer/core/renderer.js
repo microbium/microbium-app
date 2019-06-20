@@ -23,13 +23,13 @@ export function createRenderer (tasks, state) {
   const regl = createREGL({
     canvas,
     extensions: [
-      'ANGLE_instanced_arrays',
+      // 'ANGLE_instanced_arrays',
       'OES_standard_derivatives',
       'OES_element_index_uint'
     ],
     attributes: {
       antialias: false,
-      preserveDrawingBuffer: false,
+      preserveDrawingBuffer: true,
       premultipliedAlpha: false,
       alpha: false,
       powerPreference: 'high-performance'

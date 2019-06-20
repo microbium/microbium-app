@@ -43,9 +43,12 @@ export function createScene (tasks, state, renderer) {
 
   const uniforms = {
     tick: regl.prop('tick'),
-    mirror: regl.prop('mirror')
+    mirror: regl.prop('mirror'),
+    angle: regl.prop('angle'),
+    angleAlpha: regl.prop('angleAlpha')
   }
 
+  /*
   const attributes = {
     angle: {
       buffer: regl.prop('angles'),
@@ -56,6 +59,7 @@ export function createScene (tasks, state, renderer) {
       divisor: 1
     }
   }
+  */
 
   // OPTIM: Investigate huge perf issues in Chrome when using instancing
   // OPTIM: Optimize shared state between contexts
@@ -70,7 +74,7 @@ export function createScene (tasks, state, renderer) {
       drawLineArgs: {
         vert: linesEntitiesVert,
         frag: linesEntitiesFrag,
-        instances: (context, { angles }) => angles.length,
+        // instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
           tint: regl.prop('lineTint'),
@@ -81,7 +85,7 @@ export function createScene (tasks, state, renderer) {
           useAlphaMap: (params, { lineAlphaMapPath }) =>
             (lineAlphaMapPath == null ? 0 : 1)
         },
-        attributes,
+        // attributes,
         blend,
         depth
       },
@@ -89,7 +93,7 @@ export function createScene (tasks, state, renderer) {
       drawFillArgs: {
         vert: fillsEntitiesVert,
         frag: fillsEntitiesFrag,
-        instances: (context, { angles }) => angles.length,
+        // instances: (context, { angles }) => angles.length,
         uniforms: {
           ...uniforms,
           tint: regl.prop('fillTint'),
@@ -100,7 +104,7 @@ export function createScene (tasks, state, renderer) {
           useAlphaMap: (params, { fillAlphaMapPath }) =>
             (fillAlphaMapPath == null ? 0 : 1)
         },
-        attributes,
+        // attributes,
         blend,
         depth,
         cull: {
