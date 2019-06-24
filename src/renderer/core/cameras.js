@@ -1,9 +1,6 @@
 import { vec2, vec3, mat4 } from 'gl-matrix'
 import { radialPosition } from '@renderer/utils/math'
 
-// TODO: Improve transition between ortho / perspective projection
-const ENABLE_PERSPECTIVE_VIEW = true
-
 export function createCameras (tasks, state, renderer) {
   const { regl } = renderer
 
@@ -118,7 +115,8 @@ export function createCameras (tasks, state, renderer) {
     get scene () {
       // TODO: Improve determining active camera
       const { isRunning } = state.simulation
-      return (isRunning && ENABLE_PERSPECTIVE_VIEW) ? scenePerspective : sceneOrtho
+      const { enabled } = state.controls.camera
+      return (isRunning && enabled) ? scenePerspective : sceneOrtho
     }
   }
 }

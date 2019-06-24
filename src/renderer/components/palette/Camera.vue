@@ -1,11 +1,11 @@
 <template>
   <div class="palette-camera">
-    <palette-group open>
+    <palette-group persistent-controls open>
       <h2 slot="title">Camera</h2>
+      <input-checkbox slot="controls" v-model="model.enabled" />
 
-      <palette-group persistent-controls nested open>
+      <palette-group nested open>
         <h2 slot="title">Position</h2>
-        <!-- <input-checkbox slot="controls" v-model="model.enabled" /> -->
 
         <div class="palette-item">
           <input-range min="-180" max="180" step="0.5" v-model="model.polarAngle" />
