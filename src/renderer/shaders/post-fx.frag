@@ -11,6 +11,8 @@ uniform sampler2D edges;
 uniform sampler2D lutTexture;
 uniform sampler2D watermarkTexture;
 
+uniform float mirrorIntensity;
+uniform float mirrorAngle;
 uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
@@ -47,9 +49,24 @@ varying vec2 uv;
 
 // TODO: Improve viewResolution density mapping
 vec2 transformScreenPosition(vec3 resolution, vec2 offset, vec2 coord) {
-  vec2 screenCoord = uv * resolution.xy / resolution.z;
+  vec2 screenCoord = coord * resolution.xy / resolution.z;
   vec2 screenCenter = screenCoord - resolution.xy / resolution.z * 0.5;
   return screenCenter - vec2(offset.x, -offset.y);
+}
+
+vec4 sampleMirror(sampler2D color, vec2 uv, float angle) {
+  if (mirrorIntensity <= 0.0) {
+    return texture2D(color, uv);
+  }
+
+  vec2 norm = normalize(vec2(cos(angle), sin(angle)));
+  vec2 uvCenter = uv * 2.0 - 1.0;
+  float normOffsetLength = dot(norm, uvCenter);
+  vec2 offset = norm * normOffsetLength;
+
+  return normOffsetLength > 0.0
+    ? texture2D(color, uv)
+    : texture2D(color, -offset + uv);
 }
 
 void main() {
@@ -58,7 +75,7 @@ void main() {
   // ..................................................
 
   // Base Color / Shift
-  vec3 baseColor = texture2D(color, uv).rgb;
+  vec3 baseColor = sampleMirror(color, uv, mirrorAngle).rgb;
   vec3 baseColorHSV = rgb2hsv(baseColor);
   baseColorHSV = vec3(
     fract(baseColorHSV.r + colorShift.r),
@@ -73,7 +90,7 @@ void main() {
 
   // Banding
   if (bandingIntensity > 0.0) {
-    float bandingSample = texture2D(banding, uv).a;
+    float bandingSample = sampleMirror(banding, uv, mirrorAngle).a;
     bandingColor = hsv2rgb(vec3(
       baseColorHSV.r,
       baseColorHSV.g,
@@ -82,7 +99,7 @@ void main() {
 
   // Bloom
   if (bloomIntensity > 0.0) {
-    bloomColor = texture2D(bloom, uv).rgb * bloomIntensity;
+    bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb * bloomIntensity;
   }
 
   // ..................................................
@@ -93,7 +110,7 @@ void main() {
   // Edges
   // TODO: Parameterize individual edge channels
   if (edgesIntensity > 0.0) {
-    vec4 edgesColorSample = texture2D(edges, uv);
+    vec4 edgesColorSample = sampleMirror(edges, uv, mirrorAngle);
     vec3 edgesColor = blendOverlay(outColor, edgesColorSample.rgb, 0.85);
     float edgesSample = edgesColorSample.a;
     float edgesAlpha = edgesIntensity * (1.0 - edgesSample);
