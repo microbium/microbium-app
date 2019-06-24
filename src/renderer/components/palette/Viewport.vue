@@ -1,58 +1,62 @@
 <template>
   <div class="palette-viewport">
-    <palette-group open>
-      <h2 slot="title">Background</h2>
+    <palette-group>
+      <h2 slot="title">Viewport</h2>
 
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ model.background.colorHex.toUpperCase() }}
-            <input-color v-model="model.background.colorHex" />
-          </b> color
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="0" max="2" step="0.05" v-model="model.background.alphaFactor" />
-        <div class="palette-item__label">
-          <b>{{ backgroundAlphaName }}</b> fade out
-          <palette-item-controller :min="0" :max="2"
-            :model="model.background" prop="alphaFactor" />
-        </div>
-      </div>
-      <hr />
-    </palette-group>
+      <palette-group nested open>
+        <h2 slot="title">Background</h2>
 
-    <palette-group open>
-      <h2 slot="title">Overlay</h2>
-
-      <div class="palette-item">
-        <div class="palette-item__label">
-          <b>{{ model.overlay.colorHighlightHex.toUpperCase() }}
-            <input-color v-model="model.overlay.colorHighlightHex" />
-          </b> highlight color
+        <div class="palette-item">
+          <div class="palette-item__label">
+            <b>{{ model.background.colorHex.toUpperCase() }}
+              <input-color v-model="model.background.colorHex" />
+            </b> color
+          </div>
         </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="0" max="1" step="0.05" v-model="model.overlay.alphaFactor" />
-        <div class="palette-item__label">
-          <b>{{ overlayAlphaName }}</b> opacity
-          <palette-item-controller :min="0" :max="1"
-            :model="model.overlay" prop="alphaFactor" />
+        <div class="palette-item">
+          <input-range min="0" max="2" step="0.05" v-model="model.background.alphaFactor" />
+          <div class="palette-item__label">
+            <b>{{ backgroundAlphaName }}</b> fade out
+            <palette-item-controller :min="0" :max="2"
+              :model="model.background" prop="alphaFactor" />
+          </div>
         </div>
-      </div>
-      <hr />
-    </palette-group>
+        <hr />
+      </palette-group>
 
-    <palette-group open>
-      <h2 slot="title">Resolution</h2>
+      <palette-group nested open>
+        <h2 slot="title">Overlay</h2>
 
-      <div class="palette-item">
-        <!-- TODO: Add separate export resolution / pixel ratio setting -->
-        <input-range min="0.25" max="10" step="0.25" v-model="model.pixelRatio" />
-        <div class="palette-item__label">
-          <b>{{ pixelRatioName }}</b> pixel density
+        <div class="palette-item">
+          <div class="palette-item__label">
+            <b>{{ model.overlay.colorHighlightHex.toUpperCase() }}
+              <input-color v-model="model.overlay.colorHighlightHex" />
+            </b> highlight color
+          </div>
         </div>
-      </div>
-      <hr />
+        <div class="palette-item">
+          <input-range min="0" max="1" step="0.05" v-model="model.overlay.alphaFactor" />
+          <div class="palette-item__label">
+            <b>{{ overlayAlphaName }}</b> opacity
+            <palette-item-controller :min="0" :max="1"
+              :model="model.overlay" prop="alphaFactor" />
+          </div>
+        </div>
+        <hr />
+      </palette-group>
+
+      <palette-group nested open>
+        <h2 slot="title">Resolution</h2>
+
+        <div class="palette-item">
+          <!-- TODO: Add separate export resolution / pixel ratio setting -->
+          <input-range min="0.25" max="10" step="0.25" v-model="model.pixelRatio" />
+          <div class="palette-item__label">
+            <b>{{ pixelRatioName }}</b> pixel density
+          </div>
+        </div>
+        <hr />
+      </palette-group>
     </palette-group>
   </div>
 </template>

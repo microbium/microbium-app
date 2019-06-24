@@ -26,8 +26,8 @@
           :collapseHeader="isWideLayout">
           <h2 slot="title">{{ paletteTypesMap.viewport.name }}</h2>
           <palette-camera :model="controls.camera" />
-          <palette-simulation :model="controls.simulation" />
           <palette-viewport :model="controls.viewport" />
+          <palette-simulation :model="controls.simulation" />
         </palette-section>
       </div>
 

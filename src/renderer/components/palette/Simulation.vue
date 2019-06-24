@@ -1,6 +1,6 @@
 <template>
   <div class="palette-simulation">
-    <palette-group open>
+    <palette-group>
       <h2 slot="title">Simulation</h2>
 
       <div class="palette-item">
