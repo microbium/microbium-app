@@ -300,6 +300,11 @@ export function createControlsState () {
         iterationsController: -1,
         mirrorIntensityFactorController: -1
       },
+      mirror: {
+        enabled: false,
+        angle: 0,
+        angleController: -1
+      },
       bloom: {
         enabled: true,
         intensityFactor: 1,

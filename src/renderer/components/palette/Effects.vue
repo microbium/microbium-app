@@ -26,6 +26,21 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Mirror</h2>
+      <input-checkbox slot="controls" v-model="model.mirror.enabled" />
+
+      <div class="palette-item">
+        <input-range min="-180" max="180" step="0.01" v-model="model.mirror.angle" />
+        <div class="palette-item__label">
+          <b>{{ mirrorAngleName }}</b>
+          <palette-item-controller :min="-180" :max="180" :step="0.01"
+            :model="model.mirror" prop="angle" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Gradient Banding</h2>
       <input-checkbox slot="controls" v-model="model.banding.enabled" />
 
@@ -339,6 +354,13 @@ export default {
     mirrorFactorName () {
       const { mirrorIntensityFactor } = this.model.polar
       return `${roundToPlaces(mirrorIntensityFactor, 2)}x`
+    },
+
+    // Mirror
+
+    mirrorAngleName () {
+      const { angle } = this.model.mirror
+      return `${roundToPlaces(angle, 1)}°`
     },
 
     // Noise

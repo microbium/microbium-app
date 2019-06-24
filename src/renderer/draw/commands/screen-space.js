@@ -123,6 +123,8 @@ export function createDrawScreen (regl) {
     uniforms: {
       color: regl.prop('color'),
       colorShift: regl.prop('colorShift'),
+      mirrorIntensity: regl.prop('mirrorIntensity'),
+      mirrorAngle: regl.prop('mirrorAngle'),
       bloom: regl.prop('bloom'),
       bloomIntensity: regl.prop('bloomIntensity'),
       banding: regl.prop('banding'),

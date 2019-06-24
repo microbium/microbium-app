@@ -11,6 +11,8 @@ uniform sampler2D edges;
 uniform sampler2D lutTexture;
 uniform sampler2D watermarkTexture;
 
+uniform float mirrorIntensity;
+uniform float mirrorAngle;
 uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
@@ -53,6 +55,10 @@ vec2 transformScreenPosition(vec3 resolution, vec2 offset, vec2 coord) {
 }
 
 vec4 sampleMirror(sampler2D color, vec2 uv, float angle) {
+  if (mirrorIntensity <= 0.0) {
+    return texture2D(color, uv);
+  }
+
   vec2 norm = normalize(vec2(cos(angle), sin(angle)));
   vec2 uvCenter = uv * 2.0 - 1.0;
   float normOffsetLength = dot(norm, uvCenter);
@@ -65,7 +71,6 @@ vec4 sampleMirror(sampler2D color, vec2 uv, float angle) {
 
 void main() {
   vec2 fragPosition = transformScreenPosition(viewResolution, viewOffset, uv);
-  float mirrorAngle = PI * 0.4;
 
   // ..................................................
 
