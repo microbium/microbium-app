@@ -32,7 +32,7 @@
       <div class="palette-item">
         <input-range min="-180" max="180" step="0.01" v-model="model.mirror.angle" />
         <div class="palette-item__label">
-          <b>{{ mirrorAngleName }}</b>
+          <b>{{ mirrorAngleName }}</b> axis angle
           <palette-item-controller :min="-180" :max="180" :step="0.01"
             :model="model.mirror" prop="angle" />
         </div>
