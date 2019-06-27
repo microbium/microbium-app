@@ -3,9 +3,11 @@ export function createPostBuffers (regl, ...names) {
     color: regl.texture({
       mag: 'linear',
       min: 'linear',
-      wrap: 'clamp'
+      wrap: 'clamp',
+      format: 'rgba'
     }),
-    depth: false
+    depth: false,
+    stencil: false
   })
 
   const buffers = {
