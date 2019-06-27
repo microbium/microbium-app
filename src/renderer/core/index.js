@@ -134,6 +134,8 @@ export function mountCompositor ($el, $refs, actions) {
         shouldRenderBloom: false,
         shouldRenderBanding: false,
         shouldRenderEdges: false,
+        shouldRenderLut: false,
+        shouldRenderWatermark: false,
         mirrorIntensity: 0,
         mirrorAngle: 0,
         bloomIntensity: 0,
@@ -321,8 +323,10 @@ export function mountCompositor ($el, $refs, actions) {
       const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
         banding.enabled && banding.intensityFactor > 0
       const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
-      const shouldRenderLut = isRunning && lut.enabled && !!lut.textureFile
-      const shouldRenderWatermark = isRunning && watermark.enabled && !!watermark.textureFile
+      const shouldRenderLut = computedState.shouldRenderLut = isRunning &&
+        lut.enabled && !!(lut.textureFile && lut.textureFile.path)
+      const shouldRenderWatermark = computedState.shouldRenderWatermark = isRunning &&
+        watermark.enabled && !!(watermark.textureFile && watermark.textureFile.path)
 
       computedState.mirrorIntensity = !shouldRenderMirror ? 0 : 1
       computedState.mirrorAngle = mirror.angle / 180 * Math.PI
@@ -797,6 +801,7 @@ export function mountCompositor ($el, $refs, actions) {
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
         shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
+        shouldRenderLut, shouldRenderWatermark,
         mirrorIntensity, mirrorAngle, bloomIntensity, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, colorShift, noiseIntensity
@@ -818,15 +823,15 @@ export function mountCompositor ($el, $refs, actions) {
         bandingIntensity,
         edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
         edgesIntensity,
-        noiseIntensity,
+        lutTexture: textures.get(
+          shouldRenderLut ? lut.textureFile.path : 'blank'),
         lutIntensity,
+        watermarkTexture: textures.get(
+          shouldRenderWatermark ? watermark.textureFile.path : 'blank'),
         watermarkIntensity,
-        lutTexture: textures.get('lut',
-          lut.textureFile && lut.textureFile.path),
-        watermarkTexture: textures.get('watermark',
-          watermark.textureFile && watermark.textureFile.path),
         overlayAlpha: isRunning ? overlay.alphaFactor : 1,
         vignetteParams,
+        noiseIntensity,
         tick,
         viewOffset,
         viewResolution,
