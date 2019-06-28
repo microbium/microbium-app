@@ -823,11 +823,11 @@ export function mountCompositor ($el, $refs, actions) {
         bandingIntensity,
         edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
         edgesIntensity,
-        lutTexture: textures.get(
-          shouldRenderLut ? lut.textureFile.path : 'blank'),
+        lutTexture: textures.get('lut',
+          shouldRenderLut ? lut.textureFile.path : null),
         lutIntensity,
-        watermarkTexture: textures.get(
-          shouldRenderWatermark ? watermark.textureFile.path : 'blank'),
+        watermarkTexture: textures.get('watermark',
+          shouldRenderWatermark ? watermark.textureFile.path : null),
         watermarkIntensity,
         overlayAlpha: isRunning ? overlay.alphaFactor : 1,
         vignetteParams,
