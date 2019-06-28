@@ -66,7 +66,7 @@ export function createScene (tasks, state, renderer) {
   const contexts = []
 
   function createContext (style, index) {
-    const bufferSize = 2 ** 12
+    const bufferSize = 512
     const lines = LineBuilder.create(regl, {
       dimensions: 2,
       bufferSize,
@@ -120,6 +120,7 @@ export function createScene (tasks, state, renderer) {
 
     return {
       bufferSize,
+      bufferInterval: bufferSize,
       index,
       style,
       lines,
@@ -166,7 +167,7 @@ export function createUIScene (tasks, state, renderer) {
 
   const contexts = ['main', 'grid'].map((name, index) => {
     // TODO: Make bufferSize smallest possible for UI
-    const bufferSize = 2 ** 10
+    const bufferSize = 1024
     const lines = LineBuilder.create(regl, {
       dimensions: 2,
       bufferSize,
