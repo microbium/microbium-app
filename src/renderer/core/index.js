@@ -270,10 +270,10 @@ export function mountCompositor ($el, $refs, actions) {
         timer.end('updatePhysics')
       }
       if (isRunning && !wasRunning) {
-        this.sendGeometryState()
+        // this.sendGeometryState()
       }
       if (tick % TICK_MSG_INTERVAL === 0) {
-        this.sendFrameState()
+        // this.sendFrameState()
       }
 
       state.simulation.wasRunning = isRunning
