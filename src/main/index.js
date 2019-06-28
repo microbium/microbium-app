@@ -394,6 +394,7 @@ function createMainWindow () {
     show: true,
     webPreferences: {
       devTools: DEBUG_MAIN,
+      nodeIntegration: true,
       webSecurity: !IS_DEV
     }
   })
@@ -479,6 +480,7 @@ function createPaletteWindow () {
     webPreferences: {
       // TODO: Would be nice to have native-feeling bounce ...
       scrollBounce: false,
+      nodeIntegration: true,
       devTools: DEBUG_PALETTE
     }
   })
