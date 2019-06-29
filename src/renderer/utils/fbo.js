@@ -24,6 +24,11 @@ export function createPostBuffers (regl, ...names) {
       return buffer
     },
 
+    use (name, scope) {
+      const buffer = buffers[name]
+      return buffer.use(scope)
+    },
+
     swap (nameA, nameB) {
       const bufferA = buffers[nameA]
       const bufferB = buffers[nameB]

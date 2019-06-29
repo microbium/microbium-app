@@ -222,10 +222,10 @@ export function mountCompositor ($el, $refs, actions) {
       const height = resolution[1]
 
       postBuffers.resize('fullExport', resolution)
-      this.renderScene(0, postBuffers.get('fullExport'))
+      this.renderScene(0, 'fullExport')
 
       const buffer = new Uint8Array(width * height * 4)
-      postBuffers.get('fullExport').use(() => {
+      postBuffers.use('fullExport', () => {
         regl.read({
           x: 0,
           y: 0,
@@ -535,7 +535,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       for (let i = 0; i < count * 2; i++) {
         postBuffers.swap('blurB', 'blurA')
-        postBuffers.get('blurB').use(() => {
+        postBuffers.use('blurB', () => {
           const radius = (1 + Math.floor(i / 2)) * radiusStep
           const blurDirection = (i % 2 === 0)
             ? [radius, 0]
@@ -707,7 +707,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
       timer.begin('renderLines')
-      postBuffers.get('full').use(() => {
+      postBuffers.use('full', () => {
         // TODO: Tween between clear states
         const clearColor = Colr.fromHex(background.colorHex)
           .toRgbArray()
@@ -758,7 +758,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (shouldRenderBanding) {
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        postBuffers.get('banding').use(() => {
+        postBuffers.use('banding', () => {
           drawBanding({
             color: postBuffers.get('full'),
             bandingStep: banding.bandStep,
@@ -779,7 +779,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (shouldRenderEdges) {
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        postBuffers.get('edges').use(() => {
+        postBuffers.use('edges', () => {
           drawEdges({
             color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
             thickness: edges.thickness,
@@ -792,7 +792,7 @@ export function mountCompositor ($el, $refs, actions) {
       timer.end('renderEdges')
     },
 
-    renderSceneComposite (tick, fbo) {
+    renderSceneComposite (tick, fboName) {
       const { postBuffers, textures } = renderer
       const { drawScreen } = renderer.commands
       const { isRunning } = state.simulation
@@ -839,8 +839,13 @@ export function mountCompositor ($el, $refs, actions) {
         forcePositions
       }
 
-      if (fbo) fbo.use(() => drawScreen(compositeParams))
-      else drawScreen(compositeParams)
+      if (fboName) {
+        postBuffers.use(fboName, () => {
+          drawScreen(compositeParams)
+        })
+      } else {
+        drawScreen(compositeParams)
+      }
 
       timer.end('renderComposite')
     },
@@ -853,7 +858,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { shouldRenderBloom, bloomFeedbackPosition } = this.computedState
 
       if (isRunning && shouldRenderBloom) {
-        postBuffers.get('full').use(() => {
+        postBuffers.use('full', () => {
           drawTexture({
             color: postBuffers.get('blurB'),
             offset: bloomFeedbackPosition,
