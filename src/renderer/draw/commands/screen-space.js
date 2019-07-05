@@ -47,13 +47,18 @@ export function createSetupDrawScreen (regl) {
 
 export function createDrawTexture (regl) {
   return regl({
-    frag: postFXCopyFrag,
     vert: postFXCopyVert,
+    frag: postFXCopyFrag,
     uniforms: {
       color: regl.prop('color'),
       scale: regl.prop('scale'),
       offset: regl.prop('offset')
-    }
+    },
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
   })
 }
 
@@ -70,14 +75,21 @@ export function createDrawBoxBlur (regl, params = {}) {
   })
 }
 
-export function createDrawGaussBlur (regl) {
+export function createDrawGaussBlur (regl, postBuffers) {
   return regl({
+    vert: postFXVert,
     frag: postFXGaussBlurFrag,
+    framebuffer: (context, props) => postBuffers.get(props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => postBuffers.get(props.colorName),
       blurDirection: regl.prop('blurDirection'),
       viewResolution: regl.prop('viewResolution')
-    }
+    },
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
   })
 }
 
@@ -95,17 +107,24 @@ export function createDrawHashBlur (regl) {
 
 export function createDrawBanding (regl) {
   return regl({
+    vert: postFXVert,
     frag: postFXBanding,
     uniforms: {
       color: regl.prop('color'),
       bandingStep: regl.prop('bandingStep'),
       tick: regl.prop('tick')
-    }
+    },
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
   })
 }
 
 export function createDrawEdges (regl) {
   return regl({
+    vert: postFXVert,
     frag: postFXEdges,
     uniforms: {
       color: regl.prop('color'),
@@ -113,20 +132,26 @@ export function createDrawEdges (regl) {
       repeat: regl.prop('repeat'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution')
-    }
+    },
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
   })
 }
 
 export function createDrawScreen (regl) {
   return regl({
+    vert: postFXVert,
     frag: postFXFrag,
     uniforms: {
       color: regl.prop('color'),
       colorShift: regl.prop('colorShift'),
       mirrorIntensity: regl.prop('mirrorIntensity'),
       mirrorAngle: regl.prop('mirrorAngle'),
-      bloom: regl.prop('bloom'),
-      bloomIntensity: regl.prop('bloomIntensity'),
+      // bloom: regl.prop('bloom'),
+      // bloomIntensity: regl.prop('bloomIntensity'),
       banding: regl.prop('banding'),
       bandingIntensity: regl.prop('bandingIntensity'),
       edges: regl.prop('edges'),
@@ -143,7 +168,12 @@ export function createDrawScreen (regl) {
       viewOffset: regl.prop('viewOffset'),
       viewScale: regl.prop('viewScale'),
       ...createArrayUniformProps('forcePositions', 3, [0, 0, 0])
-    }
+    },
+    attributes: {
+      position: [-4, -4, 4, -4, 0, 4]
+    },
+    count: 3,
+    depth: { enable: false }
   })
 }
 

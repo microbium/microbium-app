@@ -530,25 +530,38 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
-      const { postBuffers } = renderer
       const { drawGaussBlur } = renderer.commands
+      const blurBatch = []
+
+      if (state.simulation.tick === 10) {
+        console.log('blur', count)
+        renderer.tracker.enable()
+      }
 
       for (let i = 0; i < count * 2; i++) {
-        postBuffers.swap('blurB', 'blurA')
-        postBuffers.use('blurB', () => {
-          const radius = (1 + Math.floor(i / 2)) * radiusStep
-          const blurDirection = (i % 2 === 0)
-            ? [radius, 0]
-            : [0, radius]
+        let radius = (1 + Math.floor(i / 2)) * radiusStep
+        let blurDirection = (i % 2 === 0)
+          ? [radius, 0]
+          : [0, radius]
+        let framebufferName = (i % 2 === 0) ? 'blurA' : 'blurB'
+        let colorName = (i === 0) ? 'full'
+          : (i % 2 === 0) ? 'blurB' : 'blurA'
 
-          state.renderer.drawCalls++
-          state.renderer.fullScreenPasses++
-          drawGaussBlur({
-            color: postBuffers.get(i === 0 ? 'full' : 'blurA'),
-            blurDirection,
-            viewResolution
-          })
+        state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
+        blurBatch.push({
+          framebufferName,
+          colorName,
+          blurDirection,
+          viewResolution
         })
+      }
+
+      drawGaussBlur(blurBatch)
+      if (state.simulation.tick === 10) {
+        console.log(blurBatch)
+        renderer.tracker.disable()
+        console.log(renderer.tracker.getLog())
       }
     },
 
@@ -633,23 +646,42 @@ export function mountCompositor ($el, $refs, actions) {
           fillAlphaMapRepeat,
           fillAlphaMapPath
         }
+        const paramsBatch = []
 
         state.renderer.lineQuads += lines.state.cursor.quad
+        // if (state.simulation.tick === 10) {
+        //   console.log('lines', i)
+        //   renderer.tracker.enable()
+        // }
 
-        // OPTIM: Render in batched draw calls
-        for (let i = 0; i < polarIterations; i++) {
-          params.angle = i * polarStep
-          params.angleAlpha = (i === 0 ? 1 : polarAlpha)
-          params.mirror = vec3.set(mirror, 1, 1, 1)
+        // OPTIM: Pool / reuse param batch objects
+        for (let j = 0; j < polarIterations; j++) {
           state.renderer.drawCalls += 1
-          lines.draw(params)
+          paramsBatch.push({
+            ...params,
+            angle: j * polarStep,
+            angleAlpha: (j === 0 ? 1 : polarAlpha),
+            mirror: [1, 1, 1]
+          })
 
           if (renderMirror && mirrorAlpha > 0.0) {
             params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
             state.renderer.drawCalls += 1
-            lines.draw(params)
+            paramsBatch.push({
+              ...params,
+              angle: j * polarStep,
+              angleAlpha: (j === 0 ? 1 : polarAlpha),
+              mirror: [-1, 1, mirrorAlpha]
+            })
           }
         }
+
+        lines.draw(paramsBatch)
+        // if (state.simulation.tick === 10) {
+        //   console.log('linesBatch', paramsBatch.length)
+        //   renderer.tracker.disable()
+        //   console.log(renderer.tracker.getLog())
+        // }
       }
     },
 
@@ -664,17 +696,19 @@ export function mountCompositor ($el, $refs, actions) {
       const miterLimit = this.computeLineThickness(4)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
+      const params = {
+        model,
+        tint,
+        thickness,
+        miterLimit,
+        adjustProjectedThickness
+      }
+
       contexts.forEach(({ name, lines }) => {
         if (isRunning && name === 'grid') return
         state.renderer.drawCalls++
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw({
-          model,
-          tint,
-          thickness,
-          miterLimit,
-          adjustProjectedThickness
-        })
+        lines.draw(params)
       })
     },
 
@@ -682,56 +716,66 @@ export function mountCompositor ($el, $refs, actions) {
     // ..................................................
 
     renderScene (tick, fbo = null) {
-      const { setupDrawScreen } = renderer.commands
+      const { postBuffers } = renderer
+      // const { setupDrawScreen } = renderer.commands
 
       this.resizeRenderBuffers()
-      this.renderSceneMain()
-
-      setupDrawScreen(() => {
-        this.renderSceneBloom(tick)
-        this.renderSceneBanding(tick)
-        this.renderSceneEdges(tick)
-        this.renderSceneComposite(tick, fbo)
-        this.renderSceneBloomFeedback(tick)
+      postBuffers.use('full', () => {
+        this.renderSceneMain()
       })
+
+      // setupDrawScreen(() => {
+      this.renderSceneBloom(tick)
+      this.renderSceneBanding(tick)
+      this.renderSceneEdges(tick)
+      this.renderSceneComposite(tick, fbo)
+      this.renderSceneBloomFeedback(tick)
+      // })
 
       this.renderSceneUI()
     },
 
     renderSceneMain () {
-      const { postBuffers } = renderer
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
       const { didResize } = state.viewport
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
+      if (state.simulation.tick === 10) {
+        console.log('renderLines')
+        renderer.tracker.enable()
+      }
+
       timer.begin('renderLines')
-      postBuffers.use('full', () => {
-        // TODO: Tween between clear states
-        const clearColor = Colr.fromHex(background.colorHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        clearColor.push(didResize ? 1
-          : (!isRunning ? 0.6
-            : (0.025 * background.alphaFactor)))
+      const clearColor = Colr.fromHex(background.colorHex)
+        .toRgbArray()
+        .map((v) => v / 255)
+      clearColor.push(didResize ? 1
+        : (!isRunning ? 0.6
+          : (0.025 * background.alphaFactor)))
 
-        state.renderer.drawCalls++
-        drawRect({
-          color: clearColor
-        })
+      state.renderer.drawCalls++
+      drawRect({
+        color: clearColor
+      })
 
-        cameras.scene.setup({
-          viewResolution,
-          viewOffset,
-          viewScale
-        }, () => {
-          this.renderLines(scene, {
-            polarAlpha: isRunning ? 1 : 0.025,
-            renderMirror: true
-          })
+      cameras.scene.setup({
+        viewResolution,
+        viewOffset,
+        viewScale
+      }, () => {
+        this.renderLines(scene, {
+          polarAlpha: isRunning ? 1 : 0.025,
+          renderMirror: true
         })
       })
+
+      if (state.simulation.tick === 10) {
+        renderer.tracker.disable()
+        console.log(renderer.tracker.getLog())
+      }
+
       timer.end('renderLines')
     },
 
@@ -800,12 +844,17 @@ export function mountCompositor ($el, $refs, actions) {
       const { lut, watermark } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
-        shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
+        shouldRenderBanding, shouldRenderEdges,
         shouldRenderLut, shouldRenderWatermark,
-        mirrorIntensity, mirrorAngle, bloomIntensity, bandingIntensity,
+        mirrorIntensity, mirrorAngle, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
+
+      if (state.simulation.tick === 10) {
+        console.log('composite')
+        renderer.tracker.enable()
+      }
 
       timer.begin('renderComposite')
 
@@ -817,8 +866,8 @@ export function mountCompositor ($el, $refs, actions) {
         colorShift,
         mirrorIntensity,
         mirrorAngle,
-        bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
-        bloomIntensity,
+        // bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
+        // bloomIntensity,
         banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
         bandingIntensity,
         edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
@@ -845,6 +894,12 @@ export function mountCompositor ($el, $refs, actions) {
         })
       } else {
         drawScreen(compositeParams)
+      }
+
+      if (state.simulation.tick === 10) {
+        console.log(compositeParams)
+        renderer.tracker.disable()
+        console.log(renderer.tracker.getLog())
       }
 
       timer.end('renderComposite')
