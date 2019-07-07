@@ -153,9 +153,17 @@ export function createScene (tasks, state, renderer) {
     return contexts
   }
 
+  function resetLines () {
+    for (let i = 0; i < contexts.length; i++) {
+      let { lines } = contexts[i]
+      lines.reset()
+    }
+  }
+
   return {
     contexts,
-    syncContexts
+    syncContexts,
+    resetLines
   }
 }
 
@@ -193,8 +201,16 @@ export function createUIScene (tasks, state, renderer) {
     }
   })
 
+  function resetLines () {
+    for (let i = 0; i < contexts.length; i++) {
+      let { lines } = contexts[i]
+      lines.reset()
+    }
+  }
+
   return {
     contexts,
+    resetLines,
     main: contexts[0],
     grid: contexts[1]
   }
