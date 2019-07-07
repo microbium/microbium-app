@@ -1,6 +1,8 @@
 import { LineBuilder } from 'regl-line-builder'
 
+import { createGroupPool } from '@renderer/utils/pool'
 import { curve, polyline } from '@renderer/utils/draw'
+
 import linesEntitiesVert from '@renderer/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@renderer/shaders/lines-entities.frag'
 import fillsEntitiesVert from '@renderer/shaders/fills-entities.vert'
@@ -152,9 +154,20 @@ export function createScene (tasks, state, renderer) {
     return contexts
   }
 
+  const pools = {
+    params: createGroupPool({
+      createItem: () => {
+        return {
+          mirror: new Float32Array(3)
+        }
+      }
+    })
+  }
+
   return {
     contexts,
-    syncContexts
+    syncContexts,
+    pools
   }
 }
 

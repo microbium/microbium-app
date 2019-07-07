@@ -45,7 +45,6 @@ const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
 
 const scratchVec2A = vec2.create()
-const scratchVec3A = vec3.create()
 const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
@@ -533,11 +532,6 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawGaussBlur } = renderer.commands
       const blurBatch = []
 
-      if (state.simulation.tick === 10) {
-        console.log('blur', count)
-        renderer.tracker.enable()
-      }
-
       for (let i = 0; i < count * 2; i++) {
         let radius = (1 + Math.floor(i / 2)) * radiusStep
         let blurDirection = (i % 2 === 0)
@@ -558,11 +552,6 @@ export function mountCompositor ($el, $refs, actions) {
       }
 
       drawGaussBlur(blurBatch)
-      if (state.simulation.tick === 10) {
-        console.log(blurBatch)
-        renderer.tracker.disable()
-        console.log(renderer.tracker.getLog())
-      }
     },
 
     // TODO: Ensure line thickness is correct on high dpi
@@ -580,7 +569,7 @@ export function mountCompositor ($el, $refs, actions) {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines ({ contexts }, { polarAlpha, renderMirror }) {
+    renderLines ({ contexts, pools }, { polarAlpha, renderMirror }) {
       const { tick, isRunning } = state.simulation
       const { styles, alphaFunctions, postEffects } = state.controls
       const { polar } = postEffects
@@ -593,9 +582,13 @@ export function mountCompositor ($el, $refs, actions) {
         : 0
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      for (let i = contexts.length - 1; i >= 0; i--) {
+      for (let i = 0; i < contexts.length; i++) {
         const { index, lines } = contexts[i]
         if (lines.state.cursor.vertex === 0) continue
+
+        const shouldRenderMirror = renderMirror && mirrorAlpha > 0.0
+        const paramsCount = polarIterations * (shouldRenderMirror ? 2 : 1)
+        const paramsBatch = pools.params.getGroup(paramsCount)
 
         const style = styles[index]
         const {
@@ -615,73 +608,46 @@ export function mountCompositor ($el, $refs, actions) {
           .map((v) => v / 255)
         fillTint.push(fillTintAlpha)
 
-        const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
-
         const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
-        const lineDashFunction = lineAlphaFunc.dashFunction
-        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
-        const fillDashFunction = fillAlphaFunc.dashFunction
-
         const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
+        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
-        const params = {
-          tick,
-          model,
-
-          mirror,
-          thickness,
-          miterLimit,
-          adjustProjectedThickness,
-
-          lineTint,
-          lineDashFunction,
-          lineAlphaMapRepeat,
-          lineAlphaMapPath,
-
-          fillTint,
-          fillDashFunction,
-          fillAlphaMapRepeat,
-          fillAlphaMapPath
-        }
-        const paramsBatch = []
-
-        state.renderer.lineQuads += lines.state.cursor.quad
-        // if (state.simulation.tick === 10) {
-        //   console.log('lines', i)
-        //   renderer.tracker.enable()
-        // }
-
         // OPTIM: Pool / reuse param batch objects
-        for (let j = 0; j < polarIterations; j++) {
-          state.renderer.drawCalls += 1
-          paramsBatch.push({
-            ...params,
-            angle: j * polarStep,
-            angleAlpha: (j === 0 ? 1 : polarAlpha),
-            mirror: [1, 1, 1]
-          })
+        for (let j = 0; j < paramsCount; j++) {
+          const params = paramsBatch[j]
+          const polarIndex = shouldRenderMirror ? Math.floor(j / 2) : j
+          const isMirrorStep = shouldRenderMirror && j % 2 !== 0
 
-          if (renderMirror && mirrorAlpha > 0.0) {
-            params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
-            state.renderer.drawCalls += 1
-            paramsBatch.push({
-              ...params,
-              angle: j * polarStep,
-              angleAlpha: (j === 0 ? 1 : polarAlpha),
-              mirror: [-1, 1, mirrorAlpha]
-            })
-          }
+          params.tick = tick
+          params.model = model
+          params.adjustProjectedThickness = adjustProjectedThickness
+
+          params.thickness = thickness
+          params.miterLimit = miterLimit
+
+          params.lineTint = lineTint
+          params.lineAlphaMapRepeat = lineAlphaMapRepeat
+          params.lineDashFunction = lineAlphaFunc.dashFunction
+          params.lineAlphaMapPath = lineAlphaMapPath
+
+          params.fillTint = fillTint
+          params.fillAlphaMapRepeat = fillAlphaMapRepeat
+          params.fillDashFunction = fillAlphaFunc.dashFunction
+          params.fillAlphaMapPath = fillAlphaMapPath
+
+          params.angle = polarIndex * polarStep
+          params.angleAlpha = polarIndex === 0 ? 1 : polarAlpha
+          params.mirror = isMirrorStep
+            ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
+            : vec3.set(params.mirror, 1, 1, 1)
         }
 
+        state.renderer.drawCalls += paramsCount
+        state.renderer.lineQuads += lines.state.cursor.quad
         lines.draw(paramsBatch)
-        // if (state.simulation.tick === 10) {
-        //   console.log('linesBatch', paramsBatch.length)
-        //   renderer.tracker.disable()
-        //   console.log(renderer.tracker.getLog())
-        // }
       }
     },
 
@@ -716,36 +682,23 @@ export function mountCompositor ($el, $refs, actions) {
     // ..................................................
 
     renderScene (tick, fbo = null) {
-      const { postBuffers } = renderer
-      // const { setupDrawScreen } = renderer.commands
-
       this.resizeRenderBuffers()
-      postBuffers.use('full', () => {
-        this.renderSceneMain()
-      })
-
-      // setupDrawScreen(() => {
+      this.renderSceneMain()
       this.renderSceneBloom(tick)
       this.renderSceneBanding(tick)
       this.renderSceneEdges(tick)
       this.renderSceneComposite(tick, fbo)
       this.renderSceneBloomFeedback(tick)
-      // })
-
       this.renderSceneUI()
     },
 
     renderSceneMain () {
+      const { postBuffers } = renderer
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
       const { didResize } = state.viewport
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
-
-      if (state.simulation.tick === 10) {
-        console.log('renderLines')
-        renderer.tracker.enable()
-      }
 
       timer.begin('renderLines')
       const clearColor = Colr.fromHex(background.colorHex)
@@ -756,25 +709,21 @@ export function mountCompositor ($el, $refs, actions) {
           : (0.025 * background.alphaFactor)))
 
       state.renderer.drawCalls++
-      drawRect({
-        color: clearColor
-      })
-
-      cameras.scene.setup({
-        viewResolution,
-        viewOffset,
-        viewScale
-      }, () => {
-        this.renderLines(scene, {
-          polarAlpha: isRunning ? 1 : 0.025,
-          renderMirror: true
+      postBuffers.use('full', () => {
+        drawRect({
+          color: clearColor
+        })
+        cameras.scene.setup({
+          viewResolution,
+          viewOffset,
+          viewScale
+        }, () => {
+          this.renderLines(scene, {
+            polarAlpha: isRunning ? 1 : 0.025,
+            renderMirror: true
+          })
         })
       })
-
-      if (state.simulation.tick === 10) {
-        renderer.tracker.disable()
-        console.log(renderer.tracker.getLog())
-      }
 
       timer.end('renderLines')
     },
@@ -851,11 +800,6 @@ export function mountCompositor ($el, $refs, actions) {
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
 
-      if (state.simulation.tick === 10) {
-        console.log('composite')
-        renderer.tracker.enable()
-      }
-
       timer.begin('renderComposite')
 
       state.renderer.drawCalls++
@@ -894,12 +838,6 @@ export function mountCompositor ($el, $refs, actions) {
         })
       } else {
         drawScreen(compositeParams)
-      }
-
-      if (state.simulation.tick === 10) {
-        console.log(compositeParams)
-        renderer.tracker.disable()
-        console.log(renderer.tracker.getLog())
       }
 
       timer.end('renderComposite')
