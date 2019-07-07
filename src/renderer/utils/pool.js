@@ -26,3 +26,23 @@ export function createGroupPool ({ createItem }) {
     getGroup
   }
 }
+
+export function createKeyedPool ({ createItem }) {
+  let pool = []
+  let cache = {}
+
+  function get (name) {
+    if (cache[name]) {
+      return cache[name]
+    }
+
+    let nextItem = createItem()
+    cache[name] = nextItem
+    pool.push(nextItem)
+    return nextItem
+  }
+
+  return {
+    get
+  }
+}

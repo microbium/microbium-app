@@ -9,6 +9,11 @@ import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
+import { toVec4 } from '@renderer/utils/color'
+import {
+  createGroupPool,
+  createKeyedPool
+} from '@renderer/utils/pool'
 
 import {
   createCompositorState,
@@ -61,6 +66,7 @@ export function mountCompositor ($el, $refs, actions) {
   const loop = createAnimationLoop()
 
   const renderer = createRenderer(tasks, state)
+  const pools = createPools(tasks, state)
   const cameras = createCameras(tasks, state, renderer)
   const scene = createScene(tasks, state, renderer)
   const sceneAltUI = createScene(tasks, state, renderer)
@@ -92,6 +98,24 @@ export function mountCompositor ($el, $refs, actions) {
     return createLoop(looper,
       'sync', 'update', 'render',
       (1 / 60 * 1000))
+  }
+
+  function createPools (tasks, state) {
+    return {
+      lineParams: createGroupPool({
+        createItem: () => {
+          return {
+            mirror: new Float32Array(3)
+          }
+        }
+      }),
+      color: createKeyedPool({
+        createItem: () => ({
+          colr: new Colr(),
+          vec4: new Float32Array(4)
+        })
+      })
+    }
   }
 
   function getVersionedPath (file) {
@@ -569,7 +593,7 @@ export function mountCompositor ($el, $refs, actions) {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines ({ contexts, pools }, { polarAlpha, renderMirror }) {
+    renderLines ({ contexts }, { polarAlpha, renderMirror }) {
       const { tick, isRunning } = state.simulation
       const { styles, alphaFunctions, postEffects } = state.controls
       const { polar } = postEffects
@@ -588,7 +612,7 @@ export function mountCompositor ($el, $refs, actions) {
 
         const shouldRenderMirror = renderMirror && mirrorAlpha > 0.0
         const paramsCount = polarIterations * (shouldRenderMirror ? 2 : 1)
-        const paramsBatch = pools.params.getGroup(paramsCount)
+        const paramsBatch = pools.lineParams.getGroup(paramsCount)
 
         const style = styles[index]
         const {
@@ -599,14 +623,10 @@ export function mountCompositor ($el, $refs, actions) {
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const lineTint = Colr.fromHex(lineTintHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        lineTint.push(lineTintAlpha)
-        const fillTint = Colr.fromHex(fillTintHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        fillTint.push(fillTintAlpha)
+        const lineTint = pools.color.get(`lineTint_${i}`)
+        const lineTintVec = toVec4(lineTint.vec4, lineTint.colr, lineTintHex, lineTintAlpha)
+        const fillTint = pools.color.get(`fillTint_${i}`)
+        const fillTintVec = toVec4(fillTint.vec4, fillTint.colr, fillTintHex, fillTintAlpha)
 
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
@@ -615,7 +635,6 @@ export function mountCompositor ($el, $refs, actions) {
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
-        // OPTIM: Pool / reuse param batch objects
         for (let j = 0; j < paramsCount; j++) {
           const params = paramsBatch[j]
           const polarIndex = shouldRenderMirror ? Math.floor(j / 2) : j
@@ -628,12 +647,12 @@ export function mountCompositor ($el, $refs, actions) {
           params.thickness = thickness
           params.miterLimit = miterLimit
 
-          params.lineTint = lineTint
+          params.lineTint = lineTintVec
           params.lineAlphaMapRepeat = lineAlphaMapRepeat
           params.lineDashFunction = lineAlphaFunc.dashFunction
           params.lineAlphaMapPath = lineAlphaMapPath
 
-          params.fillTint = fillTint
+          params.fillTint = fillTintVec
           params.fillAlphaMapRepeat = fillAlphaMapRepeat
           params.fillDashFunction = fillAlphaFunc.dashFunction
           params.fillAlphaMapPath = fillAlphaMapPath
@@ -645,6 +664,7 @@ export function mountCompositor ($el, $refs, actions) {
             : vec3.set(params.mirror, 1, 1, 1)
         }
 
+        // TODO: Account for fill draw calls
         state.renderer.drawCalls += paramsCount
         state.renderer.lineQuads += lines.state.cursor.quad
         lines.draw(paramsBatch)
@@ -693,6 +713,8 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneMain () {
+      timer.begin('renderLines')
+
       const { postBuffers } = renderer
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
@@ -700,18 +722,17 @@ export function mountCompositor ($el, $refs, actions) {
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
-      timer.begin('renderLines')
-      const clearColor = Colr.fromHex(background.colorHex)
-        .toRgbArray()
-        .map((v) => v / 255)
-      clearColor.push(didResize ? 1
+      const clearHex = background.colorHex
+      const clearAlpha = didResize ? 1
         : (!isRunning ? 0.6
-          : (0.025 * background.alphaFactor)))
+          : (0.025 * background.alphaFactor))
+      const clearColor = pools.color.get('clearColor')
+      const clearColorVec = toVec4(clearColor.vec4, clearColor.colr, clearHex, clearAlpha)
 
       state.renderer.drawCalls++
       postBuffers.use('full', () => {
         drawRect({
-          color: clearColor
+          color: clearColorVec
         })
         cameras.scene.setup({
           viewResolution,
@@ -729,25 +750,27 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneBloom () {
+      timer.begin('renderBloom')
+
       const { viewResolution, shouldRenderBloom } = this.computedState
       const { bloom } = state.controls.postEffects
 
-      timer.begin('renderBloom')
       if (shouldRenderBloom) {
         this.renderSceneBlurPasses(viewResolution,
           bloom.blurStep, bloom.blurPasses)
       }
+
       timer.end('renderBloom')
     },
 
     renderSceneBanding (tick) {
+      timer.begin('renderBanding')
+
       const { postBuffers } = renderer
       const { drawBanding } = renderer.commands
       const { banding } = state.controls.postEffects
       const { shouldRenderBanding } = this.computedState
 
-      // Banding
-      timer.begin('renderBanding')
       if (shouldRenderBanding) {
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
@@ -759,16 +782,18 @@ export function mountCompositor ($el, $refs, actions) {
           })
         })
       }
+
       timer.end('renderBanding')
     },
 
     renderSceneEdges (tick) {
+      timer.begin('renderEdges')
+
       const { postBuffers } = renderer
       const { drawEdges } = renderer.commands
       const { edges } = state.controls.postEffects
       const { shouldRenderBanding, shouldRenderEdges, viewResolution } = this.computedState
 
-      timer.begin('renderEdges')
       if (shouldRenderEdges) {
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
@@ -782,10 +807,13 @@ export function mountCompositor ($el, $refs, actions) {
           })
         })
       }
+
       timer.end('renderEdges')
     },
 
     renderSceneComposite (tick, fboName) {
+      timer.begin('renderComposite')
+
       const { postBuffers, textures } = renderer
       const { drawScreen } = renderer.commands
       const { isRunning } = state.simulation
@@ -799,8 +827,6 @@ export function mountCompositor ($el, $refs, actions) {
         edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
-
-      timer.begin('renderComposite')
 
       state.renderer.drawCalls++
       state.renderer.fullScreenPasses++
