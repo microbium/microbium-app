@@ -7902,10 +7902,10 @@ regjsparser@^0.1.4:
   dependencies:
     jsesc "~0.5.0"
 
-regl-line-builder@0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.6.0.tgz#97308f5b465211740fc247a8c59530e5a923aaef"
-  integrity sha512-w456Qxhb1GqPUsucNFRWhevA5ATzZYjrMAywe+WNWLxN95XbKs1V1DF5+Ph3XIIfNNX1ooBBc89x3z3vEOHvAw==
+regl-line-builder@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.7.0.tgz#254a250bca96f87ebb06079d31bfdc54cd8e6ab2"
+  integrity sha512-DOfUVFpZDuNTIeVcD9IVAwiEYaznU8EMIiN6q3s6UxsP6Q6nOX2PmzQoLH1KRTLX/oRGyfWn/4jWC5jFPnbEbg==
   dependencies:
     earcut "^2.1.3"
 
