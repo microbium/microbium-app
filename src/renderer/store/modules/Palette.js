@@ -267,7 +267,7 @@ export function createControlsState () {
     viewport: {
       pixelRatio: pixelRatioClamped(),
       background: {
-        colorHex: '#7399A1',
+        colorHex: '#91CCCC',
         alphaFactor: 1,
         alphaFactorController: -1
       },

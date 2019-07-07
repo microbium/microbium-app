@@ -20,8 +20,8 @@ export function createCameras (tasks, state, renderer) {
     const setup = regl({
       uniforms: {
         ...baseUniforms,
-        view: (params, context) => {
-          const { viewOffset, viewScale } = context
+        view: (context, props) => {
+          const { viewOffset, viewScale } = props
           const offset3 = vec3.set(scratchVec3A, viewOffset[0], viewOffset[1], 0)
           const scale3 = vec3.set(scratchVec3B, viewScale, viewScale, viewScale)
           mat4.fromTranslation(view, offset3)

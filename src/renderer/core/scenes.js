@@ -1,6 +1,7 @@
 import { LineBuilder } from 'regl-line-builder'
 
 import { curve, polyline } from '@renderer/utils/draw'
+
 import linesEntitiesVert from '@renderer/shaders/lines-entities.vert'
 import linesEntitiesFrag from '@renderer/shaders/lines-entities.frag'
 import fillsEntitiesVert from '@renderer/shaders/fills-entities.vert'

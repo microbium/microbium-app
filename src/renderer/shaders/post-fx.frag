@@ -5,7 +5,7 @@ precision highp float;
 #define PI 3.141592653589793
 
 uniform sampler2D color;
-uniform sampler2D bloom;
+// uniform sampler2D bloom;
 uniform sampler2D banding;
 uniform sampler2D edges;
 uniform sampler2D lutTexture;
@@ -13,7 +13,7 @@ uniform sampler2D watermarkTexture;
 
 uniform float mirrorIntensity;
 uniform float mirrorAngle;
-uniform float bloomIntensity;
+// uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
 uniform float noiseIntensity;
@@ -98,14 +98,15 @@ void main() {
   }
 
   // Bloom
-  if (bloomIntensity > 0.0) {
-    bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb * bloomIntensity;
-  }
+  // FIXME: Weird perf issues with sampling bloom blur
+  // if (bloomIntensity > 0.0) {
+  //   bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb * bloomIntensity;
+  // }
 
   // ..................................................
 
   // Composite Base + Banding + Bloom
-  vec3 outColor = mix(baseColor, bandingColor, bandingIntensity) + bloomColor;
+  vec3 outColor = mix(baseColor, bandingColor, bandingIntensity);// + bloomColor;
 
   // Edges
   // TODO: Parameterize individual edge channels

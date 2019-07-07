@@ -11,14 +11,19 @@ import postFXHashBlurFrag from '@renderer/shaders/post-fx-hash-blur.frag'
 import postFXBanding from '@renderer/shaders/post-fx-banding.frag'
 import postFXEdges from '@renderer/shaders/post-fx-edges.frag'
 
+const SCREEN_EFFECT = {
+  vert: postFXVert,
+  attributes: {
+    position: new Float32Array([-4, -4, 4, -4, 0, 4])
+  },
+  count: 3,
+  depth: { enable: false }
+}
+
 export function createDrawRect (regl) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: basicFrag,
-    vert: postFXVert,
-    attributes: {
-      position: [-4, -4, 4, -4, 0, 4]
-    },
-    count: 3,
     blend: {
       enable: true,
       equation: 'add',
@@ -27,7 +32,6 @@ export function createDrawRect (regl) {
         dst: 'one minus src alpha'
       }
     },
-    depth: { enable: false },
     uniforms: {
       color: regl.prop('color')
     }
@@ -36,21 +40,18 @@ export function createDrawRect (regl) {
 
 export function createSetupDrawScreen (regl) {
   return regl({
-    vert: postFXVert,
-    attributes: {
-      position: [-4, -4, 4, -4, 0, 4]
-    },
-    count: 3,
-    depth: { enable: false }
+    ...SCREEN_EFFECT
   })
 }
 
-export function createDrawTexture (regl) {
+export function createDrawTexture (regl, postBuffers) {
   return regl({
-    frag: postFXCopyFrag,
+    ...SCREEN_EFFECT,
     vert: postFXCopyVert,
+    frag: postFXCopyFrag,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
       scale: regl.prop('scale'),
       offset: regl.prop('offset')
     }
@@ -62,6 +63,7 @@ export function createDrawBoxBlur (regl, params = {}) {
     BLUR_RADIUS: params.radius || 1
   }
   return regl({
+    ...SCREEN_EFFECT,
     frag: injectDefines(postFXBoxBlurFrag, defines),
     uniforms: {
       color: regl.prop('color'),
@@ -70,11 +72,13 @@ export function createDrawBoxBlur (regl, params = {}) {
   })
 }
 
-export function createDrawGaussBlur (regl) {
+export function createDrawGaussBlur (regl, postBuffers) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: postFXGaussBlurFrag,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
       blurDirection: regl.prop('blurDirection'),
       viewResolution: regl.prop('viewResolution')
     }
@@ -83,6 +87,7 @@ export function createDrawGaussBlur (regl) {
 
 export function createDrawHashBlur (regl) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: postFXHashBlurFrag,
     uniforms: {
       color: regl.prop('color'),
@@ -93,22 +98,26 @@ export function createDrawHashBlur (regl) {
   })
 }
 
-export function createDrawBanding (regl) {
+export function createDrawBanding (regl, postBuffers) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: postFXBanding,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
       bandingStep: regl.prop('bandingStep'),
       tick: regl.prop('tick')
     }
   })
 }
 
-export function createDrawEdges (regl) {
+export function createDrawEdges (regl, postBuffers) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: postFXEdges,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
       thickness: regl.prop('thickness'),
       repeat: regl.prop('repeat'),
       tick: regl.prop('tick'),
@@ -117,25 +126,25 @@ export function createDrawEdges (regl) {
   })
 }
 
-export function createDrawScreen (regl) {
+export function createDrawScreen (regl, postBuffers) {
   return regl({
+    ...SCREEN_EFFECT,
     frag: postFXFrag,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
-      color: regl.prop('color'),
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
+      banding: (context, props) => getFramebuffer(postBuffers, props.bandingName),
+      edges: (context, props) => getFramebuffer(postBuffers, props.edgesName),
+      lutTexture: regl.prop('lutTexture'),
+      watermarkTexture: regl.prop('watermarkTexture'),
       colorShift: regl.prop('colorShift'),
       mirrorIntensity: regl.prop('mirrorIntensity'),
       mirrorAngle: regl.prop('mirrorAngle'),
-      bloom: regl.prop('bloom'),
-      bloomIntensity: regl.prop('bloomIntensity'),
-      banding: regl.prop('banding'),
       bandingIntensity: regl.prop('bandingIntensity'),
-      edges: regl.prop('edges'),
       edgesIntensity: regl.prop('edgesIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),
       lutIntensity: regl.prop('lutIntensity'),
-      lutTexture: regl.prop('lutTexture'),
       watermarkIntensity: regl.prop('watermarkIntensity'),
-      watermarkTexture: regl.prop('watermarkTexture'),
       overlayAlpha: regl.prop('overlayAlpha'),
       vignetteParams: regl.prop('vignetteParams'),
       tick: regl.prop('tick'),
@@ -145,6 +154,11 @@ export function createDrawScreen (regl) {
       ...createArrayUniformProps('forcePositions', 3, [0, 0, 0])
     }
   })
+}
+
+function getFramebuffer (postBuffers, name) {
+  if (!name) return null
+  return postBuffers.get(name)
 }
 
 function createArrayUniformProps (name, count, defaultValue) {

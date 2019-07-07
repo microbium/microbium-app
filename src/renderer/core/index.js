@@ -9,6 +9,11 @@ import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
+import { toVec4 } from '@renderer/utils/color'
+import {
+  createGroupPool,
+  createKeyedPool
+} from '@renderer/utils/pool'
 
 import {
   createCompositorState,
@@ -45,7 +50,6 @@ const DISABLE_FRAME_SYNC = true
 const DISABLE_RENDER = false
 
 const scratchVec2A = vec2.create()
-const scratchVec3A = vec3.create()
 const scratchVec4A = vec4.create()
 const scratchMat4A = mat4.create()
 
@@ -62,6 +66,7 @@ export function mountCompositor ($el, $refs, actions) {
   const loop = createAnimationLoop()
 
   const renderer = createRenderer(tasks, state)
+  const pools = createPools(tasks, state)
   const cameras = createCameras(tasks, state, renderer)
   const scene = createScene(tasks, state, renderer)
   const sceneAltUI = createScene(tasks, state, renderer)
@@ -93,6 +98,30 @@ export function mountCompositor ($el, $refs, actions) {
     return createLoop(looper,
       'sync', 'update', 'render',
       (1 / 60 * 1000))
+  }
+
+  function createPools (tasks, state) {
+    return {
+      linesBatch: createGroupPool({
+        createItem: () => ({
+          mirror: new Float32Array(3)
+        })
+      }),
+      blurBatch: createGroupPool({
+        createItem: () => ({
+          blurDirection: new Float32Array(2)
+        })
+      }),
+      params: createKeyedPool({
+        createItem: () => ({})
+      }),
+      color: createKeyedPool({
+        createItem: () => ({
+          colr: new Colr(),
+          vec4: new Float32Array(4)
+        })
+      })
+    }
   }
 
   function getVersionedPath (file) {
@@ -530,26 +559,26 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
-      const { postBuffers } = renderer
       const { drawGaussBlur } = renderer.commands
+      const blurCount = count * 2
+      const blurBatch = pools.blurBatch.getGroup(blurCount)
 
-      for (let i = 0; i < count * 2; i++) {
-        postBuffers.swap('blurB', 'blurA')
-        postBuffers.use('blurB', () => {
-          const radius = (1 + Math.floor(i / 2)) * radiusStep
-          const blurDirection = (i % 2 === 0)
-            ? [radius, 0]
-            : [0, radius]
+      for (let i = 0; i < blurCount; i++) {
+        const blurParams = blurBatch[i]
+        const radius = (1 + Math.floor(i / 2)) * radiusStep
 
-          state.renderer.drawCalls++
-          state.renderer.fullScreenPasses++
-          drawGaussBlur({
-            color: postBuffers.get(i === 0 ? 'full' : 'blurA'),
-            blurDirection,
-            viewResolution
-          })
-        })
+        blurParams.blurDirection = (i % 2 === 0)
+          ? vec2.set(blurParams.blurDirection, radius, 0)
+          : vec2.set(blurParams.blurDirection, 0, radius)
+        blurParams.framebufferName = (i % 2 === 0) ? 'blurA' : 'blurB'
+        blurParams.colorName = (i === 0) ? 'full'
+          : (i % 2 === 0) ? 'blurB' : 'blurA'
+        blurParams.viewResolution = viewResolution
       }
+
+      state.renderer.drawCalls += blurCount
+      state.renderer.fullScreenPasses += blurCount
+      drawGaussBlur(blurBatch)
     },
 
     // TODO: Ensure line thickness is correct on high dpi
@@ -580,9 +609,13 @@ export function mountCompositor ($el, $refs, actions) {
         : 0
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
-      for (let i = contexts.length - 1; i >= 0; i--) {
+      for (let i = 0; i < contexts.length; i++) {
         const { index, lines } = contexts[i]
         if (lines.state.cursor.vertex === 0) continue
+
+        const shouldRenderMirror = renderMirror && mirrorAlpha > 0.0
+        const linesCount = polarIterations * (shouldRenderMirror ? 2 : 1)
+        const linesBatch = pools.linesBatch.getGroup(linesCount)
 
         const style = styles[index]
         const {
@@ -593,63 +626,51 @@ export function mountCompositor ($el, $refs, actions) {
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const lineTint = Colr.fromHex(lineTintHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        lineTint.push(lineTintAlpha)
-        const fillTint = Colr.fromHex(fillTintHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        fillTint.push(fillTintAlpha)
+        const lineTint = pools.color.get(`lineTint_${i}`)
+        const lineTintVec = toVec4(lineTint.vec4, lineTint.colr, lineTintHex, lineTintAlpha)
+        const fillTint = pools.color.get(`fillTint_${i}`)
+        const fillTintVec = toVec4(fillTint.vec4, fillTint.colr, fillTintHex, fillTintAlpha)
 
-        const mirror = vec3.set(scratchVec3A, 1, 1, 1)
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
-
         const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
-        const lineDashFunction = lineAlphaFunc.dashFunction
-        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
-        const fillDashFunction = fillAlphaFunc.dashFunction
-
         const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
+        const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
-        const params = {
-          tick,
-          model,
+        for (let j = 0; j < linesCount; j++) {
+          const params = linesBatch[j]
+          const polarIndex = shouldRenderMirror ? Math.floor(j / 2) : j
+          const isMirrorStep = shouldRenderMirror && j % 2 !== 0
 
-          mirror,
-          thickness,
-          miterLimit,
-          adjustProjectedThickness,
+          params.tick = tick
+          params.model = model
+          params.adjustProjectedThickness = adjustProjectedThickness
 
-          lineTint,
-          lineDashFunction,
-          lineAlphaMapRepeat,
-          lineAlphaMapPath,
+          params.thickness = thickness
+          params.miterLimit = miterLimit
 
-          fillTint,
-          fillDashFunction,
-          fillAlphaMapRepeat,
-          fillAlphaMapPath
+          params.lineTint = lineTintVec
+          params.lineAlphaMapRepeat = lineAlphaMapRepeat
+          params.lineDashFunction = lineAlphaFunc.dashFunction
+          params.lineAlphaMapPath = lineAlphaMapPath
+
+          params.fillTint = fillTintVec
+          params.fillAlphaMapRepeat = fillAlphaMapRepeat
+          params.fillDashFunction = fillAlphaFunc.dashFunction
+          params.fillAlphaMapPath = fillAlphaMapPath
+
+          params.angle = polarIndex * polarStep
+          params.angleAlpha = polarIndex === 0 ? 1 : polarAlpha
+          params.mirror = isMirrorStep
+            ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
+            : vec3.set(params.mirror, 1, 1, 1)
         }
 
+        // TODO: Account for fill draw calls
+        state.renderer.drawCalls += linesCount
         state.renderer.lineQuads += lines.state.cursor.quad
-
-        // OPTIM: Render in batched draw calls
-        for (let i = 0; i < polarIterations; i++) {
-          params.angle = i * polarStep
-          params.angleAlpha = (i === 0 ? 1 : polarAlpha)
-          params.mirror = vec3.set(mirror, 1, 1, 1)
-          state.renderer.drawCalls += 1
-          lines.draw(params)
-
-          if (renderMirror && mirrorAlpha > 0.0) {
-            params.mirror = vec3.set(mirror, -1, 1, mirrorAlpha)
-            state.renderer.drawCalls += 1
-            lines.draw(params)
-          }
-        }
+        lines.draw(linesBatch)
       }
     },
 
@@ -657,48 +678,40 @@ export function mountCompositor ($el, $refs, actions) {
       const { isRunning } = state.simulation
       const { overlay } = state.controls.viewport
 
-      const model = mat4.identity(scratchMat4A)
-      const tint = vec4.set(scratchVec4A, 1, 1, 1,
+      const linesParams = pools.params.get('uiLines')
+      linesParams.model = mat4.identity(scratchMat4A)
+      linesParams.tint = vec4.set(scratchVec4A, 1, 1, 1,
         isRunning ? overlay.alphaFactor : 1.0)
-      const thickness = this.computeLineThickness(1)
-      const miterLimit = this.computeLineThickness(4)
-      const adjustProjectedThickness = this.shouldAdjustThickness()
+      linesParams.thickness = this.computeLineThickness(1)
+      linesParams.miterLimit = this.computeLineThickness(4)
+      linesParams.adjustProjectedThickness = this.shouldAdjustThickness()
 
-      contexts.forEach(({ name, lines }) => {
-        if (isRunning && name === 'grid') return
+      for (let i = 0; i < contexts.length; i++) {
+        let { name, lines } = contexts[i]
+        if (isRunning && name === 'grid') continue
         state.renderer.drawCalls++
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw({
-          model,
-          tint,
-          thickness,
-          miterLimit,
-          adjustProjectedThickness
-        })
-      })
+        lines.draw(linesParams)
+      }
     },
 
     // Render Scene
     // ..................................................
 
     renderScene (tick, fbo = null) {
-      const { setupDrawScreen } = renderer.commands
-
       this.resizeRenderBuffers()
       this.renderSceneMain()
-
-      setupDrawScreen(() => {
-        this.renderSceneBloom(tick)
-        this.renderSceneBanding(tick)
-        this.renderSceneEdges(tick)
-        this.renderSceneComposite(tick, fbo)
-        this.renderSceneBloomFeedback(tick)
-      })
-
+      this.renderSceneBloom(tick)
+      this.renderSceneBanding(tick)
+      this.renderSceneEdges(tick)
+      this.renderSceneComposite(tick, fbo)
+      this.renderSceneBloomFeedback(tick)
       this.renderSceneUI()
     },
 
     renderSceneMain () {
+      timer.begin('renderLines')
+
       const { postBuffers } = renderer
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
@@ -706,180 +719,181 @@ export function mountCompositor ($el, $refs, actions) {
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
-      timer.begin('renderLines')
+      const clearHex = background.colorHex
+      const clearAlpha = didResize ? 1
+        : (!isRunning ? 0.6
+          : (0.025 * background.alphaFactor))
+      const clearColor = pools.color.get('clearColor')
+      const clearColorVec = toVec4(clearColor.vec4, clearColor.colr, clearHex, clearAlpha)
+
+      const clearParams = pools.params.get('clear')
+      clearParams.color = clearColorVec
+
+      const sceneCameraParams = pools.params.get('sceneCamera')
+      sceneCameraParams.viewResolution = viewResolution
+      sceneCameraParams.viewOffset = viewOffset
+      sceneCameraParams.viewScale = viewScale
+
+      const sceneLinesParams = pools.params.get('sceneLinesBase')
+      sceneLinesParams.polarAlpha = isRunning ? 1 : 0.025
+      sceneLinesParams.renderMirror = true
+
+      state.renderer.drawCalls++
       postBuffers.use('full', () => {
-        // TODO: Tween between clear states
-        const clearColor = Colr.fromHex(background.colorHex)
-          .toRgbArray()
-          .map((v) => v / 255)
-        clearColor.push(didResize ? 1
-          : (!isRunning ? 0.6
-            : (0.025 * background.alphaFactor)))
-
-        state.renderer.drawCalls++
-        drawRect({
-          color: clearColor
-        })
-
-        cameras.scene.setup({
-          viewResolution,
-          viewOffset,
-          viewScale
-        }, () => {
-          this.renderLines(scene, {
-            polarAlpha: isRunning ? 1 : 0.025,
-            renderMirror: true
-          })
+        drawRect(clearParams)
+        cameras.scene.setup(sceneCameraParams, () => {
+          this.renderLines(scene, sceneLinesParams)
         })
       })
+
       timer.end('renderLines')
     },
 
     renderSceneBloom () {
+      timer.begin('renderBloom')
+
       const { viewResolution, shouldRenderBloom } = this.computedState
       const { bloom } = state.controls.postEffects
 
-      timer.begin('renderBloom')
       if (shouldRenderBloom) {
         this.renderSceneBlurPasses(viewResolution,
           bloom.blurStep, bloom.blurPasses)
       }
+
       timer.end('renderBloom')
     },
 
     renderSceneBanding (tick) {
-      const { postBuffers } = renderer
+      timer.begin('renderBanding')
+
       const { drawBanding } = renderer.commands
       const { banding } = state.controls.postEffects
       const { shouldRenderBanding } = this.computedState
 
-      // Banding
-      timer.begin('renderBanding')
       if (shouldRenderBanding) {
+        const bandingParams = pools.params.get('banding')
+        bandingParams.tick = tick
+        bandingParams.framebufferName = 'banding'
+        bandingParams.colorName = 'full'
+        bandingParams.bandingStep = banding.bandStep
+
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        postBuffers.use('banding', () => {
-          drawBanding({
-            color: postBuffers.get('full'),
-            bandingStep: banding.bandStep,
-            tick
-          })
-        })
+        drawBanding(bandingParams)
       }
+
       timer.end('renderBanding')
     },
 
     renderSceneEdges (tick) {
-      const { postBuffers } = renderer
+      timer.begin('renderEdges')
+
       const { drawEdges } = renderer.commands
       const { edges } = state.controls.postEffects
       const { shouldRenderBanding, shouldRenderEdges, viewResolution } = this.computedState
 
-      timer.begin('renderEdges')
       if (shouldRenderEdges) {
+        const edgesParams = pools.params.get('edges')
+        edgesParams.tick = tick
+        edgesParams.viewResolution = viewResolution
+        edgesParams.framebufferName = 'edges'
+        edgesParams.colorName = shouldRenderBanding ? 'banding' : 'full'
+        edgesParams.thickness = edges.thickness
+        edgesParams.repeat = edges.repeat
+
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        postBuffers.use('edges', () => {
-          drawEdges({
-            color: postBuffers.get(shouldRenderBanding ? 'banding' : 'full'),
-            thickness: edges.thickness,
-            repeat: edges.repeat,
-            tick,
-            viewResolution
-          })
-        })
+        drawEdges(edgesParams)
       }
+
       timer.end('renderEdges')
     },
 
     renderSceneComposite (tick, fboName) {
-      const { postBuffers, textures } = renderer
+      timer.begin('renderComposite')
+
+      const { textures } = renderer
       const { drawScreen } = renderer.commands
       const { isRunning } = state.simulation
       const { overlay } = state.controls.viewport
       const { lut, watermark } = state.controls.postEffects
       const {
         viewResolution, viewOffset, viewScale, forcePositions,
-        shouldRenderBloom, shouldRenderBanding, shouldRenderEdges,
+        shouldRenderBanding, shouldRenderEdges,
         shouldRenderLut, shouldRenderWatermark,
-        mirrorIntensity, mirrorAngle, bloomIntensity, bandingIntensity,
+        mirrorIntensity, mirrorAngle, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, colorShift, noiseIntensity
       } = this.computedState
+      const compositeParams = pools.params.get('composite')
 
-      timer.begin('renderComposite')
+      compositeParams.framebufferName = fboName || null
+      compositeParams.colorName = 'full'
+      compositeParams.bandingName = shouldRenderBanding ? 'banding' : 'blank'
+      compositeParams.edgesName = shouldRenderEdges ? 'edges' : 'blank'
+
+      compositeParams.lutTexture = textures.get('lut',
+        shouldRenderLut ? lut.textureFile.path : null)
+      compositeParams.watermarkTexture = textures.get('watermark',
+        shouldRenderWatermark ? watermark.textureFile.path : null)
+
+      compositeParams.bandingIntensity = bandingIntensity
+      compositeParams.edgesIntensity = edgesIntensity
+      compositeParams.lutIntensity = lutIntensity
+      compositeParams.watermarkIntensity = watermarkIntensity
+
+      compositeParams.colorShift = colorShift
+      compositeParams.mirrorIntensity = mirrorIntensity
+      compositeParams.mirrorAngle = mirrorAngle
+      compositeParams.overlayAlpha = isRunning ? overlay.alphaFactor : 1
+      compositeParams.vignetteParams = vignetteParams
+      compositeParams.noiseIntensity = noiseIntensity
+      compositeParams.tick = tick
+      compositeParams.viewOffset = viewOffset
+      compositeParams.viewResolution = viewResolution
+      compositeParams.viewScale = viewScale
+      compositeParams.forcePositions = forcePositions
 
       state.renderer.drawCalls++
       state.renderer.fullScreenPasses++
-
-      const compositeParams = {
-        color: postBuffers.get('full'),
-        colorShift,
-        mirrorIntensity,
-        mirrorAngle,
-        bloom: postBuffers.get(shouldRenderBloom ? 'blurB' : 'blank'),
-        bloomIntensity,
-        banding: postBuffers.get(shouldRenderBanding ? 'banding' : 'blank'),
-        bandingIntensity,
-        edges: postBuffers.get(shouldRenderEdges ? 'edges' : 'blank'),
-        edgesIntensity,
-        lutTexture: textures.get('lut',
-          shouldRenderLut ? lut.textureFile.path : null),
-        lutIntensity,
-        watermarkTexture: textures.get('watermark',
-          shouldRenderWatermark ? watermark.textureFile.path : null),
-        watermarkIntensity,
-        overlayAlpha: isRunning ? overlay.alphaFactor : 1,
-        vignetteParams,
-        noiseIntensity,
-        tick,
-        viewOffset,
-        viewResolution,
-        viewScale,
-        forcePositions
-      }
-
-      if (fboName) {
-        postBuffers.use(fboName, () => {
-          drawScreen(compositeParams)
-        })
-      } else {
-        drawScreen(compositeParams)
-      }
+      drawScreen(compositeParams)
 
       timer.end('renderComposite')
     },
 
     renderSceneBloomFeedback () {
-      const { postBuffers } = renderer
       const { drawTexture } = renderer.commands
       const { isRunning } = state.simulation
       const { bloom } = state.controls.postEffects
       const { shouldRenderBloom, bloomFeedbackPosition } = this.computedState
 
       if (isRunning && shouldRenderBloom) {
-        postBuffers.use('full', () => {
-          drawTexture({
-            color: postBuffers.get('blurB'),
-            offset: bloomFeedbackPosition,
-            scale: 1 - bloom.feedbackOffset * 0.05
-          })
-        })
+        const feedbackParams = pools.params.get('feedback')
+        feedbackParams.framebufferName = 'full'
+        feedbackParams.colorName = 'blurB'
+        feedbackParams.offset = bloomFeedbackPosition
+        feedbackParams.scale = 1 - bloom.feedbackOffset * 0.05
+
+        state.renderer.drawCalls++
+        state.renderer.fullScreenPasses++
+        drawTexture(feedbackParams)
       }
     },
 
     renderSceneUI () {
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
-      cameras.scene.setup({
-        viewResolution,
-        viewOffset,
-        viewScale
-      }, () => {
-        this.renderLines(sceneAltUI, {
-          polarAlpha: 0.4,
-          renderMirror: false
-        })
+      const sceneCameraParams = pools.params.get('sceneCamera')
+      sceneCameraParams.viewResolution = viewResolution
+      sceneCameraParams.viewOffset = viewOffset
+      sceneCameraParams.viewScale = viewScale
+
+      const uiLinesParams = pools.params.get('uiLinesBase')
+      uiLinesParams.polarAlpha = 0.4
+      uiLinesParams.renderMirror = false
+
+      cameras.scene.setup(sceneCameraParams, () => {
+        this.renderLines(sceneAltUI, uiLinesParams)
         this.renderUI(sceneUI)
       })
     }
