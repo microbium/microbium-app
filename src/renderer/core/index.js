@@ -102,9 +102,14 @@ export function mountCompositor ($el, $refs, actions) {
 
   function createPools (tasks, state) {
     return {
-      lineParams: createGroupPool({
+      linesBatch: createGroupPool({
         createItem: () => ({
           mirror: new Float32Array(3)
+        })
+      }),
+      blurBatch: createGroupPool({
+        createItem: () => ({
+          blurDirection: new Float32Array(2)
         })
       }),
       params: createKeyedPool({
@@ -555,27 +560,24 @@ export function mountCompositor ($el, $refs, actions) {
 
     renderSceneBlurPasses (viewResolution, radiusStep, count) {
       const { drawGaussBlur } = renderer.commands
-      const blurBatch = []
+      const blurCount = count * 2
+      const blurBatch = pools.blurBatch.getGroup(blurCount)
 
-      for (let i = 0; i < count * 2; i++) {
-        let radius = (1 + Math.floor(i / 2)) * radiusStep
-        let blurDirection = (i % 2 === 0)
-          ? [radius, 0]
-          : [0, radius]
-        let framebufferName = (i % 2 === 0) ? 'blurA' : 'blurB'
-        let colorName = (i === 0) ? 'full'
+      for (let i = 0; i < blurCount; i++) {
+        const blurParams = blurBatch[i]
+        const radius = (1 + Math.floor(i / 2)) * radiusStep
+
+        blurParams.blurDirection = (i % 2 === 0)
+          ? vec2.set(blurParams.blurDirection, radius, 0)
+          : vec2.set(blurParams.blurDirection, 0, radius)
+        blurParams.framebufferName = (i % 2 === 0) ? 'blurA' : 'blurB'
+        blurParams.colorName = (i === 0) ? 'full'
           : (i % 2 === 0) ? 'blurB' : 'blurA'
-
-        state.renderer.drawCalls++
-        state.renderer.fullScreenPasses++
-        blurBatch.push({
-          framebufferName,
-          colorName,
-          blurDirection,
-          viewResolution
-        })
+        blurParams.viewResolution = viewResolution
       }
 
+      state.renderer.drawCalls += blurCount
+      state.renderer.fullScreenPasses += blurCount
       drawGaussBlur(blurBatch)
     },
 
@@ -612,8 +614,8 @@ export function mountCompositor ($el, $refs, actions) {
         if (lines.state.cursor.vertex === 0) continue
 
         const shouldRenderMirror = renderMirror && mirrorAlpha > 0.0
-        const paramsCount = polarIterations * (shouldRenderMirror ? 2 : 1)
-        const paramsBatch = pools.lineParams.getGroup(paramsCount)
+        const linesCount = polarIterations * (shouldRenderMirror ? 2 : 1)
+        const linesBatch = pools.linesBatch.getGroup(linesCount)
 
         const style = styles[index]
         const {
@@ -636,8 +638,8 @@ export function mountCompositor ($el, $refs, actions) {
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
-        for (let j = 0; j < paramsCount; j++) {
-          const params = paramsBatch[j]
+        for (let j = 0; j < linesCount; j++) {
+          const params = linesBatch[j]
           const polarIndex = shouldRenderMirror ? Math.floor(j / 2) : j
           const isMirrorStep = shouldRenderMirror && j % 2 !== 0
 
@@ -666,9 +668,9 @@ export function mountCompositor ($el, $refs, actions) {
         }
 
         // TODO: Account for fill draw calls
-        state.renderer.drawCalls += paramsCount
+        state.renderer.drawCalls += linesCount
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw(paramsBatch)
+        lines.draw(linesBatch)
       }
     },
 
