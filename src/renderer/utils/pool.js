@@ -23,6 +23,7 @@ export function createGroupPool ({ createItem }) {
   }
 
   return {
+    groups,
     getGroup
   }
 }
@@ -43,6 +44,7 @@ export function createKeyedPool ({ createItem }) {
   }
 
   return {
+    cache,
     get
   }
 }
