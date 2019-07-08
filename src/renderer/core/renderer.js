@@ -3,6 +3,10 @@ import { vec2 } from 'gl-matrix'
 
 import { createTextureManager } from '@renderer/utils/texture'
 import { createPostBuffers } from '@renderer/utils/fbo'
+import {
+  createGlLogger,
+  getGpuInfo
+} from '@renderer/utils/gl-logger'
 
 import {
   createDrawBanding,
@@ -14,8 +18,8 @@ import {
   // createSetupDrawScreen
 } from '@renderer/draw/commands/screen-space'
 
-const DEBUG_LOG_GPU = true
-const DEBUG_TRACK_GL = true
+const DEBUG_LOG_GPU = false
+const DEBUG_TRACK_GL = false
 
 // OPTIM: Investigate preserveDrawingBuffer effect on perf
 // It's currently needed to enable full dpi canvas export
@@ -30,7 +34,7 @@ export function createRenderer (tasks, state) {
     ],
     attributes: {
       antialias: false,
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
       premultipliedAlpha: false,
       alpha: false,
       powerPreference: 'high-performance'
@@ -54,9 +58,13 @@ export function createRenderer (tasks, state) {
     drawRect: createDrawRect(regl, postBuffers),
     drawTexture: createDrawTexture(regl, postBuffers)
   }
-  const tracker = createGlTracker(regl)
+  const logger = DEBUG_TRACK_GL
+    ? createGlLogger(regl._gl)
+    : null
 
-  if (DEBUG_LOG_GPU) logGpuInfo(regl)
+  if (DEBUG_LOG_GPU) {
+    console.log('gpu', getGpuInfo(regl._gl))
+  }
 
   tasks.defer((containers) => {
     containers.scene.appendChild(canvas)
@@ -75,65 +83,6 @@ export function createRenderer (tasks, state) {
     textures,
     postBuffers,
     commands,
-    tracker
+    logger
   }
-}
-
-function createGlTracker (regl) {
-  let gl = regl._gl
-  let state = {
-    log: [],
-    enabled: false
-  }
-
-  if (DEBUG_TRACK_GL) {
-    let funcs = []
-    for (let key in gl) {
-      let val = gl[key]
-      if (typeof val === 'function') {
-        funcs.push(key)
-      }
-    }
-
-    funcs.forEach((key) => {
-      let fn = gl[key]
-      gl[key] = (...args) => {
-        if (state.enabled) {
-          state.log.push({
-            fn: key,
-            args
-          })
-        }
-        return fn.apply(gl, args)
-      }
-    })
-  }
-
-  const enable = () => {
-    state.log = []
-    state.enabled = true
-  }
-
-  const disable = () => {
-    state.enabled = false
-  }
-
-  const getLog = () => {
-    return state.log
-  }
-
-  return {
-    enable,
-    disable,
-    getLog
-  }
-}
-
-function logGpuInfo (regl) {
-  let gl = regl._gl
-  let debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-  let vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
-  let renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-
-  console.log('gpu', { vendor, renderer })
 }
