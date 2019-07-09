@@ -194,13 +194,14 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     bindEvents () {
-      containers.scene.addEventListener('pointermove', seek.pointerMove, false)
-      containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
+      const eventParams = { passive: false, capture: false }
+      containers.scene.addEventListener('pointermove', seek.pointerMove, eventParams)
+      containers.scene.addEventListener('pointerdown', drag.pointerDown, eventParams)
 
-      window.addEventListener('resize', debounce(120, viewport.resize), false)
-      window.addEventListener('wheel', viewport.wheel, false)
-      document.addEventListener('keydown', viewport.keyDown, false)
-      document.addEventListener('keyup', viewport.keyUp, false)
+      window.addEventListener('resize', debounce(120, viewport.resize), eventParams)
+      window.addEventListener('wheel', viewport.wheel, eventParams)
+      document.addEventListener('keydown', viewport.keyDown, eventParams)
+      document.addEventListener('keyup', viewport.keyUp, eventParams)
 
       actions.observeMessage('message', (event, data) => viewport.handleMessage(data))
       actions.observeMessage('command', (event, data) => viewport.handleCommand(data))

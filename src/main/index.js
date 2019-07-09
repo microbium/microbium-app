@@ -463,7 +463,7 @@ function createPaletteWindow () {
     maxWidth: 420,
     height: windowSize.height,
     minHeight: 500,
-    backgroundColor: null,
+    backgroundColor: IS_DEV ? '#222222' : null, // FIXME: Issue with reload in dev
     frame: false,
     focusable: true,
     resizable: true,
