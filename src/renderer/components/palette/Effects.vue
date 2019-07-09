@@ -58,8 +58,8 @@
         <input-range min="4" max="256" step="2" v-model="model.banding.bandStep" />
         <div class="palette-item__label">
           <b>{{ bandingStepName }}</b> banding interval
-          <palette-item-controller :min="4" :max="256"
-            :model="model.bloom" prop="bandStep" />
+          <palette-item-controller :min="4" :max="256" :step="2"
+            :model="model.banding" prop="bandStep" />
         </div>
       </div>
       <div class="palette-item">
@@ -168,9 +168,10 @@
     </palette-group>
 
     <palette-group persistent-controls>
-      <h2 slot="title">Bloom</h2>
+      <h2 slot="title">Blur</h2>
       <input-checkbox slot="controls" v-model="model.bloom.enabled" />
 
+      <!--
       <div class="palette-item">
         <input-range min="0" max="3" step="0.05" v-model="model.bloom.intensityFactor" />
         <div class="palette-item__label">
@@ -180,6 +181,36 @@
         </div>
       </div>
       <hr />
+      -->
+
+      <div class="palette-item">
+        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
+          <palette-item-controller :min="0" :max="6" :step="1"
+            :model="model.bloom" prop="blurPasses" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="1" max="20" step="0.5" v-model="model.bloom.blurStep" />
+        <div class="palette-item__label">
+          <b>{{ bloomBlurStepName }}</b> blur radius interval
+          <palette-item-controller :min="1" :max="20" :step="0.5"
+            :model="model.bloom" prop="blurStep" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
+        <div class="palette-item__label">
+          <b>{{ bloomBufferScaleName }}</b> buffer resolution
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
+      <h2 slot="title">Blur Feedback</h2>
+      <input-checkbox slot="controls" v-model="model.bloom.feedbackEnabled" />
 
       <div class="palette-item">
         <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackOffset" />
@@ -203,30 +234,6 @@
           <b>{{ bloomFeedbackPolarAngleName }}</b> polar angle
           <palette-item-controller :min="-180" :max="180"
             :model="model.bloom" prop="feedbackPolarAngle" />
-        </div>
-      </div>
-      <hr />
-
-      <div class="palette-item">
-        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
-        <div class="palette-item__label">
-          <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
-          <palette-item-controller :min="0" :max="6" :step="1"
-            :model="model.bloom" prop="blurPasses" />
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="1" max="20" step="0.5" v-model="model.bloom.blurStep" />
-        <div class="palette-item__label">
-          <b>{{ bloomBlurStepName }}</b> blur radius interval
-          <palette-item-controller :min="1" :max="20" :step="0.5"
-            :model="model.bloom" prop="blurStep" />
-        </div>
-      </div>
-      <div class="palette-item">
-        <input-range min="0.05" max="2" step="0.05" v-model="model.bloom.bufferScale" />
-        <div class="palette-item__label">
-          <b>{{ bloomBufferScaleName }}</b> buffer resolution
         </div>
       </div>
       <hr />

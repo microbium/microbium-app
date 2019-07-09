@@ -119,15 +119,22 @@ export function createControlsState () {
       {
         index: 0,
         name: 'Solid',
-        textureIndex: 0,
-        alphaTextureIndex: 0,
         lineAlphaFuncIndex: 0,
+        lineAlphaMapFile: null,
+        lineAlphaMapRepeat: 0,
+        lineTintHex: '#ffffff',
+        lineTintAlpha: 1,
         fillAlphaFuncIndex: 0,
-        tintHex: '#FFFFFF',
-        tintAlpha: 1,
+        fillAlphaMapFile: null,
+        fillAlphaMapRepeat: 0,
+        fillTintHex: '#ffffff',
+        fillTintAlpha: 1,
         useScreenTintFunc: 0,
         thickness: 1,
-        strokeWidthMod: 1
+        strokeWidthMod: 1,
+        curveSegMinLength: 10,
+        curveSegMaxLength: 8, // x10
+        curveSubDivisions: 4
       }
     ],
 
@@ -279,7 +286,7 @@ export function createControlsState () {
     },
 
     camera: {
-      enabled: true,
+      enabled: false,
       polarAngle: 0,
       polarOffset: 20,
       depthOffset: 20,
@@ -307,6 +314,7 @@ export function createControlsState () {
       },
       bloom: {
         enabled: true,
+        feedbackEnabled: true,
         intensityFactor: 1,
         // blendMode: MULTIPLY,
         blurPasses: 1,

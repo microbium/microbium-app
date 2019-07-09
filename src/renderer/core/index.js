@@ -161,6 +161,7 @@ export function mountCompositor ($el, $refs, actions) {
         colorShift: vec3.create(),
         shouldRenderMirror: false,
         shouldRenderBloom: false,
+        shouldRenderBloomFeedback: false,
         shouldRenderBanding: false,
         shouldRenderEdges: false,
         shouldRenderLut: false,
@@ -175,6 +176,7 @@ export function mountCompositor ($el, $refs, actions) {
         vignetteParams: vec3.create(),
         lutIntensity: 0,
         watermarkIntensity: 0,
+        lineThicknessScale: 1,
         forcePositions: []
       }
     },
@@ -194,13 +196,14 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     bindEvents () {
-      containers.scene.addEventListener('pointermove', seek.pointerMove, false)
-      containers.scene.addEventListener('pointerdown', drag.pointerDown, false)
+      const eventParams = { passive: false, capture: false }
+      containers.scene.addEventListener('pointermove', seek.pointerMove, eventParams)
+      containers.scene.addEventListener('pointerdown', drag.pointerDown, eventParams)
 
-      window.addEventListener('resize', debounce(120, viewport.resize), false)
-      window.addEventListener('wheel', viewport.wheel, false)
-      document.addEventListener('keydown', viewport.keyDown, false)
-      document.addEventListener('keyup', viewport.keyUp, false)
+      window.addEventListener('resize', debounce(120, viewport.resize), eventParams)
+      window.addEventListener('wheel', viewport.wheel, eventParams)
+      document.addEventListener('keydown', viewport.keyDown, eventParams)
+      document.addEventListener('keyup', viewport.keyUp, eventParams)
 
       actions.observeMessage('message', (event, data) => viewport.handleMessage(data))
       actions.observeMessage('command', (event, data) => viewport.handleCommand(data))
@@ -283,6 +286,7 @@ export function mountCompositor ($el, $refs, actions) {
       timer.reset()
       this.updateComputedPosition()
       this.updateComputedForcePositions()
+      this.updateComputedLineProps()
       this.updateComputedPostState()
 
       if (!isRunning) {
@@ -335,6 +339,14 @@ export function mountCompositor ($el, $refs, actions) {
         })
     },
 
+    updateComputedLineProps () {
+      const { computedState } = this
+      const { lineScaleFactor } = cameras.scene
+      const { scale } = state.viewport
+      const { zoomOffset } = state.drag
+      computedState.lineThicknessScale = lerp(1, scale + zoomOffset, lineScaleFactor)
+    },
+
     // TODO: Cleanup ...
     updateComputedPostState () {
       const { computedState } = this
@@ -349,6 +361,9 @@ export function mountCompositor ($el, $refs, actions) {
       const shouldRenderMirror = computedState.shouldRenderMirror = isRunning && mirror.enabled
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
         bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
+      computedState.shouldRenderBloomFeedback = isRunning &&
+        shouldRenderBloom && bloom.feedbackEnabled
+
       const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
         banding.enabled && banding.intensityFactor > 0
       const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
@@ -501,8 +516,6 @@ export function mountCompositor ($el, $refs, actions) {
         drawOriginTick(state, uiMain.ctx)
         drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
         drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
-        drawSimulatorPointerForces(state, sceneContexts[0].ctx, 4, 0.05)
-        drawSimulatorForces(state, sceneContexts[0].ctx, 10, 0.05)
       }
 
       drawGeometry(state, sceneContexts, 0)
@@ -580,22 +593,19 @@ export function mountCompositor ($el, $refs, actions) {
 
     // TODO: Ensure line thickness is correct on high dpi
     computeLineThickness (baseThickness) {
-      const { lineScaleFactor } = cameras.scene
-      const { scale } = state.viewport
+      const { lineThicknessScale } = this.computedState
       const { pixelRatio } = state.controls.viewport
-      const { zoomOffset } = state.drag
       const pixelRatioAdjust = 0.5 / pixelRatio
-      return (baseThickness + pixelRatioAdjust) *
-        lerp(1, scale + zoomOffset, lineScaleFactor)
+      return (baseThickness + pixelRatioAdjust) * lineThicknessScale
     },
 
     shouldAdjustThickness () {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines ({ contexts }, { polarAlpha, renderMirror }) {
+    renderLines ({ contexts }, { polarAlpha, renderMirror }, styles) {
       const { tick, isRunning } = state.simulation
-      const { styles, alphaFunctions, postEffects } = state.controls
+      const { alphaFunctions, postEffects } = state.controls
       const { polar } = postEffects
 
       const model = mat4.identity(scratchMat4A)
@@ -713,6 +723,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
       const { didResize } = state.viewport
+      const { styles } = state.controls
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
@@ -739,7 +750,7 @@ export function mountCompositor ($el, $refs, actions) {
       postBuffers.use('full', () => {
         drawRect(clearParams)
         cameras.scene.setup(sceneCameraParams, () => {
-          this.renderLines(scene, sceneLinesParams)
+          this.renderLines(scene, sceneLinesParams, styles)
         })
       })
 
@@ -843,6 +854,7 @@ export function mountCompositor ($el, $refs, actions) {
       compositeParams.mirrorIntensity = mirrorIntensity
       compositeParams.mirrorAngle = mirrorAngle
       compositeParams.overlayAlpha = isRunning ? overlay.alphaFactor : 1
+      compositeParams.originAlpha = isRunning ? 0 : 1
       compositeParams.vignetteParams = vignetteParams
       compositeParams.noiseIntensity = noiseIntensity
       compositeParams.tick = tick
@@ -862,9 +874,9 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawTexture } = renderer.commands
       const { isRunning } = state.simulation
       const { bloom } = state.controls.postEffects
-      const { shouldRenderBloom, bloomFeedbackPosition } = this.computedState
+      const { shouldRenderBloomFeedback, bloomFeedbackPosition } = this.computedState
 
-      if (isRunning && shouldRenderBloom) {
+      if (isRunning && shouldRenderBloomFeedback) {
         const feedbackParams = pools.params.get('feedback')
         feedbackParams.framebufferName = 'full'
         feedbackParams.colorName = 'blurB'
@@ -879,6 +891,7 @@ export function mountCompositor ($el, $refs, actions) {
 
     renderSceneUI () {
       const { viewResolution, viewOffset, viewScale } = this.computedState
+      const { stylesUI } = state.controls
 
       const sceneCameraParams = pools.params.get('sceneCamera')
       sceneCameraParams.viewResolution = viewResolution
@@ -890,7 +903,7 @@ export function mountCompositor ($el, $refs, actions) {
       uiLinesParams.renderMirror = false
 
       cameras.scene.setup(sceneCameraParams, () => {
-        this.renderLines(sceneAltUI, uiLinesParams)
+        this.renderLines(sceneAltUI, uiLinesParams, stylesUI)
         this.renderUI(sceneUI)
       })
     }
