@@ -286,7 +286,7 @@ export function createControlsState () {
     },
 
     camera: {
-      enabled: true,
+      enabled: false,
       polarAngle: 0,
       polarOffset: 20,
       depthOffset: 20,
