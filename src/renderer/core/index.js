@@ -175,6 +175,7 @@ export function mountCompositor ($el, $refs, actions) {
         vignetteParams: vec3.create(),
         lutIntensity: 0,
         watermarkIntensity: 0,
+        lineThicknessScale: 1,
         forcePositions: []
       }
     },
@@ -284,6 +285,7 @@ export function mountCompositor ($el, $refs, actions) {
       timer.reset()
       this.updateComputedPosition()
       this.updateComputedForcePositions()
+      this.updateComputedLineProps()
       this.updateComputedPostState()
 
       if (!isRunning) {
@@ -334,6 +336,14 @@ export function mountCompositor ($el, $refs, actions) {
           position[2] = radius * radius
           return position
         })
+    },
+
+    updateComputedLineProps () {
+      const { computedState } = this
+      const { lineScaleFactor } = cameras.scene
+      const { scale } = state.viewport
+      const { zoomOffset } = state.drag
+      computedState.lineThicknessScale = lerp(1, scale + zoomOffset, lineScaleFactor)
     },
 
     // TODO: Cleanup ...
@@ -580,13 +590,10 @@ export function mountCompositor ($el, $refs, actions) {
 
     // TODO: Ensure line thickness is correct on high dpi
     computeLineThickness (baseThickness) {
-      const { lineScaleFactor } = cameras.scene
-      const { scale } = state.viewport
+      const { lineThicknessScale } = this.computedState
       const { pixelRatio } = state.controls.viewport
-      const { zoomOffset } = state.drag
       const pixelRatioAdjust = 0.5 / pixelRatio
-      return (baseThickness + pixelRatioAdjust) *
-        lerp(1, scale + zoomOffset, lineScaleFactor)
+      return (baseThickness + pixelRatioAdjust) * lineThicknessScale
     },
 
     shouldAdjustThickness () {
