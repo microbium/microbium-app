@@ -314,6 +314,7 @@ export function createControlsState () {
       },
       bloom: {
         enabled: true,
+        feedbackEnabled: true,
         intensityFactor: 1,
         // blendMode: MULTIPLY,
         blurPasses: 1,

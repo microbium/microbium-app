@@ -161,6 +161,7 @@ export function mountCompositor ($el, $refs, actions) {
         colorShift: vec3.create(),
         shouldRenderMirror: false,
         shouldRenderBloom: false,
+        shouldRenderBloomFeedback: false,
         shouldRenderBanding: false,
         shouldRenderEdges: false,
         shouldRenderLut: false,
@@ -360,6 +361,9 @@ export function mountCompositor ($el, $refs, actions) {
       const shouldRenderMirror = computedState.shouldRenderMirror = isRunning && mirror.enabled
       const shouldRenderBloom = computedState.shouldRenderBloom = isRunning &&
         bloom.enabled && bloom.blurPasses > 0 && bloom.intensityFactor > 0
+      computedState.shouldRenderBloomFeedback = isRunning &&
+        shouldRenderBloom && bloom.feedbackEnabled
+
       const shouldRenderBanding = computedState.shouldRenderBanding = isRunning &&
         banding.enabled && banding.intensityFactor > 0
       const shouldRenderEdges = computedState.shouldRenderEdges = isRunning && edges.enabled
@@ -870,9 +874,9 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawTexture } = renderer.commands
       const { isRunning } = state.simulation
       const { bloom } = state.controls.postEffects
-      const { shouldRenderBloom, bloomFeedbackPosition } = this.computedState
+      const { shouldRenderBloomFeedback, bloomFeedbackPosition } = this.computedState
 
-      if (isRunning && shouldRenderBloom) {
+      if (isRunning && shouldRenderBloomFeedback) {
         const feedbackParams = pools.params.get('feedback')
         feedbackParams.framebufferName = 'full'
         feedbackParams.colorName = 'blurB'
