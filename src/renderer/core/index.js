@@ -502,7 +502,6 @@ export function mountCompositor ($el, $refs, actions) {
         drawOriginTick(state, uiMain.ctx)
         drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
         drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
-        drawSimulatorPointerForces(state, sceneContexts[0].ctx, 4, 0.05)
         drawSimulatorForces(state, sceneContexts[0].ctx, 10, 0.05)
       }
 
@@ -594,9 +593,9 @@ export function mountCompositor ($el, $refs, actions) {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines ({ contexts }, { polarAlpha, renderMirror }) {
+    renderLines ({ contexts }, { polarAlpha, renderMirror }, styles) {
       const { tick, isRunning } = state.simulation
-      const { styles, alphaFunctions, postEffects } = state.controls
+      const { alphaFunctions, postEffects } = state.controls
       const { polar } = postEffects
 
       const model = mat4.identity(scratchMat4A)
@@ -714,6 +713,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
       const { didResize } = state.viewport
+      const { styles } = state.controls
       const { background } = state.controls.viewport
       const { viewResolution, viewOffset, viewScale } = this.computedState
 
@@ -740,7 +740,7 @@ export function mountCompositor ($el, $refs, actions) {
       postBuffers.use('full', () => {
         drawRect(clearParams)
         cameras.scene.setup(sceneCameraParams, () => {
-          this.renderLines(scene, sceneLinesParams)
+          this.renderLines(scene, sceneLinesParams, styles)
         })
       })
 
@@ -881,6 +881,7 @@ export function mountCompositor ($el, $refs, actions) {
 
     renderSceneUI () {
       const { viewResolution, viewOffset, viewScale } = this.computedState
+      const { stylesUI } = state.controls
 
       const sceneCameraParams = pools.params.get('sceneCamera')
       sceneCameraParams.viewResolution = viewResolution
@@ -892,7 +893,7 @@ export function mountCompositor ($el, $refs, actions) {
       uiLinesParams.renderMirror = false
 
       cameras.scene.setup(sceneCameraParams, () => {
-        this.renderLines(sceneAltUI, uiLinesParams)
+        this.renderLines(sceneAltUI, uiLinesParams, stylesUI)
         this.renderUI(sceneUI)
       })
     }
