@@ -512,7 +512,6 @@ export function mountCompositor ($el, $refs, actions) {
         drawOriginTick(state, uiMain.ctx)
         drawSimulatorForcesTick(state, uiMain.ctx, 8, 1)
         drawSimulatorPointerForces(state, sceneUIContexts[0].ctx, 4, 1)
-        drawSimulatorForces(state, sceneContexts[0].ctx, 10, 0.05)
       }
 
       drawGeometry(state, sceneContexts, 0)
