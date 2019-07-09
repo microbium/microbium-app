@@ -844,6 +844,7 @@ export function mountCompositor ($el, $refs, actions) {
       compositeParams.mirrorIntensity = mirrorIntensity
       compositeParams.mirrorAngle = mirrorAngle
       compositeParams.overlayAlpha = isRunning ? overlay.alphaFactor : 1
+      compositeParams.originAlpha = isRunning ? 0 : 1
       compositeParams.vignetteParams = vignetteParams
       compositeParams.noiseIntensity = noiseIntensity
       compositeParams.tick = tick

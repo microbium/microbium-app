@@ -20,6 +20,7 @@ uniform float noiseIntensity;
 uniform float lutIntensity;
 uniform float watermarkIntensity;
 uniform float overlayAlpha;
+uniform float originAlpha;
 uniform vec3 vignetteParams; // [radius, smoothness, intensity]
 uniform vec3 colorShift; // [hue, saturation, value]
 
@@ -135,9 +136,12 @@ void main() {
   }
 
   // Origin Concentric Grid
-  vec3 originDashColor = vec3(
-    concentricDash(fragPosition, 0.15 / viewScale, 1.0) *
-      0.035 * overlayAlpha);
+  vec3 originDashColor = vec3(0.0);
+  if (originAlpha > 0.0) {
+    originDashColor = vec3(
+      concentricDash(fragPosition, 0.15 / viewScale, 1.0) *
+        0.035 * originAlpha);
+  }
 
   vec3 forceDashColor = vec3(0.0);
   // for (int i = 0; i < 3; i++) {
