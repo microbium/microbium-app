@@ -18,11 +18,7 @@ const {
 
 export function createPaletteTouchBar (actions) {
   const paletteSelector = createPaletteSelector(actions)
-  const touchbar = new TouchBar({
-    items: [
-      paletteSelector
-    ]
-  })
+  const touchbar = new TouchBar({ items: [paletteSelector] })
 
   touchbar.syncActivePalette = paletteSelector.syncActivePalette
 
@@ -150,11 +146,11 @@ function createStrokeControls (actions) {
 
   const popover = new TouchBarPopover({
     icon: createIcon('tool'),
-    items: [baseSlider, modSelector]
+    items: new TouchBar({ items: [baseSlider, modSelector] })
   })
 
   const group = new TouchBarGroup({
-    items: [popover, colorSelector]
+    items: new TouchBar({ items: [popover, colorSelector] })
   })
 
   group.sync = (lineTool) => {
@@ -190,7 +186,9 @@ function createControlsGroup (actions, actionItems) {
     return item
   })
 
-  const group = new TouchBarGroup({ items })
+  const group = new TouchBarGroup({
+    items: new TouchBar({ items })
+  })
   group.itemsMap = itemsMap
 
   return group
@@ -206,10 +204,12 @@ function createControlsSelector (actions, options) {
   })
   const popover = new TouchBarPopover({
     icon: createIcon(options.iconName),
-    items: [
-      new TouchBarSpacer({ size: 'small' }),
-      selector
-    ]
+    items: new TouchBar({
+      items: [
+        new TouchBarSpacer({ size: 'small' }),
+        selector
+      ]
+    })
   })
 
   popover.sync = (items, selectedIndex) => {
