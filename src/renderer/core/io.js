@@ -2,6 +2,8 @@ import { map, flatten2, expand2 } from '@renderer/utils/array'
 import { roundToPlaces } from '@renderer/utils/number'
 import { SERIALIZE_KEYS_MAP } from '@renderer/constants/scene-format'
 
+const DEBUG_LOG_CONTROLLER_PROPS = false
+
 const ABBRV_KEY_MAP = SERIALIZE_KEYS_MAP
 const KEY_ABBRV_MAP = Object.keys(ABBRV_KEY_MAP)
   .reduce((map, key) => {
@@ -54,11 +56,12 @@ export function createIOController (tasks, state) {
 
     deserializeScene (json) {
       const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
+      const unmapKeysDeep = io.mapKeysDeep.bind(null, ABBRV_KEY_MAP)
 
-      const data = json
+      const data = unmapKeys(json)
       const { segments, vertices } = unmapKeys(data.geometry)
       const viewport = unmapKeys(data.viewport)
-      const controls = data.controls
+      const controls = unmapKeysDeep(data.controls)
 
       const segmentsOut = segments
         .map((seg) => unmapKeys(seg))
@@ -85,6 +88,10 @@ export function createIOController (tasks, state) {
       const verticesOut = expand2(
         io.deserializeFloatArray(vertices), Float32Array)
 
+      if (DEBUG_LOG_CONTROLLER_PROPS) {
+        io.logControllerProps('controls', controls)
+      }
+
       return {
         viewport: {
           offset: io.deserializeFloatArray(viewport.offset),
@@ -96,6 +103,19 @@ export function createIOController (tasks, state) {
         },
         controls
       }
+    },
+
+    logControllerProps (basePath, controls) {
+      if (controls == null || typeof controls !== 'object') return
+      Object.keys(controls).forEach((key) => {
+        let propPath = `${basePath}.${key}`
+        let prop = controls[key]
+        if (typeof prop === 'object') {
+          io.logControllerProps(propPath, prop)
+        } else if (key.indexOf('Controller') !== -1 && prop !== -1) {
+          console.log(propPath, prop)
+        }
+      })
     },
 
     mapKeys (map, src) {
