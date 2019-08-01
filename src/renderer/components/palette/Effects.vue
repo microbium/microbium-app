@@ -247,7 +247,7 @@
         <input-range min="0" max="1" step="0.01" v-model="model.vignette.intensityFactor" />
         <div class="palette-item__label">
           <b>{{ vignetteFactorName }}</b> intensity
-          <palette-item-controller :min="0" :max="3"
+          <palette-item-controller :min="0" :max="1"
             :model="model.vignette" prop="intensityFactor" />
         </div>
       </div>
@@ -255,7 +255,7 @@
         <input-range min="0" max="1.0" step="0.01" v-model="model.vignette.radius" />
         <div class="palette-item__label">
           <b>{{ vignetteRadiusName }}</b> radius
-          <palette-item-controller :min="0" :max="3"
+          <palette-item-controller :min="0" :max="1"
             :model="model.vignette" prop="radius" />
         </div>
       </div>
@@ -263,7 +263,7 @@
         <input-range min="0" max="1" step="0.01" v-model="model.vignette.smoothness" />
         <div class="palette-item__label">
           <b>{{ vignetteSmoothnessName }}</b> smoothness
-          <palette-item-controller :min="0" :max="3"
+          <palette-item-controller :min="0" :max="1"
             :model="model.vignette" prop="smoothness" />
         </div>
       </div>
