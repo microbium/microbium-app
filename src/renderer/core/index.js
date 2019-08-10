@@ -161,7 +161,9 @@ export function mountCompositor ($el, $refs, actions) {
         eyeMasks: ['none'],
         eyeMasksMono: ['none'],
         eyeMasksStereo: ['left', 'right'],
+        stereoDistance: 0,
         colorShift: vec3.create(),
+        shouldRenderStereo: false,
         shouldRenderMirror: false,
         shouldRenderBloom: false,
         shouldRenderBloomFeedback: false,
@@ -356,7 +358,13 @@ export function mountCompositor ($el, $refs, actions) {
       const { simulation } = state
       const { camera } = state.controls
 
-      computedState.eyeMasks = simulation.isRunning && camera.enabled
+      const stereoDistance = camera.stereoDistance
+      const shouldRenderStereo = simulation.isRunning &&
+        camera.enabled && camera.stereoEnabled && stereoDistance > 0
+
+      computedState.shouldRenderStereo = shouldRenderStereo
+      computedState.stereoDistance = stereoDistance
+      computedState.eyeMasks = shouldRenderStereo
         ? computedState.eyeMasksStereo
         : computedState.eyeMasksMono
     },
@@ -739,7 +747,10 @@ export function mountCompositor ($el, $refs, actions) {
       const { didResize } = state.viewport
       const { styles } = state.controls
       const { background } = state.controls.viewport
-      const { viewResolution, viewOffset, viewScale, eyeMasks } = this.computedState
+      const {
+        viewResolution, viewOffset, viewScale,
+        eyeMasks, stereoDistance
+      } = this.computedState
 
       const clearHex = background.colorHex
       const clearAlpha = didResize ? 1
@@ -755,6 +766,7 @@ export function mountCompositor ($el, $refs, actions) {
       sceneCameraParams.viewResolution = viewResolution
       sceneCameraParams.viewOffset = viewOffset
       sceneCameraParams.viewScale = viewScale
+      sceneCameraParams.stereoDistance = stereoDistance
 
       const sceneLinesParams = pools.params.get('sceneLinesBase')
       sceneLinesParams.polarAlpha = isRunning ? 1 : 0.025
@@ -908,13 +920,17 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneUI () {
-      const { viewResolution, viewOffset, viewScale, eyeMasks } = this.computedState
+      const {
+        viewResolution, viewOffset, viewScale,
+        eyeMasks, stereoDistance
+      } = this.computedState
       const { stylesUI } = state.controls
 
       const sceneCameraParams = pools.params.get('sceneCamera')
       sceneCameraParams.viewResolution = viewResolution
       sceneCameraParams.viewOffset = viewOffset
       sceneCameraParams.viewScale = viewScale
+      sceneCameraParams.stereoDistance = stereoDistance
 
       const uiLinesParams = pools.params.get('uiLinesBase')
       uiLinesParams.polarAlpha = 0.4
