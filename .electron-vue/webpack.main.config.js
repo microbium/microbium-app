@@ -17,7 +17,7 @@ let mainConfig = {
   ],
   module: {
     rules: [
-      {
+      /*{
         test: /\.(js)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -27,7 +27,7 @@ let mainConfig = {
             formatter: require('eslint-friendly-formatter')
           }
         }
-      },
+      },*/
       {
         test: /\.js$/,
         use: 'babel-loader',

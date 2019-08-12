@@ -31,7 +31,7 @@ const rendererConfig = {
   ],
   module: {
     rules: [
-      {
+      /*{
         test: /\.(js|vue)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -41,7 +41,7 @@ const rendererConfig = {
             formatter: require('eslint-friendly-formatter')
           }
         }
-      },
+      },*/
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({

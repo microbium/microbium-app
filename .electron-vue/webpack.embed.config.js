@@ -23,7 +23,7 @@ const embedConfig = {
   },
   module: {
     rules: [
-      {
+      /*{
         test: /\.(js|vue)$/,
         enforce: 'pre',
         exclude: /node_modules|Libraries/, // Hacky fix for linked libs
@@ -33,7 +33,7 @@ const embedConfig = {
             formatter: require('eslint-friendly-formatter')
           }
         }
-      },
+      },*/
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
