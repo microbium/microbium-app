@@ -103,10 +103,10 @@ export function createCameras (tasks, state, renderer) {
 
       switch (props.eyeMask) {
         case 'left':
-          vec3.scale(eyeStereoOffset, eyeStereoOffset, -stereoDistance)
+          vec3.scale(eyeStereoOffset, eyeStereoOffset, stereoDistance)
           break
         case 'right':
-          vec3.scale(eyeStereoOffset, eyeStereoOffset, stereoDistance)
+          vec3.scale(eyeStereoOffset, eyeStereoOffset, -stereoDistance)
           break
       }
     }
