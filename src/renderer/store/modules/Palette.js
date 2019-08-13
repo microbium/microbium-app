@@ -287,14 +287,17 @@ export function createControlsState () {
 
     camera: {
       enabled: false,
+      stereoEnabled: false,
       polarAngle: 0,
       polarOffset: 20,
       depthOffset: 20,
       tweenFactor: 0.05,
+      stereoDistance: 10,
       polarOffsetController: -1,
       polarAngleController: -1,
       depthOffsetController: -1,
-      tweenFactorController: -1
+      tweenFactorController: -1,
+      stereoDistanceController: -1
     },
 
     // TODO: Scale by pixelRatio in renderer

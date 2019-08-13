@@ -42,6 +42,24 @@
         <hr />
       </palette-group>
     </palette-group>
+
+    <palette-group persistent-controls open>
+      <h2 slot="title">Stereo Camera</h2>
+      <input-checkbox slot="controls" v-model="model.stereoEnabled" />
+
+      <palette-group nested open>
+        <h2 slot="title">Eye</h2>
+
+        <div class="palette-item">
+          <input-range min="0" max="100" step="0.5" v-model="model.stereoDistance" />
+          <div class="palette-item__label">
+            <b>{{ stereoDistanceName }}</b> distance
+            <palette-item-controller :min="0" :max="100"
+              :model="model" prop="stereoDistance" />
+          </div>
+        </div>
+      </palette-group>
+    </palette-group>
   </div>
 </template>
 
@@ -89,6 +107,11 @@ export default {
     tweenFactorName () {
       const { tweenFactor } = this.model
       return `${roundToPlaces(tweenFactor * 100, 1)}%`
+    },
+
+    stereoDistanceName () {
+      const { stereoDistance } = this.model
+      return `${roundToPlaces(stereoDistance, 0)}pt`
     }
   }
 }

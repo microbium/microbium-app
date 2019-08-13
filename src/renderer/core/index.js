@@ -158,7 +158,12 @@ export function mountCompositor ($el, $refs, actions) {
         viewResolution: vec3.create(),
         viewOffset: vec2.create(),
         viewScale: 1,
+        eyeMasks: ['none'],
+        eyeMasksMono: ['none'],
+        eyeMasksStereo: ['left', 'right'],
+        stereoDistance: 0,
         colorShift: vec3.create(),
+        shouldRenderStereo: false,
         shouldRenderMirror: false,
         shouldRenderBloom: false,
         shouldRenderBloomFeedback: false,
@@ -287,6 +292,7 @@ export function mountCompositor ($el, $refs, actions) {
       this.updateComputedPosition()
       this.updateComputedForcePositions()
       this.updateComputedLineProps()
+      this.updateComputedCameraState()
       this.updateComputedPostState()
 
       if (!isRunning) {
@@ -345,6 +351,22 @@ export function mountCompositor ($el, $refs, actions) {
       const { scale } = state.viewport
       const { zoomOffset } = state.drag
       computedState.lineThicknessScale = lerp(1, scale + zoomOffset, lineScaleFactor)
+    },
+
+    updateComputedCameraState () {
+      const { computedState } = this
+      const { simulation } = state
+      const { camera } = state.controls
+
+      const stereoDistance = camera.stereoDistance
+      const shouldRenderStereo = simulation.isRunning &&
+        camera.enabled && camera.stereoEnabled && stereoDistance > 0
+
+      computedState.shouldRenderStereo = shouldRenderStereo
+      computedState.stereoDistance = stereoDistance
+      computedState.eyeMasks = shouldRenderStereo
+        ? computedState.eyeMasksStereo
+        : computedState.eyeMasksMono
     },
 
     // TODO: Cleanup ...
@@ -725,7 +747,10 @@ export function mountCompositor ($el, $refs, actions) {
       const { didResize } = state.viewport
       const { styles } = state.controls
       const { background } = state.controls.viewport
-      const { viewResolution, viewOffset, viewScale } = this.computedState
+      const {
+        viewResolution, viewOffset, viewScale,
+        eyeMasks, stereoDistance
+      } = this.computedState
 
       const clearHex = background.colorHex
       const clearAlpha = didResize ? 1
@@ -741,16 +766,21 @@ export function mountCompositor ($el, $refs, actions) {
       sceneCameraParams.viewResolution = viewResolution
       sceneCameraParams.viewOffset = viewOffset
       sceneCameraParams.viewScale = viewScale
+      sceneCameraParams.stereoDistance = stereoDistance
 
       const sceneLinesParams = pools.params.get('sceneLinesBase')
       sceneLinesParams.polarAlpha = isRunning ? 1 : 0.025
       sceneLinesParams.renderMirror = true
 
       state.renderer.drawCalls++
+      cameras.scene.update()
       postBuffers.use('full', () => {
         drawRect(clearParams)
-        cameras.scene.setup(sceneCameraParams, () => {
-          this.renderLines(scene, sceneLinesParams, styles)
+        eyeMasks.forEach((eyeMask) => {
+          sceneCameraParams.eyeMask = eyeMask
+          cameras.scene.setup(sceneCameraParams, () => {
+            this.renderLines(scene, sceneLinesParams, styles)
+          })
         })
       })
 
@@ -890,21 +920,28 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneUI () {
-      const { viewResolution, viewOffset, viewScale } = this.computedState
+      const {
+        viewResolution, viewOffset, viewScale,
+        eyeMasks, stereoDistance
+      } = this.computedState
       const { stylesUI } = state.controls
 
       const sceneCameraParams = pools.params.get('sceneCamera')
       sceneCameraParams.viewResolution = viewResolution
       sceneCameraParams.viewOffset = viewOffset
       sceneCameraParams.viewScale = viewScale
+      sceneCameraParams.stereoDistance = stereoDistance
 
       const uiLinesParams = pools.params.get('uiLinesBase')
       uiLinesParams.polarAlpha = 0.4
       uiLinesParams.renderMirror = false
 
-      cameras.scene.setup(sceneCameraParams, () => {
-        this.renderLines(sceneAltUI, uiLinesParams, stylesUI)
-        this.renderUI(sceneUI)
+      eyeMasks.forEach((eyeMask) => {
+        sceneCameraParams.eyeMask = eyeMask
+        cameras.scene.setup(sceneCameraParams, () => {
+          this.renderLines(sceneAltUI, uiLinesParams, stylesUI)
+          this.renderUI(sceneUI)
+        })
       })
     }
   }
