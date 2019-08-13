@@ -6,9 +6,8 @@ const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
-
 let mainConfig = {
+  mode: process.env.NODE_ENV || 'development',
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
   },
@@ -17,7 +16,7 @@ let mainConfig = {
   ],
   module: {
     rules: [
-      {
+      /*{
         test: /\.(js)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -27,7 +26,7 @@ let mainConfig = {
             formatter: require('eslint-friendly-formatter')
           }
         }
-      },
+      },*/
       {
         test: /\.js$/,
         use: 'babel-loader',
@@ -77,12 +76,6 @@ if (process.env.NODE_ENV !== 'production') {
  * Adjust mainConfig for production settings
  */
 if (process.env.NODE_ENV === 'production') {
-  mainConfig.plugins.push(
-    new BabiliWebpackPlugin(),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"production"'
-    })
-  )
 }
 
 module.exports = mainConfig
