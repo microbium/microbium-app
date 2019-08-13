@@ -64,9 +64,8 @@ function startEmbed () {
     })
 
     compiler.plugin('compilation', compilation => {
-      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
+      compilation.plugin('html-webpack-plugin-after-emit', (data) => {
         hotMiddleware.publish({ action: 'reload' })
-        cb()
       })
     })
 
@@ -107,9 +106,8 @@ function startRenderer () {
     })
 
     compiler.plugin('compilation', compilation => {
-      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
+      compilation.plugin('html-webpack-plugin-after-emit', (data) => {
         hotMiddleware.publish({ action: 'reload' })
-        cb()
       })
     })
 
