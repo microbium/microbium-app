@@ -26,6 +26,8 @@
         <input-range min="0.1" max="5" step="0.01" v-model="model.strokeWidth" />
         <div class="palette-item__label">
           <b>{{ strokeWidthName }}</b> base width
+          <palette-item-controller :min="0.1" :max="5" :step="0.01"
+            :model="model" prop="strokeWidth" />
         </div>
       </div>
       <div class="palette-item">
@@ -43,6 +45,17 @@
       </div>
       <hr />
 
+      <!-- Depth -->
+      <div class="palette-item">
+        <input-range min="-100" max="100" step="0.5" v-model="model.depth" />
+        <div class="palette-item__label">
+          <b>{{ depthName }}</b> depth
+          <palette-item-controller :min="-100" :max="100" :step="0.5"
+            :model="model" prop="depth" />
+        </div>
+      </div>
+      <hr />
+
       <!-- Stroke color -->
       <div class="palette-item">
         <div class="palette-item__label">
@@ -55,6 +68,8 @@
         <input-range min="0" max="1" step="0.01" v-model="model.strokeAlpha" />
         <div class="palette-item__label">
           <b>{{ strokeAlphaName }}</b> stroke opacity
+          <palette-item-controller :min="0" :max="1" :step="0.01"
+            :model="model" prop="strokeAlpha" />
         </div>
       </div>
       <hr />
@@ -71,6 +86,8 @@
         <input-range min="0" max="1" step="0.01" v-model="model.fillAlpha" />
         <div class="palette-item__label">
           <b>{{ fillAlphaName }}</b> fill opacity
+          <palette-item-controller :min="0" :max="1" :step="0.01"
+            :model="model" prop="fillAlpha" />
         </div>
       </div>
       <hr />
@@ -144,6 +161,7 @@ import InputCheckbox from '@renderer/components/input/Checkbox'
 import InputRange from '@renderer/components/input/Range'
 import PaletteGroup from '@renderer/components/palette/Group'
 import PaletteConstraintPreview from '@renderer/components/palette/ConstraintPreview'
+import PaletteItemController from '@renderer/components/palette/ItemController'
 import PaletteStylePreview from '@renderer/components/palette/StylePreview'
 
 export default {
@@ -156,6 +174,7 @@ export default {
     InputCheckbox,
     PaletteGroup,
     PaletteConstraintPreview,
+    PaletteItemController,
     PaletteStylePreview
   },
 
@@ -205,6 +224,11 @@ export default {
     strokeConstraintName () {
       const type = this.constraints[this.model.constraintIndex]
       return type.name
+    },
+
+    depthName () {
+      const { depth } = this.model
+      return `${roundToPlaces(depth, 1)}pt`
     },
 
     midiInputName () {

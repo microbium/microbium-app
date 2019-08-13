@@ -90,6 +90,7 @@ export function createGeometryController (tasks, state) {
       const stateGeom = state.geometry
       const { segments, vertices } = stateGeom
       const {
+        depth,
         strokeWidth, strokeColor, strokeAlpha,
         fillColor, fillAlpha,
         constraintIndex, styleIndex
@@ -102,6 +103,7 @@ export function createGeometryController (tasks, state) {
       const connectedIndices = isConnected ? [0] : []
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
+        depths: [depth],
         indices: [startIndex],
         connectedIndices,
         linkSizeAvg: 0,
@@ -130,13 +132,14 @@ export function createGeometryController (tasks, state) {
       if (!activeSegment) return
 
       const { scale } = state.viewport
+      const { depth } = state.controls.lineTool
       const {
         shouldAppend, shouldAppendOnce,
         linkSizeMin, linkSizeMinStrokeFactor,
         prevPoint, vertices
       } = stateGeom
       const {
-        indices, connectedIndices,
+        depths, indices, connectedIndices,
         strokeWidth, strokeWidthModulations
       } = activeSegment
 
@@ -156,6 +159,7 @@ export function createGeometryController (tasks, state) {
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint
+        depths.push(depth)
         indices.push(vertices.length)
         vertices.push(candidatePoint)
         strokeWidthModulations.push(modStrokeWidth)
@@ -167,6 +171,7 @@ export function createGeometryController (tasks, state) {
         const isConnected = index != null
 
         if (isConnected) {
+          depths[depths.length - 1] = depth
           indices[indices.length - 1] = index
           connectedIndices.push(indices.length - 1)
           vertices.pop()
@@ -192,32 +197,42 @@ export function createGeometryController (tasks, state) {
       const { activeSegment, vertices } = stateGeom
       if (!activeSegment) return
 
-      const { indices, connectedIndices, strokeWidthModulations } = activeSegment
+      const { depth } = state.controls.lineTool
+      const {
+        depths, indices,
+        connectedIndices, strokeWidthModulations
+      } = activeSegment
       const firstIndex = indices[0]
       const isConnected = index != null && index !== -1
       const isConnectedDup = isConnected && indices[indices.length - 1] === index
       let isClosed = isConnected && firstIndex === index
 
       if (isConnected && !isConnectedDup) {
+        depths[depths.length - 1] = depth
         indices[indices.length - 1] = index
         connectedIndices.push(indices.length - 1)
         vertices.pop()
       }
       if (index === -1) {
+        depths.pop()
         indices.pop()
         strokeWidthModulations.pop()
         vertices.pop()
         isClosed = firstIndex === indices[indices.length - 1]
       }
 
+      const nextDepths = new Float32Array(depths)
       const nextIndices = new Uint16Array(indices)
       const nextConnectedIndices = new Uint16Array(connectedIndices)
       const nextStrokeWidthModulations = new Float32Array(strokeWidthModulations)
       const lineLengths = this.computeLineLengths(vertices, indices)
 
+      console.log(depths, indices)
+
       Object.assign(activeSegment, {
         isClosed,
         isComplete: true,
+        depths: nextDepths,
         indices: nextIndices,
         connectedIndices: nextConnectedIndices,
         lineLengths,
@@ -252,7 +267,7 @@ export function createGeometryController (tasks, state) {
       if (!activeSegment) return
 
       const {
-        indices, connectedIndices,
+        depths, indices, connectedIndices,
         strokeWidthModulations
       } = activeSegment
       if (indices.length <= 1) return
@@ -264,6 +279,7 @@ export function createGeometryController (tasks, state) {
         vertices.splice(-2, 1)
       }
 
+      depths.pop()
       indices.splice(-2, 1)
       indices[indices.length - 1] = vertices.length - 1
       strokeWidthModulations.pop()

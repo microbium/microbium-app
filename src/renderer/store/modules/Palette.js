@@ -26,6 +26,7 @@ export function createControlsState () {
     },
 
     lineTool: {
+      depth: 0,
       strokeWidth: 1.5,
       strokeColor: '#ffffff',
       strokeAlpha: 1,
@@ -34,7 +35,11 @@ export function createControlsState () {
       strokeWidthMod: 0,
       inputModTypeIndex: 1,
       constraintIndex: 1,
-      styleIndex: 0
+      styleIndex: 0,
+      strokeWidthController: -1,
+      strokeAlphaController: -1,
+      fillAlphaController: -1,
+      depthController: -1
     },
 
     simulation: {
