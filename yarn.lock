@@ -2943,10 +2943,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-earcut@^2.1.3:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/earcut/-/earcut-2.1.4.tgz#6b161f89bfe4bb08576b9e8af165e1477d6a1c02"
-  integrity sha512-ttRjmPD5oaTtXOoxhFp9aZvMB14kBjapYaiBuzBB1elOgSLU9P2Ev86G2OClBg+uspUXERsIzXKpUWweH2K4Xg==
+earcut@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/earcut/-/earcut-2.1.5.tgz#829280a9a3a0f5fee0529f0a47c3e4eff09b21e4"
+  integrity sha512-QFWC7ywTVLtvRAJTVp8ugsuuGQ5mVqNmJ1cRYeLrSHgP3nycr2RHTJob9OtM0v8ujuoKN0NY1a93J/omeTL1PA==
 
 ecc-jsbn@~0.1.1:
   version "0.1.2"
@@ -3986,9 +3986,10 @@ gl-matrix@2.2.1:
   resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-2.2.1.tgz#015bdcd55b6c632860980b13b31296628ae10cce"
   integrity sha1-AVvc1VtsYyhgmAsTsxKWYorhDM4=
 
-gl-matrix@^2.4.0:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-2.8.1.tgz#1c7873448eac61d2cd25803a074e837bd42581a3"
+gl-matrix@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.0.0.tgz#888301ac7650e148c3865370e13ec66d08a8381f"
+  integrity sha512-PD4mVH/C/Zs64kOozeFnKY8ybhgwxXXQYGWdB4h68krAHknWJgk9uKOn6z8YElh5//vs++90pb6csrTIDWnexA==
 
 glob-parent@^3.1.0:
   version "3.1.0"
@@ -7109,12 +7110,12 @@ regjsparser@^0.6.0:
   dependencies:
     jsesc "~0.5.0"
 
-regl-line-builder@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.7.0.tgz#254a250bca96f87ebb06079d31bfdc54cd8e6ab2"
-  integrity sha512-DOfUVFpZDuNTIeVcD9IVAwiEYaznU8EMIiN6q3s6UxsP6Q6nOX2PmzQoLH1KRTLX/oRGyfWn/4jWC5jFPnbEbg==
+regl-line-builder@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/regl-line-builder/-/regl-line-builder-0.8.0.tgz#788657a0cf2ff2c39c68bd32d3d8b47808016091"
+  integrity sha512-sBbo3U8//UtYHAr2Rikof0oGGn14rT4YdI9lteJTxaRIhP2d2jEZiyYFsM54UtRsJX7oFf1g5VqZT4flwD7CDQ==
   dependencies:
-    earcut "^2.1.3"
+    earcut "^2.1.5"
 
 relateurl@0.2.x:
   version "0.2.7"
