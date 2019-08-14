@@ -18,7 +18,7 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
   for (let s = segmentStart; s < segmentCount; s++) {
     const segment = segments[s]
     const {
-      indices, isClosed, styleIndex,
+      depths, indices, isClosed, styleIndex,
       strokeWidth, strokeWidthModulations, strokeColor, strokeAlpha,
       fillColor, fillAlpha,
       linkSizeAvg
@@ -47,11 +47,11 @@ export function drawSegments (state, contexts, segmentStart_, segmentCount_) {
 
     ctx.beginPath()
     if (curvePrecision <= 1) {
-      ctx.polyline(pointsFlat,
+      ctx.polyline(pointsFlat, depths,
         strokeWidth, strokeWidthMod, strokeWidthModulations,
         isClosed)
     } else {
-      ctx.curve(pointsFlat,
+      ctx.curve(pointsFlat, depths,
         strokeWidth, strokeWidthMod, strokeWidthModulations,
         0.5, curvePrecision, isClosed)
     }
@@ -98,7 +98,7 @@ export function drawFocus (state, ctx, index) {
   ctx.closePath()
   ctx.stroke()
 
-  ctx.rotate(Math.atan2(point[1], point[0]))
+  ctx.rotate(Math.atan2(point[1], point[0]), 'z')
   ctx.globalAlpha = 0.35
   ctx.lineWidth = 1 * scaleInv
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY

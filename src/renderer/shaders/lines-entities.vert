@@ -18,9 +18,9 @@ uniform vec3 mirror; // [x, y, alpha]
 uniform float angle;
 uniform float angleAlpha;
 
-attribute vec2 prevPosition;
-attribute vec2 currPosition;
-attribute vec2 nextPosition;
+attribute vec3 prevPosition;
+attribute vec3 currPosition;
+attribute vec3 nextPosition;
 
 attribute float prevId;
 attribute float currId;
@@ -37,11 +37,11 @@ void main() {
   mat4 projViewModel = projection * view * model;
 
   vec4 prevProjected = projViewModel *
-    vec4(transformPosition(prevPosition, mirror.xy, angle), mapZ(prevPosition, prevId), 1.0);
+    vec4(transformPosition(prevPosition.xy, mirror.xy, angle), mapZ(prevPosition, prevId), 1.0);
   vec4 currProjected = projViewModel *
-    vec4(transformPosition(currPosition, mirror.xy, angle), mapZ(currPosition, currId), 1.0);
+    vec4(transformPosition(currPosition.xy, mirror.xy, angle), mapZ(currPosition, currId), 1.0);
   vec4 nextProjected = projViewModel *
-    vec4(transformPosition(nextPosition, mirror.xy, angle), mapZ(nextPosition, nextId), 1.0);
+    vec4(transformPosition(nextPosition.xy, mirror.xy, angle), mapZ(nextPosition, nextId), 1.0);
 
   vec2 miterOffset = computeMiterOffset(
     projection, adjustProjectedThickness,

@@ -69,7 +69,7 @@ export function createScene (tasks, state, renderer) {
   function createContext (style, index) {
     const bufferSize = 512
     const lines = LineBuilder.create(regl, {
-      dimensions: 2,
+      dimensions: 3,
       bufferSize,
 
       drawLineArgs: {
@@ -115,7 +115,7 @@ export function createScene (tasks, state, renderer) {
       }
     })
 
-    const ctx = lines.getContext('2d')
+    const ctx = lines.getContext('3d')
     ctx.curve = curve.bind(ctx)
     ctx.polyline = polyline.bind(ctx)
 
@@ -155,7 +155,7 @@ export function createScene (tasks, state, renderer) {
 
   function resetLines () {
     for (let i = 0; i < contexts.length; i++) {
-      let { lines } = contexts[i]
+      const { lines } = contexts[i]
       lines.reset()
     }
   }
@@ -178,7 +178,7 @@ export function createUIScene (tasks, state, renderer) {
     // TODO: Make bufferSize smallest possible for UI
     const bufferSize = 1024
     const lines = LineBuilder.create(regl, {
-      dimensions: 2,
+      dimensions: 3,
       bufferSize,
       drawLineArgs: {
         frag: linesUIFrag,
@@ -189,7 +189,7 @@ export function createUIScene (tasks, state, renderer) {
       }
     })
 
-    const ctx = lines.getContext('2d')
+    const ctx = lines.getContext('3d')
     ctx.curve = curve.bind(ctx)
 
     return {
@@ -203,7 +203,7 @@ export function createUIScene (tasks, state, renderer) {
 
   function resetLines () {
     for (let i = 0; i < contexts.length; i++) {
-      let { lines } = contexts[i]
+      const { lines } = contexts[i]
       lines.reset()
     }
   }

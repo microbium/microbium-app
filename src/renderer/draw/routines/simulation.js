@@ -16,7 +16,7 @@ export function drawSimulatorUI (state, ctx) {
   const offsetB = 10 + Math.sin(tick * 0.02) * 2
 
   ctx.save()
-  ctx.translate(-center[0], -center[1])
+  ctx.translate(-center[0], -center[1], 0)
 
   ctx.globalAlpha = (isRunning ? overlay.alphaFactor : 1) * 0.8
   ctx.strokeStyle = overlay.colorHighlightHex
@@ -57,7 +57,7 @@ export function drawSimulatorForces (
     }
 
     ctx.save()
-    ctx.translate(position[0], position[1])
+    ctx.translate(position[0], position[1], 0)
 
     ctx.globalAlpha = (isRunning ? overlay.alphaFactor : 1) * alpha
     ctx.strokeStyle = '#ffffff'

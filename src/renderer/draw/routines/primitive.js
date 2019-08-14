@@ -10,7 +10,7 @@ export function arc (ctx, x, y, radius, startAngle, endAngle, anticlockwise, pre
     const ax = x + Math.cos(angle) * radius
     const ay = y + Math.sin(angle) * radius
 
-    if (i === 0) ctx.moveTo(ax, ay)
-    else ctx.lineTo(ax, ay)
+    if (i === 0) ctx.moveTo(ax, ay, 0)
+    else ctx.lineTo(ax, ay, 0)
   }
 }

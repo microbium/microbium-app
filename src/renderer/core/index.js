@@ -551,7 +551,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       let didResizeBuffer = false
       for (let i = 0; i < sceneContexts.length; i++) {
-        let context = sceneContexts[i]
+        const context = sceneContexts[i]
         if (context.lines.state.cursor.element > context.bufferSize) {
           const nextSize = context.bufferSize = context.bufferSize + context.bufferInterval
           context.lines.resize(nextSize)
@@ -716,7 +716,7 @@ export function mountCompositor ($el, $refs, actions) {
       linesParams.adjustProjectedThickness = this.shouldAdjustThickness()
 
       for (let i = 0; i < contexts.length; i++) {
-        let { name, lines } = contexts[i]
+        const { name, lines } = contexts[i]
         if (isRunning && name === 'grid') continue
         state.renderer.drawCalls++
         state.renderer.lineQuads += lines.state.cursor.quad

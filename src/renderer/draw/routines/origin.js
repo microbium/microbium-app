@@ -27,7 +27,7 @@ export function drawOriginTick (state, ctx) {
   ctx.globalAlpha = 0.95
   ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
   ctx.lineWidth = 1
-  ctx.rotate(tick * 0.02)
+  ctx.rotate(tick * 0.02, 'z')
 
   ctx.beginPath()
   ctx.arc(0, 0, size, 0, PI * 0.5)
@@ -61,10 +61,10 @@ export function drawPolarGrid (state, ctx) {
       ctx.strokeStyle = UI_PALETTE.BACK_TERTIARY
 
       ctx.beginPath()
-      ctx.moveTo(0, radius - length)
-      ctx.lineTo(0, radius + length)
+      ctx.moveTo(0, radius - length, 0)
+      ctx.lineTo(0, radius + length, 0)
       ctx.stroke()
-      ctx.rotate(angleStep)
+      ctx.rotate(angleStep, 'z')
     }
   }
 
