@@ -51,10 +51,10 @@
         <h2 slot="title">Eye</h2>
 
         <div class="palette-item">
-          <input-range min="0" max="100" step="0.5" v-model="model.stereoDistance" />
+          <input-range min="0" max="50" step="0.5" v-model="model.stereoDistance" />
           <div class="palette-item__label">
             <b>{{ stereoDistanceName }}</b> distance
-            <palette-item-controller :min="0" :max="100"
+            <palette-item-controller :min="0" :max="50"
               :model="model" prop="stereoDistance" />
           </div>
         </div>
@@ -111,7 +111,7 @@ export default {
 
     stereoDistanceName () {
       const { stereoDistance } = this.model
-      return `${roundToPlaces(stereoDistance, 0)}pt`
+      return `${roundToPlaces(stereoDistance, 1)}pt`
     }
   }
 }

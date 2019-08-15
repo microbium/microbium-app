@@ -76,7 +76,7 @@ export function createCameras (tasks, state, renderer) {
         ...baseUniforms,
         view: (context, props) => {
           updateEyeStereo(props)
-          vec3.set(center, 0, 0, 0)
+          vec3.set(center, 0, 0, state.controls.camera.depthOffset - 100)
           vec3.add(eyeOffset, eye, eyeStereoOffset)
           mat4.lookAt(view, eyeOffset, center, up)
           return view
