@@ -26,6 +26,7 @@ export function createIOController (tasks, state) {
         .map((seg) => ({
           connectedIndices: io.serializeArray(seg.connectedIndices, 0),
           constraintIndex: seg.constraintIndex,
+          depths: io.serializeArray(seg.depths, 3),
           indices: io.serializeArray(seg.indices, 0),
           isClosed: io.serializeBool(seg.isClosed),
           lineLengths: io.serializeArray(seg.lineLengths, 2),
@@ -69,6 +70,8 @@ export function createIOController (tasks, state) {
           connectedIndices: new Uint16Array(
             io.deserializeIntArray(seg.connectedIndices)),
           constraintIndex: seg.constraintIndex,
+          depths: new Float32Array(
+            io.deserializeFloatArray(seg.depths)),
           indices: new Uint16Array(
             io.deserializeIntArray(seg.indices)),
           isClosed: io.deserializeBool(seg.isClosed),
@@ -108,8 +111,8 @@ export function createIOController (tasks, state) {
     logControllerProps (basePath, controls) {
       if (controls == null || typeof controls !== 'object') return
       Object.keys(controls).forEach((key) => {
-        let propPath = `${basePath}.${key}`
-        let prop = controls[key]
+        const propPath = `${basePath}.${key}`
+        const prop = controls[key]
         if (typeof prop === 'object') {
           io.logControllerProps(propPath, prop)
         } else if (key.indexOf('Controller') !== -1 && prop !== -1) {
