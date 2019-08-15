@@ -28,7 +28,8 @@ export function createCameras (tasks, state, renderer) {
           mat4.scale(view, view, scale3)
           return view
         },
-        projection: () => projection
+        projection: () => projection,
+        projectionMode: 0
       }
     })
 
@@ -80,7 +81,8 @@ export function createCameras (tasks, state, renderer) {
           mat4.lookAt(view, eyeOffset, center, up)
           return view
         },
-        projection: () => projection
+        projection: () => projection,
+        projectionMode: 1
       },
       colorMask: (context, props) => {
         return props.eyeMask

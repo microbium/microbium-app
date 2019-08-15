@@ -227,8 +227,6 @@ export function createGeometryController (tasks, state) {
       const nextStrokeWidthModulations = new Float32Array(strokeWidthModulations)
       const lineLengths = this.computeLineLengths(vertices, indices)
 
-      console.log(depths, indices)
-
       Object.assign(activeSegment, {
         isClosed,
         isComplete: true,

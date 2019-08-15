@@ -25,6 +25,8 @@ export function createScene (tasks, state, renderer) {
     },
     color: [0, 0, 0, 0]
   }
+
+  // TODO: Enable depth
   const depth = {
     enable: false
   }
