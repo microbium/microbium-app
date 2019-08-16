@@ -97,8 +97,8 @@ export default {
       if (!sceneData) return
 
       messenger.once('main-will-start', () => {
-        messenger.emit('deserialize-scene', null, sceneData)
-        messenger.emit('command', null, {action: 'SIMULATION_TOGGLE'})
+        messenger.emit('deserialize-scene', null, { path: '', data: sceneData })
+        messenger.emit('command', null, { action: 'SIMULATION_TOGGLE' })
         if (DEBUG_INIT_PAUSE) this.togglePause()
       })
     },
@@ -117,7 +117,7 @@ export default {
 
     togglePause () {
       this.isPaused = !this.isPaused
-      this.messenger.emit('command', null, {action: 'SIMULATION_TOGGLE_PAUSE'})
+      this.messenger.emit('command', null, { action: 'SIMULATION_TOGGLE_PAUSE' })
     },
 
     updateCursor () {
