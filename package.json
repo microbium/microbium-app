@@ -79,6 +79,7 @@
     "glsl-noise": "^0.0.0",
     "glsl-random": "^0.0.5",
     "leapjs": "^0.6.4",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.template": "^4.5.0",
     "particulate": "^0.3.3",
     "pngjs": "^3.3.3",
@@ -136,7 +137,7 @@
     "vue-style-loader": "^4.1.2",
     "vue-svg-loader": "^0.12.0",
     "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.39.1",
+    "webpack": "^4.39.2",
     "webpack-bundle-analyzer": "^3.4.1",
     "webpack-dev-server": "^3.8.0",
     "webpack-hot-middleware": "^2.25.0"

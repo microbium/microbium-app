@@ -1,3 +1,10 @@
+import {
+  dirname as pathDirname,
+  resolve as pathResolve,
+  relative as pathRelative
+} from 'path'
+import cloneDeep from 'lodash.clonedeep'
+
 import { map, flatten2, expand2 } from '@renderer/utils/array'
 import { roundToPlaces } from '@renderer/utils/number'
 import { SERIALIZE_KEYS_MAP } from '@renderer/constants/scene-format'
@@ -17,7 +24,7 @@ export function createIOController (tasks, state) {
   const { requestSync } = tasks
 
   const io = {
-    serializeScene () {
+    serializeScene ({ path }) {
       const mapKeys = io.mapKeys.bind(null, KEY_ABBRV_MAP)
       const { geometry, controls, viewport } = state
       const { segments, vertices } = geometry
@@ -41,6 +48,7 @@ export function createIOController (tasks, state) {
         }))
         .map((seg) => mapKeys(seg))
       const verticesOut = io.serializeArray(flatten2(vertices), 2)
+      const controlsOut = io.serializeControls(path, cloneDeep(controls))
 
       return {
         viewport: mapKeys({
@@ -51,18 +59,18 @@ export function createIOController (tasks, state) {
           segments: segmentsOut,
           vertices: verticesOut
         }),
-        controls
+        controls: controlsOut
       }
     },
 
-    deserializeScene (json) {
+    deserializeScene ({ path, data }) {
       const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
       const unmapKeysDeep = io.mapKeysDeep.bind(null, ABBRV_KEY_MAP)
 
-      const data = unmapKeys(json)
-      const { segments, vertices } = unmapKeys(data.geometry)
-      const viewport = unmapKeys(data.viewport)
-      const controls = unmapKeysDeep(data.controls)
+      const sceneData = unmapKeys(data)
+      const { segments, vertices } = unmapKeys(sceneData.geometry)
+      const viewport = unmapKeys(sceneData.viewport)
+      const controls = unmapKeysDeep(sceneData.controls)
 
       const segmentsOut = segments
         .map((seg) => unmapKeys(seg))
@@ -90,6 +98,7 @@ export function createIOController (tasks, state) {
         }))
       const verticesOut = expand2(
         io.deserializeFloatArray(vertices), Float32Array)
+      const controlsOut = io.deserializeControls(path, controls)
 
       if (DEBUG_LOG_CONTROLLER_PROPS) {
         io.logControllerProps('controls', controls)
@@ -104,7 +113,7 @@ export function createIOController (tasks, state) {
           segments: segmentsOut,
           vertices: verticesOut
         },
-        controls
+        controls: controlsOut
       }
     },
 
@@ -119,6 +128,48 @@ export function createIOController (tasks, state) {
           console.log(propPath, prop)
         }
       })
+    },
+
+    serializeControls (path, controls) {
+      const rootDir = pathDirname(path)
+      const resolveFilePath = io.resolvePathRelative.bind(null, rootDir)
+
+      io.resolveControlsFiles(resolveFilePath, controls)
+      return controls
+    },
+
+    deserializeControls (path, controls) {
+      const rootDir = pathDirname(path)
+      const resolveFilePath = io.resolvePathAbsolute.bind(null, rootDir)
+
+      io.resolveControlsFiles(resolveFilePath, controls)
+      return controls
+    },
+
+    resolveControlsFiles (resolveFilePath, controls) {
+      const { styles, postEffects } = controls
+      styles.forEach((style) => {
+        resolveFilePath(style, 'lineAlphaMapFile')
+        resolveFilePath(style, 'fillAlphaMapFile')
+      })
+      resolveFilePath(postEffects.lut, 'textureFile')
+      resolveFilePath(postEffects.watermark, 'textureFile')
+    },
+
+    resolvePathRelative (rootPath, item, key) {
+      const itemFile = item[key]
+      if (!itemFile) return
+
+      const relPath = pathRelative(rootPath, itemFile.path)
+      itemFile.path = relPath
+    },
+
+    resolvePathAbsolute (rootPath, item, key) {
+      const itemFile = item[key]
+      if (!itemFile) return
+
+      const absPath = pathResolve(rootPath, itemFile.path)
+      itemFile.path = absPath
     },
 
     mapKeys (map, src) {

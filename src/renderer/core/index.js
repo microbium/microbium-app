@@ -212,14 +212,16 @@ export function mountCompositor ($el, $refs, actions) {
 
       actions.observeMessage('message', (event, data) => viewport.handleMessage(data))
       actions.observeMessage('command', (event, data) => viewport.handleCommand(data))
-      actions.observeMessage('serialize-scene', (event, data) => view.serializeScene())
-      actions.observeMessage('deserialize-scene', (event, data) => view.deserializeScene(data))
+      actions.observeMessage('serialize-scene',
+        (event, { path }) => view.serializeScene({ path }))
+      actions.observeMessage('deserialize-scene',
+        (event, { path, data }) => view.deserializeScene({ path, data }))
       actions.observeMessage('save-frame', (event, data) => view.saveFrameData(data))
     },
 
-    serializeScene () {
+    serializeScene ({ path }) {
       logger.time('serialize scene')
-      const data = io.serializeScene()
+      const data = io.serializeScene({ path })
       logger.timeEnd('serialize scene')
       actions.sendMessage('serialize-scene--response', data)
     },
@@ -227,12 +229,12 @@ export function mountCompositor ($el, $refs, actions) {
     // FIXME: Issue with `postEffects.lut.textureFile`
     // not always getting set to `state` when available in `scene`
     // seems to only happen in dev live-reload
-    deserializeScene (data) {
+    deserializeScene ({ path, data }) {
       const wasRunning = state.simulation.isRunning
 
       logger.time('deserialize scene')
-      const json = JSON.parse(data)
-      const scene = io.deserializeScene(json)
+      const sceneData = JSON.parse(data)
+      const scene = io.deserializeScene({ path, data: sceneData })
       logger.timeEnd('deserialize scene')
       logger.log('scene', scene)
 

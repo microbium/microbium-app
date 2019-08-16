@@ -201,7 +201,7 @@ function createAppActions () {
         filters: htmlTypeFilters
       }, (fileName) => {
         if (!fileName) return
-        requestWindowResponse('main', 'serialize-scene', null)
+        requestWindowResponse('main', 'serialize-scene', { path: fileName })
           .then((data) => exportSceneHTML(fileName, data))
       })
     },
@@ -700,7 +700,7 @@ function openSceneFile (path) {
       setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
       setMainEdited(false)
-      sendWindowMessage('main', 'deserialize-scene', data)
+      sendWindowMessage('main', 'deserialize-scene', { path, data })
     })
     .catch((err) => {
       log.error(err)
@@ -708,7 +708,7 @@ function openSceneFile (path) {
 }
 
 function saveSceneFile (path) {
-  requestWindowResponse('main', 'serialize-scene', null)
+  requestWindowResponse('main', 'serialize-scene', { path })
     .then((data) => JSON.stringify(data))
     .then((str) => deflateSync(str))
     .then((buf) => writeFile(path, buf))
@@ -723,7 +723,7 @@ function saveSceneFile (path) {
 }
 
 function exportSceneFile (path) {
-  requestWindowResponse('main', 'serialize-scene', null)
+  requestWindowResponse('main', 'serialize-scene', { path })
     .then((data) => JSON.stringify(data))
     .then((buf) => writeFile(path, buf))
     .then(() => {
