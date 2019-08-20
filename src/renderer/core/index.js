@@ -555,6 +555,7 @@ export function mountCompositor ($el, $refs, actions) {
       for (let i = 0; i < sceneContexts.length; i++) {
         const context = sceneContexts[i]
         if (context.lines.state.cursor.element > context.bufferSize) {
+          // TODO: Prevent many consecutive resizes on scene load
           const nextSize = context.bufferSize = context.bufferSize + context.bufferInterval
           context.lines.resize(nextSize)
           didResizeBuffer = true

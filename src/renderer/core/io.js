@@ -3,7 +3,7 @@ import {
   resolve as pathResolve,
   relative as pathRelative
 } from 'path'
-import cloneDeep from 'lodash.clonedeep'
+import { cloneDeep } from 'lodash'
 
 import { map, flatten2, expand2 } from '@renderer/utils/array'
 import { roundToPlaces } from '@renderer/utils/number'
