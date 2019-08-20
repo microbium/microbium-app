@@ -9,7 +9,7 @@ import {
   join as pathJoin
 } from 'path'
 import log from 'electron-log'
-import compileTemplate from 'lodash.template'
+import { template as compileTemplate } from 'lodash'
 
 import { version } from '@root/package.json'
 
@@ -32,23 +32,23 @@ function toTitleCase (str) {
 }
 
 function resolveDataAssets (destPath, sceneData) {
-  let { controls } = sceneData
-  let textureAssetFiles = []
-  let exportedAssets = {}
+  const { controls } = sceneData
+  const textureAssetFiles = []
+  const exportedAssets = {}
 
   textureAssetFiles.push(controls.postEffects.lut.textureFile)
   controls.styles.forEach((style) => {
     textureAssetFiles.push(style.lineAlphaMapFile, style.fillAlphaMapFile)
   })
 
-  let assetResolutions = textureAssetFiles.map((textureFile) => {
+  const assetResolutions = textureAssetFiles.map((textureFile) => {
     if (!textureFile) return null
 
-    let srcName = textureFile.name
-    let srcPath = textureFile.path
+    const srcName = textureFile.name
+    const srcPath = textureFile.path
 
-    let exportPath = `${srcName}`
-    let assetDestPath = pathJoin(dirname(destPath), exportPath)
+    const exportPath = `${srcName}`
+    const assetDestPath = pathJoin(dirname(destPath), exportPath)
     textureFile.path = exportPath
 
     if (exportedAssets[srcPath] != null) return
