@@ -56,7 +56,8 @@
     "mac": {
       "icon": "build/icons/microbium.icns",
       "extendInfo": {
-        "NSRequiresAquaSystemAppearance": false
+        "NSRequiresAquaSystemAppearance": false,
+        "NSSupportsAutomaticGraphicsSwitching": false
       }
     }
   },
