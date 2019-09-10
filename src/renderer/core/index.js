@@ -521,7 +521,6 @@ export function mountCompositor ($el, $refs, actions) {
       drawPolarGrid(state, uiGrid.ctx)
     },
 
-    // FEAT: Add user-controlled z-level per segment (maybe encode in alpha channel)
     updateRenderableGeometry (tick) {
       const { isRunning } = state.simulation
       const { styles, stylesUI } = state.controls
@@ -568,7 +567,6 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     // TODO: Make buffer scaling relative to hardware perf rather than device's pixel ratio
-    // OPTIM: Investigate resize perf regression after Electron upgrade
     resizeRenderBuffers () {
       const { postBuffers } = renderer
       const { resolution, resolutionMax, pixelRatioNative } = state.viewport
@@ -652,6 +650,7 @@ export function mountCompositor ($el, $refs, actions) {
 
         const style = styles[index]
         const {
+          depth,
           lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
           fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
           lineTintHex, lineTintAlpha,
@@ -698,6 +697,7 @@ export function mountCompositor ($el, $refs, actions) {
           params.mirror = isMirrorStep
             ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
             : vec3.set(params.mirror, 1, 1, 1)
+          params.depth = depth
         }
 
         // TODO: Account for fill draw calls

@@ -14,6 +14,7 @@ uniform vec4 tint;
 uniform float thickness;
 uniform float miterLimit;
 uniform vec3 mirror; // [x, y, alpha]
+uniform float depth;
 
 uniform float angle;
 uniform float angleAlpha;
@@ -37,11 +38,14 @@ void main() {
   mat4 projViewModel = projection * view * model;
 
   vec4 prevProjected = projViewModel *
-    vec4(transformPosition(prevPosition.xy, mirror.xy, angle), mapZ(prevPosition, prevId), 1.0);
+    vec4(transformPosition(prevPosition.xy, mirror.xy, angle),
+      mapZ(prevPosition, depth, prevId), 1.0);
   vec4 currProjected = projViewModel *
-    vec4(transformPosition(currPosition.xy, mirror.xy, angle), mapZ(currPosition, currId), 1.0);
+    vec4(transformPosition(currPosition.xy, mirror.xy, angle),
+      mapZ(currPosition, depth, currId), 1.0);
   vec4 nextProjected = projViewModel *
-    vec4(transformPosition(nextPosition.xy, mirror.xy, angle), mapZ(nextPosition, nextId), 1.0);
+    vec4(transformPosition(nextPosition.xy, mirror.xy, angle),
+      mapZ(nextPosition, depth, nextId), 1.0);
 
   vec2 miterOffset = computeMiterOffset(
     projection, adjustProjectedThickness,

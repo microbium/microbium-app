@@ -126,6 +126,20 @@
     </palette-group>
 
     <palette-group nested>
+      <h2 slot="title">Depth</h2>
+
+      <div class="palette-item">
+        <input-range min="-10" max="10" step="0.1"
+          v-model="model.depth" />
+        <div class="palette-item__label">
+          <b>{{ depthName }}</b> depth factor
+          <palette-item-controller :min="-10" :max="10"
+            :model="model" prop="depth" />
+        </div>
+      </div>
+    </palette-group>
+
+    <palette-group nested>
       <h2 slot="title">Curve Geometry</h2>
 
       <div class="palette-item">
@@ -234,6 +248,11 @@ export default {
     thicknessName () {
       const { thickness } = this.model
       return `${roundToPlaces(thickness, 1)}x`
+    },
+
+    depthName () {
+      const { depth } = this.model
+      return `${roundToPlaces(depth, 1)}x`
     },
 
     strokeModName () {

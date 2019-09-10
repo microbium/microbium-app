@@ -62,14 +62,15 @@ export function createControlsState () {
         fillAlphaMapRepeat: 40,
         fillTintHex: '#444444',
         fillTintAlpha: 1,
-        useScreenTintFunc: 0,
         thickness: 1,
+        depth: 1,
         strokeWidthMod: 0.6,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
         curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
+        depthController: -1,
         strokeWidthModController: -1
       },
       {
@@ -85,14 +86,15 @@ export function createControlsState () {
         fillAlphaMapRepeat: 40,
         fillTintHex: '#666666',
         fillTintAlpha: 1,
-        useScreenTintFunc: 0,
         thickness: 0.25,
+        depth: 1,
         strokeWidthMod: 0.6,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
         curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
+        depthController: -1,
         strokeWidthModController: -1
       },
       {
@@ -108,14 +110,15 @@ export function createControlsState () {
         fillAlphaMapRepeat: 40,
         fillTintHex: '#222222',
         fillTintAlpha: 1,
-        useScreenTintFunc: 0,
         thickness: 1,
+        depth: 1,
         strokeWidthMod: 1.2,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
         curveSubDivisions: 4,
         tintAlphaController: -1,
         thicknessController: -1,
+        depthController: -1,
         strokeWidthModController: -1
       }
     ],
@@ -134,8 +137,8 @@ export function createControlsState () {
         fillAlphaMapRepeat: 0,
         fillTintHex: '#ffffff',
         fillTintAlpha: 1,
-        useScreenTintFunc: 0,
         thickness: 1,
+        depth: 1,
         strokeWidthMod: 1,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
