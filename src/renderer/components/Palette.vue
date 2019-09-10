@@ -220,6 +220,7 @@ import Colr from 'colr'
 import WebMidi from 'webmidi'
 
 import { clamp } from '@renderer/utils/math'
+import { createLoop } from '@renderer/utils/loop'
 
 import {
   createControlsState,
@@ -280,11 +281,32 @@ export default {
       this._isSettingUp = false
     }, 1)
 
+    this.createLoop()
     this.bindEvents()
     this.bindMidi()
+    this.loop.start()
   },
 
   methods: {
+    createLoop () {
+      let animationFrame = 0
+      const looper = {
+        sync () {
+          animationFrame = animationFrame + 1
+          return animationFrame
+        },
+        update () {
+          PaletteControllers.emit('tick')
+        },
+        render () {
+        }
+      }
+
+      this.loop = createLoop(looper,
+        'sync', 'update', 'render',
+        (1 / 60 * 1000))
+    },
+
     bindEvents () {
       const { ipcRenderer } = this.$electron
 
