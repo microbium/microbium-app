@@ -68,14 +68,14 @@ export default {
 
   data () {
     return {
-      controllerValue: null,
+      isActive: false,
+      valueTarget: null,
       channels: CHANNELS
     }
   },
 
   created () {
-    this.controllerValue = this.value
-    this.bindControllerEvents()
+    this.valueTarget = this.model[this.prop]
   },
 
   beforeDestroy () {
@@ -85,29 +85,37 @@ export default {
   methods: {
     bindControllerEvents () {
       PaletteControllers.on('cc', this.handleControllerMessage)
+      PaletteControllers.on('tick', this.handleControllerTick)
+      this.isActive = true
     },
 
     unbindControllerEvents () {
       PaletteControllers.off('cc', this.handleControllerMessage)
+      PaletteControllers.off('tick', this.handleControllerTick)
+      this.isActive = false
     },
 
     handleControllerMessage (cc, value) {
-      const { model, channelProp } = this
-      const channel = model[channelProp]
+      const { channel } = this
       if (channel !== cc) return
 
-      const { prop, min, max, step } = this
+      const { min, max, step } = this
       const nextValue = mapLinear(0, 127, min, max, value)
-      model[prop] = !step
+      this.valueTarget = !step
         ? nextValue
         : (Math.round(nextValue * (1 / step)) * step)
+    },
+
+    handleControllerTick () {
+      const { model, prop, valueTarget } = this
+      const currentValue = model[prop]
+      model[prop] += (valueTarget - currentValue) * 0.1
     }
   },
 
   computed: {
     baseClassNames () {
-      const { model, channelProp } = this
-      const channel = model[channelProp]
+      const { channel } = this
       return {
         'palette-item-controller--active': channel >= 0
       }
@@ -118,10 +126,26 @@ export default {
       return `${prop}Controller`
     },
 
-    channelName () {
+    channel () {
       const { model, channelProp } = this
-      const channel = model[channelProp]
+      return model[channelProp]
+    },
+
+    channelName () {
+      const { channel } = this
       return channel >= 0 ? channel : 'N'
+    }
+  },
+
+  watch: {
+    channel () {
+      const { isActive, channel } = this
+      if (channel >= 0 && !isActive) {
+        this.bindControllerEvents()
+      }
+      if (channel < 0 && isActive) {
+        this.unbindControllerEvents()
+      }
     }
   }
 }

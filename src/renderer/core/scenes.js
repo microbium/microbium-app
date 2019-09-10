@@ -47,6 +47,7 @@ export function createScene (tasks, state, renderer) {
   const uniforms = {
     tick: regl.prop('tick'),
     mirror: regl.prop('mirror'),
+    depth: regl.prop('depth'),
     angle: regl.prop('angle'),
     angleAlpha: regl.prop('angleAlpha')
   }

@@ -10,6 +10,7 @@ uniform mat4 view;
 
 uniform vec4 tint;
 uniform vec3 mirror; // [x, y, alpha]
+uniform float depth;
 
 uniform float angle;
 uniform float angleAlpha;
@@ -24,7 +25,8 @@ varying float vId;
 void main() {
   mat4 projViewModel = projection * view * model;
   vec4 posProjected = projViewModel *
-    vec4(transformPosition(position.xy, mirror.xy, angle), mapZ(position, id), 1.0);
+    vec4(transformPosition(position.xy, mirror.xy, angle),
+      mapZ(position, depth, id), 1.0);
 
   vColor = vec4(tint.rgb * color.rgb, tint.a * color.a * mirror.z * angleAlpha);
   vId = id;
