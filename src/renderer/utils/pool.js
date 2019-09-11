@@ -1,18 +1,18 @@
 export function createGroupPool ({ createItem }) {
-  let pool = []
-  let groups = {}
+  const pool = []
+  const groups = {}
 
   function getGroup (count) {
     if (groups[count]) {
       return groups[count]
     }
 
-    let nextGroup = new Array(count)
+    const nextGroup = new Array(count)
     for (let i = 0; i < count; i++) {
       if (pool.length > i) {
         nextGroup[i] = pool[i]
       } else {
-        let nextItem = createItem()
+        const nextItem = createItem()
         nextGroup[i] = nextItem
         pool.push(nextItem)
       }
@@ -29,15 +29,15 @@ export function createGroupPool ({ createItem }) {
 }
 
 export function createKeyedPool ({ createItem }) {
-  let pool = []
-  let cache = {}
+  const pool = []
+  const cache = {}
 
   function get (name) {
     if (cache[name]) {
       return cache[name]
     }
 
-    let nextItem = createItem()
+    const nextItem = createItem()
     cache[name] = nextItem
     pool.push(nextItem)
     return nextItem

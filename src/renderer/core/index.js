@@ -7,6 +7,7 @@ import { createLoop } from '@renderer/utils/loop'
 import { debounce } from '@renderer/utils/function'
 import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
+import { factorTween } from '@renderer/utils/tween'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
 import { toVec4 } from '@renderer/utils/color'
@@ -119,6 +120,11 @@ export function mountCompositor ($el, $refs, actions) {
         createItem: () => ({
           colr: new Colr(),
           vec4: new Float32Array(4)
+        })
+      }),
+      styleAnim: createKeyedPool({
+        createItem: () => ({
+          depth: 0
         })
       })
     }
@@ -650,7 +656,6 @@ export function mountCompositor ($el, $refs, actions) {
 
         const style = styles[index]
         const {
-          depth,
           lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
           fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
           lineTintHex, lineTintAlpha,
@@ -669,6 +674,9 @@ export function mountCompositor ($el, $refs, actions) {
         const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
+
+        const styleAnim = pools.styleAnim.get(`style_${i}`)
+        const depth = factorTween('depth', styleAnim, style, 0.05)
 
         for (let j = 0; j < linesCount; j++) {
           const params = linesBatch[j]

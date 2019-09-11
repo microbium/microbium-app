@@ -69,13 +69,11 @@ export default {
   data () {
     return {
       isActive: false,
-      valueTarget: null,
       channels: CHANNELS
     }
   },
 
   created () {
-    this.valueTarget = this.model[this.prop]
   },
 
   beforeDestroy () {
@@ -85,31 +83,23 @@ export default {
   methods: {
     bindControllerEvents () {
       PaletteControllers.on('cc', this.handleControllerMessage)
-      PaletteControllers.on('tick', this.handleControllerTick)
       this.isActive = true
     },
 
     unbindControllerEvents () {
       PaletteControllers.off('cc', this.handleControllerMessage)
-      PaletteControllers.off('tick', this.handleControllerTick)
       this.isActive = false
     },
 
     handleControllerMessage (cc, value) {
-      const { channel } = this
+      const { model, prop, channel } = this
       if (channel !== cc) return
 
       const { min, max, step } = this
       const nextValue = mapLinear(0, 127, min, max, value)
-      this.valueTarget = !step
+      model[prop] = !step
         ? nextValue
         : (Math.round(nextValue * (1 / step)) * step)
-    },
-
-    handleControllerTick () {
-      const { model, prop, valueTarget } = this
-      const currentValue = model[prop]
-      model[prop] += (valueTarget - currentValue) * 0.1
     }
   },
 
