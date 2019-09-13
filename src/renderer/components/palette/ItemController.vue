@@ -1,6 +1,8 @@
 <template>
   <div class="palette-item-controller" :class="baseClassNames">
-    <input-checkbox type="small-circle" v-model="shouldLoop" />
+    <div :class="['palette-item-controller__record', isRecording ? 'recording' : '']">
+      <input-checkbox type="small-circle" v-model="shouldLoop" />
+    </div>
     <div class="palette-item-controller__label">
       CC <b>{{ channelName }}</b>
       <input-select v-model="model[channelProp]">
@@ -17,6 +19,30 @@
   display: flex;
   align-items: flex-end;
   opacity: 0.4;
+
+  &__record {
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 2px solid var(--highlight-color);
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    &.recording {
+      &:after {
+        opacity: 1;
+      }
+    }
+  }
 
   &__label {
     position: relative;
@@ -80,6 +106,7 @@ export default {
       channels: CHANNELS,
       lastRecordingTime: 0,
       recording: [],
+      recordingTimeout: 1 * 1000,
       loopTick: 0,
       loopTickDelta: 0
     }
@@ -109,10 +136,7 @@ export default {
       const { model, prop, channel } = this
       if (channel !== cc) return
 
-      const {
-        shouldLoop,
-        min, max, step
-      } = this
+      const { shouldLoop, min, max, step } = this
 
       let nextValue = mapLinear(0, 127, min, max, value)
       nextValue = model[prop] = !step
@@ -125,15 +149,19 @@ export default {
     },
 
     handleControllerTick (delta, time) {
-      const { isRecording, shouldLoop, lastRecordingTime } = this
+      const { channel } = this
+      if (channel < 0) return
 
-      if (shouldLoop && lastRecordingTime > 0) {
-        const timeDiff = time - lastRecordingTime
+      const {
+        isRecording, shouldLoop,
+        lastRecordingTime, recordingTimeout
+      } = this
 
-        if (timeDiff > 3000) {
-          if (isRecording) this.isRecording = false
-          this.updateLoopTick(delta, time)
-        }
+      if (shouldLoop && lastRecordingTime > 0 &&
+        (!isRecording || (time - lastRecordingTime > recordingTimeout))
+      ) {
+        if (isRecording) this.isRecording = false
+        this.updateLoopTick(delta, time)
       }
     },
 
