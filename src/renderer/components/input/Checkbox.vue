@@ -1,5 +1,5 @@
 <template>
-  <div :class="['input-checkbox', isChecked ? 'checked' : '']">
+  <div :class="['input-checkbox', type, isChecked ? 'checked' : '']">
     <input type="checkbox" v-model="actualValue" />
   </div>
 </template>
@@ -49,6 +49,19 @@
     }
   }
 }
+
+.input-checkbox.small-circle {
+  width: 16px;
+  height: 16px;
+
+  &:before {
+    border-radius: 50%;
+  }
+
+  &:after {
+    border-radius: 50%;
+  }
+}
 </style>
 
 <script>
@@ -56,6 +69,10 @@ export default {
   name: 'input-checkbox',
 
   props: {
+    type: {
+      type: String,
+      default: 'box'
+    },
     value: Boolean
   },
 

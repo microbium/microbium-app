@@ -15,7 +15,7 @@ export function createLoop (context_, sync_, update_, render_, delta) {
   let isLooping = false
   let lastTime
 
-  function animateStep (delta) {
+  function animateStep (time, delta) {
     stepTime += delta
     let steps = Math.floor(stepTime / targetDelta)
 
@@ -43,7 +43,7 @@ export function createLoop (context_, sync_, update_, render_, delta) {
     tick = sync(time, delta)
     if (tick !== lastTick) {
       instance.didUpdate = false
-      animateStep(delta)
+      animateStep(time, delta)
     }
     renderStep(delta)
 

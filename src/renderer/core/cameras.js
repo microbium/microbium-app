@@ -114,19 +114,13 @@ export function createCameras (tasks, state, renderer) {
     }
 
     const updateEye = () => {
-      const { tick } = state.simulation
       const cameraState = state.controls.camera
       const { polarOffset, polarAngle, depthOffset, tweenFactor } = cameraState
 
-      // TODO: Replace with controller animation (cc loop making)
-      const animPolarOffset = Math.sin(tick * 0.04) * 3
-      const animPolarAngle = Math.sin(tick * 0.03) * 10
-      const animDepthOffset = Math.sin(tick * 0.02) * 1.5
-
-      polarPosition[1] = polarOffset * polarOffset + animPolarOffset
+      polarPosition[1] = polarOffset * polarOffset
       radialPosition(eyeTarget, polarPosition,
-        (polarAngle + animPolarAngle) / 180 * Math.PI)
-      eyeTarget[2] = -(depthOffset * depthOffset + animDepthOffset)
+        polarAngle / 180 * Math.PI)
+      eyeTarget[2] = -(depthOffset * depthOffset)
 
       eye[0] += (eyeTarget[0] - eye[0]) * tweenFactor
       eye[1] += (eyeTarget[1] - eye[1]) * tweenFactor
