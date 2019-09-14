@@ -84,10 +84,10 @@ const editorState = {
 }
 
 const mainURL = IS_DEV
-  ? `http://localhost:9080`
+  ? 'http://localhost:9080'
   : `file://${__dirname}/index.html`
 const paletteURL = IS_DEV
-  ? `http://localhost:9080/#/palette`
+  ? 'http://localhost:9080/#/palette'
   : `file://${__dirname}/index.html#/palette`
 
 const store = new Store()
@@ -210,7 +210,7 @@ function createAppActions () {
       if (appWindows.main && appWindows.main.isFocused()) {
         toggleSimulationState()
         sendWindowMessage('main', 'command',
-          {action: 'SIMULATION_TOGGLE'})
+          { action: 'SIMULATION_TOGGLE' })
         // FIXME: Inconsistent key input capturing after toggling menu item state
         // toggleMenuItem('simulation')
       }
@@ -219,13 +219,13 @@ function createAppActions () {
     toggleSimulationPause () {
       toggleSimulationPauseState()
       sendWindowMessage('main', 'command',
-        {action: 'SIMULATION_TOGGLE_PAUSE'})
+        { action: 'SIMULATION_TOGGLE_PAUSE' })
     },
 
     toggleMainToolbar () {
       if (appWindows.main) {
         sendWindowMessage('main', 'command',
-          {action: 'EDITOR_TOGGLE_TOOLBAR'})
+          { action: 'EDITOR_TOGGLE_TOOLBAR' })
         toggleMenuItem('toolbar')
       }
     },
@@ -233,7 +233,7 @@ function createAppActions () {
     toggleStatus () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
-          {action: 'VIEWPORT_TOGGLE_STATS'})
+          { action: 'VIEWPORT_TOGGLE_STATS' })
         toggleMenuItem('status')
       }
     },
@@ -241,57 +241,57 @@ function createAppActions () {
     deleteLastSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
-          {action: 'GEOMETRY_DELETE_LAST_SEGMENT'})
+          { action: 'GEOMETRY_DELETE_LAST_SEGMENT' })
       }
     },
 
     deleteLastVertex () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
-          {action: 'GEOMETRY_DELETE_LAST_VERTEX'})
+          { action: 'GEOMETRY_DELETE_LAST_VERTEX' })
       }
     },
 
     completeSegment () {
       if (appWindows.main && appWindows.main.isFocused()) {
         sendWindowMessage('main', 'command',
-          {action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT'})
+          { action: 'GEOMETRY_COMPLETE_ACTIVE_SEGMENT' })
       }
     },
 
     setStrokeWidth (value) {
       sendWindowMessage('palette', 'command',
-        {action: 'SET_STROKE_WIDTH', value})
+        { action: 'SET_STROKE_WIDTH', value })
     },
 
     setStrokeColor (value) {
       sendWindowMessage('palette', 'command',
-        {action: 'SET_STROKE_COLOR', value})
+        { action: 'SET_STROKE_COLOR', value })
     },
 
     setInputModType (value) {
       sendWindowMessage('palette', 'command',
-        {action: 'SET_INPUT_MOD_TYPE', value})
+        { action: 'SET_INPUT_MOD_TYPE', value })
     },
 
     selectStyleLayer (index) {
       sendWindowMessage('palette', 'command',
-        {action: 'SELECT_STYLE_LAYER', index})
+        { action: 'SELECT_STYLE_LAYER', index })
     },
 
     selectNextStyleLayer (dir) {
       sendWindowMessage('palette', 'command',
-        {action: 'SELECT_NEXT_STYLE_LAYER', dir})
+        { action: 'SELECT_NEXT_STYLE_LAYER', dir })
     },
 
     selectConstraintGroup (index) {
       sendWindowMessage('palette', 'command',
-        {action: 'SELECT_CONSTRAINT_GROUP', index})
+        { action: 'SELECT_CONSTRAINT_GROUP', index })
     },
 
     selectNextConstraintGroup (dir) {
       sendWindowMessage('palette', 'command',
-        {action: 'SELECT_NEXT_CONSTRAINT_GROUP', dir})
+        { action: 'SELECT_NEXT_CONSTRAINT_GROUP', dir })
     },
 
     togglePalette () {
@@ -303,7 +303,7 @@ function createAppActions () {
     setActivePalette (id) {
       syncActivePalette(id)
       sendWindowMessage('palette', 'command',
-        {action: 'SET_ACTIVE_PALETTE', id})
+        { action: 'SET_ACTIVE_PALETTE', id })
     },
 
     setPaletteLayout (id) {
@@ -425,11 +425,11 @@ function createMainWindow () {
   ipcMain.on('main+menu-message', onMainMessage)
 
   main.on('close', (event) => {
-    if (!IS_DEV && !confirmShouldCloseWindow(main)) {
-      event.preventDefault()
-    }
     storeWindowPosition('main')
     storeWindowPosition('palette')
+    if (!confirmShouldCloseWindow(main)) {
+      event.preventDefault()
+    }
   })
 
   main.on('closed', () => {
@@ -495,7 +495,7 @@ function createPaletteWindow () {
 
   palette.once('ready-to-show', () => {
     if (DEBUG_PALETTE) {
-      palette.webContents.openDevTools({mode: 'detach'})
+      palette.webContents.openDevTools({ mode: 'detach' })
     }
     palette.showInactive()
     ipcMain.on('palette+menu-message', onMenuMessage)
@@ -649,7 +649,7 @@ function setMainEdited (isEdited) {
   editorState.isEdited = isEdited
   if (main) {
     main.setDocumentEdited(isEdited)
-    main.send('message', {type: 'SET_EDITED', isEdited})
+    main.send('message', { type: 'SET_EDITED', isEdited })
   }
 }
 
@@ -771,13 +771,13 @@ function startWindowScreenRecording (name) {
     if (!recording.isRecording) return
     tick++
     sendWindowMessage(name, 'command',
-      {action: 'RECORDING_FRAME', tick})
+      { action: 'RECORDING_FRAME', tick })
     video.frame(frame)
   }
 
   process.nextTick(frame)
   sendWindowMessage(name, 'command',
-    {action: 'RECORDING_START'})
+    { action: 'RECORDING_START' })
 
   return Promise.resolve(recording)
 }
@@ -793,7 +793,7 @@ function stopWindowScreenRecording (name) {
   recording.isRecording = false
   activeRecordings[name] = null
   sendWindowMessage(name, 'command',
-    {action: 'RECORDING_STOP'})
+    { action: 'RECORDING_STOP' })
 
   return new Promise((resolve) => {
     recording.video.end(() => {
@@ -847,7 +847,7 @@ function resetControls () {
   syncStyleLayers()
   syncConstraintGroups()
   sendWindowMessage('palette', 'message',
-    {type: 'RESET_CONTROLS'})
+    { type: 'RESET_CONTROLS' })
 }
 
 function syncControls ({ group, key, value }) {
@@ -935,7 +935,7 @@ function syncPaletteLayout (id) {
   }
 
   sendWindowMessage('palette', 'command',
-    {action: 'SET_LAYOUT', id})
+    { action: 'SET_LAYOUT', id })
 }
 
 function setMenuState (name, key, value) {
