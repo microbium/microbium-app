@@ -271,6 +271,37 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Defocus</h2>
+      <input-checkbox slot="controls" v-model="model.defocus.enabled" />
+
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.defocus.intensityFactor" />
+        <div class="palette-item__label">
+          <b>{{ defocusFactorName }}</b> intensity
+          <palette-item-controller :min="0" :max="1"
+            :model="model.defocus" prop="intensityFactor" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1.0" step="0.01" v-model="model.defocus.radius" />
+        <div class="palette-item__label">
+          <b>{{ defocusRadiusName }}</b> radius
+          <palette-item-controller :min="0" :max="1"
+            :model="model.defocus" prop="radius" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="1" step="0.01" v-model="model.defocus.smoothness" />
+        <div class="palette-item__label">
+          <b>{{ defocusSmoothnessName }}</b> smoothness
+          <palette-item-controller :min="0" :max="1"
+            :model="model.defocus" prop="smoothness" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Noise</h2>
       <input-checkbox slot="controls" v-model="model.noise.enabled" />
 
@@ -517,6 +548,23 @@ export default {
     vignetteSmoothnessName () {
       const { vignette } = this.model
       return `${roundToPlaces(vignette.smoothness * 100, 0)}%`
+    },
+
+    // Defocus
+
+    defocusFactorName () {
+      const { defocus } = this.model
+      return `${roundToPlaces(defocus.intensityFactor, 2)}x`
+    },
+
+    defocusRadiusName () {
+      const { defocus } = this.model
+      return `${roundToPlaces(defocus.radius * 100, 0)}%`
+    },
+
+    defocusSmoothnessName () {
+      const { defocus } = this.model
+      return `${roundToPlaces(defocus.smoothness * 100, 0)}%`
     }
   }
 }

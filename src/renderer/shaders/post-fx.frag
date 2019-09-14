@@ -22,6 +22,7 @@ uniform float watermarkIntensity;
 uniform float overlayAlpha;
 uniform float originAlpha;
 uniform vec3 vignetteParams; // [radius, smoothness, intensity]
+uniform vec3 defocusParams; // [radius, smoothness, intensity]
 uniform vec3 colorShift; // [hue, saturation, value]
 
 uniform float tick;
@@ -148,10 +149,11 @@ void main() {
 
   // ..................................................
 
-  // Fake DOF with Bloom + Vignette
-  // TODO: Parameterize offset factor
-  outColor = mix(bloomColor, outColor,
-    smoothstep(0.5, 1.0, vignetteFactor));
+  // Defocus (Vignette Blur)
+  float defocusFactor = mix(1.0,
+    vignette(uv, defocusParams.x, defocusParams.y),
+    defocusParams.z);
+  outColor = mix(bloomColor, outColor, defocusFactor);
 
   // Composite + Radial Grid + Noise + Vignette
   outColor = blendColorBurn(

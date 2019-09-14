@@ -149,6 +149,7 @@ export function createDrawScreen (regl, postBuffers) {
       overlayAlpha: regl.prop('overlayAlpha'),
       originAlpha: regl.prop('originAlpha'),
       vignetteParams: regl.prop('vignetteParams'),
+      defocusParams: regl.prop('defocusParams'),
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset'),

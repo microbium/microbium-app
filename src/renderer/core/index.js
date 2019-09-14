@@ -185,6 +185,7 @@ export function mountCompositor ($el, $refs, actions) {
         bandingIntensity: 0,
         edgesIntensity: 0,
         vignetteParams: vec3.create(),
+        defocusParams: vec3.create(),
         lutIntensity: 0,
         watermarkIntensity: 0,
         lineThicknessScale: 1,
@@ -385,7 +386,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { size } = state.viewport
       const {
         mirror, bloom, banding, edges, lut,
-        watermark, vignette, colorShift, noise
+        watermark, vignette, defocus, colorShift, noise
       } = postEffects
 
       const shouldRenderMirror = computedState.shouldRenderMirror = isRunning && mirror.enabled
@@ -425,6 +426,9 @@ export function mountCompositor ($el, $refs, actions) {
       vec3.set(computedState.vignetteParams,
         vignette.radius, vignette.smoothness,
         (isRunning && vignette.enabled) ? vignette.intensityFactor : 0)
+      vec3.set(computedState.defocusParams,
+        defocus.radius, defocus.smoothness,
+        (isRunning && defocus.enabled) ? defocus.intensityFactor : 0)
 
       vec3.copy(computedState.colorShift,
         colorShift.enabled ? colorShift.hsl : colorShift.none)
@@ -873,7 +877,7 @@ export function mountCompositor ($el, $refs, actions) {
         shouldRenderLut, shouldRenderWatermark,
         mirrorIntensity, mirrorAngle, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
-        vignetteParams, colorShift, noiseIntensity
+        vignetteParams, defocusParams, colorShift, noiseIntensity
       } = this.computedState
       const compositeParams = pools.params.get('composite')
 
@@ -899,6 +903,7 @@ export function mountCompositor ($el, $refs, actions) {
       compositeParams.overlayAlpha = isRunning ? overlay.alphaFactor : 1
       compositeParams.originAlpha = isRunning ? 0 : 1
       compositeParams.vignetteParams = vignetteParams
+      compositeParams.defocusParams = defocusParams
       compositeParams.noiseIntensity = noiseIntensity
       compositeParams.tick = tick
       compositeParams.viewOffset = viewOffset
