@@ -678,11 +678,11 @@ function requestWindowResponse (name, messageKey, messageData) {
 // Currently just tracking controls changes
 function confirmShouldCloseWindow (win) {
   if (!editorState.isEdited) return true
-  const choice = dialog.showMessageBox(win, {
+  const choice = dialog.showMessageBoxSync(win, {
     type: 'question',
-    buttons: ['OK', 'Cancel'],
+    buttons: ['Close', 'Cancel'],
     defaultId: 1,
-    message: 'Close scene and lose unsaved changes?'
+    message: 'Lose unsaved changes?'
   })
   return choice === 0
 }
