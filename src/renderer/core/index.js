@@ -868,7 +868,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { overlay } = state.controls.viewport
       const { lut, watermark } = state.controls.postEffects
       const {
-        viewResolution, viewOffset, viewScale, forcePositions,
+        viewResolution, viewOffset, viewScale,
         shouldRenderBanding, shouldRenderEdges,
         shouldRenderLut, shouldRenderWatermark,
         mirrorIntensity, mirrorAngle, bandingIntensity,
@@ -879,6 +879,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       compositeParams.framebufferName = fboName || null
       compositeParams.colorName = 'full'
+      compositeParams.bloomName = 'blurB'
       compositeParams.bandingName = shouldRenderBanding ? 'banding' : 'blank'
       compositeParams.edgesName = shouldRenderEdges ? 'edges' : 'blank'
 
@@ -903,7 +904,6 @@ export function mountCompositor ($el, $refs, actions) {
       compositeParams.viewOffset = viewOffset
       compositeParams.viewResolution = viewResolution
       compositeParams.viewScale = viewScale
-      compositeParams.forcePositions = forcePositions
 
       state.renderer.drawCalls++
       state.renderer.fullScreenPasses++

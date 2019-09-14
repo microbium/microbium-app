@@ -5,7 +5,7 @@ precision highp float;
 #define PI 3.141592653589793
 
 uniform sampler2D color;
-// uniform sampler2D bloom;
+uniform sampler2D bloom;
 uniform sampler2D banding;
 uniform sampler2D edges;
 uniform sampler2D lutTexture;
@@ -28,9 +28,6 @@ uniform float tick;
 uniform vec3 viewResolution; // [x, y, pxRatio]
 uniform vec2 viewOffset;
 uniform float viewScale;
-
-uniform int forcePositionsCount;
-uniform vec3 forcePositions[3];
 
 varying vec2 uv;
 
@@ -101,7 +98,7 @@ void main() {
   // Bloom
   // FIXME: Weird perf issues with sampling bloom blur
   // if (bloomIntensity > 0.0) {
-  //   bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb * bloomIntensity;
+  bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb;
   // }
 
   // ..................................................
@@ -143,27 +140,22 @@ void main() {
         0.035 * originAlpha);
   }
 
-  vec3 forceDashColor = vec3(0.0);
-  // for (int i = 0; i < 3; i++) {
-  //   if (i >= forcePositionsCount) break;
-  //   vec3 force = forcePositions[i];
-  //   vec2 forcePosition = force.xy * viewScale * vec2(1.0, -1.0);
-  //   float forceRadius = force.z * viewScale;
-  //   forceDashColor += vec3(
-  //     concentricDash(fragPosition, 0.1 / viewScale, 1.5, forcePosition, forceRadius) *
-  //       0.04 * overlayAlpha);
-  // }
-
   // Vignette
-  vec3 vignetteColor = vec3(mix(1.0,
+  float vignetteFactor = mix(1.0,
     vignette(uv, vignetteParams.x, vignetteParams.y),
-    vignetteParams.z));
+    vignetteParams.z);
+  vec3 vignetteColor = vec3(vignetteFactor);
 
   // ..................................................
 
+  // Fake DOF with Bloom + Vignette
+  // TODO: Parameterize offset factor
+  outColor = mix(bloomColor, outColor,
+    smoothstep(0.5, 1.0, vignetteFactor));
+
   // Composite + Radial Grid + Noise + Vignette
   outColor = blendColorBurn(
-    outColor + outColor * noiseColor + originDashColor - forceDashColor,
+    outColor + outColor * noiseColor + originDashColor,
     vignetteColor);
 
   if (watermarkIntensity > 0.0) {

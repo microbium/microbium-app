@@ -133,6 +133,7 @@ export function createDrawScreen (regl, postBuffers) {
     framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
       color: (context, props) => getFramebuffer(postBuffers, props.colorName),
+      bloom: (context, props) => getFramebuffer(postBuffers, props.bloomName),
       banding: (context, props) => getFramebuffer(postBuffers, props.bandingName),
       edges: (context, props) => getFramebuffer(postBuffers, props.edgesName),
       lutTexture: regl.prop('lutTexture'),
@@ -151,8 +152,7 @@ export function createDrawScreen (regl, postBuffers) {
       tick: regl.prop('tick'),
       viewResolution: regl.prop('viewResolution'),
       viewOffset: regl.prop('viewOffset'),
-      viewScale: regl.prop('viewScale'),
-      ...createArrayUniformProps('forcePositions', 3, [0, 0, 0])
+      viewScale: regl.prop('viewScale')
     }
   })
 }
