@@ -1844,6 +1844,19 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
+camera-picking-ray@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/camera-picking-ray/-/camera-picking-ray-1.0.1.tgz#49567a4edc2de5bc13e4b6fd959520bf13a30490"
+  integrity sha1-SVZ6Ttwt5bwT5Lb9lZUgvxOjBJA=
+  dependencies:
+    camera-unproject "^1.0.1"
+    gl-vec3 "^1.0.3"
+
+camera-unproject@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/camera-unproject/-/camera-unproject-1.0.1.tgz#86927a9d6d5340a8c9e36da840f7ccb6d6da12cf"
+  integrity sha1-hpJ6nW1TQKjJ422oQPfMttbaEs8=
+
 caniuse-lite@^1.0.30000984:
   version "1.0.30000989"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000989.tgz#b9193e293ccf7e4426c5245134b8f2a56c0ac4b9"
@@ -3934,6 +3947,11 @@ gl-matrix@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.0.0.tgz#888301ac7650e148c3865370e13ec66d08a8381f"
   integrity sha512-PD4mVH/C/Zs64kOozeFnKY8ybhgwxXXQYGWdB4h68krAHknWJgk9uKOn6z8YElh5//vs++90pb6csrTIDWnexA==
+
+gl-vec3@^1.0.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/gl-vec3/-/gl-vec3-1.1.3.tgz#a47c62f918774a06cbed1b65bcd0288ecbb03826"
+  integrity sha512-jduKUqT0SGH02l8Yl+mV1yVsDfYgQAJyXGxkJQGyxPLHRiW25DwVIRPt6uvhrEMHftJfqhqKthRcyZqNEl9Xdw==
 
 glob-parent@^3.1.0:
   version "3.1.0"
@@ -6813,6 +6831,13 @@ raw-loader@^3.1.0:
   dependencies:
     loader-utils "^1.1.0"
     schema-utils "^2.0.1"
+
+ray-plane-intersection@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ray-plane-intersection/-/ray-plane-intersection-1.0.0.tgz#763be1cd04eddad1847af6d5e70941b7302a47bb"
+  integrity sha1-djvhzQTt2tGEevbV5wlBtzAqR7s=
+  dependencies:
+    gl-vec3 "^1.0.3"
 
 rc@^1.1.6, rc@^1.2.1, rc@^1.2.7, rc@^1.2.8:
   version "1.2.8"

@@ -1,31 +1,75 @@
-import { vec2 } from 'gl-matrix'
+import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
+import transformRay from 'camera-picking-ray'
+import intersectPlane from 'ray-plane-intersection'
+
+import { createKeyedPool } from '@renderer/utils/pool'
 import { clampPixelRatio } from '@renderer/utils/screen'
 
 export function createViewportController (tasks, state) {
   const { requestSync } = tasks
+  const pools = createPools()
 
   const viewport = {
     toggleStats () {
       state.viewport.showStats = !state.viewport.showStats
     },
 
-    projectScreen (screen) {
+    projectScreen (screen, depth = 0) {
+      const { isRunning } = state.simulation
+      const { camera } = state.controls
+
+      return (isRunning && camera.enabled)
+        ? this.projectScreenPerspective(screen, depth)
+        : this.projectScreenOrtho(screen)
+    },
+
+    projectScreenOrtho (screen) {
       const { center, offset, scale } = state.viewport
+
       vec2.sub(screen, screen, center)
       vec2.sub(screen, screen, offset)
       vec2.scale(screen, screen, 1 / scale)
+
+      return screen
+    },
+
+    projectScreenPerspective (screen, depth = 0) {
+      const { bounds } = state.viewport
+      const { projection, view } = requestSync('cameras.scene')
+
+      const projectionView = mat4.multiply(pools.mat4.get('A'), projection, view)
+      const projectionInverse = mat4.invert(pools.mat4.get('B'), projectionView)
+
+      const origin = pools.vec3.get('origin')
+      const direction = pools.vec3.get('direction')
+
+      const hitNormal = pools.vec3.get('hitNormal')
+      const hitIntersection = pools.vec3.get('hitIntersection')
+      const hitDistance = 0
+
+      vec3.set(hitNormal, 0, 0, 1)
+
+      transformRay(origin, direction,
+        screen, bounds, projectionInverse)
+
+      const intersection = intersectPlane(hitIntersection,
+        origin, direction,
+        hitNormal, hitDistance)
+
+      if (intersection != null) vec2.copy(screen, intersection)
       return screen
     },
 
     resize (event) {
       const stateViewport = state.viewport
-      const { resolution, resolutionMax, size, center } = stateViewport
+      const { resolution, resolutionMax, size, center, bounds } = stateViewport
       const { pixelRatio } = state.controls.viewport
 
       const width = window.innerWidth
       const height = window.innerHeight
       vec2.set(size, width, height)
       vec2.set(center, width / 2, height / 2)
+      vec4.set(bounds, 0, 0, width, height)
 
       const pixelRatioClamped = clampPixelRatio(
         size, pixelRatio, resolutionMax[0])
@@ -164,4 +208,18 @@ export function createViewportController (tasks, state) {
     viewport, viewport.projectScreen)
 
   return viewport
+}
+
+function createPools () {
+  return {
+    vec2: createKeyedPool({
+      createItem: () => vec2.create()
+    }),
+    vec3: createKeyedPool({
+      createItem: () => vec3.create()
+    }),
+    mat4: createKeyedPool({
+      createItem: () => mat4.create()
+    })
+  }
 }

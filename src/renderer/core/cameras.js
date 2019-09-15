@@ -148,18 +148,26 @@ export function createCameras (tasks, state, renderer) {
     }
   })()
 
+  // TODO: Improve determining active camera
+  const getActiveCamera = () => {
+    const { isRunning } = state.simulation
+    const { enabled } = state.controls.camera
+    return (isRunning && enabled) ? scenePerspective : sceneOrtho
+  }
+
   tasks.add((event) => {
     const { size } = state.viewport
     sceneOrtho.resize(event, size)
     scenePerspective.resize(event, size)
   }, 'resize')
 
+  tasks.registerResponder('cameras.scene', null, () => {
+    return getActiveCamera()
+  })
+
   return {
     get scene () {
-      // TODO: Improve determining active camera
-      const { isRunning } = state.simulation
-      const { enabled } = state.controls.camera
-      return (isRunning && enabled) ? scenePerspective : sceneOrtho
+      return getActiveCamera()
     }
   }
 }

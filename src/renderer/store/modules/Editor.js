@@ -1,4 +1,4 @@
-import { vec2, vec3 } from 'gl-matrix'
+import { vec2, vec3, vec4 } from 'gl-matrix'
 import { pixelRatio } from '@renderer/utils/screen'
 import { createControlsState } from './Palette'
 
@@ -48,6 +48,7 @@ export function createCompositorState () {
     pixelRatioNative: pixelRatio(),
     pixelRatioClamped: 0,
     size: vec2.create(),
+    bounds: vec4.create(),
     resolution: vec2.create(),
     resolutionMax: vec2.create(),
     center: vec2.create(),
