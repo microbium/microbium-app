@@ -7,6 +7,7 @@ import {
 
 import { distance2 } from '@renderer/utils/array'
 import { mapLinear, radialPosition } from '@renderer/utils/math'
+import { createKeyedPool } from '@renderer/utils/pool'
 import { logger } from '@renderer/utils/logger'
 
 import { ParticleSystem } from '@renderer/physics/systems/ParticleSystem'
@@ -15,10 +16,7 @@ import { RepulsorForce } from '@renderer/physics/forces/RepulsorForce'
 import { RotatorForce } from '@renderer/physics/forces/RotatorForce'
 
 export function createSimulationController (tasks, state, renderer) {
-  const scratchVec2A = vec2.create()
-  const scratchVec2B = vec2.create()
-  const scratchVec2C = vec2.create()
-  const scratchVec2D = vec2.create()
+  const pools = createPools()
 
   const simulation = {
     // TODO: Prevent running simulation while still editing segment
@@ -318,26 +316,23 @@ export function createSimulationController (tasks, state, renderer) {
       const { points } = state.simulationForces
       const { tick } = state.simulation
       const { forces, postEffects } = state.controls
-      const { isDragging, down } = state.drag
-      const { move, velocity, hand } = state.seek
+      const { velocity, hand } = state.seek
       const { polar } = postEffects
 
       // TODO: Improve pointer force polar distribution
-      const hasMirror = polar.enabled && polar.mirrorIntensityFactor > 0
-      const mirrorInterval = hasMirror ? 2 : 1
-      const shouldApplyMirror = hasMirror && tick % 2 === 0
+      const params = pools.forceParams.get('force')
+      params.hasMirror = polar.enabled && polar.mirrorIntensityFactor > 0
+      params.mirrorInterval = params.hasMirror ? 2 : 1
+      params.shouldApplyMirror = params.hasMirror && tick % 2 === 0
 
-      const angleStep = Math.PI * 2 / polar.iterations
-      const angleIndex = Math.floor((tick / mirrorInterval) % polar.iterations)
-      const rotationAngle = angleStep * angleIndex
+      params.angleStep = Math.PI * 2 / polar.iterations
+      params.angleIndex = Math.floor((tick / params.mirrorInterval) % polar.iterations)
+      params.rotationAngle = params.angleStep * params.angleIndex
 
       points.forEach((item, i) => {
         const config = forces[i]
-        const {
-          positionTypeIndex, intensityTypeIndex, radius,
-          polarAngle, polarOffset
-        } = config
-        const { position, force } = item
+        const { positionTypeIndex, intensityTypeIndex, radius, } = config
+        const { force } = item
         const intensity = positionTypeIndex === 1
           ? config.intensity * 10
           : config.intensity * 3
@@ -347,38 +342,13 @@ export function createSimulationController (tasks, state, renderer) {
 
         switch (positionTypeIndex) {
           case 0:
-            // Static
-            const polarOffsetVec = vec2.set(scratchVec2B,
-              simulation.computePolarOffset(polarOffset), 0)
-            const polarRotationAngle = polarAngle / 180 * Math.PI
-            const polarPosition = radialPosition(scratchVec2C,
-              polarOffsetVec, polarRotationAngle)
-            const polarTickPosition = radialPosition(scratchVec2D,
-              polarOffsetVec, polarRotationAngle + rotationAngle)
-
-            if (shouldApplyMirror) polarTickPosition[0] *= -1
-            vec2.copy(position, polarPosition)
-            force.set(polarTickPosition[0], polarTickPosition[1], 0)
+            this.updateForceStatic(item, config, params)
             break
           case 1:
-            // Cursor
-            const cursorPosition = isDragging ? down : move
-            const cursorForcePosition = radialPosition(scratchVec2A,
-              cursorPosition, rotationAngle)
-
-            if (shouldApplyMirror) cursorForcePosition[0] *= -1
-            vec2.copy(position, cursorPosition)
-            force.set(cursorForcePosition[0], cursorForcePosition[1], 0)
+            this.updateForceCursor(item, config, params)
             break
           case 2:
-            // Hand (Leap)
-            const handPosition = hand
-            const handForcePosition = radialPosition(scratchVec2A,
-              handPosition, rotationAngle)
-
-            if (shouldApplyMirror) handForcePosition[0] *= -1
-            vec2.copy(position, handPosition)
-            force.set(handForcePosition[0], handForcePosition[1], 0)
+            this.updateForceHand(item, config, params)
             break
         }
 
@@ -403,6 +373,50 @@ export function createSimulationController (tasks, state, renderer) {
             break
         }
       })
+    },
+
+    updateForceStatic (item, config, params) {
+      const { position, force } = item
+      const { polarAngle, polarOffset } = config
+
+      const polarOffsetVec = vec2.set(pools.vec2.get('B'),
+        simulation.computePolarOffset(polarOffset), 0)
+      const polarRotationAngle = polarAngle / 180 * Math.PI
+      const polarPosition = radialPosition(pools.vec2.get('C'),
+        polarOffsetVec, polarRotationAngle)
+      const polarTickPosition = radialPosition(pools.vec2.get('D'),
+        polarOffsetVec, polarRotationAngle + params.rotationAngle)
+
+      if (params.shouldApplyMirror) polarTickPosition[0] *= -1
+      vec2.copy(position, polarPosition)
+      force.set(polarTickPosition[0], polarTickPosition[1], 0)
+    },
+
+    updateForceCursor (item, config, params) {
+      const { position, force } = item
+      const { isDragging, down } = state.drag
+      const { move } = state.seek
+
+      const cursorPosition = isDragging ? down : move
+      const cursorForcePosition = radialPosition(pools.vec2.get('A'),
+        cursorPosition, params.rotationAngle)
+
+      if (params.shouldApplyMirror) cursorForcePosition[0] *= -1
+      vec2.copy(position, cursorPosition)
+      force.set(cursorForcePosition[0], cursorForcePosition[1], 0)
+    },
+
+    updateForceHand (item, config, params) {
+      const { position, force } = item
+      const { hand } = state.seek
+
+      const handPosition = hand
+      const handForcePosition = radialPosition(pools.vec2.get('A'),
+        handPosition, params.rotationAngle)
+
+      if (params.shouldApplyMirror) handForcePosition[0] *= -1
+      vec2.copy(position, handPosition)
+      force.set(handForcePosition[0], handForcePosition[1], 0)
     },
 
     syncGeometry () {
@@ -440,4 +454,15 @@ export function createSimulationController (tasks, state, renderer) {
   ], simulation, 'simulation')
 
   return simulation
+}
+
+function createPools () {
+  return {
+    vec2: createKeyedPool({
+      createItem: () => vec2.create()
+    }),
+    forceParams: createKeyedPool({
+      createItem: () => ({})
+    })
+  }
 }
