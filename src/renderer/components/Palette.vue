@@ -289,6 +289,8 @@ export default {
 
   methods: {
     createLoop () {
+      const { controls } = this
+
       let animationFrame = 0
       const looper = {
         sync () {
@@ -297,7 +299,10 @@ export default {
         },
         update (delta) {
           const time = Date.now()
-          PaletteControllers.emit('tick', delta, time)
+          const { isRunning, isPaused } = controls.simulation
+          if (isRunning && !isPaused) {
+            PaletteControllers.emit('tick', delta, time)
+          }
         },
         render () {
         }
@@ -343,7 +348,8 @@ export default {
     handleCommand (event, data) {
       const {
         layoutMode, activePalettes,
-        lineTool, styles, constraintGroups
+        lineTool, styles, constraintGroups,
+        simulation
       } = this.controls
 
       // this.menuDidUpdateControls()
@@ -377,6 +383,12 @@ export default {
           lineTool.constraintIndex = clamp(0, constraintGroups.length - 1,
             lineTool.constraintIndex + data.dir)
           break
+        case 'SIMULATION_TOGGLE':
+          simulation.isRunning = data.isRunning
+          break
+        case 'SIMULATION_TOGGLE_PAUSE':
+          simulation.isPaused = data.isPaused
+          break
       }
     },
 
@@ -397,7 +409,7 @@ export default {
 
     // TODO: Disable controller messages unless sim is running?
     handleMidiMessage (event) {
-      let { midi } = this.controllers
+      const { midi } = this.controllers
       const { enabled, channelValues } = midi
       if (!enabled) return
 
@@ -478,7 +490,7 @@ export default {
     },
 
     close () {
-      this.sendMessage('toggle-window', {name: 'palette'})
+      this.sendMessage('toggle-window', { name: 'palette' })
     }
   },
 
@@ -514,7 +526,7 @@ export default {
     themeStyle () {
       // const { themeHighlight } = this
       return {
-        '--highlight-color': `#41EDC1`
+        '--highlight-color': '#41EDC1'
       }
     },
 

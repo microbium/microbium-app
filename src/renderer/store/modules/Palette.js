@@ -43,6 +43,8 @@ export function createControlsState () {
     },
 
     simulation: {
+      isRunning: false,
+      isPaused: false,
       iterations: 3,
       speed: 1,
       speedController: -1

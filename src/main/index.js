@@ -209,8 +209,6 @@ function createAppActions () {
     toggleSimulation () {
       if (appWindows.main && appWindows.main.isFocused()) {
         toggleSimulationState()
-        sendWindowMessage('main', 'command',
-          { action: 'SIMULATION_TOGGLE' })
         // FIXME: Inconsistent key input capturing after toggling menu item state
         // toggleMenuItem('simulation')
       }
@@ -218,8 +216,6 @@ function createAppActions () {
 
     toggleSimulationPause () {
       toggleSimulationPauseState()
-      sendWindowMessage('main', 'command',
-        { action: 'SIMULATION_TOGGLE_PAUSE' })
     },
 
     toggleMainToolbar () {
@@ -414,6 +410,10 @@ function createMainWindow () {
   restoreWindowPosition('main')
   restoreWindowAspect('main')
   restoreWindowPosition('palette')
+
+  editorState.isEdited = false
+  editorState.isSimRunning = false
+  editorState.isSimPaused = false
 
   main.setTouchBar(appTouchBars.editor)
   main.loadURL(mainURL)
@@ -961,14 +961,23 @@ function toggleMenuItem (name) {
   }
 }
 
+// TODO: Sync simulation state on window reload
 function toggleSimulationState () {
-  const isSimRunning = editorState.isSimRunning = !editorState.isSimRunning
-  appTouchBars.editor.syncSimulationRunningState(isSimRunning)
+  const isRunning = editorState.isSimRunning = !editorState.isSimRunning
+  const message = { action: 'SIMULATION_TOGGLE', isRunning }
+
+  appTouchBars.editor.syncSimulationRunningState(isRunning)
+  sendWindowMessage('main', 'command', message)
+  sendWindowMessage('palette', 'command', message)
 }
 
 function toggleSimulationPauseState () {
-  const isSimPaused = editorState.isSimPaused = !editorState.isSimPaused
-  appTouchBars.editor.syncSimulationPausedState(isSimPaused)
+  const isPaused = editorState.isSimPaused = !editorState.isSimPaused
+  const message = { action: 'SIMULATION_TOGGLE_PAUSE', isPaused }
+
+  appTouchBars.editor.syncSimulationPausedState(isPaused)
+  sendWindowMessage('main', 'command', message)
+  sendWindowMessage('palette', 'command', message)
 }
 
 // ------------------------------------------------------------
