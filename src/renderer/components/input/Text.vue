@@ -21,7 +21,7 @@
 
   > input {
     position: absolute;
-    top: -5px;
+    top: -6px;
     left: -6px;
     display: inline-block;
     outline: none;
