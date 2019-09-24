@@ -427,7 +427,7 @@ function createMainWindow () {
   main.on('close', (event) => {
     storeWindowPosition('main')
     storeWindowPosition('palette')
-    if (!confirmShouldCloseWindow(main)) {
+    if (!IS_DEV && !confirmShouldCloseWindow(main)) {
       event.preventDefault()
     }
   })
