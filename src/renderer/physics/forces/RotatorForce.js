@@ -37,7 +37,7 @@ inherit(Force, RotatorForce, {
     const ny = dy * distInv
     // const nz = dz * distInv
 
-    const scale = diff / dist * intensity
+    const scale = Math.min(1, dist / radius) * intensity
 
     f0[ix] -= ny * scale
     f0[iy] += nx * scale
