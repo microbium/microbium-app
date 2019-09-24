@@ -1,19 +1,19 @@
 export function createGlLogger (gl) {
-  let state = {
+  const state = {
     log: [],
     enabled: false
   }
 
-  let funcs = []
-  for (let key in gl) {
-    let val = gl[key]
+  const funcs = []
+  for (const key in gl) {
+    const val = gl[key]
     if (typeof val === 'function') {
       funcs.push(key)
     }
   }
 
   funcs.forEach((key) => {
-    let fn = gl[key]
+    const fn = gl[key]
     gl[key] = (...args) => {
       if (state.enabled) {
         state.log.push({
@@ -46,9 +46,9 @@ export function createGlLogger (gl) {
 }
 
 export function getGpuInfo (gl) {
-  let debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-  let vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
-  let renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+  const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
+  const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
 
   return {
     vendor,
