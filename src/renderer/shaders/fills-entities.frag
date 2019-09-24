@@ -40,18 +40,18 @@ void main() {
   vec3 outColor = vColor.rgb;
   float outAlpha = vColor.a;
 
-  if (dashFunction == 1) {
-    outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);
-  } else if (dashFunction == 2) {
-    outAlpha *= concentricDash(fragPosition, 0.1 / viewScale, 3.0);
-  }
-
+  // TODO: Parameterize tick offset animation
   if (useAlphaMap == 1) {
-    // TODO: Parameterize tick offset animation
     outAlpha *= sampleAlphaMap(fragPosition,
       alphaMapRepeat * viewScale,
       vId * alphaMapRepeat * viewScale,
       alphaMap);
+  }
+
+  if (dashFunction == 1) {
+    outAlpha *= radialDash(fragPosition, 800.0, 0.1, 10.0);
+  } else if (dashFunction == 2) {
+    outAlpha *= concentricDash(fragPosition, 0.1 / viewScale, 3.0);
   }
 
   gl_FragColor = vec4(outColor, outAlpha);

@@ -84,8 +84,8 @@ export function createScene (tasks, state, renderer) {
           tint: regl.prop('lineTint'),
           dashFunction: regl.prop('lineDashFunction'),
           alphaMapRepeat: regl.prop('lineAlphaMapRepeat'),
-          alphaMap: (params, { lineAlphaMapPath }) =>
-            (textures.get('lineAlpha', lineAlphaMapPath, lineAlphaMapOpts)),
+          alphaMap: (params, { lineAlphaMapName, lineAlphaMapPath }) =>
+            (textures.get(lineAlphaMapName, lineAlphaMapPath, lineAlphaMapOpts)),
           useAlphaMap: (params, { lineAlphaMapPath }) =>
             (lineAlphaMapPath == null ? 0 : 1)
         },
@@ -103,10 +103,11 @@ export function createScene (tasks, state, renderer) {
           tint: regl.prop('fillTint'),
           dashFunction: regl.prop('fillDashFunction'),
           alphaMapRepeat: regl.prop('fillAlphaMapRepeat'),
-          alphaMap: (params, { fillAlphaMapPath }) =>
-            (textures.get('fillAlpha', fillAlphaMapPath, fillAlphaMapOpts)),
-          useAlphaMap: (params, { fillAlphaMapPath }) =>
-            (fillAlphaMapPath == null ? 0 : 1)
+          alphaMap: (params, { fillAlphaMapName, fillAlphaMapPath }) =>
+            (textures.get(fillAlphaMapName, fillAlphaMapPath, fillAlphaMapOpts)),
+          useAlphaMap: (params, { fillAlphaMapPath }) => {
+            return (fillAlphaMapPath == null ? 0 : 1)
+          }
         },
         // attributes,
         blend,

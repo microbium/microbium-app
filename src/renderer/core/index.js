@@ -675,8 +675,10 @@ export function mountCompositor ($el, $refs, actions) {
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
         const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
+        const lineAlphaMapName = `lineAlpha_${i}`
         const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
+        const fillAlphaMapName = `fillAlpha_${i}`
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
         const styleAnim = pools.styleAnim.get(`style_${i}`)
@@ -697,11 +699,13 @@ export function mountCompositor ($el, $refs, actions) {
           params.lineTint = lineTintVec
           params.lineAlphaMapRepeat = lineAlphaMapRepeat
           params.lineDashFunction = lineAlphaFunc.dashFunction
+          params.lineAlphaMapName = lineAlphaMapName
           params.lineAlphaMapPath = lineAlphaMapPath
 
           params.fillTint = fillTintVec
           params.fillAlphaMapRepeat = fillAlphaMapRepeat
           params.fillDashFunction = fillAlphaFunc.dashFunction
+          params.fillAlphaMapName = fillAlphaMapName
           params.fillAlphaMapPath = fillAlphaMapPath
 
           params.angle = polarIndex * polarStep
