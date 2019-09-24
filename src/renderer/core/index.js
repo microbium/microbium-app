@@ -233,9 +233,6 @@ export function mountCompositor ($el, $refs, actions) {
       actions.sendMessage('serialize-scene--response', data)
     },
 
-    // FIXME: Issue with `postEffects.lut.textureFile`
-    // not always getting set to `state` when available in `scene`
-    // seems to only happen in dev live-reload
     deserializeScene ({ path, data }) {
       const wasRunning = state.simulation.isRunning
 
@@ -260,6 +257,7 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     // Message intercepted by Editor and saved to image file
+    // FIXME: View turning black after saving frame
     saveFrameData ({ path }) {
       logger.time('save frame data')
       const { regl, postBuffers } = renderer
