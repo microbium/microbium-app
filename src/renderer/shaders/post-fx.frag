@@ -85,7 +85,7 @@ void main() {
   // ..................................................
 
   vec3 bandingColor = baseColor;
-  vec3 bloomColor = baseColor * 0.4;
+  // vec3 bloomColor = baseColor * 0.4;
 
   // Banding
   if (bandingIntensity > 0.0) {
@@ -99,7 +99,13 @@ void main() {
   // Bloom
   // FIXME: Weird perf issues with sampling bloom blur
   // if (bloomIntensity > 0.0) {
-  bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb;
+  vec3 bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb;
+  vec3 bloomColorHSV = rgb2hsv(bloomColor);
+  bloomColorHSV = vec3(
+    fract(bloomColorHSV.r + colorShift.r),
+    clamp(bloomColorHSV.g + colorShift.g, 0.0, 1.5),
+    clamp(bloomColorHSV.b + colorShift.b, 0.0, 1.0));
+  bloomColor = hsv2rgb(bloomColorHSV);
   // }
 
   // ..................................................
@@ -147,13 +153,13 @@ void main() {
     vignetteParams.z);
   vec3 vignetteColor = vec3(vignetteFactor);
 
-  // ..................................................
-
   // Defocus (Vignette Blur)
   float defocusFactor = mix(1.0,
     vignette(uv, defocusParams.x, defocusParams.y),
     defocusParams.z);
   outColor = mix(bloomColor, outColor, defocusFactor);
+
+  // ..................................................
 
   // Composite + Radial Grid + Noise + Vignette
   outColor = blendColorBurn(
