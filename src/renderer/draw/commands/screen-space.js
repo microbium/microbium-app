@@ -10,6 +10,8 @@ import postFXGaussBlurFrag from '@renderer/shaders/post-fx-gaussian-blur.frag'
 import postFXHashBlurFrag from '@renderer/shaders/post-fx-hash-blur.frag'
 import postFXBanding from '@renderer/shaders/post-fx-banding.frag'
 import postFXEdges from '@renderer/shaders/post-fx-edges.frag'
+import postFXFeedbackVert from '@renderer/shaders/post-fx-feedback.vert'
+import postFXFeedbackFrag from '@renderer/shaders/post-fx-feedback.frag'
 
 const SCREEN_EFFECT = {
   vert: postFXVert,
@@ -52,6 +54,25 @@ export function createDrawTexture (regl, postBuffers) {
     framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
     uniforms: {
       color: (context, props) => getFramebuffer(postBuffers, props.colorName),
+      scale: regl.prop('scale'),
+      offset: regl.prop('offset')
+    }
+  })
+}
+
+export function createDrawFeedback (regl, postBuffers, textures) {
+  return regl({
+    ...SCREEN_EFFECT,
+    vert: postFXFeedbackVert,
+    frag: postFXFeedbackFrag,
+    framebuffer: (context, props) => getFramebuffer(postBuffers, props.framebufferName),
+    uniforms: {
+      color: (context, props) => getFramebuffer(postBuffers, props.colorName),
+      displace: (params, { displaceName, displacePath }) =>
+        (textures.get(displaceName, displacePath)),
+      useDisplace: (params, { displacePath }) =>
+        (displacePath == null ? 0 : 1),
+      displaceOffset: regl.prop('displaceOffset'),
       scale: regl.prop('scale'),
       offset: regl.prop('offset')
     }

@@ -920,7 +920,7 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderSceneBloomFeedback () {
-      const { drawTexture } = renderer.commands
+      const { drawFeedback } = renderer.commands
       const { isRunning } = state.simulation
       const { bloom } = state.controls.postEffects
       const { shouldRenderBloomFeedback, bloomFeedbackPosition } = this.computedState
@@ -929,12 +929,17 @@ export function mountCompositor ($el, $refs, actions) {
         const feedbackParams = pools.params.get('feedback')
         feedbackParams.framebufferName = 'full'
         feedbackParams.colorName = 'blurB'
+
+        feedbackParams.displaceName = 'displace'
+        feedbackParams.displacePath = getVersionedPath(bloom.feedbackDisplaceFile)
+        feedbackParams.displaceOffset = bloom.feedbackDisplaceOffset
+
         feedbackParams.offset = bloomFeedbackPosition
         feedbackParams.scale = 1 - bloom.feedbackOffset * 0.05
 
         state.renderer.drawCalls++
         state.renderer.fullScreenPasses++
-        drawTexture(feedbackParams)
+        drawFeedback(feedbackParams)
       }
     },
 

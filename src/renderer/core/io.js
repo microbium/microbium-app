@@ -152,6 +152,7 @@ export function createIOController (tasks, state) {
         resolveFilePath(style, 'lineAlphaMapFile')
         resolveFilePath(style, 'fillAlphaMapFile')
       })
+      resolveFilePath(postEffects.bloom, 'feedbackDisplaceFile')
       resolveFilePath(postEffects.lut, 'textureFile')
       resolveFilePath(postEffects.watermark, 'textureFile')
     },

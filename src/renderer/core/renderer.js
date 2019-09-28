@@ -11,11 +11,11 @@ import {
 import {
   createDrawBanding,
   createDrawEdges,
+  createDrawFeedback,
   createDrawGaussBlur,
   createDrawRect,
   createDrawScreen,
   createDrawTexture
-  // createSetupDrawScreen
 } from '@renderer/draw/commands/screen-space'
 
 const DEBUG_LOG_GPU = false
@@ -48,11 +48,13 @@ export function createRenderer (tasks, state) {
 
   const textures = createTextureManager(regl)
   const postBuffers = createPostBuffers(regl,
-    'full', 'fullExport', 'banding', 'edges', 'blurA', 'blurB')
+    'full', 'fullExport',
+    'banding', 'edges', 'blurA', 'blurB')
+
   const commands = {
-    // setupDrawScreen: createSetupDrawScreen(regl),
     drawBanding: createDrawBanding(regl, postBuffers),
     drawEdges: createDrawEdges(regl, postBuffers),
+    drawFeedback: createDrawFeedback(regl, postBuffers, textures),
     drawScreen: createDrawScreen(regl, postBuffers),
     drawGaussBlur: createDrawGaussBlur(regl, postBuffers),
     drawRect: createDrawRect(regl, postBuffers),

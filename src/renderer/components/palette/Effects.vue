@@ -237,6 +237,26 @@
         </div>
       </div>
       <hr />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackDisplaceFileName }}
+            <input-file accept=".png,.jpg" v-model="model.bloom.feedbackDisplaceFile" />
+          </b> displace texture
+        </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.bloom.feedbackDisplaceFile" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="-1" max="1" step="0.01" v-model="model.bloom.feedbackDisplaceOffset" />
+        <div class="palette-item__label">
+          <b>{{ bloomFeedbackDisplaceOffsetName }}</b> displace offset
+          <palette-item-controller :min="-1" :max="1"
+            :model="model.bloom" prop="feedbackDisplaceOffset" />
+        </div>
+      </div>
+      <hr />
     </palette-group>
 
     <palette-group persistent-controls>
@@ -462,6 +482,17 @@ export default {
     bloomBufferScaleName () {
       const { bloom } = this.model
       return `${roundToPlaces(bloom.bufferScale, 2)}x`
+    },
+
+    bloomFeedbackDisplaceFileName () {
+      const { feedbackDisplaceFile } = this.model.bloom
+      if (!feedbackDisplaceFile) return 'Empty'
+      return feedbackDisplaceFile.name
+    },
+
+    bloomFeedbackDisplaceOffsetName () {
+      const { feedbackDisplaceOffset } = this.model.bloom
+      return `${roundToPlaces(feedbackDisplaceOffset, 2)}pt`
     },
 
     // Banding

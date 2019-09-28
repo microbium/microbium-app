@@ -1,11 +1,18 @@
 const SRC_BASE = process.env.IS_WEB ? '' : 'file://'
 
+const RGB_LINEAR = {
+  min: 'linear',
+  mag: 'linear',
+  wrap: ['clamp', 'clamp'],
+  format: 'rgb'
+}
+
 // TODO: Handle image load errors
 export function createTextureManager (regl) {
   const cache = {}
   const empty = regl.texture()
 
-  function getTexture (key, src, opts = {}) {
+  function getTexture (key, src, opts = RGB_LINEAR) {
     if (key == null || src == null) return empty
 
     const cached = cache[key]
