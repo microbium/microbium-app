@@ -105,7 +105,7 @@ export function createControlsState () {
         lineAlphaFuncIndex: 3,
         lineAlphaMapFile: null,
         lineAlphaMapRepeat: 40,
-        lineTintHex: '#ff0000',
+        lineTintHex: '#ffffff',
         lineTintAlpha: 1,
         fillAlphaFuncIndex: 0,
         fillAlphaMapFile: null,
