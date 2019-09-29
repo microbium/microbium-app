@@ -208,9 +208,10 @@ $base-color: rgba(#000, 0.15);
 
   > .range-slider {
     position: relative;
+    z-index: 2;
     display: block;
     margin-top: -4px;
-    z-index: 2;
+    margin-bottom: 2px;
   }
 }
 </style>

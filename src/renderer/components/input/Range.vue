@@ -1,8 +1,8 @@
 <style lang="scss">
-$slider-height: 13px;
+$slider-height: 14px;
 $slider-width: 100%;
-$rail-height: 2px;
-$knob-size: 13px;
+$rail-height: 6px;
+$knob-size: 14px;
 $hitbox-size: 30px;
 $rail-color: rgba(#000, 0.1);
 $rail-fill-color: var(--highlight-color);
@@ -12,21 +12,43 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
 
 @import '~vue-range-slider/dist/vue-range-slider.scss';
 
-.range-slider-knob {
+.range-slider {
+  padding: 0 8px;
+}
+
+.range-slider-rail,
+.range-slider-fill {
+  top: 0;
+  transform: none;
+}
+
+.range-slider-fill {
   border-radius: 0;
-  transform: translate(-50%, -50%) rotate(45deg);
+  background-color: transparent;
+  background: url('~@renderer/assets/backgrounds/range-fill.png') repeat;
+  background-position: left center;
+  background-size: auto 8px;
+}
+
+.range-slider-knob {
+  top: 0;
+  border: none;
+  border-right: 2px solid #fff;
+  border-radius: 0;
+  transform: translate(-50%, 0%);
   cursor: default;
   pointer-events: none;
 
   &:before {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 
     background: $rail-fill-color;
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 100%;
   }
 
   &:after {
