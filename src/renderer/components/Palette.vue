@@ -577,6 +577,7 @@ function createModeCondition (modeType, id) {
   }
 }
 
+// OPTIM: Make sycing watchers more granular
 function createStateSyncer (name) {
   return {
     deep: true,
