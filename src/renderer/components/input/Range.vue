@@ -18,7 +18,8 @@ $knob-shadow: 0px 1px rgba(#000, 0.1);
 
 .range-slider-rail,
 .range-slider-fill {
-  top: 0;
+  top: auto;
+  bottom: 0;
   transform: none;
 }
 

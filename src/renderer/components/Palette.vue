@@ -210,8 +210,7 @@ $base-color: rgba(#000, 0.15);
     position: relative;
     z-index: 2;
     display: block;
-    margin-top: -4px;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 }
 </style>
