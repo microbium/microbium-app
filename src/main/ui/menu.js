@@ -53,7 +53,8 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.saveFrameImage()
           }
-        },
+        }
+        /*
         {
           label: 'Export Scene',
           submenu: [
@@ -71,6 +72,7 @@ export function createMenuTemplate (app, actions) {
             }
           ]
         }
+        */
         /*
         {type: 'separator'},
         {
@@ -111,7 +113,7 @@ export function createMenuTemplate (app, actions) {
             actions.selectNextStyleLayer(1)
           }
         },
-        {type: 'separator'},
+        { type: 'separator' },
         {
           id: 'prev-constraint-group',
           label: 'Previous Constraint Group',
@@ -128,7 +130,7 @@ export function createMenuTemplate (app, actions) {
             actions.selectNextConstraintGroup(1)
           }
         },
-        {type: 'separator'},
+        { type: 'separator' },
         {
           id: 'delete-last-vertex',
           label: 'Delete Last Vertex',
@@ -153,7 +155,7 @@ export function createMenuTemplate (app, actions) {
             actions.deleteLastSegment()
           }
         },
-        {type: 'separator'}
+        { type: 'separator' }
         // {role: 'undo'},
         // {role: 'redo'},
         // {type: 'separator'}
@@ -182,7 +184,7 @@ export function createMenuTemplate (app, actions) {
             actions.toggleSimulationPause()
           }
         },
-        {type: 'separator'},
+        { type: 'separator' },
         {
           id: 'toolbar-on',
           label: 'Show Toolbar',
@@ -261,7 +263,7 @@ export function createMenuTemplate (app, actions) {
             }
           }))
         },
-        {type: 'separator'},
+        { type: 'separator' },
         {
           id: 'aspect-ratio',
           label: 'Aspect Ratio',
@@ -300,15 +302,15 @@ export function createMenuTemplate (app, actions) {
             }
           ]
         },
-        {type: 'separator'},
-        {role: 'togglefullscreen'}
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
       ]
     },
     {
       label: 'Window',
       submenu: [
-        {role: 'minimize'},
-        {role: 'close'}
+        { role: 'minimize' },
+        { role: 'close' }
       ]
     },
     {
@@ -334,25 +336,25 @@ export function createMenuTemplate (app, actions) {
     template.unshift({
       label: app.getName(),
       submenu: [
-        {role: 'about'},
-        {type: 'separator'},
-        {role: 'services', submenu: []},
-        {type: 'separator'},
-        {role: 'hide'},
-        {role: 'hideothers'},
-        {role: 'unhide'},
-        {type: 'separator'},
-        {role: 'quit'}
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services', submenu: [] },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideothers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
       ]
     })
 
     // Window menu
     template[4].submenu = [
-      {role: 'close'},
-      {role: 'minimize'},
-      {role: 'zoom'},
-      {type: 'separator'},
-      {role: 'front'}
+      { role: 'close' },
+      { role: 'minimize' },
+      { role: 'zoom' },
+      { type: 'separator' },
+      { role: 'front' }
     ]
   }
 
