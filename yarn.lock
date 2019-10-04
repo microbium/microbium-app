@@ -703,10 +703,10 @@
   resolved "https://registry.yarnpkg.com/@microbium/electron-recorder/-/electron-recorder-3.3.0.tgz#e96d5ec5f5b2af3d41f19077ca4b2eae2e82020f"
   integrity sha512-TOK85pSx04fPntVvg67AceIWaVPevcmVzNHLuklfp4O6j4YG/4hO7AEW75zq//oVEKDQsJRkqQdK8uk9Eg/5Xw==
 
-"@microbium/regl@^1.3.71":
-  version "1.3.71"
-  resolved "https://registry.yarnpkg.com/@microbium/regl/-/regl-1.3.71.tgz#101eb79cacd698176cfea4f72ce330f3e3166b89"
-  integrity sha512-sAQ9WK8lhPDbg6eOVb9RHuLySdLNxUHOHr0KAbEkxyR90ShT40kuVxc98vGbkNkKAcIFTtMIF2NglAgB5QcLOQ==
+"@microbium/regl@^1.3.13-1":
+  version "1.3.13-1"
+  resolved "https://registry.yarnpkg.com/@microbium/regl/-/regl-1.3.13-1.tgz#6cf2b0887509dc57d7d8a2abae21d0000abda778"
+  integrity sha512-r3N8PmTuDul/7Jj3OtjznHf2y69/U3hiymIcx5YKqb/LySHE2zSImrUriB4qlISwZwpN9OLInqXlsd5SnZ6seA==
 
 "@nodelib/fs.scandir@2.1.1":
   version "2.1.1"
