@@ -46,7 +46,8 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.revertScene()
           }
-        },
+        }
+        /*
         {
           label: 'Export Image',
           accelerator: 'Cmd+Shift+E',
@@ -54,6 +55,7 @@ export function createMenuTemplate (app, actions) {
             actions.saveFrameImage()
           }
         }
+        */
         /*
         {
           label: 'Export Scene',
@@ -185,6 +187,7 @@ export function createMenuTemplate (app, actions) {
           }
         },
         { type: 'separator' },
+        /*
         {
           id: 'toolbar-on',
           label: 'Show Toolbar',
@@ -201,6 +204,7 @@ export function createMenuTemplate (app, actions) {
             actions.toggleMainToolbar()
           }
         },
+        */
         {
           id: 'status-on',
           label: 'Show Status',
