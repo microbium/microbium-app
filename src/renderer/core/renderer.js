@@ -21,8 +21,6 @@ import {
 const DEBUG_LOG_GPU = false
 const DEBUG_TRACK_GL = false
 
-// OPTIM: Investigate preserveDrawingBuffer effect on perf
-// It's currently needed to enable full dpi canvas export
 export function createRenderer (tasks, state) {
   const canvas = document.createElement('canvas')
   const regl = createREGL({
