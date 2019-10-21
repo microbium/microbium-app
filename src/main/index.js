@@ -98,7 +98,6 @@ let appShouldQuit = false
 const appActions = createAppActions()
 function createAppActions () {
   // TODO: Cleanup file filters
-  // FIXME: File filters not highlighting in dialog
   const fileTypeFilters = [{
     name: 'Microbium Scene',
     extensions: ['mcrbm']
