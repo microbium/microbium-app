@@ -46,8 +46,7 @@ export function createMenuTemplate (app, actions) {
           click () {
             actions.revertScene()
           }
-        }
-        /*
+        },
         {
           label: 'Export Image',
           accelerator: 'Cmd+Shift+E',
@@ -55,7 +54,6 @@ export function createMenuTemplate (app, actions) {
             actions.saveFrameImage()
           }
         }
-        */
         /*
         {
           label: 'Export Scene',

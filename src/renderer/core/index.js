@@ -257,7 +257,6 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     // Message intercepted by Editor and saved to image file
-    // FIXME: View turning black after saving frame
     saveFrameData ({ path }) {
       logger.time('save frame data')
       const { regl, postBuffers } = renderer
@@ -266,7 +265,7 @@ export function mountCompositor ($el, $refs, actions) {
       const height = resolution[1]
 
       postBuffers.resize('fullExport', resolution)
-      this.renderScene(0, 'fullExport')
+      this.renderSceneComposite(0, 'fullExport')
 
       const buffer = new Uint8Array(width * height * 4)
       postBuffers.use('fullExport', () => {
