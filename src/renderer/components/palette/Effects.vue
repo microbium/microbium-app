@@ -15,6 +15,16 @@
       <hr />
 
       <div class="palette-item">
+        <input-range min="-100" max="100" step="0.5" v-model="model.polar.depthOffset" />
+        <div class="palette-item__label">
+          <b>{{ polarDepthOffsetName }}</b> depth offset
+          <palette-item-controller :min="-100" :max="100" :step="0.5"
+            :model="model.polar" prop="depthOffset" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
         <input-range min="0" max="1" step="0.05" v-model="model.polar.mirrorIntensityFactor" />
         <div class="palette-item__label">
           <b>{{ mirrorFactorName }}</b> mirror intensity
@@ -407,6 +417,11 @@ export default {
     polarIterationsLabel () {
       const { iterations } = this.model.polar
       return `polar ${pluralize(iterations, 'iteration', 'iterations')}`
+    },
+
+    polarDepthOffsetName () {
+      const { depthOffset } = this.model.polar
+      return `${roundToPlaces(depthOffset, 2)}pt`
     },
 
     mirrorFactorName () {

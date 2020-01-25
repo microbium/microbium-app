@@ -26,7 +26,7 @@ export function createControlsState () {
     },
 
     lineTool: {
-      depth: 0,
+      depth: 1,
       strokeWidth: 1.5,
       strokeColor: '#ffffff',
       strokeAlpha: 1,
@@ -317,8 +317,10 @@ export function createControlsState () {
         enabled: true,
         iterations: 3,
         mirrorIntensityFactor: 0.5,
+        depthOffset: 0,
         iterationsController: -1,
-        mirrorIntensityFactorController: -1
+        mirrorIntensityFactorController: -1,
+        depthOffsetController: -1
       },
       mirror: {
         enabled: false,

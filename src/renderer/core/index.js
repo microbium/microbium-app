@@ -644,6 +644,7 @@ export function mountCompositor ($el, $refs, actions) {
       const model = mat4.identity(scratchMat4A)
       const polarIterations = polar.enabled ? polar.iterations : 1
       const polarStep = Math.PI * 2 / polarIterations
+      const depthStep = polar.depthOffset
       const mirrorAlpha = polar.enabled
         ? polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
         : 0
@@ -712,7 +713,8 @@ export function mountCompositor ($el, $refs, actions) {
           params.mirror = isMirrorStep
             ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
             : vec3.set(params.mirror, 1, 1, 1)
-          params.depth = depth
+          params.depth = depth + polarIndex * depthStep +
+            (isMirrorStep ? polarIndex * depthStep * 0.5 : 0)
         }
 
         // TODO: Account for fill draw calls
