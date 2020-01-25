@@ -14,7 +14,7 @@ export function curve (points, depths,
     const ix = i * 2
     const iy = ix + 1
     const iwt = i / segmentsCount
-    const iw = Math.floor(iwt)
+    const iw = Math.floor(iwt * 0.99)
 
     const depth = lerp(depths[iw], depths[iw + 1], iwt - iw)
     const lineWidthSeg = lerp(strokeWidths[iw], strokeWidths[iw + 1], iwt - iw)
