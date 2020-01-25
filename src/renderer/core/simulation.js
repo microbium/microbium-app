@@ -331,7 +331,7 @@ export function createSimulationController (tasks, state, renderer) {
 
       points.forEach((item, i) => {
         const config = forces[i]
-        const { positionTypeIndex, intensityTypeIndex, radius, } = config
+        const { positionTypeIndex, intensityTypeIndex, radius } = config
         const { force } = item
         const intensity = positionTypeIndex === 1
           ? config.intensity * 10
