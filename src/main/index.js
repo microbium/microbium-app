@@ -131,9 +131,9 @@ function createAppActions () {
         openDirectory: false,
         multiSelections: false,
         filters: fileTypeFilters
-      }, (fileNames) => {
-        if (!(fileNames && fileNames.length)) return
-        const fileName = fileNames[0]
+      }).then(({ filePaths }) => {
+        if (!(filePaths && filePaths.length)) return
+        const fileName = filePaths[0]
         store.set('openScenePath', fileName)
         openSceneFile(fileName)
       })
@@ -147,10 +147,10 @@ function createAppActions () {
       }
       dialog.showSaveDialog(null, {
         filters: fileTypeFilters
-      }, (fileName) => {
-        if (!fileName) return
-        store.set('openScenePath', fileName)
-        saveSceneFile(fileName)
+      }).then(({ filePath }) => {
+        if (!filePath) return
+        store.set('openScenePath', filePath)
+        saveSceneFile(filePath)
       })
     },
 
@@ -169,8 +169,8 @@ function createAppActions () {
         detail: 'This will revert your current changes and cannot be undone.',
         checkboxLabel: "Don't ask me again",
         checkboxChecked: false
-      }, (id, checkboxChecked) => {
-        if (id === 0) {
+      }).then(({ response, checkboxChecked }) => {
+        if (response === 0) {
           openSceneFile(fileName)
           if (checkboxChecked) store.set('dontAskRevertScene', true)
         }
@@ -180,28 +180,28 @@ function createAppActions () {
     saveFrameImage () {
       dialog.showSaveDialog(null, {
         filters: imageTypeFilters
-      }, (fileName) => {
-        if (!fileName) return
-        saveFrameImageFromCanvas(fileName)
+      }).then(({ filePath }) => {
+        if (!filePath) return
+        saveFrameImageFromCanvas(filePath)
       })
     },
 
     exportJSON () {
       dialog.showSaveDialog(null, {
         filters: jsonTypeFilters
-      }, (fileName) => {
-        if (!fileName) return
-        exportSceneFile(fileName)
+      }).then(({ filePath }) => {
+        if (!filePath) return
+        exportSceneFile(filePath)
       })
     },
 
     exportHTML () {
       dialog.showSaveDialog(null, {
         filters: htmlTypeFilters
-      }, (fileName) => {
-        if (!fileName) return
-        requestWindowResponse('main', 'serialize-scene', { path: fileName })
-          .then((data) => exportSceneHTML(fileName, data))
+      }).then(({ filePath }) => {
+        if (!filePath) return
+        requestWindowResponse('main', 'serialize-scene', { path: filePath })
+          .then((data) => exportSceneHTML(filePath, data))
       })
     },
 
@@ -330,9 +330,9 @@ function createAppActions () {
         .then((recording) => {
           dialog.showSaveDialog(null, {
             filters: videoTypeFilters
-          }, (fileName) => {
-            if (!fileName) return
-            saveScreenRecording(recording, fileName)
+          }).then(({ filePath }) => {
+            if (!filePath) return
+            saveScreenRecording(recording, filePath)
           })
         })
     }
@@ -472,6 +472,7 @@ function createPaletteWindow () {
     fullscreen: false,
     fullscreenable: true,
     hasShadow: true,
+    // TODO: Use system light / dark, design light theme
     vibrancy: 'ultra-dark',
     transparent: isHighSierra(),
     show: false,
