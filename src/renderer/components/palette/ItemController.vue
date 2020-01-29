@@ -107,6 +107,7 @@ export default {
       lastRecordingTime: 0,
       recording: [],
       recordingTimeout: 1 * 1000,
+      recordingDelta: 1000 / 60,
       loopTick: 0,
       loopTickDelta: 0
     }
@@ -157,6 +158,7 @@ export default {
         lastRecordingTime, recordingTimeout
       } = this
 
+      // TODO: Adapt recording timeout to previous input speed
       if (shouldLoop && lastRecordingTime > 0 &&
         (!isRecording || (time - lastRecordingTime > recordingTimeout))
       ) {
@@ -166,41 +168,49 @@ export default {
     },
 
     updateLoopRecording (value) {
-      const { isRecording, recording } = this
+      const { isRecording, recording, recordingDelta } = this
       const time = Date.now()
 
       if (!isRecording) {
         recording.length = 0
         this.loopTime = 0
         this.loopTick = 0
+        this.lastRecordingTime = time
+        this.isRecording = true
       }
 
-      this.isRecording = true
-      this.lastRecordingTime = time
+      const delta = time - this.lastRecordingTime
 
-      recording.push({
-        time,
-        value
-      })
+      if (delta > recordingDelta) {
+        this.lastRecordingTime = time
+        recording.push({
+          time,
+          delta,
+          value
+        })
+      }
     },
 
     updateLoopTick (delta, time) {
-      const {
-        recording, loopTick, loopTickDelta,
-        model, prop
-      } = this
+      const { recording, model, prop } = this
 
-      const nextTick = (loopTick < recording.length - 1) ? (loopTick + 1) : 0
-      const nextTickDelta = nextTick === 0 ? 0 : (recording[nextTick].time - recording[loopTick].time)
+      let shouldAdvance = true
+      let currentTick = null
+      while (shouldAdvance) {
+        const { loopTick, loopTickDelta } = this
+        const nextTick = (loopTick < recording.length - 1) ? (loopTick + 1) : 0
+        const nextTickDelta = recording[nextTick].delta
 
-      const shouldAdvance = (loopTickDelta + delta) > nextTickDelta
-      const currentTick = shouldAdvance ? nextTick : loopTick
+        shouldAdvance = (loopTickDelta + delta) > nextTickDelta
+        currentTick = shouldAdvance ? nextTick : loopTick
 
-      if (shouldAdvance) {
-        this.loopTick = nextTick
-        this.loopTickDelta = 0
-      } else {
-        this.loopTickDelta += delta
+        if (shouldAdvance) {
+          delta = 0
+          this.loopTick = nextTick
+          this.loopTickDelta = 0
+        } else {
+          this.loopTickDelta += delta
+        }
       }
 
       model[prop] = recording[currentTick].value
