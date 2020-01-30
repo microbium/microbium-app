@@ -1,7 +1,7 @@
 run_build () {
   export BUILD_NUMBER="$(git rev-parse --short HEAD)"
   node ./.electron-vue/build-runner.js
-  electron-builder
+  electron-builder --publish=never
   terminal-notifier -title 'Microbium' -message 'Build Complete'
 }
 
