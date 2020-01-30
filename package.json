@@ -22,7 +22,7 @@
   },
   "build": {
     "productName": "Microbium",
-    "copyright": "Copyright © 2017-2019 Jay Weeks",
+    "copyright": "Copyright © 2017-2020 Jay Weeks",
     "appId": "com.jayweeks.microbium",
     "fileAssociations": [
       {
