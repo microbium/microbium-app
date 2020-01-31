@@ -923,7 +923,7 @@ function syncPaletteLayout (id) {
     case 'narrow':
       palette.setMinimumSize(320, 500)
       palette.setMaximumSize(420, 1200)
-      palette.setSize(320, size[1])
+      palette.setSize(420, size[1])
       palette.setAlwaysOnTop(true)
       break
     case 'wide':
