@@ -133,9 +133,10 @@ function createAppActions () {
         filters: fileTypeFilters
       }).then(({ filePaths }) => {
         if (!(filePaths && filePaths.length)) return
-        const fileName = filePaths[0]
-        store.set('openScenePath', fileName)
-        openSceneFile(fileName)
+        const filePath = filePaths[0]
+        store.set('openScenePath', filePath)
+        app.addRecentDocument(filePath)
+        openSceneFile(filePath)
       })
     },
 
