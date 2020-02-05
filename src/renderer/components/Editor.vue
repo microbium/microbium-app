@@ -241,7 +241,7 @@ export default {
     },
 
     close () {
-      this.sendMessage('close-window', {name: 'main'})
+      this.sendMessage('close-window', { name: 'main' })
     }
   },
 

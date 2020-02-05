@@ -293,7 +293,7 @@ export function createSimulationController (tasks, state, renderer) {
         const constraintTime = nextLocalTime - engineDelay
         engine.localTime = nextLocalTime
 
-        constraints.forEach(({distance, constraint}) => {
+        constraints.forEach(({ distance, constraint }) => {
           const distanceScale = Math.sin(constraintTime * Math.PI * 2) *
             mapLinear(0, 1, 0, 0.5, engineFlex) +
             mapLinear(0, 1, 1, 0.5, engineFlex)

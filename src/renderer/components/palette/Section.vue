@@ -53,7 +53,7 @@ export default {
   computed: {
     mainClassNames () {
       return {
-        'hidden': this.hidden
+        hidden: this.hidden
       }
     }
   }

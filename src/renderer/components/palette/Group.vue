@@ -211,9 +211,9 @@ export default {
   computed: {
     openStateClassNames () {
       return {
-        'open': this.isOpen,
-        'animating': this.isAnimating,
-        'nested': this.nested
+        open: this.isOpen,
+        animating: this.isAnimating,
+        nested: this.nested
       }
     },
 

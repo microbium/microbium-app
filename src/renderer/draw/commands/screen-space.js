@@ -184,6 +184,7 @@ function getFramebuffer (postBuffers, name) {
   return postBuffers.get(name)
 }
 
+/*
 function createArrayUniformProps (name, count, defaultValue) {
   const props = {}
   for (let i = 0; i < count; i++) {
@@ -194,3 +195,4 @@ function createArrayUniformProps (name, count, defaultValue) {
   props[`${name}Count`] = (context, props) => props[name].length
   return props
 }
+*/

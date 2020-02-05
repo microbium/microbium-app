@@ -1,6 +1,6 @@
 const { round } = Math
 
-export function fitRect (rect, {padding, aspect, alignX, alignY}) {
+export function fitRect (rect, { padding, aspect, alignX, alignY }) {
   const displayAspect = rect.width / rect.height
   const transform = {}
 

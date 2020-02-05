@@ -607,7 +607,7 @@ function setWindowFilePath (name, fullPath) {
 }
 
 const ASPECT_RATIOS = {
-  '0': 0,
+  '0:0': 0,
   '1:1': 1,
   '4:5': 4 / 5,
   '16:9': 16 / 9
@@ -621,7 +621,7 @@ function setWindowAspectRatio (name, aspectName) {
   const aspect = ASPECT_RATIOS[aspectName]
   store.set(`window.${name}.aspect`, aspectName)
 
-  if (aspectName === '0') {
+  if (aspectName === '0:0') {
     win.setAspectRatio(0)
     return
   }
@@ -638,7 +638,7 @@ function restoreWindowAspect (name) {
   const win = appWindows[name]
   if (!win) return
 
-  const aspectName = store.get(`window.${name}.aspect`) || '0'
+  const aspectName = store.get(`window.${name}.aspect`) || '0:0'
   const aspect = ASPECT_RATIOS[aspectName]
 
   win.setAspectRatio(aspect)
