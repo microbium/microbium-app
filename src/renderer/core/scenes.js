@@ -48,6 +48,8 @@ export function createScene (tasks, state, renderer) {
     tick: regl.prop('tick'),
     mirror: regl.prop('mirror'),
     depth: regl.prop('depth'),
+    depthMap: regl.prop('depthMap'),
+    depthMapRepeat: regl.prop('depthMapRepeat'),
     angle: regl.prop('angle'),
     angleAlpha: regl.prop('angleAlpha')
   }

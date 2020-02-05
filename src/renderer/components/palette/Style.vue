@@ -129,14 +129,44 @@
       <h2 slot="title">Depth</h2>
 
       <div class="palette-item">
-        <input-range min="-10" max="10" step="0.1"
-          v-model="model.depth" />
+        <input-range min="-1000" max="1000" step="5"
+          v-model="model.depthOffset" />
         <div class="palette-item__label">
-          <b>{{ depthName }}</b> depth factor
-          <palette-item-controller :min="-10" :max="10"
-            :model="model" prop="depth" />
+          <b>{{ depthOffsetName }}</b> depth offset
+          <palette-item-controller :min="-1000" :max="1000" :step="5"
+            :model="model" prop="depthOffset" />
         </div>
       </div>
+      <div class="palette-item">
+        <input-range min="-10" max="10" step="0.1"
+          v-model="model.depthScale" />
+        <div class="palette-item__label">
+          <b>{{ depthScaleName }}</b> depth scale
+          <palette-item-controller :min="-10" :max="10"
+            :model="model" prop="depthScale" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <div class="palette-item__label">
+          <b>{{ depthMapName }}
+            <input-file accept=".png,.jpg" v-model="model.depthMapFile" />
+          </b> depth displacement map
+        </div>
+        <div class="palette-item__controls">
+          <input-file-refresh v-model="model.depthMapFile" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="20" max="120" step="1" v-model="model.depthMapRepeat" />
+        <div class="palette-item__label">
+          <b>{{ depthMapRepeatName }}</b> depth map size
+          <palette-item-controller :min="20" :max="120"
+            :model="model" prop="depthMapRepeat" />
+        </div>
+      </div>
+      <hr />
     </palette-group>
 
     <palette-group nested>
@@ -250,9 +280,25 @@ export default {
       return `${roundToPlaces(thickness, 1)}x`
     },
 
-    depthName () {
-      const { depth } = this.model
-      return `${roundToPlaces(depth, 1)}x`
+    depthOffsetName () {
+      const { depthOffset } = this.model
+      return `${roundToPlaces(depthOffset, 1)}pt`
+    },
+
+    depthScaleName () {
+      const { depthScale } = this.model
+      return `${roundToPlaces(depthScale, 1)}x`
+    },
+
+    depthMapName () {
+      const { depthMapFile } = this.model
+      if (!depthMapFile) return 'Empty'
+      return depthMapFile.name
+    },
+
+    depthMapRepeatName () {
+      const { depthMapRepeat } = this.model
+      return `${roundToPlaces(depthMapRepeat, 0)}n`
     },
 
     strokeModName () {

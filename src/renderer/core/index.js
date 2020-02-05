@@ -105,6 +105,7 @@ export function mountCompositor ($el, $refs, actions) {
     return {
       linesBatch: createGroupPool({
         createItem: () => ({
+          depth: new Float32Array(3),
           mirror: new Float32Array(3)
         })
       }),
@@ -122,9 +123,17 @@ export function mountCompositor ($el, $refs, actions) {
           vec4: new Float32Array(4)
         })
       }),
+      anim: createKeyedPool({
+        createItem: () => ({
+          polarStep: 0,
+          polarDepthOffset: 0,
+          mirrorAlpha: 0
+        })
+      }),
       styleAnim: createKeyedPool({
         createItem: () => ({
-          depth: 0
+          depthOffset: 0,
+          depthScale: 0
         })
       })
     }
@@ -177,6 +186,10 @@ export function mountCompositor ($el, $refs, actions) {
         shouldRenderEdges: false,
         shouldRenderLut: false,
         shouldRenderWatermark: false,
+        polarIterations: 0,
+        polarStep: 0,
+        polarDepthOffset: 0,
+        mirrorAlpha: 0,
         mirrorIntensity: 0,
         mirrorAngle: 0,
         bloomIntensity: 0,
@@ -384,7 +397,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { postEffects } = state.controls
       const { size } = state.viewport
       const {
-        mirror, bloom, banding, edges, lut,
+        polar, mirror, bloom, banding, edges, lut,
         watermark, vignette, defocus, colorShift, noise
       } = postEffects
 
@@ -402,6 +415,12 @@ export function mountCompositor ($el, $refs, actions) {
       const shouldRenderWatermark = computedState.shouldRenderWatermark = isRunning &&
         watermark.enabled && !!(watermark.textureFile && watermark.textureFile.path)
 
+      computedState.polarIterations = polar.enabled ? polar.iterations : 1
+      computedState.polarStep = Math.PI * 2 / computedState.polarIterations
+      computedState.polarDepthOffset = polar.depthOffset
+
+      computedState.mirrorAlpha = !polar.enabled ? 0
+        : polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
       computedState.mirrorIntensity = !shouldRenderMirror ? 0 : 1
       computedState.mirrorAngle = mirror.angle / 180 * Math.PI
       computedState.bloomIntensity = !shouldRenderBloom ? 0
@@ -517,7 +536,7 @@ export function mountCompositor ($el, $refs, actions) {
       timer.end('updateLines')
 
       if (shouldRender) this.renderScene(tick)
-      if (shouldUpdate) stateRenderer.updateOverlapTick = 20
+      if (shouldUpdate) stateRenderer.updateOverlapTick = 60
 
       stateRenderer.lastRenderHash = nextRenderHash
       stateRenderer.needsUpdate = false
@@ -637,17 +656,17 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     renderLines ({ contexts }, { polarAlpha, renderMirror }, styles) {
-      const { tick, isRunning } = state.simulation
-      const { alphaFunctions, postEffects } = state.controls
-      const { polar } = postEffects
+      const { computedState } = this
+      const { tick } = state.simulation
+      const { alphaFunctions } = state.controls
+      const { polarIterations } = computedState
 
       const model = mat4.identity(scratchMat4A)
-      const polarIterations = polar.enabled ? polar.iterations : 1
-      const polarStep = Math.PI * 2 / polarIterations
-      const depthStep = polar.depthOffset
-      const mirrorAlpha = polar.enabled
-        ? polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
-        : 0
+
+      const anim = pools.anim.get('_')
+      const polarStep = factorTween('polarStep', anim, computedState, 0.05)
+      const polarDepthOffset = factorTween('polarDepthOffset', anim, computedState, 0.05)
+      const mirrorAlpha = factorTween('mirrorAlpha', anim, computedState, 0.05)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
       for (let i = 0; i < contexts.length; i++) {
@@ -682,7 +701,8 @@ export function mountCompositor ($el, $refs, actions) {
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
 
         const styleAnim = pools.styleAnim.get(`style_${i}`)
-        const depth = factorTween('depth', styleAnim, style, 0.05)
+        const depthOffset = factorTween('depthOffset', styleAnim, style, 0.05)
+        const depthScale = factorTween('depthScale', styleAnim, style, 0.05)
 
         for (let j = 0; j < linesCount; j++) {
           const params = linesBatch[j]
@@ -713,8 +733,12 @@ export function mountCompositor ($el, $refs, actions) {
           params.mirror = isMirrorStep
             ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
             : vec3.set(params.mirror, 1, 1, 1)
-          params.depth = depth + polarIndex * depthStep +
-            (isMirrorStep ? polarIndex * depthStep * 0.5 : 0)
+
+          params.depth = vec3.set(params.depth,
+            depthOffset,
+            depthScale,
+            polarIndex * polarDepthOffset +
+              (isMirrorStep ? polarIndex * polarDepthOffset * 0.5 : 0))
         }
 
         // TODO: Account for fill draw calls

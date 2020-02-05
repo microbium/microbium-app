@@ -14,7 +14,7 @@ uniform vec4 tint;
 uniform float thickness;
 uniform float miterLimit;
 uniform vec3 mirror; // [x, y, alpha]
-uniform float depth;
+uniform vec3 depth; // [offset, scale, polarOffset]
 
 uniform float angle;
 uniform float angleAlpha;
