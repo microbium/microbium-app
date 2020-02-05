@@ -14,7 +14,11 @@ uniform vec4 tint;
 uniform float thickness;
 uniform float miterLimit;
 uniform vec3 mirror; // [x, y, alpha]
+
 uniform vec3 depth; // [offset, scale, polarOffset]
+uniform int useDepthMap;
+uniform sampler2D depthMap;
+uniform vec2 depthMapParams; // [repeat, displacement]
 
 uniform float angle;
 uniform float angleAlpha;
@@ -39,13 +43,13 @@ void main() {
 
   vec4 prevProjected = projViewModel *
     vec4(transformPosition(prevPosition.xy, mirror.xy, angle),
-      mapZ(prevPosition, depth, prevId), 1.0);
+      mapZ(prevPosition, depth, useDepthMap, depthMap, depthMapParams, prevId), 1.0);
   vec4 currProjected = projViewModel *
     vec4(transformPosition(currPosition.xy, mirror.xy, angle),
-      mapZ(currPosition, depth, currId), 1.0);
+      mapZ(currPosition, depth, useDepthMap, depthMap, depthMapParams, currId), 1.0);
   vec4 nextProjected = projViewModel *
     vec4(transformPosition(nextPosition.xy, mirror.xy, angle),
-      mapZ(nextPosition, depth, nextId), 1.0);
+      mapZ(nextPosition, depth, useDepthMap, depthMap, depthMapParams, nextId), 1.0);
 
   vec2 miterOffset = computeMiterOffset(
     projection, adjustProjectedThickness,

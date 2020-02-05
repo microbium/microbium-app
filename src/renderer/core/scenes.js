@@ -43,13 +43,22 @@ export function createScene (tasks, state, renderer) {
     wrap: ['clamp', 'clamp'],
     format: 'rgb'
   }
+  const depthMapOpts = {
+    min: 'linear',
+    mag: 'linear',
+    wrap: ['clamp', 'clamp'],
+    format: 'rgb'
+  }
 
   const uniforms = {
     tick: regl.prop('tick'),
     mirror: regl.prop('mirror'),
     depth: regl.prop('depth'),
-    depthMap: regl.prop('depthMap'),
-    depthMapRepeat: regl.prop('depthMapRepeat'),
+    depthMap: (params, { depthMapName, depthMapPath }) =>
+      (textures.get(depthMapName, depthMapPath, depthMapOpts)),
+    useDepthMap: (params, { depthMapPath }) =>
+      (depthMapPath == null ? 0 : 1),
+    depthMapParams: regl.prop('depthMapParams'),
     angle: regl.prop('angle'),
     angleAlpha: regl.prop('angleAlpha')
   }
@@ -107,9 +116,8 @@ export function createScene (tasks, state, renderer) {
           alphaMapRepeat: regl.prop('fillAlphaMapRepeat'),
           alphaMap: (params, { fillAlphaMapName, fillAlphaMapPath }) =>
             (textures.get(fillAlphaMapName, fillAlphaMapPath, fillAlphaMapOpts)),
-          useAlphaMap: (params, { fillAlphaMapPath }) => {
-            return (fillAlphaMapPath == null ? 0 : 1)
-          }
+          useAlphaMap: (params, { fillAlphaMapPath }) =>
+            (fillAlphaMapPath == null ? 0 : 1)
         },
         // attributes,
         blend,

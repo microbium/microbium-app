@@ -166,6 +166,14 @@
             :model="model" prop="depthMapRepeat" />
         </div>
       </div>
+      <div class="palette-item">
+        <input-range min="-1000" max="1000" step="5" v-model="model.depthMapDisplacement" />
+        <div class="palette-item__label">
+          <b>{{ depthMapDisplacementName }}</b> depth map displacement
+          <palette-item-controller :min="-1000" :max="1000" :step="5"
+            :model="model" prop="depthMapDisplacement" />
+        </div>
+      </div>
       <hr />
     </palette-group>
 
@@ -299,6 +307,11 @@ export default {
     depthMapRepeatName () {
       const { depthMapRepeat } = this.model
       return `${roundToPlaces(depthMapRepeat, 0)}n`
+    },
+
+    depthMapDisplacementName () {
+      const { depthMapDisplacement } = this.model
+      return `${roundToPlaces(depthMapDisplacement, 0)}pt`
     },
 
     strokeModName () {

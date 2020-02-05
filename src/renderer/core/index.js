@@ -106,6 +106,7 @@ export function mountCompositor ($el, $refs, actions) {
       linesBatch: createGroupPool({
         createItem: () => ({
           depth: new Float32Array(3),
+          depthMapParams: new Float32Array(2),
           mirror: new Float32Array(3)
         })
       }),
@@ -133,7 +134,9 @@ export function mountCompositor ($el, $refs, actions) {
       styleAnim: createKeyedPool({
         createItem: () => ({
           depthOffset: 0,
-          depthScale: 0
+          depthScale: 0,
+          depthMapRepeat: 0,
+          depthMapDisplacement: 0
         })
       })
     }
@@ -681,6 +684,7 @@ export function mountCompositor ($el, $refs, actions) {
         const {
           lineAlphaFuncIndex, lineAlphaMapRepeat, lineAlphaMapFile,
           fillAlphaFuncIndex, fillAlphaMapRepeat, fillAlphaMapFile,
+          depthMapFile,
           lineTintHex, lineTintAlpha,
           fillTintHex, fillTintAlpha
         } = style
@@ -699,10 +703,14 @@ export function mountCompositor ($el, $refs, actions) {
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
         const fillAlphaMapName = `fillAlpha_${i}`
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
+        const depthMapName = `depth_${i}`
+        const depthMapPath = getVersionedPath(depthMapFile)
 
         const styleAnim = pools.styleAnim.get(`style_${i}`)
         const depthOffset = factorTween('depthOffset', styleAnim, style, 0.05)
         const depthScale = factorTween('depthScale', styleAnim, style, 0.05)
+        const depthMapRepeat = factorTween('depthMapRepeat', styleAnim, style, 0.05)
+        const depthMapDisplacement = factorTween('depthMapDisplacement', styleAnim, style, 0.05)
 
         for (let j = 0; j < linesCount; j++) {
           const params = linesBatch[j]
@@ -717,16 +725,16 @@ export function mountCompositor ($el, $refs, actions) {
           params.miterLimit = miterLimit
 
           params.lineTint = lineTintVec
-          params.lineAlphaMapRepeat = lineAlphaMapRepeat
           params.lineDashFunction = lineAlphaFunc.dashFunction
           params.lineAlphaMapName = lineAlphaMapName
           params.lineAlphaMapPath = lineAlphaMapPath
+          params.lineAlphaMapRepeat = lineAlphaMapRepeat
 
           params.fillTint = fillTintVec
-          params.fillAlphaMapRepeat = fillAlphaMapRepeat
           params.fillDashFunction = fillAlphaFunc.dashFunction
           params.fillAlphaMapName = fillAlphaMapName
           params.fillAlphaMapPath = fillAlphaMapPath
+          params.fillAlphaMapRepeat = fillAlphaMapRepeat
 
           params.angle = polarIndex * polarStep
           params.angleAlpha = polarIndex === 0 ? 1 : polarAlpha
@@ -739,6 +747,11 @@ export function mountCompositor ($el, $refs, actions) {
             depthScale,
             polarIndex * polarDepthOffset +
               (isMirrorStep ? polarIndex * polarDepthOffset * 0.5 : 0))
+
+          params.depthMapName = depthMapName
+          params.depthMapPath = depthMapPath
+          params.depthMapParams = vec2.set(params.depthMapParams,
+            depthMapRepeat, depthMapDisplacement)
         }
 
         // TODO: Account for fill draw calls

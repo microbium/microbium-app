@@ -68,6 +68,7 @@ export function createControlsState () {
         depthOffset: 1,
         depthScale: 1,
         depthMapFile: null,
+        depthMapDisplacement: 500,
         depthMapRepeat: 40,
         strokeWidthMod: 0.6,
         curveSegMinLength: 10,
@@ -96,6 +97,7 @@ export function createControlsState () {
         depthScale: 1,
         depthMapFile: null,
         depthMapRepeat: 40,
+        depthMapDisplacement: 500,
         strokeWidthMod: 0.6,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
@@ -123,6 +125,7 @@ export function createControlsState () {
         depthScale: 1,
         depthMapFile: null,
         depthMapRepeat: 40,
+        depthMapDisplacement: 500,
         strokeWidthMod: 1.2,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
@@ -153,6 +156,7 @@ export function createControlsState () {
         depthScale: 1,
         depthMapFile: null,
         depthMapRepeat: 40,
+        depthMapDisplacement: 500,
         strokeWidthMod: 1,
         curveSegMinLength: 10,
         curveSegMaxLength: 8, // x10
