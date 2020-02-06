@@ -11,15 +11,23 @@ const RGB_LINEAR = {
 // TODO: Convert npot textures with canvas
 export function createTextureManager (regl) {
   const cache = {}
-  const empty = regl.texture()
+
+  function addToCache (key, resource) {
+    cache[key] = resource
+  }
 
   function getTexture (key, src, opts = RGB_LINEAR) {
-    if (key == null || src == null) return empty
+    if (key == null) return null
 
     const cached = cache[key]
     if (cached && cached.src === src) return cached.texture
 
     const texture = (cached && cached.texture) || regl.texture(opts)
+    if (src == null) {
+      if (!cached) addToCache(key, { src, texture })
+      return texture
+    }
+
     const image = document.createElement('img')
 
     image.crossOrigin = 'Anonymous'
@@ -34,7 +42,7 @@ export function createTextureManager (regl) {
     }
 
     image.src = `${SRC_BASE}${src}`
-    cache[key] = { src, image, texture }
+    addToCache(key, { src, image, texture })
 
     return texture
   }

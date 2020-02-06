@@ -690,23 +690,23 @@ export function mountCompositor ($el, $refs, actions) {
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const lineTint = pools.color.get(`${contextName}_lineTint_${i}`)
+        const lineTint = pools.color.get(`${contextName}_lineTint_${index}`)
         const lineTintVec = toVec4(lineTint.vec4, lineTint.colr, lineTintHex, lineTintAlpha)
-        const fillTint = pools.color.get(`${contextName}_fillTint_${i}`)
+        const fillTint = pools.color.get(`${contextName}_fillTint_${index}`)
         const fillTintVec = toVec4(fillTint.vec4, fillTint.colr, fillTintHex, fillTintAlpha)
 
         const thickness = this.computeLineThickness(style.thickness)
         const miterLimit = this.computeLineThickness(4)
         const lineAlphaFunc = alphaFunctions.all[lineAlphaFuncIndex || 0]
-        const lineAlphaMapName = `lineAlpha_${i}`
+        const lineAlphaMapName = `${contextName}_lineAlpha_${index}`
         const lineAlphaMapPath = getVersionedPath(lineAlphaMapFile)
         const fillAlphaFunc = alphaFunctions.all[fillAlphaFuncIndex || 0]
-        const fillAlphaMapName = `fillAlpha_${i}`
+        const fillAlphaMapName = `${contextName}_fillAlpha_${index}`
         const fillAlphaMapPath = getVersionedPath(fillAlphaMapFile)
-        const depthMapName = `depth_${i}`
+        const depthMapName = `${contextName}_depth_${index}`
         const depthMapPath = getVersionedPath(depthMapFile)
 
-        const styleAnim = pools.styleAnim.get(`${contextName}_style_${i}`)
+        const styleAnim = pools.styleAnim.get(`${contextName}_style_${index}`)
         const depthOffset = factorTween('depthOffset', styleAnim, style, 0.05)
         const depthScale = factorTween('depthScale', styleAnim, style, 0.05)
         const depthMapRepeat = factorTween('depthMapRepeat', styleAnim, style, 0.05)
@@ -1003,8 +1003,7 @@ export function mountCompositor ($el, $refs, actions) {
       eyeMasks.forEach((eyeMask) => {
         sceneCameraParams.eyeMask = eyeMask
         cameras.scene.setup(sceneCameraParams, () => {
-          // FIXME: Causing perf issues with depth displacement
-          // this.renderLines('ui', sceneAltUI, uiLinesParams, stylesUI)
+          this.renderLines('ui', sceneAltUI, uiLinesParams, stylesUI)
           this.renderUI(sceneUI)
         })
       })

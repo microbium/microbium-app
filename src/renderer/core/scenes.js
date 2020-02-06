@@ -50,19 +50,6 @@ export function createScene (tasks, state, renderer) {
     wrap: 'clamp'
   }
 
-  const uniforms = {
-    tick: regl.prop('tick'),
-    mirror: regl.prop('mirror'),
-    depth: regl.prop('depth'),
-    depthMap: (params, { depthMapName, depthMapPath }) =>
-      (textures.get(depthMapName, depthMapPath, depthMapOpts)),
-    useDepthMap: (params, { depthMapPath }) =>
-      (depthMapPath == null ? 0 : 1),
-    depthMapParams: regl.prop('depthMapParams'),
-    angle: regl.prop('angle'),
-    angleAlpha: regl.prop('angleAlpha')
-  }
-
   /*
   const attributes = {
     angle: {
@@ -82,6 +69,20 @@ export function createScene (tasks, state, renderer) {
 
   function createContext (style, index) {
     const bufferSize = 512
+
+    const uniforms = {
+      tick: regl.prop('tick'),
+      mirror: regl.prop('mirror'),
+      depth: regl.prop('depth'),
+      depthMap: (params, { depthMapName, depthMapPath }) =>
+        (textures.get(depthMapName, depthMapPath, depthMapOpts)),
+      useDepthMap: (params, { depthMapPath }) =>
+        (depthMapPath == null ? 0 : 1),
+      depthMapParams: regl.prop('depthMapParams'),
+      angle: regl.prop('angle'),
+      angleAlpha: regl.prop('angleAlpha')
+    }
+
     const lines = LineBuilder.create(regl, {
       dimensions: 3,
       bufferSize,
