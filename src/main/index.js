@@ -696,6 +696,7 @@ function openSceneFile (path) {
   createMainWindow()
   readFile(path, null)
     .then((buf) => inflateSync(buf))
+    .then((buf) => buf.toString('utf8'))
     .then((data) => {
       setMenuState('revert-scene', 'enabled', true)
       setMenuState('simulation-toggle', 'checked', false)
