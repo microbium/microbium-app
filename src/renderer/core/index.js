@@ -658,7 +658,7 @@ export function mountCompositor ($el, $refs, actions) {
       return cameras.scene.shouldAdjustThickness
     },
 
-    renderLines ({ contexts }, { polarAlpha, renderMirror }, styles) {
+    renderLines (contextName, { contexts }, { polarAlpha, renderMirror }, styles) {
       const { computedState } = this
       const { tick } = state.simulation
       const { alphaFunctions } = state.controls
@@ -666,7 +666,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       const model = mat4.identity(scratchMat4A)
 
-      const anim = pools.anim.get('_')
+      const anim = pools.anim.get(contextName)
       const polarStep = factorTween('polarStep', anim, computedState, 0.05)
       const polarDepthOffset = factorTween('polarDepthOffset', anim, computedState, 0.05)
       const mirrorAlpha = factorTween('mirrorAlpha', anim, computedState, 0.05)
@@ -690,9 +690,9 @@ export function mountCompositor ($el, $refs, actions) {
         } = style
 
         // OPTIM: Cache unchanged computed rgba array
-        const lineTint = pools.color.get(`lineTint_${i}`)
+        const lineTint = pools.color.get(`${contextName}_lineTint_${i}`)
         const lineTintVec = toVec4(lineTint.vec4, lineTint.colr, lineTintHex, lineTintAlpha)
-        const fillTint = pools.color.get(`fillTint_${i}`)
+        const fillTint = pools.color.get(`${contextName}_fillTint_${i}`)
         const fillTintVec = toVec4(fillTint.vec4, fillTint.colr, fillTintHex, fillTintAlpha)
 
         const thickness = this.computeLineThickness(style.thickness)
@@ -706,7 +706,7 @@ export function mountCompositor ($el, $refs, actions) {
         const depthMapName = `depth_${i}`
         const depthMapPath = getVersionedPath(depthMapFile)
 
-        const styleAnim = pools.styleAnim.get(`style_${i}`)
+        const styleAnim = pools.styleAnim.get(`${contextName}_style_${i}`)
         const depthOffset = factorTween('depthOffset', styleAnim, style, 0.05)
         const depthScale = factorTween('depthScale', styleAnim, style, 0.05)
         const depthMapRepeat = factorTween('depthMapRepeat', styleAnim, style, 0.05)
@@ -837,7 +837,7 @@ export function mountCompositor ($el, $refs, actions) {
         eyeMasks.forEach((eyeMask) => {
           sceneCameraParams.eyeMask = eyeMask
           cameras.scene.setup(sceneCameraParams, () => {
-            this.renderLines(scene, sceneLinesParams, styles)
+            this.renderLines('scene', scene, sceneLinesParams, styles)
           })
         })
       })
@@ -1003,7 +1003,8 @@ export function mountCompositor ($el, $refs, actions) {
       eyeMasks.forEach((eyeMask) => {
         sceneCameraParams.eyeMask = eyeMask
         cameras.scene.setup(sceneCameraParams, () => {
-          this.renderLines(sceneAltUI, uiLinesParams, stylesUI)
+          // FIXME: Causing perf issues with depth displacement
+          // this.renderLines('ui', sceneAltUI, uiLinesParams, stylesUI)
           this.renderUI(sceneUI)
         })
       })
