@@ -32,19 +32,19 @@ export function createScene (tasks, state, renderer) {
   }
 
   const lineAlphaMapOpts = {
-    channels: 3,
+    format: 'rgb',
     min: 'linear',
     mag: 'linear',
     wrap: 'clamp'
   }
   const fillAlphaMapOpts = {
-    channels: 3,
+    format: 'rgb',
     min: 'linear',
     mag: 'linear',
     wrap: 'clamp'
   }
   const depthMapOpts = {
-    channels: 3,
+    format: 'rgb',
     min: 'linear',
     mag: 'linear',
     wrap: 'clamp'

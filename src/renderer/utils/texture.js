@@ -19,10 +19,10 @@ export function createTextureManager (regl) {
     const cached = cache[key]
     if (cached && cached.src === src) return cached.texture
 
-    const texture = (cached && cached.texture) || regl.texture()
+    const texture = (cached && cached.texture) || regl.texture(opts)
     const image = document.createElement('img')
-    image.crossOrigin = 'Anonymous'
 
+    image.crossOrigin = 'Anonymous'
     image.onload = () => {
       const { naturalWidth, naturalHeight } = image
       texture({
