@@ -275,7 +275,7 @@ export function createMenuTemplate (app, actions) {
               label: 'None',
               type: 'radio',
               click () {
-                actions.setAspectRatio('0')
+                actions.setAspectRatio('0:0')
               }
             },
             {
