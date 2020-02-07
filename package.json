@@ -70,9 +70,9 @@
     "colr": "^1.2.2",
     "electron-log": "^4.0.6",
     "electron-store": "^5.1.0",
-    "events": "^3.0.0",
+    "events": "^3.1.0",
     "fs-extra": "^8.1.0",
-    "gl-matrix": "^3.0.0",
+    "gl-matrix": "^3.1.0",
     "glsl-blend": "^1.0.3",
     "glsl-fast-gaussian-blur": "^1.0.2",
     "glsl-hash-blur": "^1.0.3",
@@ -83,7 +83,7 @@
     "leapjs": "^0.6.4",
     "lodash": "^4.17.15",
     "particulate": "^0.3.3",
-    "pngjs": "^3.3.3",
+    "pngjs": "^3.4.0",
     "ray-plane-intersection": "^1.0.0",
     "regl-line-builder": "^0.8.2",
     "vue": "^2.6.11",
@@ -91,7 +91,7 @@
     "vue-range-slider": "^0.6.0",
     "vue-router": "^3.1.5",
     "vuex": "^3.1.2",
-    "webmidi": "^2.3.0"
+    "webmidi": "^2.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
