@@ -271,7 +271,7 @@ export function createMenuTemplate (app, actions) {
           label: 'Aspect Ratio',
           submenu: [
             {
-              id: 'aspect-ratio-0',
+              id: 'aspect-ratio-0:0',
               label: 'None',
               type: 'radio',
               click () {
