@@ -151,6 +151,7 @@ function createAppActions () {
       }).then(({ filePath }) => {
         if (!filePath) return
         store.set('openScenePath', filePath)
+        app.addRecentDocument(filePath)
         saveSceneFile(filePath)
       })
     },
