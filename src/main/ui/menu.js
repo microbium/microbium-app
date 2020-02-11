@@ -47,6 +47,7 @@ export function createMenuTemplate (app, actions) {
             actions.revertScene()
           }
         },
+        { type: 'separator' },
         {
           id: 'import',
           label: 'Import',
@@ -61,11 +62,17 @@ export function createMenuTemplate (app, actions) {
           ]
         },
         {
-          label: 'Export Image',
-          accelerator: 'Cmd+Shift+E',
-          click () {
-            actions.saveFrameImage()
-          }
+          id: 'export',
+          label: 'Export',
+          submenu: [
+            {
+              label: 'Still Image',
+              accelerator: 'Cmd+Shift+E',
+              click () {
+                actions.saveFrameImage()
+              }
+            }
+          ]
         }
         /*
         {
