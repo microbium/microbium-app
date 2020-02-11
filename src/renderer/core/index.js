@@ -273,7 +273,6 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     // Message intercepted by Editor and saved to image file
-    // TODO: Save frame without needing re-render
     saveFrameData ({ path }) {
       logger.time('save frame data')
       const { regl, postBuffers } = renderer
@@ -282,8 +281,7 @@ export function mountCompositor ($el, $refs, actions) {
       const height = resolution[1]
 
       postBuffers.resize('fullExport', resolution)
-      this.renderScene(0, 'fullExport')
-      state.renderer.needsUpdate = true
+      this.renderSceneComposite(0, 'fullExport')
 
       const buffer = new Uint8Array(width * height * 4)
       postBuffers.use('fullExport', () => {
@@ -785,14 +783,14 @@ export function mountCompositor ($el, $refs, actions) {
     // Render Scene
     // ..................................................
 
-    renderScene (tick, fbo = null) {
+    renderScene (tick, fboName) {
       this.resizeRenderBuffers()
+      this.renderSceneBloomFeedback(tick)
       this.renderSceneMain()
       this.renderSceneBloom(tick)
       this.renderSceneBanding(tick)
       this.renderSceneEdges(tick)
-      this.renderSceneComposite(tick, fbo)
-      this.renderSceneBloomFeedback(tick)
+      this.renderSceneComposite(tick, fboName)
       this.renderSceneUI()
     },
 
