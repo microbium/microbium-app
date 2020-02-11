@@ -54,7 +54,7 @@ export function createMenuTemplate (app, actions) {
           submenu: [
             {
               id: 'import-controllers',
-              label: 'Scene Controllers',
+              label: 'Controller Channels',
               click () {
                 actions.importControllers()
               }
