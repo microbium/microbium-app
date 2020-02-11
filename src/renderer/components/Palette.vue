@@ -338,8 +338,12 @@ export default {
           else if (data.group) Object.assign(controls[data.group], data.value)
           else {
             const prevLayoutMode = controls.layoutMode.id
+            const prevActiveMode = controls.activeMode.id
+            const prevActivePalettes = controls.activePalettes.id
             Object.assign(controls, data.value)
             controls.layoutMode.id = prevLayoutMode
+            controls.activeMode.id = prevActiveMode
+            controls.activePalettes.id = prevActivePalettes
           }
           break
       }
