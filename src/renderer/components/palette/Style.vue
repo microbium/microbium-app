@@ -13,12 +13,12 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="0" max="5" step="0.1"
+        <input-range min="0" max="5" step="0.01"
           v-model="model.strokeWidthMod" />
         <div class="palette-item__label">
           <b>{{ strokeModName }}</b>
           stroke modulation
-          <palette-item-controller :min="0" :max="5"
+          <palette-item-controller :min="0" :max="5" :step="0.01"
             :model="model" prop="strokeWidthMod" />
         </div>
       </div>
@@ -316,7 +316,7 @@ export default {
 
     strokeModName () {
       const { strokeWidthMod } = this.model
-      return `${roundToPlaces(strokeWidthMod, 1)}x`
+      return `${roundToPlaces(strokeWidthMod, 2)}x`
     },
 
     lineTintAlphaName () {
