@@ -13,7 +13,7 @@ uniform sampler2D watermarkTexture;
 
 uniform float mirrorIntensity;
 uniform float mirrorAngle;
-// uniform float bloomIntensity;
+uniform float bloomIntensity;
 uniform float bandingIntensity;
 uniform float edgesIntensity;
 uniform float noiseIntensity;
@@ -85,7 +85,7 @@ void main() {
   // ..................................................
 
   vec3 bandingColor = baseColor;
-  // vec3 bloomColor = baseColor * 0.4;
+  vec3 bloomColor = baseColor * 0.4;
 
   // Banding
   if (bandingIntensity > 0.0) {
@@ -97,16 +97,15 @@ void main() {
   }
 
   // Bloom
-  // FIXME: Weird perf issues with sampling bloom blur
-  // if (bloomIntensity > 0.0) {
-  vec3 bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb;
-  vec3 bloomColorHSV = rgb2hsv(bloomColor);
-  bloomColorHSV = vec3(
-    fract(bloomColorHSV.r + colorShift.r),
-    clamp(bloomColorHSV.g + colorShift.g, 0.0, 1.5),
-    clamp(bloomColorHSV.b + colorShift.b, 0.0, 1.0));
-  bloomColor = hsv2rgb(bloomColorHSV);
-  // }
+  if (bloomIntensity > 0.0) {
+    bloomColor = sampleMirror(bloom, uv, mirrorAngle).rgb;
+    vec3 bloomColorHSV = rgb2hsv(bloomColor);
+    bloomColorHSV = vec3(
+      fract(bloomColorHSV.r + colorShift.r),
+      clamp(bloomColorHSV.g + colorShift.g, 0.0, 1.5),
+      clamp(bloomColorHSV.b + colorShift.b, 0.0, 1.0));
+    bloomColor = hsv2rgb(bloomColorHSV);
+  }
 
   // ..................................................
 

@@ -615,6 +615,8 @@ export function mountCompositor ($el, $refs, actions) {
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
 
       bufPixelRatio = bloom.bufferScale / pixelRatioNative
+      postBuffers.resize('bloom', resolution,
+        clampPixelRatio(resolution, bufPixelRatio, maxDimension))
       postBuffers.resize('blurA', resolution,
         clampPixelRatio(resolution, bufPixelRatio, maxDimension))
       postBuffers.resize('blurB', resolution,
@@ -846,12 +848,20 @@ export function mountCompositor ($el, $refs, actions) {
     renderSceneBloom () {
       timer.begin('renderBloom')
 
+      const { drawTexture } = renderer.commands
       const { viewResolution, shouldRenderBloom } = this.computedState
       const { bloom } = state.controls.postEffects
+      const params = pools.params.get('bloomCopy')
 
       if (shouldRenderBloom) {
         this.renderSceneBlurPasses(viewResolution,
           bloom.blurStep, bloom.blurPasses)
+
+        params.framebufferName = 'bloom'
+        params.colorName = 'blurB'
+        params.scale = 1
+        params.offset = vec2.set(scratchVec2A, 0, 0)
+        drawTexture(params)
       }
 
       timer.end('renderBloom')
@@ -915,7 +925,7 @@ export function mountCompositor ($el, $refs, actions) {
         viewResolution, viewOffset, viewScale,
         shouldRenderBanding, shouldRenderEdges,
         shouldRenderLut, shouldRenderWatermark,
-        mirrorIntensity, mirrorAngle, bandingIntensity,
+        mirrorIntensity, mirrorAngle, bloomIntensity, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
         vignetteParams, defocusParams, colorShift, noiseIntensity
       } = this.computedState
@@ -923,7 +933,7 @@ export function mountCompositor ($el, $refs, actions) {
 
       compositeParams.framebufferName = fboName || null
       compositeParams.colorName = 'full'
-      compositeParams.bloomName = 'blurB'
+      compositeParams.bloomName = 'bloom'
       compositeParams.bandingName = shouldRenderBanding ? 'banding' : 'blank'
       compositeParams.edgesName = shouldRenderEdges ? 'edges' : 'blank'
 
@@ -932,6 +942,7 @@ export function mountCompositor ($el, $refs, actions) {
       compositeParams.watermarkTexture = textures.get('watermark',
         shouldRenderWatermark ? watermark.textureFile.path : null)
 
+      compositeParams.bloomIntensity = bloomIntensity
       compositeParams.bandingIntensity = bandingIntensity
       compositeParams.edgesIntensity = edgesIntensity
       compositeParams.lutIntensity = lutIntensity
@@ -966,7 +977,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (isRunning && shouldRenderBloomFeedback) {
         const feedbackParams = pools.params.get('feedback')
         feedbackParams.framebufferName = 'full'
-        feedbackParams.colorName = 'blurB'
+        feedbackParams.colorName = 'bloom'
 
         feedbackParams.displaceName = 'displace'
         feedbackParams.displacePath = getVersionedPath(bloom.feedbackDisplaceFile)

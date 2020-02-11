@@ -162,6 +162,7 @@ export function createDrawScreen (regl, postBuffers) {
       colorShift: regl.prop('colorShift'),
       mirrorIntensity: regl.prop('mirrorIntensity'),
       mirrorAngle: regl.prop('mirrorAngle'),
+      bloomIntensity: regl.prop('bloomIntensity'),
       bandingIntensity: regl.prop('bandingIntensity'),
       edgesIntensity: regl.prop('edgesIntensity'),
       noiseIntensity: regl.prop('noiseIntensity'),

@@ -47,7 +47,8 @@ export function createRenderer (tasks, state) {
   const textures = createTextureManager(regl)
   const postBuffers = createPostBuffers(regl,
     'full', 'fullExport',
-    'banding', 'edges', 'blurA', 'blurB')
+    'banding', 'edges',
+    'bloom', 'blurA', 'blurB')
 
   const commands = {
     drawBanding: createDrawBanding(regl, postBuffers),
