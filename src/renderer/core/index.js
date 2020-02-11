@@ -1,5 +1,7 @@
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
+import { set as objectSet } from 'lodash'
 import Colr from 'colr'
+import RecursiveIterator from 'recursive-iterator'
 // import Leap from 'leapjs'
 
 import { createTaskManager } from '@renderer/utils/task'
@@ -239,6 +241,8 @@ export function mountCompositor ($el, $refs, actions) {
         (event, { path }) => view.serializeScene({ path }))
       actions.observeMessage('deserialize-scene',
         (event, { path, data }) => view.deserializeScene({ path, data }))
+      actions.observeMessage('deserialize-scene-controllers',
+        (event, { path, data }) => view.deserializeSceneControllers({ path, data }))
       actions.observeMessage('save-frame', (event, data) => view.saveFrameData(data))
     },
 
@@ -250,13 +254,11 @@ export function mountCompositor ($el, $refs, actions) {
     },
 
     deserializeScene ({ path, data }) {
-      const wasRunning = state.simulation.isRunning
-
       logger.time('deserialize scene')
+
+      const wasRunning = state.simulation.isRunning
       const sceneData = JSON.parse(data)
       const scene = io.deserializeScene({ path, data: sceneData })
-      logger.timeEnd('deserialize scene')
-      logger.log('scene', scene)
 
       // Pause & destroy simulation state
       if (wasRunning) simulation.toggle()
@@ -270,6 +272,30 @@ export function mountCompositor ($el, $refs, actions) {
 
       // Restart simulation
       if (wasRunning) simulation.toggle()
+
+      logger.timeEnd('deserialize scene')
+      logger.log('scene', scene)
+    },
+
+    deserializeSceneControllers ({ path, data }) {
+      logger.time('deserialize scene controllers')
+
+      const sceneData = JSON.parse(data)
+      const scene = io.deserializeScene({ path, data: sceneData })
+
+      const controlsItr = new RecursiveIterator(scene.controls)
+      for (const control of controlsItr) {
+        if (control.key.indexOf('Controller') !== -1) {
+          objectSet(state.controls, control.path.join('.'), control.node)
+        }
+      }
+
+      state.renderer.needsUpdate = true
+      this.updatePaletteState(null, null, state.controls, true)
+
+      logger.timeEnd('deserialize scene controllers')
+      logger.log('scene', scene)
+      console.log(state.controls)
     },
 
     // Message intercepted by Editor and saved to image file

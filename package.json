@@ -85,6 +85,7 @@
     "particulate": "^0.3.3",
     "pngjs": "^3.4.0",
     "ray-plane-intersection": "^1.0.0",
+    "recursive-iterator": "^3.3.0",
     "regl-line-builder": "^0.8.2",
     "vue": "^2.6.11",
     "vue-electron": "^1.0.6",

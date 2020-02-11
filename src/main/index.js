@@ -179,6 +179,18 @@ function createAppActions () {
       })
     },
 
+    importControllers () {
+      dialog.showOpenDialog(null, {
+        openDirectory: false,
+        multiSelections: false,
+        filters: fileTypeFilters
+      }).then(({ filePaths }) => {
+        if (!(filePaths && filePaths.length)) return
+        const filePath = filePaths[0]
+        importSceneFileControllers(filePath)
+      })
+    },
+
     saveFrameImage () {
       dialog.showSaveDialog(null, {
         filters: imageTypeFilters
@@ -438,6 +450,7 @@ function createMainWindow () {
     ipcMain.removeListener('main+menu-message', onMainMessage)
     setMenuState('create-scene', 'enabled', true)
     setMenuState('revert-scene', 'enabled', false)
+    setMenuState('import-controllers', 'enabled', false)
     appWindows.main = null
   })
 }
@@ -700,6 +713,7 @@ function openSceneFile (path) {
     .then((buf) => buf.toString('utf8'))
     .then((data) => {
       setMenuState('revert-scene', 'enabled', true)
+      setMenuState('import-controllers', 'enabled', true)
       setMenuState('simulation-toggle', 'checked', false)
       setWindowFilePath('main', path)
       setMainEdited(false)
@@ -743,6 +757,18 @@ function restoreLastSession () {
     if (!openScenePath) return
     openSceneFile(openScenePath)
   })
+}
+
+function importSceneFileControllers (path) {
+  readFile(path, null)
+    .then((buf) => inflateSync(buf))
+    .then((buf) => buf.toString('utf8'))
+    .then((data) => {
+      sendWindowMessage('main', 'deserialize-scene-controllers', { path, data })
+    })
+    .catch((err) => {
+      log.error(err)
+    })
 }
 
 // ------------------------------------------------------------

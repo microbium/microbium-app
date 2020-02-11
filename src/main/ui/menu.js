@@ -48,6 +48,19 @@ export function createMenuTemplate (app, actions) {
           }
         },
         {
+          id: 'import',
+          label: 'Import',
+          submenu: [
+            {
+              id: 'import-controllers',
+              label: 'Scene Controllers',
+              click () {
+                actions.importControllers()
+              }
+            }
+          ]
+        },
+        {
           label: 'Export Image',
           accelerator: 'Cmd+Shift+E',
           click () {
