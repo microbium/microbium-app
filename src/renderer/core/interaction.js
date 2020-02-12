@@ -227,8 +227,19 @@ export function createDragController (tasks, state) {
       const close = requestSync('geometry.findClosestPoint',
         down, maxDistance / scale)
 
-      if (close) requestSync('geometry.createSegment', close.point, close.index)
-      else requestSync('geometry.createSegment', down)
+      state.geometry.activeDepth = state.controls.lineTool.depth
+
+      if (close) {
+        const connections = requestSync('geometry.findConnectedSegments', close.index)
+        if (connections) {
+          const { index, segment } = connections[0]
+          const depth = segment.depths[index]
+          state.geometry.activeDepth = depth
+        }
+        requestSync('geometry.createSegment', close.point, close.index)
+      } else {
+        requestSync('geometry.createSegment', down)
+      }
     },
 
     moveDraw (move, velocity) {

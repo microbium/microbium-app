@@ -1,7 +1,14 @@
 import { vec2 } from 'gl-matrix'
 import { clamp, mapLinear } from '@renderer/utils/math'
+import { createKeyedPool } from '@renderer/utils/pool'
 
 export function createGeometryController (tasks, state) {
+  const pools = {
+    connections: createKeyedPool({
+      createItem: () => ({})
+    })
+  }
+
   const geometry = {
     computeStrokeWidth (baseWidth) {
       return baseWidth * baseWidth
@@ -86,11 +93,30 @@ export function createGeometryController (tasks, state) {
       return null
     },
 
+    findConnectedSegments (index) {
+      const { segments } = state.geometry
+      const connections = []
+
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i]
+        const { indices } = segment
+        const connectionIndex = indices.indexOf(index)
+
+        if (connectionIndex !== -1) {
+          const connection = pools.connections.get(i)
+          connection.index = connectionIndex
+          connection.segment = segment
+          connections.push(connection)
+        }
+      }
+
+      return connections.length ? connections : null
+    },
+
     createSegment (point, index) {
       const stateGeom = state.geometry
-      const { segments, vertices } = stateGeom
+      const { activeDepth, segments, vertices, depths } = stateGeom
       const {
-        depth,
         strokeWidth, strokeColor, strokeAlpha,
         fillColor, fillAlpha,
         constraintIndex, styleIndex
@@ -103,7 +129,7 @@ export function createGeometryController (tasks, state) {
       const connectedIndices = isConnected ? [0] : []
       const modStrokeWidth = geometry.computeModulatedStrokeWidth()
       const nextSegment = {
-        depths: [depth],
+        depths: [activeDepth],
         indices: [startIndex],
         connectedIndices,
         linkSizeAvg: 0,
@@ -117,7 +143,10 @@ export function createGeometryController (tasks, state) {
         styleIndex
       }
 
-      if (!isConnected) vertices.push(startPoint)
+      if (!isConnected) {
+        vertices.push(startPoint)
+      }
+
       segments.push(nextSegment)
       Object.assign(stateGeom, {
         candidatePoint: null,
@@ -132,8 +161,8 @@ export function createGeometryController (tasks, state) {
       if (!activeSegment) return
 
       const { scale } = state.viewport
-      const { depth } = state.controls.lineTool
       const {
+        activeDepth,
         shouldAppend, shouldAppendOnce,
         linkSizeMin, linkSizeMinStrokeFactor,
         prevPoint, vertices
@@ -159,7 +188,7 @@ export function createGeometryController (tasks, state) {
 
       if (!hasCandidate) {
         stateGeom.candidatePoint = candidatePoint
-        depths.push(depth)
+        depths.push(activeDepth)
         indices.push(vertices.length)
         vertices.push(candidatePoint)
         strokeWidthModulations.push(modStrokeWidth)
@@ -171,7 +200,7 @@ export function createGeometryController (tasks, state) {
         const isConnected = index != null
 
         if (isConnected) {
-          depths[depths.length - 1] = depth
+          depths[depths.length - 1] = activeDepth
           indices[indices.length - 1] = index
           connectedIndices.push(indices.length - 1)
           vertices.pop()
@@ -194,10 +223,9 @@ export function createGeometryController (tasks, state) {
 
     completeActiveSegment (index) {
       const stateGeom = state.geometry
-      const { activeSegment, vertices } = stateGeom
+      const { activeSegment, activeDepth, vertices } = stateGeom
       if (!activeSegment) return
 
-      const { depth } = state.controls.lineTool
       const {
         depths, indices,
         connectedIndices, strokeWidthModulations
@@ -208,7 +236,7 @@ export function createGeometryController (tasks, state) {
       let isClosed = isConnected && firstIndex === index
 
       if (isConnected && !isConnectedDup) {
-        depths[depths.length - 1] = depth
+        depths[depths.length - 1] = activeDepth
         indices[indices.length - 1] = index
         connectedIndices.push(indices.length - 1)
         vertices.pop()
@@ -311,6 +339,7 @@ export function createGeometryController (tasks, state) {
 
   tasks.registerResponders([
     'findClosestPoint',
+    'findConnectedSegments',
     'createSegment',
     'updateActiveSegment',
     'completeActiveSegment',
