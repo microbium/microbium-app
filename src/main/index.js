@@ -419,6 +419,7 @@ function createMainWindow () {
 
   setMenuState('create-scene', 'enabled', false)
   setMenuState('revert-scene', 'enabled', true)
+  setMenuState('import-controllers', 'enabled', true)
 
   restoreWindowPosition('main')
   restoreWindowAspect('main')
