@@ -103,12 +103,12 @@ export const FORCE_INTENSITY_TYPES = [
   },
   {
     index: 2,
-    name: 'Cursor Velocity'
-  },
-  {
-    index: 3,
-    name: 'Hand Proximity'
+    name: 'Velocity'
   }
+  // {
+  //   index: 3,
+  //   name: 'Hand Proximity'
+  // }
 ]
 
 export const CONSTRAINT_TYPES = [

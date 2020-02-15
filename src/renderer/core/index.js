@@ -90,8 +90,8 @@ export function mountCompositor ($el, $refs, actions) {
         animationFrame = recording.isActive ? recording.tick : animationFrame + 1
         return animationFrame
       },
-      update () {
-        tasks.run('update', animationFrame)
+      update (delta) {
+        tasks.run('update', animationFrame, delta)
       },
       render () {
         tasks.run('render', animationFrame)
@@ -332,7 +332,7 @@ export function mountCompositor ($el, $refs, actions) {
     // Update
     // ..................................................
 
-    update (tick) {
+    update (tick, delta) {
       const { isRunning, wasRunning, isPaused } = state.simulation
       const { speed } = state.controls.simulation
 
@@ -353,7 +353,7 @@ export function mountCompositor ($el, $refs, actions) {
       if (isRunning && !isPaused) {
         timer.begin('updatePhysics')
         state.simulation.tick++
-        simulation.update(tick, speed)
+        simulation.update(tick, delta, speed)
         timer.end('updatePhysics')
       }
       if (isRunning && !wasRunning) {

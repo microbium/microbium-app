@@ -59,10 +59,10 @@
       </div>
     </div>
     <div class="palette-item">
-      <input-range min="-2" max="2" step="0.01" v-model="model.intensity" />
+      <input-range min="-1" max="1" step="0.01" v-model="model.intensity" />
       <div class="palette-item__label">
         <b>{{ intensityName }}</b> intensity
-        <palette-item-controller :min="-2" :max="2"
+        <palette-item-controller :min="-1" :max="1"
           :model="model" prop="intensity" />
       </div>
     </div>

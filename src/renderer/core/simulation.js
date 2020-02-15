@@ -234,6 +234,8 @@ export function createSimulationController (tasks, state, renderer) {
       system.addForce(force)
       group.push({
         position: vec2.create(),
+        positionPrev: vec2.create(),
+        velocity: 0,
         force
       })
     },
@@ -243,6 +245,8 @@ export function createSimulationController (tasks, state, renderer) {
       system.addForce(force)
       group.push({
         position: vec2.create(),
+        positionPrev: vec2.create(),
+        velocity: 0,
         force
       })
     },
@@ -270,15 +274,15 @@ export function createSimulationController (tasks, state, renderer) {
     // Update
 
     // TODO: Sync simulation iterations (from controls)
-    update (tick, speed) {
-      simulation.updateEngines(speed)
-      simulation.updateForces(speed)
+    update (tick, delta, speed) {
+      simulation.updateEngines(delta, speed)
+      simulation.updateForces(delta, speed)
       state.simulationSystem.tick(speed)
       simulation.syncGeometry()
     },
 
     // TODO: Enable extending beyond base segment size
-    updateEngines (speed) {
+    updateEngines (delta, speed) {
       const { constraintGroups } = state.controls
       const { engines } = state.simulationConstraintGroups
 
@@ -312,11 +316,10 @@ export function createSimulationController (tasks, state, renderer) {
       return basePolarOffset * basePolarOffset
     },
 
-    updateForces (speed) {
+    updateForces (delta, speed) {
       const { points } = state.simulationForces
       const { tick } = state.simulation
       const { forces, postEffects } = state.controls
-      const { velocity, hand } = state.seek
       const { polar } = postEffects
 
       // TODO: Improve pointer force polar distribution
@@ -331,11 +334,8 @@ export function createSimulationController (tasks, state, renderer) {
 
       points.forEach((item, i) => {
         const config = forces[i]
-        const { positionTypeIndex, intensityTypeIndex, radius } = config
+        const { positionTypeIndex, intensityTypeIndex, radius, intensity } = config
         const { force } = item
-        const intensity = positionTypeIndex === 1
-          ? config.intensity * 10
-          : config.intensity * 3
 
         force.setRadius(
           simulation.computeForceRadius(radius))
@@ -347,9 +347,9 @@ export function createSimulationController (tasks, state, renderer) {
           case 1:
             this.updateForceCursor(item, config, params)
             break
-          case 2:
-            this.updateForceHand(item, config, params)
-            break
+          // case 2:
+          //   this.updateForceHand(item, config, params)
+          //   break
         }
 
         switch (intensityTypeIndex) {
@@ -359,24 +359,18 @@ export function createSimulationController (tasks, state, renderer) {
             break
           case 1:
             // Ebb and Flow
-            force.intensity = Math.sin(tick * 0.01) * intensity * 0.1
+            force.intensity = Math.sin(tick * 0.01) * intensity
             break
           case 2:
-            // Cursor Velocity
-            force.intensity = Math.min(velocity, 3) * intensity + 2
-            if (positionTypeIndex === 0) force.intensity *= 0.1
-            break
-          case 3:
-            // Hand Proximity
-            force.intensity = (1 - hand[2]) * 5 * intensity + 2
-            if (positionTypeIndex === 0) force.intensity *= 0.1
+            // Velocity
+            force.intensity = item.velocity * intensity
             break
         }
       })
     },
 
     updateForceStatic (item, config, params) {
-      const { position, force } = item
+      const { position, positionPrev, force } = item
       const { polarAngle, polarOffset } = config
 
       const polarOffsetVec = vec2.set(pools.vec2.get('B'),
@@ -390,6 +384,10 @@ export function createSimulationController (tasks, state, renderer) {
       if (params.shouldApplyMirror) polarTickPosition[0] *= -1
       vec2.copy(position, polarPosition)
       force.set(polarTickPosition[0], polarTickPosition[1], 0)
+
+      const positionOffset = vec2.distance(positionPrev, position)
+      item.velocity = positionOffset * 0.1
+      vec2.copy(positionPrev, position)
     },
 
     updateForceCursor (item, config, params) {
