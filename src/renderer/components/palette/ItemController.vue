@@ -113,7 +113,8 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
+    this.updateControllerBinding()
   },
 
   beforeDestroy () {
@@ -121,6 +122,16 @@ export default {
   },
 
   methods: {
+    updateControllerBinding () {
+      const { isActive, channel } = this
+      if (channel >= 0 && !isActive) {
+        this.bindControllerEvents()
+      }
+      if (channel < 0 && isActive) {
+        this.unbindControllerEvents()
+      }
+    },
+
     bindControllerEvents () {
       PaletteControllers.on('cc', this.handleControllerMessage)
       PaletteControllers.on('tick', this.handleControllerTick)
@@ -243,13 +254,7 @@ export default {
 
   watch: {
     channel () {
-      const { isActive, channel } = this
-      if (channel >= 0 && !isActive) {
-        this.bindControllerEvents()
-      }
-      if (channel < 0 && isActive) {
-        this.unbindControllerEvents()
-      }
+      this.updateControllerBinding()
     }
   }
 }
