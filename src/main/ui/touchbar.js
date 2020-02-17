@@ -17,10 +17,21 @@ const {
 // ----------------
 
 export function createPaletteTouchBar (actions) {
+  const simulation = createSimulationControls(actions)
   const paletteSelector = createPaletteSelector(actions)
-  const touchbar = new TouchBar({ items: [paletteSelector] })
 
-  touchbar.syncActivePalette = paletteSelector.syncActivePalette
+  const touchbar = new TouchBar({
+    items: [
+      simulation,
+      paletteSelector
+    ]
+  })
+
+  Object.assign(touchbar, {
+    syncSimulationRunningState: simulation.syncRunningState,
+    syncSimulationPausedState: simulation.syncPausedState,
+    syncActivePalette: paletteSelector.syncActivePalette
+  })
 
   return touchbar
 }
@@ -87,7 +98,7 @@ function createSimulationControls (actions) {
   const controls = createControlsGroup(actions, [{
     name: 'simulation-play',
     icon: icons.play,
-    actionName: 'toggleSimulation'
+    actionName: 'toggleSimulationFromTouchbar'
   }, {
     name: 'simulation-pause',
     icon: icons.pauseActive,

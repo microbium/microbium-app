@@ -227,6 +227,12 @@ function createAppActions () {
       }
     },
 
+    toggleSimulationFromTouchbar () {
+      if (appWindows.main) {
+        toggleSimulationState()
+      }
+    },
+
     toggleSimulationPause () {
       toggleSimulationPauseState()
     },
@@ -1001,6 +1007,7 @@ function syncSimulationState () {
   const isRunning = editorState.isSimRunning
   const message = { action: 'SIMULATION_TOGGLE', isRunning }
 
+  appTouchBars.palette.syncSimulationRunningState(isRunning)
   appTouchBars.editor.syncSimulationRunningState(isRunning)
   sendWindowMessage('main', 'command', message)
   sendWindowMessage('palette', 'command', message)
@@ -1010,6 +1017,7 @@ function toggleSimulationPauseState () {
   const isPaused = editorState.isSimPaused = !editorState.isSimPaused
   const message = { action: 'SIMULATION_TOGGLE_PAUSE', isPaused }
 
+  appTouchBars.palette.syncSimulationPausedState(isPaused)
   appTouchBars.editor.syncSimulationPausedState(isPaused)
   sendWindowMessage('main', 'command', message)
   sendWindowMessage('palette', 'command', message)
