@@ -159,7 +159,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[1]" />
+        <input-range min="-1" max="1" step="0.005" v-model="model.colorShift.hsl[1]" />
         <div class="palette-item__label">
           <b>{{ colorShiftSatName }}</b> saturation
           <palette-item-controller :min="-1" :max="1"
@@ -167,7 +167,7 @@
         </div>
       </div>
       <div class="palette-item">
-        <input-range min="-1" max="1" step="0.01" v-model="model.colorShift.hsl[2]" />
+        <input-range min="-1" max="1" step="0.005" v-model="model.colorShift.hsl[2]" />
         <div class="palette-item__label">
           <b>{{ colorShiftValName }}</b> value
           <palette-item-controller :min="-1" :max="1"
@@ -194,10 +194,10 @@
       -->
 
       <div class="palette-item">
-        <input-range min="0" max="6" step="1" v-model="model.bloom.blurPasses" />
+        <input-range min="1" max="8" step="1" v-model="model.bloom.blurPasses" />
         <div class="palette-item__label">
           <b>{{ bloomBlurPassesName }}</b> {{ bloomBlurPassesLabel }}
-          <palette-item-controller :min="0" :max="6" :step="1"
+          <palette-item-controller :min="1" :max="8" :step="1"
             :model="model.bloom" prop="blurPasses" />
         </div>
       </div>
