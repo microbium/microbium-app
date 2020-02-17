@@ -3,11 +3,12 @@ import {
   resolve as pathResolve,
   relative as pathRelative
 } from 'path'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, defaultsDeep } from 'lodash'
 
 import { map, flatten2, expand2 } from '@renderer/utils/array'
 import { roundToPlaces } from '@renderer/utils/number'
 import { SERIALIZE_KEYS_MAP } from '@renderer/constants/scene-format'
+import { createControlsState } from '@renderer/store/modules/Palette'
 
 const DEBUG_LOG_CONTROLLER_PROPS = false
 
@@ -63,6 +64,7 @@ export function createIOController (tasks, state) {
       }
     },
 
+    // TODO: Add scene format version + migrations
     deserializeScene ({ path, data }) {
       const unmapKeys = io.mapKeys.bind(null, ABBRV_KEY_MAP)
       const unmapKeysDeep = io.mapKeysDeep.bind(null, ABBRV_KEY_MAP)
@@ -79,7 +81,8 @@ export function createIOController (tasks, state) {
             io.deserializeIntArray(seg.connectedIndices)),
           constraintIndex: seg.constraintIndex,
           depths: new Float32Array(
-            io.deserializeFloatArray(seg.depths)),
+            io.deserializeFloatArray(seg.depths ||
+              new Array(seg.indices.length).fill('1').join(','))),
           indices: new Uint16Array(
             io.deserializeIntArray(seg.indices)),
           isClosed: io.deserializeBool(seg.isClosed),
@@ -98,7 +101,8 @@ export function createIOController (tasks, state) {
         }))
       const verticesOut = expand2(
         io.deserializeFloatArray(vertices), Float32Array)
-      const controlsOut = io.deserializeControls(path, controls)
+      const controlsOut = io.deserializeControls(path,
+        defaultsDeep(controls, createControlsState()))
 
       if (DEBUG_LOG_CONTROLLER_PROPS) {
         io.logControllerProps('controls', controls)
