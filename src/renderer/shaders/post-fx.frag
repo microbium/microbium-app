@@ -154,7 +154,9 @@ void main() {
 
   // Defocus (Vignette Blur)
   float defocusFactor = mix(1.0,
-    vignette(uv, defocusParams.x, defocusParams.y),
+    vignette(
+      (uv - 0.5) * viewResolution.xy / viewResolution.y + 0.5,
+      defocusParams.x, defocusParams.y),
     defocusParams.z);
   outColor = mix(bloomColor, outColor, defocusFactor);
 
