@@ -9,7 +9,7 @@ import { createLoop } from '@renderer/utils/loop'
 import { debounce } from '@renderer/utils/function'
 import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
-import { factorTween } from '@renderer/utils/tween'
+import { TWEEN_KEYS, factorTween, factorTweenAll } from '@renderer/utils/tween'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
 import { toVec4 } from '@renderer/utils/color'
@@ -128,6 +128,7 @@ export function mountCompositor ($el, $refs, actions) {
       }),
       anim: createKeyedPool({
         createItem: () => ({
+          colorShift: new Float32Array(3),
           polarStep: 0,
           polarDepthOffset: 0,
           mirrorAlpha: 0
@@ -947,6 +948,7 @@ export function mountCompositor ($el, $refs, actions) {
     renderSceneComposite (tick, fboName) {
       timer.begin('renderComposite')
 
+      const { computedState } = this
       const { textures } = renderer
       const { drawScreen } = renderer.commands
       const { isRunning } = state.simulation
@@ -958,9 +960,14 @@ export function mountCompositor ($el, $refs, actions) {
         shouldRenderLut, shouldRenderWatermark,
         mirrorIntensity, mirrorAngle, bloomIntensity, bandingIntensity,
         edgesIntensity, lutIntensity, watermarkIntensity,
-        vignetteParams, defocusParams, colorShift, noiseIntensity
-      } = this.computedState
+        vignetteParams, defocusParams, noiseIntensity
+      } = computedState
+
       const compositeParams = pools.params.get('composite')
+      const anim = pools.anim.get('composite')
+
+      const colorShift = factorTweenAll(TWEEN_KEYS.vec3,
+        'colorShift', anim, computedState, 0.1)
 
       compositeParams.framebufferName = fboName || null
       compositeParams.colorName = 'full'

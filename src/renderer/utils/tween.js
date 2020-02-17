@@ -7,16 +7,18 @@ export function factorTween (name, context, target, factor) {
   return context[name]
 }
 
-export const KEYS = {
-  Vector3: ['x', 'y', 'z'],
-  Spherical: ['radius', 'phi', 'theta']
+export const TWEEN_KEYS = {
+  vec3: [0, 1, 2]
 }
 
 export function factorTweenAll (keys, name, context, target, factor) {
+  const itemContext = context[name]
+  const itemTarget = target[name]
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    factorTween(key, context[name], target[name], factor)
+    factorTween(key, itemContext, itemTarget, factor)
   }
+  return itemContext
 }
 
 // Tween to target by fixed step
