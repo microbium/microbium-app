@@ -178,14 +178,18 @@ export default {
       }
     },
 
+    resetLoopRecording () {
+      this.recording.length = 0
+      this.loopTime = 0
+      this.loopTick = 0
+    },
+
     updateLoopRecording (value) {
       const { isRecording, recording, recordingDelta } = this
       const time = Date.now()
 
       if (!isRecording) {
-        recording.length = 0
-        this.loopTime = 0
-        this.loopTick = 0
+        this.resetLoopRecording()
         this.lastRecordingTime = time
         this.isRecording = true
       }
@@ -204,6 +208,7 @@ export default {
 
     updateLoopTick (delta, time) {
       const { recording, model, prop } = this
+      if (!recording.length) return
 
       let shouldAdvance = true
       let currentTick = null
@@ -253,6 +258,12 @@ export default {
   },
 
   watch: {
+    shouldLoop (willLoop, wasLooping) {
+      if (willLoop) {
+        this.resetLoopRecording()
+      }
+    },
+
     channel () {
       this.updateControllerBinding()
     }
