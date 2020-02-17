@@ -993,7 +993,12 @@ function toggleMenuItem (name) {
 
 // TODO: Sync simulation state on window reload
 function toggleSimulationState () {
-  const isRunning = editorState.isSimRunning = !editorState.isSimRunning
+  editorState.isSimRunning = !editorState.isSimRunning
+  syncSimulationState()
+}
+
+function syncSimulationState () {
+  const isRunning = editorState.isSimRunning
   const message = { action: 'SIMULATION_TOGGLE', isRunning }
 
   appTouchBars.editor.syncSimulationRunningState(isRunning)

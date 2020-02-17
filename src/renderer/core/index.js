@@ -268,10 +268,15 @@ export function mountCompositor ($el, $refs, actions) {
       })
 
       state.renderer.needsUpdate = true
-      this.updatePaletteState(null, null, state.controls, true)
 
       // Restart simulation
-      if (wasRunning) simulation.toggle()
+      if (wasRunning) {
+        simulation.toggle()
+        state.controls.simulation.isRunning = true
+      }
+
+      // Sync controls
+      this.updatePaletteState(null, null, state.controls, true)
 
       logger.timeEnd('deserialize scene')
       logger.log('scene', scene)
