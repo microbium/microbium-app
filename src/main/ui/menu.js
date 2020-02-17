@@ -205,7 +205,6 @@ export function createMenuTemplate (app, actions) {
           }
         },
         { type: 'separator' },
-        /*
         {
           id: 'toolbar-on',
           label: 'Show Toolbar',
@@ -222,7 +221,6 @@ export function createMenuTemplate (app, actions) {
             actions.toggleMainToolbar()
           }
         },
-        */
         {
           id: 'status-on',
           label: 'Show Status',
