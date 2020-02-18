@@ -1,10 +1,10 @@
 {
-  "name": "Microbium",
+  "name": "microbium",
   "version": "1.0.0-beta-2",
   "author": "Jay Weeks <jay.patrick.weeks@gmail.com>",
   "description": "Microbiome drawing and simulating toy.",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "CC-BY-NC-SA-4.0",
   "main": "./dist/electron/main.js",
   "scripts": {
     "dev": "node .electron-vue/dev-runner.js",

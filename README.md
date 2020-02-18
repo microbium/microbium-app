@@ -3,6 +3,17 @@
 Organic creature drawing and simulating toy for macOS.
 
 
+## License
+
+Microbium (c) 2017-2020 by Jay Weeks
+
+Microbium is licensed under a
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+
+You should have received a copy of the license along with this
+work.  If not, see https://creativecommons.org/licenses/by-nc-sa/4.0/.
+
+
 ## Build Setup
 
 **Install dependencies**  
