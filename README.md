@@ -4,9 +4,11 @@
 
 ![Microbium](./screen_shots/screen_shot_04.jpg)
 
+
 ## App Downloads
 
 **[v1.0.0-beta-1 for macOS](https://microbiumapp.com/download/v1.0.0-beta-1)** – Released October 2019
+
 
 ## License
 
@@ -19,7 +21,9 @@ You should have received a copy of the license along with this
 work.  If not, see https://creativecommons.org/licenses/by-nc-sa/4.0/.
 
 
-## Build Setup
+## Developing
+
+### Build Setup
 
 **Install dependencies**  
 `yarn install`
@@ -36,7 +40,3 @@ work.  If not, see https://creativecommons.org/licenses/by-nc-sa/4.0/.
 **Lint all JS/Vue component files in `src/`**  
 `yarn lint`
 
-
-## Boilerplate
-
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[de85f81](https://github.com/SimulatedGREG/electron-vue/tree/de85f81890c01500113738bfe57bef136f9fbf52) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
