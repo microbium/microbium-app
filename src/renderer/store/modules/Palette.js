@@ -217,7 +217,7 @@ export function createControlsState () {
         polarAngle: 0,
         polarOffset: 0,
         radius: 8,
-        intensity: 0.1,
+        intensity: 0.2,
         intensityController: -1,
         radiusController: -1,
         polarAngleController: -1,

@@ -386,12 +386,12 @@ export function createSimulationController (tasks, state, renderer) {
       force.set(polarTickPosition[0], polarTickPosition[1], 0)
 
       const positionOffset = vec2.distance(positionPrev, position)
-      item.velocity = positionOffset * 0.1
+      item.velocity = positionOffset * 0.25
       vec2.copy(positionPrev, position)
     },
 
     updateForceCursor (item, config, params) {
-      const { position, force } = item
+      const { position, positionPrev, force } = item
       const { isDragging, down } = state.drag
       const { move } = state.seek
 
@@ -402,6 +402,10 @@ export function createSimulationController (tasks, state, renderer) {
       if (params.shouldApplyMirror) cursorForcePosition[0] *= -1
       vec2.copy(position, cursorPosition)
       force.set(cursorForcePosition[0], cursorForcePosition[1], 0)
+
+      const positionOffset = vec2.distance(positionPrev, position)
+      item.velocity = positionOffset
+      vec2.copy(positionPrev, position)
     },
 
     updateForceHand (item, config, params) {
