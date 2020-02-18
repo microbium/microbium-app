@@ -1,7 +1,8 @@
 # Microbium
 
-Organic creature drawing and simulating toy for macOS.
+> Organic creature drawing and simulating toy for macOS.
 
+![Microbium](./screen_shots/screen_shot_04.jpg)
 
 ## License
 
