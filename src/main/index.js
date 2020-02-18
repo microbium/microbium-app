@@ -329,8 +329,12 @@ function createAppActions () {
       setWindowAspectRatio('main', aspectName)
     },
 
+    viewSource () {
+      shell.openExternal('https://github.com/microbium/microbium-app')
+    },
+
     reportIssue () {
-      shell.openExternal('https://github.com/microbium/microbium-app-issues')
+      shell.openExternal('https://github.com/microbium/microbium-app/issues')
     },
 
     sendFeedback () {

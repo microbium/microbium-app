@@ -357,6 +357,12 @@ export function createMenuTemplate (app, actions) {
       label: app.name,
       submenu: [
         { role: 'about' },
+        {
+          label: 'Source Code',
+          click () {
+            actions.viewSource()
+          }
+        },
         { type: 'separator' },
         { role: 'services', submenu: [] },
         { type: 'separator' },
