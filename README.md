@@ -4,6 +4,10 @@
 
 ![Microbium](./screen_shots/screen_shot_04.jpg)
 
+## App Downloads
+
+**[v1.0.0-beta-1 for macOS](https://microbiumapp.com/download/v1.0.0-beta-1)** – Released October 2019
+
 ## License
 
 Microbium (c) 2017-2020 by Jay Weeks
