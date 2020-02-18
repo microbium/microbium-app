@@ -28,15 +28,12 @@ work.  If not, see https://creativecommons.org/licenses/by-nc-sa/4.0/.
 **Install dependencies**  
 `yarn install`
 
-**Serve with hot reload at `localhost:9080`**  
+**Run app in development mode**  
 `yarn dev`
 
-**Build electron application for production**  
+**Build packaged app**  
 `yarn build`
 
-**Run unit & end-to-end tests**  
-`yarn test`
-
-**Lint all JS/Vue component files in `src/`**  
+**Run code style linter**  
 `yarn lint`
 
