@@ -36,6 +36,47 @@
     </palette-group>
 
     <palette-group persistent-controls>
+      <h2 slot="title">Tunnel Generator</h2>
+      <input-checkbox slot="controls" v-model="model.tunnel.enabled" />
+
+      <div class="palette-item">
+        <input-range min="1" max="10" step="1" v-model="model.tunnel.iterations" />
+        <div class="palette-item__label">
+          <b>{{ tunnelIterationsName }}</b> {{ tunnelIterationsLabel }}
+          <palette-item-controller :min="1" :max="10" :step="1"
+            :model="model.tunnel" prop="iterations" />
+        </div>
+      </div>
+      <hr />
+
+      <div class="palette-item">
+        <input-range min="-2000" max="2000" step="10" v-model="model.tunnel.start" />
+        <div class="palette-item__label">
+          <b>{{ tunnelStartName }}</b> start
+          <palette-item-controller :min="-2000" :max="2000" :step="10"
+            :model="model.tunnel" prop="start" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="-2000" max="2000" step="10" v-model="model.tunnel.end" />
+        <div class="palette-item__label">
+          <b>{{ tunnelEndName }}</b> end
+          <palette-item-controller :min="-2000" :max="2000" :step="10"
+            :model="model.tunnel" prop="end" />
+        </div>
+      </div>
+      <div class="palette-item">
+        <input-range min="0" max="2" step="0.01" v-model="model.tunnel.speed" />
+        <div class="palette-item__label">
+          <b>{{ tunnelSpeedName }}</b> speed
+          <palette-item-controller :min="0" :max="2" :step="0.01"
+            :model="model.tunnel" prop="speed" />
+        </div>
+      </div>
+      <hr />
+    </palette-group>
+
+    <palette-group persistent-controls>
       <h2 slot="title">Mirror</h2>
       <input-checkbox slot="controls" v-model="model.mirror.enabled" />
 
@@ -427,6 +468,33 @@ export default {
     mirrorFactorName () {
       const { mirrorIntensityFactor } = this.model.polar
       return `${roundToPlaces(mirrorIntensityFactor, 2)}x`
+    },
+
+    // Tunnel
+
+    tunnelIterationsName () {
+      const { iterations } = this.model.tunnel
+      return numberToWords(iterations)
+    },
+
+    tunnelIterationsLabel () {
+      const { iterations } = this.model.tunnel
+      return `${pluralize(iterations, 'iteration', 'iterations')}`
+    },
+
+    tunnelStartName () {
+      const { start } = this.model.tunnel
+      return `${roundToPlaces(start, 0)}n`
+    },
+
+    tunnelEndName () {
+      const { end } = this.model.tunnel
+      return `${roundToPlaces(end, 0)}n`
+    },
+
+    tunnelSpeedName () {
+      const { speed } = this.model.tunnel
+      return `${roundToPlaces(speed, 2)}x`
     },
 
     // Mirror

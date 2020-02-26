@@ -343,6 +343,13 @@ export function createControlsState () {
         angle: 0,
         angleController: -1
       },
+      tunnel: {
+        enabled: false,
+        iterations: 3,
+        start: -500,
+        end: 500,
+        speed: 1
+      },
       bloom: {
         enabled: true,
         feedbackEnabled: true,
