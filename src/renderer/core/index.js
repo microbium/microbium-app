@@ -7,7 +7,7 @@ import RecursiveIterator from 'recursive-iterator'
 import { createTaskManager } from '@renderer/utils/task'
 import { createLoop } from '@renderer/utils/loop'
 import { debounce } from '@renderer/utils/function'
-import { lerp, radialPosition } from '@renderer/utils/math'
+import { lerp, radialPosition, mapLinear } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
 import {
   TWEEN_KEYS,
@@ -136,6 +136,8 @@ export function mountCompositor ($el, $refs, actions) {
           colorShift: new Float32Array(3),
           polarStep: 0,
           polarDepthOffset: 0,
+          tunnelStart: 0,
+          tunnelEnd: 0,
           mirrorAlpha: 0
         })
       }),
@@ -200,6 +202,10 @@ export function mountCompositor ($el, $refs, actions) {
         polarIterations: 0,
         polarStep: 0,
         polarDepthOffset: 0,
+        tunnelIterations: 0,
+        tunnelStart: 0,
+        tunnelEnd: 0,
+        tunnelProgress: 0,
         mirrorAlpha: 0,
         mirrorIntensity: 0,
         mirrorAngle: 0,
@@ -306,7 +312,6 @@ export function mountCompositor ($el, $refs, actions) {
 
       logger.timeEnd('deserialize scene controllers')
       logger.log('scene', scene)
-      console.log(state.controls)
     },
 
     // Message intercepted by Editor and saved to image file
@@ -314,8 +319,7 @@ export function mountCompositor ($el, $refs, actions) {
       logger.time('save frame data')
       const { regl, postBuffers } = renderer
       const { resolution } = state.viewport
-      const width = resolution[0]
-      const height = resolution[1]
+      const [width, height] = resolution
 
       postBuffers.resize('fullExport', resolution)
       this.renderSceneComposite(0, 'fullExport')
@@ -435,7 +439,7 @@ export function mountCompositor ($el, $refs, actions) {
       const { postEffects } = state.controls
       const { size } = state.viewport
       const {
-        polar, mirror, bloom, banding, edges, lut,
+        polar, tunnel, mirror, bloom, banding, edges, lut,
         watermark, vignette, defocus, colorShift, noise
       } = postEffects
 
@@ -456,6 +460,11 @@ export function mountCompositor ($el, $refs, actions) {
       computedState.polarIterations = polar.enabled ? polar.iterations : 1
       computedState.polarStep = Math.PI * 2 / computedState.polarIterations
       computedState.polarDepthOffset = polar.depthOffset
+
+      computedState.tunnelIterations = tunnel.enabled ? tunnel.iterations : 1
+      computedState.tunnelStart = tunnel.enabled ? tunnel.start : 0
+      computedState.tunnelEnd = tunnel.enabled ? tunnel.end : 0
+      computedState.tunnelProgress += tunnel.enabled ? tunnel.speed * 0.01 : 0
 
       computedState.mirrorAlpha = !polar.enabled ? 0
         : polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
@@ -699,13 +708,15 @@ export function mountCompositor ($el, $refs, actions) {
       const { computedState } = this
       const { tick } = state.simulation
       const { alphaFunctions } = state.controls
-      const { polarIterations } = computedState
+      const { polarIterations, tunnelIterations, tunnelProgress } = computedState
 
       const model = mat4.identity(scratchMat4A)
 
       const anim = pools.anim.get(contextName)
       const polarStep = factorTween('polarStep', anim, computedState, 0.05)
       const polarDepthOffset = factorTween('polarDepthOffset', anim, computedState, 0.05)
+      const tunnelStart = factorTween('tunnelStart', anim, computedState, 0.05)
+      const tunnelEnd = factorTween('tunnelEnd', anim, computedState, 0.05)
       const mirrorAlpha = factorTween('mirrorAlpha', anim, computedState, 0.05)
       const adjustProjectedThickness = this.shouldAdjustThickness()
 
@@ -784,9 +795,9 @@ export function mountCompositor ($el, $refs, actions) {
           params.depthMapParams = vec2.set(params.depthMapParams,
             depthMapRepeat, depthMapDisplacement)
 
-          // TODO: Parameterize in effect controls
-          for (let k = 0; k < 5; k++) {
-            const depthWalk = continuousSawTooth((k / 5) + tick * 0.01) * 800 - 800
+          for (let k = 0; k < tunnelIterations; k++) {
+            const depthWalk = mapLinear(0, 1, tunnelStart, tunnelEnd,
+              continuousSawTooth((k / tunnelIterations) + tunnelProgress))
 
             params.depth = vec3.set(params.depth,
               depthOffset - depthWalk,
@@ -799,9 +810,9 @@ export function mountCompositor ($el, $refs, actions) {
         }
 
         // TODO: Account for fill draw calls
-        state.renderer.drawCalls += linesCount * 5
+        state.renderer.drawCalls += linesCount * tunnelIterations
         state.renderer.lineQuads += lines.state.cursor.quad
-        // TODO: Enable batch rendering with depth walking effect
+        // TODO: Enable batch rendering with tunnel effect
         // lines.draw(linesBatch)
       }
     },
