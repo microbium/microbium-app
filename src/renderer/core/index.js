@@ -9,7 +9,12 @@ import { createLoop } from '@renderer/utils/loop'
 import { debounce } from '@renderer/utils/function'
 import { lerp, radialPosition } from '@renderer/utils/math'
 import { clampPixelRatio } from '@renderer/utils/screen'
-import { TWEEN_KEYS, factorTween, factorTweenAll } from '@renderer/utils/tween'
+import {
+  TWEEN_KEYS,
+  factorTween,
+  factorTweenAll,
+  continuousSawTooth
+} from '@renderer/utils/tween'
 import { logger } from '@renderer/utils/logger'
 import { timer } from '@renderer/utils/timer'
 import { toVec4 } from '@renderer/utils/color'
@@ -774,22 +779,30 @@ export function mountCompositor ($el, $refs, actions) {
             ? vec3.set(params.mirror, -1, 1, mirrorAlpha)
             : vec3.set(params.mirror, 1, 1, 1)
 
-          params.depth = vec3.set(params.depth,
-            depthOffset,
-            depthScale,
-            polarIndex * polarDepthOffset +
-              (isMirrorStep ? polarIndex * polarDepthOffset * 0.5 : 0))
-
           params.depthMapName = depthMapName
           params.depthMapPath = depthMapPath
           params.depthMapParams = vec2.set(params.depthMapParams,
             depthMapRepeat, depthMapDisplacement)
+
+          // TODO: Parameterize in effect controls
+          for (let k = 0; k < 5; k++) {
+            const depthWalk = continuousSawTooth((k / 5) + tick * 0.01) * 800 - 800
+
+            params.depth = vec3.set(params.depth,
+              depthOffset - depthWalk,
+              depthScale,
+              polarIndex * polarDepthOffset +
+                (isMirrorStep ? polarIndex * polarDepthOffset * 0.5 : 0))
+
+            lines.draw(params)
+          }
         }
 
         // TODO: Account for fill draw calls
-        state.renderer.drawCalls += linesCount
+        state.renderer.drawCalls += linesCount * 5
         state.renderer.lineQuads += lines.state.cursor.quad
-        lines.draw(linesBatch)
+        // TODO: Enable batch rendering with depth walking effect
+        // lines.draw(linesBatch)
       }
     },
 
