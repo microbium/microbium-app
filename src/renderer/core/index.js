@@ -706,7 +706,7 @@ export function mountCompositor ($el, $refs, actions) {
 
     renderLines (contextName, { contexts }, { polarAlpha, renderMirror }, styles) {
       const { computedState } = this
-      const { tick } = state.simulation
+      const { tick, isRunning } = state.simulation
       const { alphaFunctions } = state.controls
       const { polarIterations, tunnelIterations, tunnelProgress } = computedState
 
@@ -795,6 +795,9 @@ export function mountCompositor ($el, $refs, actions) {
           params.depthMapParams = vec2.set(params.depthMapParams,
             depthMapRepeat, depthMapDisplacement)
 
+          params.depthWrite = isRunning
+          params.depthRead = isRunning
+
           for (let k = 0; k < tunnelIterations; k++) {
             const depthWalk = mapLinear(0, 1, tunnelStart, tunnelEnd,
               continuousSawTooth((k / tunnelIterations) + tunnelProgress))
@@ -855,7 +858,7 @@ export function mountCompositor ($el, $refs, actions) {
     renderSceneMain () {
       timer.begin('renderLines')
 
-      const { postBuffers } = renderer
+      const { regl, postBuffers } = renderer
       const { drawRect } = renderer.commands
       const { isRunning } = state.simulation
       const { didResize } = state.viewport
@@ -875,6 +878,8 @@ export function mountCompositor ($el, $refs, actions) {
 
       const clearParams = pools.params.get('clear')
       clearParams.color = clearColorVec
+      const clearDepthParams = pools.params.get('clearDepth')
+      clearDepthParams.depth = 1
 
       const sceneCameraParams = pools.params.get('sceneCamera')
       sceneCameraParams.viewResolution = viewResolution
@@ -889,6 +894,7 @@ export function mountCompositor ($el, $refs, actions) {
       state.renderer.drawCalls++
       cameras.scene.update()
       postBuffers.use('full', () => {
+        regl.clear(clearDepthParams)
         drawRect(clearParams)
         eyeMasks.forEach((eyeMask) => {
           sceneCameraParams.eyeMask = eyeMask

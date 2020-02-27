@@ -28,7 +28,10 @@ export function createScene (tasks, state, renderer) {
 
   // TODO: Enable depth
   const depth = {
-    enable: false
+    enable: regl.prop('depthRead'),
+    mask: regl.prop('depthWrite'),
+    func: 'less',
+    range: [0, 1]
   }
 
   const lineAlphaMapOpts = {

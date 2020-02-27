@@ -6,7 +6,7 @@ export function createPostBuffers (regl, ...names) {
       wrap: 'clamp',
       format: 'rgba'
     }),
-    depth: false,
+    depth: true,
     stencil: false
   })
 
