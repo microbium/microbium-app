@@ -26,7 +26,6 @@ export function createScene (tasks, state, renderer) {
     color: [0, 0, 0, 0]
   }
 
-  // TODO: Enable depth
   const depth = {
     enable: regl.prop('depthRead'),
     mask: regl.prop('depthWrite'),
