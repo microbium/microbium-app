@@ -435,7 +435,7 @@ export function mountCompositor ($el, $refs, actions) {
     // TODO: Cleanup ...
     updateComputedPostState () {
       const { computedState } = this
-      const { isRunning } = state.simulation
+      const { isRunning, isPaused } = state.simulation
       const { postEffects } = state.controls
       const { size } = state.viewport
       const {
@@ -464,7 +464,7 @@ export function mountCompositor ($el, $refs, actions) {
       computedState.tunnelIterations = tunnel.enabled ? tunnel.iterations : 1
       computedState.tunnelStart = tunnel.enabled ? tunnel.start : 0
       computedState.tunnelEnd = tunnel.enabled ? tunnel.end : 0
-      computedState.tunnelProgress += tunnel.enabled ? tunnel.speed * 0.01 : 0
+      computedState.tunnelProgress += (tunnel.enabled && !isPaused) ? tunnel.speed * 0.01 : 0
 
       computedState.mirrorAlpha = !polar.enabled ? 0
         : polar.mirrorIntensityFactor * (isRunning ? 1 : 0.2)
