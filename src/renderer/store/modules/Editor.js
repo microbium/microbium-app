@@ -91,6 +91,7 @@ export function createCompositorState () {
   }
 
   const renderer = {
+    info: null,
     lastRenderHash: null,
     needsUpdate: false, // Force render escape hatch
     updateOverlapTick: 0,

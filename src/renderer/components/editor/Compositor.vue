@@ -13,6 +13,8 @@
           </span>
         </li>
       </ul><ul class="editor-compositor__stats__group">
+        <li :title="renderer.info.renderer">OpenGL</li>
+      </ul><ul class="editor-compositor__stats__group">
         <li title="Pin Constraints"><b>{{ simulation.pinConstraintCount || '-' }}</b> pns</li>
         <li title="Local Constraints"><b>{{ simulation.localConstraintCount || '-' }}</b> lcs</li>
         <li title="Forces"><b>{{ simulation.forcesCount || '-' }}</b> frcs</li>

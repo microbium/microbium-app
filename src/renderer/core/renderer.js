@@ -63,8 +63,11 @@ export function createRenderer (tasks, state) {
     ? createGlLogger(regl._gl)
     : null
 
+  const info = getGpuInfo(regl._gl)
+  state.renderer.info = info
+
   if (DEBUG_LOG_GPU) {
-    console.log('gpu', getGpuInfo(regl._gl))
+    console.log('gpu', info)
   }
 
   tasks.defer((containers) => {
@@ -80,6 +83,7 @@ export function createRenderer (tasks, state) {
 
   return {
     regl,
+    info,
     canvas,
     textures,
     postBuffers,
