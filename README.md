@@ -8,6 +8,7 @@
 ## App Downloads
 
 **[v1.0.0-beta-2 for macOS](https://microbiumapp.com/download/v1.0.0-beta-2)** – Released Spring 2020
+
 **[v1.0.0-beta-1 for macOS](https://microbiumapp.com/download/v1.0.0-beta-1)** – Released Fall 2019
 
 
