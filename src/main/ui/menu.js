@@ -313,6 +313,14 @@ export function createMenuTemplate (app, actions) {
               }
             },
             {
+              id: 'aspect-ratio-13:19',
+              label: '13:19',
+              type: 'radio',
+              click () {
+                actions.setAspectRatio('13:19')
+              }
+            },
+            {
               id: 'aspect-ratio-16:9',
               label: '16:9',
               type: 'radio',

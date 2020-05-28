@@ -631,11 +631,9 @@ function setWindowFilePath (name, fullPath) {
   win.setRepresentedFilename(fullPath)
 }
 
-const ASPECT_RATIOS = {
-  '0:0': 0,
-  '1:1': 1,
-  '4:5': 4 / 5,
-  '16:9': 16 / 9
+function getAspect (aspectName) {
+  const [aw, ah] = aspectName.split(':')
+  return ah === 0 ? 0 : (aw / ah)
 }
 
 // TODO: Ensure resized window fits within screen
@@ -643,7 +641,7 @@ function setWindowAspectRatio (name, aspectName) {
   const win = appWindows[name]
   if (!win) return
 
-  const aspect = ASPECT_RATIOS[aspectName]
+  const aspect = getAspect(aspectName)
   store.set(`window.${name}.aspect`, aspectName)
 
   if (aspectName === '0:0') {
@@ -664,7 +662,7 @@ function restoreWindowAspect (name) {
   if (!win) return
 
   const aspectName = store.get(`window.${name}.aspect`) || '0:0'
-  const aspect = ASPECT_RATIOS[aspectName]
+  const aspect = getAspect(aspectName)
 
   win.setAspectRatio(aspect)
   setMenuState(`aspect-ratio-${aspectName}`, 'checked', true)
