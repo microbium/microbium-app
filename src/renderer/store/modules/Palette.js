@@ -318,6 +318,7 @@ export function createControlsState () {
     camera: {
       enabled: false,
       stereoEnabled: false,
+      fov: 110,
       polarAngle: 0,
       polarOffset: 20,
       depthOffset: 20,

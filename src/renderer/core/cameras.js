@@ -36,7 +36,7 @@ export function createCameras (tasks, state, renderer) {
     const update = () => {
     }
 
-    const resize = (event, size) => {
+    const updateProjection = (size) => {
       const w = size[0] / 4
       const h = size[1] / 4
       mat4.ortho(projection, -w, w, h, -h, 0, 2000)
@@ -49,7 +49,7 @@ export function createCameras (tasks, state, renderer) {
       shouldAdjustThickness: true,
       setup,
       update,
-      resize
+      updateProjection
     }
   })()
 
@@ -131,10 +131,17 @@ export function createCameras (tasks, state, renderer) {
       updateEye()
     }
 
-    const resize = (event, size) => {
+    // TODO: Add tween to fov change
+    let currentAspect = null
+    let currentFov = null
+    const updateProjection = (size, fov) => {
       const aspect = size[0] / size[1]
-      const fov = Math.PI * 0.6
-      mat4.perspective(projection, fov, aspect, 0.01, 10000)
+      const fovRads = fov / 180 * Math.PI
+      if (currentAspect === aspect && currentFov === fov) return
+
+      currentAspect = aspect
+      currentFov = fov
+      mat4.perspective(projection, fovRads, aspect, 0.01, 10000)
     }
 
     return {
@@ -144,7 +151,7 @@ export function createCameras (tasks, state, renderer) {
       shouldAdjustThickness: false,
       setup,
       update,
-      resize
+      updateProjection
     }
   })()
 
@@ -157,9 +164,16 @@ export function createCameras (tasks, state, renderer) {
 
   tasks.add((event) => {
     const { size } = state.viewport
-    sceneOrtho.resize(event, size)
-    scenePerspective.resize(event, size)
+    const { fov } = state.controls.camera
+    sceneOrtho.updateProjection(size)
+    scenePerspective.updateProjection(size, fov)
   }, 'resize')
+
+  tasks.registerResponder('cameras.updateProjection', null, () => {
+    const { size } = state.viewport
+    const { fov } = state.controls.camera
+    scenePerspective.updateProjection(size, fov)
+  })
 
   tasks.registerResponder('cameras.scene', null, () => {
     return getActiveCamera()

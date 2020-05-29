@@ -5,6 +5,19 @@
       <input-checkbox slot="controls" v-model="model.enabled" />
 
       <palette-group nested open>
+        <h2 slot="title">Lens</h2>
+
+        <div class="palette-item">
+          <input-range min="30" max="170" step="0.5" v-model="model.fov" />
+          <div class="palette-item__label">
+            <b>{{ fovName }}</b> field of view
+            <palette-item-controller :min="30" :max="170" :step="0.5"
+              :model="model" prop="fov" />
+          </div>
+        </div>
+      </palette-group>
+
+      <palette-group nested open>
         <h2 slot="title">Position</h2>
 
         <div class="palette-item">
@@ -89,6 +102,11 @@ export default {
   },
 
   computed: {
+    fovName () {
+      const { fov } = this.model
+      return `${roundToPlaces(fov, 1)}°`
+    },
+
     polarAngleName () {
       const { polarAngle } = this.model
       return `${roundToPlaces(polarAngle, 1)}°`

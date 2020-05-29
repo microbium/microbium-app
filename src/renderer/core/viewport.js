@@ -184,11 +184,14 @@ export function createViewportController (tasks, state) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value
           switch (data.group) {
+            case 'camera':
+              requestSync('cameras.updateProjection')
+              state.renderer.needsUpdate = true
+              break
             case 'styles':
             case 'forces':
             case 'modifiers':
             case 'viewport':
-            case 'camera':
             case 'postEffects':
               state.renderer.needsUpdate = true
               break
