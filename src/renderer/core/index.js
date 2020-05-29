@@ -897,6 +897,7 @@ export function mountCompositor ($el, $refs, actions) {
         regl.clear(clearDepthParams)
         drawRect(clearParams)
         eyeMasks.forEach((eyeMask) => {
+          regl.clear(clearDepthParams)
           sceneCameraParams.eyeMask = eyeMask
           cameras.scene.setup(sceneCameraParams, () => {
             this.renderLines('scene', scene, sceneLinesParams, styles)
