@@ -1,3 +1,5 @@
+import Store from 'electron-store'
+
 import {
   MODE_TYPES,
   PALETTE_TYPES,
@@ -11,11 +13,13 @@ import {
 import { range } from '@renderer/utils/array'
 import { pixelRatioClamped } from '@renderer/utils/screen'
 
+const store = new Store()
+const layoutMode = store.get('window.palette.layout') ||
+  { id: 'narrow' }
+
 export function createControlsState () {
   return {
-    layoutMode: {
-      id: 'narrow'
-    },
+    layoutMode,
 
     activeMode: {
       id: 'draw'

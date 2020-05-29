@@ -322,7 +322,9 @@ function createAppActions () {
     },
 
     setPaletteLayout (id) {
-      syncPaletteLayout(id)
+      store.set('window.palette.layout', { id })
+      syncPaletteLayoutView(id)
+      syncPaletteLayoutStyles(id)
     },
 
     setAspectRatio (aspectName) {
@@ -433,7 +435,6 @@ function createMainWindow () {
 
   restoreWindowPosition('main')
   restoreWindowAspect('main')
-  restoreWindowPosition('palette')
 
   editorState.isEdited = false
   editorState.isSimRunning = false
@@ -514,6 +515,9 @@ function createPaletteWindow () {
   const onPaletteMessage = (event, data) => {
     sendWindowMessage('palette', 'message', data)
   }
+
+  restorePaletteLayoutView()
+  restoreWindowPosition('palette')
 
   palette.setTouchBar(appTouchBars.palette)
   palette.loadURL(paletteURL)
@@ -948,8 +952,7 @@ function syncActivePalette (id) {
   appTouchBars.palette.syncActivePalette(id)
 }
 
-// TODO: Preserve palette layout state
-function syncPaletteLayout (id) {
+function syncPaletteLayoutView (id) {
   const { palette } = appWindows
   if (!palette) return
 
@@ -971,9 +974,17 @@ function syncPaletteLayout (id) {
       palette.setAlwaysOnTop(false)
       break
   }
+}
 
+function syncPaletteLayoutStyles (id) {
   sendWindowMessage('palette', 'command',
     { action: 'SET_LAYOUT', id })
+}
+
+function restorePaletteLayoutView () {
+  const state = store.get('window.palette.layout')
+  if (!state) return
+  syncPaletteLayoutView(state.id)
 }
 
 function setMenuState (name, key, value) {
