@@ -66,10 +66,16 @@ export function createMenuTemplate (app, actions) {
           label: 'Export',
           submenu: [
             {
-              label: 'Still Image',
+              label: 'Image',
               accelerator: 'Cmd+Shift+E',
               click () {
                 actions.saveFrameImage()
+              }
+            },
+            {
+              label: 'HTML',
+              click () {
+                actions.exportHTML()
               }
             }
           ]
@@ -82,12 +88,6 @@ export function createMenuTemplate (app, actions) {
               label: 'JSON',
               click () {
                 actions.exportJSON()
-              }
-            },
-            {
-              label: 'HTML',
-              click () {
-                actions.exportHTML()
               }
             }
           ]

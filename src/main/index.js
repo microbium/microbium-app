@@ -214,8 +214,9 @@ function createAppActions () {
         filters: htmlTypeFilters
       }).then(({ filePath }) => {
         if (!filePath) return
+        const openScenePath = store.get('openScenePath')
         requestWindowResponse('main', 'serialize-scene', { path: filePath })
-          .then((data) => exportSceneHTML(filePath, data))
+          .then((data) => exportSceneHTML(openScenePath, filePath, data))
       })
     },
 

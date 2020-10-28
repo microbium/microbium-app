@@ -1,4 +1,5 @@
 import {
+  mkdir,
   copyFile,
   readFile,
   writeFile
@@ -16,6 +17,7 @@ import { version } from '@root/package.json'
 const TEMPLATE_SRC = 'exporter-templates/html.ejs'
 const API_VERSION = version
 const PEP_VERSION = '0.4.3'
+const { HOME } = process.env
 
 const cachedTemplates = {}
 function getTemplate (srcPath) {
@@ -31,24 +33,26 @@ function toTitleCase (str) {
     (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
 }
 
-function resolveDataAssets (destPath, sceneData) {
+function resolveDataAssets (scenePath, destPath, sceneData) {
   const { controls } = sceneData
   const textureAssetFiles = []
   const exportedAssets = {}
+  const assetsPath = pathJoin(dirname(destPath), '/assets')
 
   textureAssetFiles.push(controls.postEffects.lut.textureFile)
   controls.styles.forEach((style) => {
     textureAssetFiles.push(style.lineAlphaMapFile, style.fillAlphaMapFile)
   })
 
-  const assetResolutions = textureAssetFiles.map((textureFile) => {
+  const resolveAssets = () => textureAssetFiles.map((textureFile) => {
     if (!textureFile) return null
 
     const srcName = textureFile.name
     const srcPath = textureFile.path
+      .replace('../../', `${HOME}/`) // FIXME ... Why?
 
     const exportPath = `${srcName}`
-    const assetDestPath = pathJoin(dirname(destPath), exportPath)
+    const assetDestPath = pathJoin(assetsPath, exportPath)
     textureFile.path = exportPath
 
     if (exportedAssets[srcPath] != null) return
@@ -57,14 +61,14 @@ function resolveDataAssets (destPath, sceneData) {
     return copyFile(srcPath, assetDestPath)
   }).filter(Boolean)
 
-  return Promise.all(assetResolutions).then(() => {
-    return sceneData
-  })
+  return mkdir(assetsPath, { recursive: true })
+    .then(() => Promise.all(resolveAssets()))
+    .then(() => sceneData)
 }
 
-export function exportSceneHTML (destPath, sceneData) {
+export function exportSceneHTML (scenePath, destPath, sceneData) {
   return Promise.all([
-    resolveDataAssets(destPath, sceneData),
+    resolveDataAssets(scenePath, destPath, sceneData),
     getTemplate(TEMPLATE_SRC)
   ]).then(([resolvedSceneData, template]) => {
     const subTitle = toTitleCase(
