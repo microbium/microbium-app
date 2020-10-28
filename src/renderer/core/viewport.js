@@ -183,6 +183,10 @@ export function createViewportController (tasks, state) {
       switch (data.type) {
         case 'UPDATE_CONTROLS':
           state.controls[data.group] = data.value
+          state.controls._paletteDidUpdate = true
+          setTimeout(() => {
+            state.controls._paletteDidUpdate = false
+          }, 1)
           switch (data.group) {
             case 'camera':
               requestSync('cameras.updateProjection')

@@ -148,6 +148,7 @@ export default {
   props: {
     observeMessage: Function,
     sendMessage: Function,
+    updateControls: Function,
     updateCursor: Function
   },
 
@@ -184,6 +185,8 @@ export default {
     this.simulation = state.simulation
     this.viewport = state.viewport
     this.controls = state.controls
+
+    this.updateControls(state.controls)
   },
 
   watch: {

@@ -18,8 +18,7 @@
             :styles="controls.styles"
             :constraints="controls.constraintGroups"
             :controllers="controllers"
-            :inputModTypes="params.inputModTypes"
-            :physicsTypes="params.physicsTypes" />
+            :inputModTypes="params.inputModTypes" />
         </palette-section>
 
         <palette-section :hidden="!showViewportPanel && !isWideLayout"

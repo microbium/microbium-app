@@ -183,7 +183,6 @@ export default {
     styles: Array,
     constraints: Array,
     inputModTypes: Array,
-    physicsTypes: Array,
     controllers: Object
   },
 

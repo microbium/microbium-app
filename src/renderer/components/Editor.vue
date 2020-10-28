@@ -9,6 +9,11 @@
           {{ fileName }}
         </span>
       </div>
+      <div class="editor-toolbar__tool" v-if="hasControls">
+        <editor-quick-tool :model="controls.lineTool"
+          :styles="controls.styles"
+          :constraints="controls.constraintGroups" />
+      </div>
     </div>
     <div class="editor__scene"
       v-on:mouseenter="mouseEnterScene"
@@ -16,6 +21,7 @@
       <editor-compositor
         :observeMessage="observeMessage"
         :sendMessage="sendMessage"
+        :updateControls="updateControls"
         :updateCursor="updateCursor" />
       <editor-cursor v-if="cursorIsActive"
         :visible="hasMouse"
@@ -26,9 +32,15 @@
 
 <style lang="scss">
 .editor {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
   background: #222;
   color: #444;
   animation: fadein 300ms;
@@ -63,7 +75,7 @@
 
   &__title {
     position: relative;
-    margin: 0 auto;
+    margin: 3px auto;
     padding: 11px 0;
     width: 240px;
 
@@ -71,6 +83,14 @@
     font-size: #{(14 / 13)}em;
     text-align: center;
     cursor: default;
+  }
+
+  &__tool {
+    position: absolute;
+    top: 0;
+    left: 50px;
+
+    -webkit-app-region: no-drag;
   }
 
   &__close {
@@ -124,6 +144,7 @@ import { logger } from '@renderer/utils/logger'
 
 import EditorCompositor from './editor/Compositor'
 import EditorCursor from './editor/Cursor'
+import EditorQuickTool from './editor/QuickTool'
 
 const DEBUG_DISABLE_FOCUS = true
 
@@ -132,7 +153,8 @@ export default {
 
   components: {
     EditorCompositor,
-    EditorCursor
+    EditorCursor,
+    EditorQuickTool
   },
 
   data () {
@@ -143,12 +165,19 @@ export default {
       hasMouse: false,
       cursorIsActive: false,
       cursorData: null,
+      hasControls: false,
+      controls: null,
       toolbarIsHidden: false,
       sceneIsEdited: false
     }
   },
 
   created () {
+    this._isSettingUp = true
+    setTimeout(() => {
+      this._isSettingUp = false
+    }, 1)
+
     this.bindEvents()
     this.resize()
   },
@@ -234,6 +263,11 @@ export default {
       this.hasMouse = false
     },
 
+    updateControls (controls) {
+      this.hasControls = true
+      this.controls = controls
+    },
+
     // TODO: Hide cursor on mouseleave
     updateCursor (isActive, data) {
       this.cursorIsActive = isActive
@@ -242,6 +276,18 @@ export default {
 
     close () {
       this.sendMessage('close-window', { name: 'main' })
+    },
+
+    // OPTIM: Improve syncing controls
+    syncControls (group, value) {
+      console.log('syncControls', this.controls._paletteDidUpdate, this._isSettingUp)
+      if (this.controls._paletteDidUpdate || this._isSettingUp) return
+      const target = this._menuDidUpdateControls ? 'palette' : 'palette+menu'
+      this.sendMessage(`${target}-message`, {
+        type: 'UPDATE_CONTROLS',
+        group,
+        value
+      })
     }
   },
 
@@ -276,6 +322,22 @@ export default {
             break
         }
       }
+    }
+  },
+
+  watch: {
+    'controls.lineTool.styleIndex': createStateSyncer('lineTool'),
+    'controls.lineTool.constraintIndex': createStateSyncer('lineTool')
+  }
+}
+
+// OPTIM: Make sycing watchers more granular
+function createStateSyncer (name) {
+  return {
+    deep: true,
+    handler () {
+      const value = this.controls[name]
+      this.syncControls(name, value)
     }
   }
 }
