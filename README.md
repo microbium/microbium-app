@@ -7,9 +7,9 @@
 
 ## Videos
 
-[Ambient Microbium worlds - GitHub Universe 2020](https://www.youtube.com/watch?v=XRV0yRLiC1g) – Audio + video performance
+[**Ambient Microbium worlds** - GitHub Universe 2020](https://www.youtube.com/watch?v=XRV0yRLiC1g) – Audio + video performance
 
-[Create kinetic simulations with Microbium - GitHub Universe 2020](https://www.youtube.com/watch?v=RJtifEJ7mpE) – Short technical overview and tutorial
+[**Create kinetic simulations with Microbium** - GitHub Universe 2020](https://www.youtube.com/watch?v=RJtifEJ7mpE) – Short technical overview and tutorial
 
 
 ## App Downloads
