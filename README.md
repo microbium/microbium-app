@@ -5,6 +5,13 @@
 ![Microbium](./screen_shots/screen_shot_04.jpg)
 
 
+## Videos
+
+[Ambient Microbium worlds - GitHub Universe 2020](https://www.youtube.com/watch?v=XRV0yRLiC1g) – Audio + video performance
+
+[Create kinetic simulations with Microbium - GitHub Universe 2020](https://www.youtube.com/watch?v=RJtifEJ7mpE) – Short technical overview and tutorial
+
+
 ## App Downloads
 
 **[v1.0.0-beta-2 for macOS](https://microbiumapp.com/download/v1.0.0-beta-2)** – Released Spring 2020
@@ -14,7 +21,7 @@
 
 ## License
 
-Microbium (c) 2017-2020 by Jay Weeks
+Microbium (c) 2017-2021 by Jay Weeks
 
 Microbium is licensed under a
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
