@@ -21,7 +21,7 @@
 
 ## License
 
-Microbium (c) 2017-2021 by Jay Weeks
+Microbium (c) 2017-2025 by Ash Weeks
 
 Microbium is licensed under a
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
